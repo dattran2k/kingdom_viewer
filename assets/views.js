@@ -7,7 +7,7 @@ const KS = window.KS, { state, tr, $, numFmt } = KS;
 
 Object.assign(KS.T.vi, {
   mPlayers: "Người chơi", mAlliances: "Liên minh", mChart: "Biểu đồ",
-  kPlayers: "Người chơi", kAlliances: "liên minh", kAvg: "TB", kGather: "Thu thập (4 loại)",
+  kPlayers: "Người chơi", kAlliances: "liên minh", kAvg: "TB",
   aTag: "Liên minh", aMembers: "Thành viên", aPower: "Lực chiến", aAvgPower: "LC TB", aTop: "Mạnh nhất",
   aPowerMax: "LC max", aMerits: "Công trạng", aMeritRatio: "CT / LC max", aKills: "Tiêu diệt", aDeaths: "Tử trận",
   aHeals: "Chữa lính", aHelps: "Giúp đỡ", aGather: "Thu thập", aMigration: "Điểm di cư TB", aShare: "Tỷ trọng lực chiến",
@@ -18,7 +18,7 @@ Object.assign(KS.T.vi, {
 });
 Object.assign(KS.T.en, {
   mPlayers: "Players", mAlliances: "Alliances", mChart: "Chart",
-  kPlayers: "Players", kAlliances: "alliances", kAvg: "avg", kGather: "Gathered (4 kinds)",
+  kPlayers: "Players", kAlliances: "alliances", kAvg: "avg",
   aTag: "Alliance", aMembers: "Members", aPower: "Power", aAvgPower: "Avg power", aTop: "Strongest",
   aPowerMax: "Highest power", aMerits: "Merits", aMeritRatio: "Merits / highest power", aKills: "Kills",
   aDeaths: "Deaths", aHeals: "Heals", aHelps: "Helps", aGather: "Gathered", aMigration: "Avg migration score",
@@ -50,8 +50,6 @@ const KPIS = [
   { key: "kills", label: () => KS.label(KS.BY_KEY.kills), get: (p) => p.kills },
   { key: "deaths", label: () => KS.label(KS.BY_KEY.deaths), get: (p) => p.deaths },
   { key: "heals", label: () => KS.label(KS.BY_KEY.heals), get: (p) => p.heals },
-  { key: "helps", label: () => KS.label(KS.BY_KEY.helps), get: (p) => p.helps },
-  { key: "gather", label: () => tr("kGather"), get: gathered },
 ];
 
 function drawKpis() {

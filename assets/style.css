@@ -62,6 +62,11 @@ input:focus-visible, select:focus-visible, button:focus-visible, .grid:focus-vis
 
 /* totals strip: one row of figures split by thin rules */
 .kpis { display: flex; flex-wrap: wrap; background: var(--bg); border-bottom: 1px solid var(--line); }
+.kpis[hidden] { display: none; }
+.modes .kpi-tog { display: inline-flex; align-items: center; gap: 4px; font-weight: 500; }
+.modes .kpi-tog::after { content: ""; width: 6px; height: 6px; border: solid currentColor; border-width: 0 1.5px 1.5px 0;
+  transform: translateY(-2px) rotate(45deg); transition: transform .15s; }
+.modes .kpi-tog[aria-expanded="true"]::after { transform: translateY(1px) rotate(-135deg); }
 .kpi { flex: 1 0 118px; display: flex; flex-direction: column; gap: 1px; padding: 8px 14px; min-width: 0;
   box-shadow: 1px 0 0 var(--line), 0 1px 0 var(--line); /* rules that still line up when the strip wraps */ }
 .kpi.lead { flex-basis: 130px; }
@@ -169,11 +174,24 @@ input:focus-visible, select:focus-visible, button:focus-visible, .grid:focus-vis
 
 .foot { padding: 6px 16px; font-size: 11px; border-top: 1px solid var(--line); background: var(--panel); }
 
+/* a phone: the table gets the room. Header on 3 short lines (no title text), tabs + list size on one line,
+   smaller totals, no footer */
 @media (max-width: 640px) {
-  .bar { padding: 8px 16px; }
-  .meta { margin-left: 0; padding: 4px 0 6px; width: 100%; }
+  .bar { padding: 6px 16px; gap: 6px; }
+  .brand { margin: 0; }
+  .brand > span:last-child { display: none; }
+  .field.grow { flex-basis: 120px; }
+  select, input[type="search"], .btn { height: 30px; }
+  select { max-width: 150px; padding: 0 6px; }
+  .btn { padding: 0 9px; }
+  .btn.icon { width: 30px; }
+  .modes { padding: 0 8px; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .modes button { padding: 7px 7px 5px; white-space: nowrap; }
+  .meta { flex-direction: column; gap: 0; margin-left: auto; padding: 2px 0; font-size: 11px; text-align: right; white-space: nowrap; }
+  .kpi { flex: 1 0 33%; padding: 5px 10px; }
+  .kpi.lead { flex-basis: 33%; }
+  .k-v { font-size: 15px; }
+  .k-l, .k-a { font-size: 10px; }
   .bars li { grid-template-columns: minmax(90px, 40%) 1fr 64px; }
-  .brand { width: 100%; }
-  select { max-width: 140px; }
-  .tools { width: 100%; }
+  .foot { display: none; }
 }
