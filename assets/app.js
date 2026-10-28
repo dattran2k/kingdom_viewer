@@ -10,6 +10,7 @@ const T = {
     allAlliances: "Mọi liên minh", noAlliance: "Không liên minh", columns: "Cột", theme: "Đổi giao diện sáng/tối",
     fmtTip: "Số gọn (1.2M) / số đầy đủ", pickCols: "Chọn cột hiển thị", filterCols: "Lọc cột…", all: "Tất cả",
     none: "Bỏ hết", defaults: "Mặc định", players: "người", of: "/", crawled: "Thu thập", loading: "Đang tải…",
+    kpiBtn: "Tổng quan", kpiTip: "Ẩn / hiện dải tổng số + trung bình",
     heat: "± TB", heatTip: "Tô màu: cao hơn (xanh) / thấp hơn (đỏ) trung bình cột, trong danh sách đang lọc",
     noRows: "Không có người chơi nào khớp.", minPower: "Lực chiến", loadErr: "Không tải được dữ liệu.", noData: "Chưa có kingdom nào trong data/.", noIndex: "Không đọc được data/kingdoms.json.",
     fileUrl: "Trang cần chạy qua web (GitHub Pages). Trên máy: mở terminal TRONG thư mục chứa index.html, chạy python -m http.server 8000 --bind 127.0.0.1 rồi mở http://localhost:8000/. Mở thẳng file index.html thì trình duyệt không cho đọc dữ liệu.",
@@ -20,6 +21,7 @@ const T = {
     allAlliances: "All alliances", noAlliance: "No alliance", columns: "Columns", theme: "Light / dark",
     fmtTip: "Compact (1.2M) / full numbers", pickCols: "Columns", filterCols: "Filter columns…", all: "All",
     none: "None", defaults: "Defaults", players: "players", of: "/", crawled: "Collected", loading: "Loading…",
+    kpiBtn: "Summary", kpiTip: "Show / hide the totals and averages strip",
     heat: "± avg", heatTip: "Colour: above (green) / below (red) the column average, over the players listed",
     noRows: "No player matches.", minPower: "Power", loadErr: "Could not load the data.", noData: "No kingdom in data/ yet.", noIndex: "Could not read data/kingdoms.json.",
     fileUrl: "Open this page through a web server (GitHub Pages). Locally: in a terminal IN the folder that holds index.html, run python -m http.server 8000 --bind 127.0.0.1, then open http://localhost:8000/. Opened straight from the disk, the browser does not let it read its data.",
@@ -45,10 +47,12 @@ const state = {
   lang: store.get("lang", navigator.language?.startsWith("vi") ? "vi" : "en"),
   compact: store.get("compact", true),
   shown: new Set(store.get("cols", DEFAULT_COLS).filter((k) => BY_KEY[k])),
-  sort: { key: "rank", dir: 1 },
+  sort: { key: "powerMax", dir: -1 }, // default: highest power ever, top first
   data: null, rows: [], view: [], cols: [], alliance: "", q: "",
   minPower: POWER_STEPS.includes(store.get("minPower")) ? store.get("minPower") : POWER_STEPS[0],
   list: [], mode: "players", heat: store.get("heat", false), avg: {}, avgVer: 0,
+  // a phone: the totals strip starts hidden, the name column is narrower
+  narrow: matchMedia("(max-width: 640px)").matches,
 };
 const MODES = ["players", "alliances", "chart"];
 COLUMNS.filter((c) => c.fixed).forEach((c) => state.shown.add(c.key));
@@ -238,8 +242,12 @@ function refresh() {
   });
   state.view = keyed.map((k) => k[1]);
   if (state.heat) averages();
-  $("count").textContent = `${numFmt().format(state.view.length)} ${tr("of")} ${numFmt().format(state.rows.length)} ${tr("players")}`;
-  $("crawled").textContent = state.data ? `${tr("crawled")}: ${new Date(state.data.crawledAt).toLocaleString(state.lang === "vi" ? "vi-VN" : "en-GB")}` : "";
+  const n = numFmt(), at = state.data && new Date(state.data.crawledAt), loc = state.lang === "vi" ? "vi-VN" : "en-GB";
+  // a phone: "202/202" and the date only, beside the view tabs
+  $("count").textContent = state.narrow ? `${n.format(state.view.length)}/${n.format(state.rows.length)}`
+    : `${n.format(state.view.length)} ${tr("of")} ${n.format(state.rows.length)} ${tr("players")}`;
+  $("crawled").textContent = !at ? "" : state.narrow ? at.toLocaleDateString(loc) : `${tr("crawled")}: ${at.toLocaleString(loc)}`;
+  $("crawled").title = at ? at.toLocaleString(loc) : "";
   if (!state.view.length) showEmpty(state.data ? tr("noRows") : tr("loadErr"));
   else $("empty").hidden = true;
   $("sizer").style.height = `calc(var(--hh) + ${state.view.length} * var(--rh))`;
@@ -296,11 +304,11 @@ function textWidth(text, font) {
   return measure.measureText(text).width;
 }
 function fitWidths() {
-  const key = `${state.data?.kingdom}|${state.compact}|${state.lang}`;
+  const key = `${state.data?.kingdom}|${state.compact}|${state.lang}|${state.narrow}`;
   if (key !== fitKey) { fitKey = key; fitted = new Map(); }
   const family = getComputedStyle(document.body).fontFamily;
   for (const c of state.cols) {
-    if (c.key === "name") { c.w = c.width; continue; }
+    if (c.key === "name") { c.w = state.narrow ? Math.min(c.width, 120) : c.width; continue; }
     let w = fitted.get(c.key);
     if (w === undefined) {
       // header: bold 12px + the sort arrow's room (10px + 4px gap); values: bold 13px (the top 3 rows are bold)
@@ -611,7 +619,16 @@ function init() {
     $("heatBtn").setAttribute("aria-pressed", String(state.heat));
     if (state.data) refresh();
   };
-  document.querySelectorAll("#modes button").forEach((b) => (b.onclick = () => setMode(b.dataset.mode)));
+  document.querySelectorAll("#modes button[data-mode]").forEach((b) => (b.onclick = () => setMode(b.dataset.mode)));
+  // the totals strip: shown or not is kept per device kind (a phone has little room for it)
+  const kpiKey = state.narrow ? "kpisPhone" : "kpis";
+  const showKpis = (on) => {
+    $("kpis").hidden = !on;
+    $("kpiBtn").setAttribute("aria-expanded", String(on));
+    rowH = 0; drawn = ""; schedule(); // the table got taller or shorter
+  };
+  showKpis(store.get(kpiKey, !state.narrow));
+  $("kpiBtn").onclick = () => { const on = $("kpis").hidden; store.set(kpiKey, on); showKpis(on); };
   // scroll events already come once a frame: drawing right away leaves no blank rows behind a fast scroll
   $("grid").addEventListener("scroll", render, { passive: true });
   // a row's two halves (main + pinned) light up together
@@ -624,7 +641,11 @@ function init() {
     if (m) { m.classList.add("hov"); m._pin.classList.add("hov"); }
   });
   $("body").addEventListener("mouseleave", () => { if (hov) { hov.classList.remove("hov"); hov._pin.classList.remove("hov"); hov = null; } });
-  addEventListener("resize", () => { rowH = 0; drawn = ""; schedule(); });
+  addEventListener("resize", () => {
+    const narrow = matchMedia("(max-width: 640px)").matches;
+    if (narrow !== state.narrow) { state.narrow = narrow; if (state.data) refresh(); }
+    rowH = 0; drawn = ""; schedule();
+  });
   let qt = 0;
   $("q").addEventListener("input", (e) => { clearTimeout(qt); qt = setTimeout(() => { state.q = e.target.value; $("grid").scrollTop = 0; refresh(); }, 120); });
   $("alliance").onchange = (e) => { state.alliance = e.target.value; $("grid").scrollTop = 0; refresh(); };

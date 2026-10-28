@@ -7,7 +7,7 @@
 <meta name="description" content="Player statistics per kingdom: power, merits, kills, achievements, gathering.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%23e0a526' d='M2 13h12v2H2zM2 5l3 3 3-5 3 5 3-3-1 7H3z'/%3E%3C/svg%3E">
 <!-- ?v=N: bump it when assets/ change, so a cached old file (GitHub Pages: 10 min) is not mixed with new ones -->
-<link rel="stylesheet" href="assets/style.css?v=22">
+<link rel="stylesheet" href="assets/style.css?v=26">
 </head>
 <body>
 <header class="bar">
@@ -34,6 +34,7 @@
   <button type="button" data-mode="players" data-i18n="mPlayers">Người chơi</button>
   <button type="button" data-mode="alliances" data-i18n="mAlliances">Liên minh</button>
   <button type="button" data-mode="chart" data-i18n="mChart">Biểu đồ</button>
+  <button type="button" id="kpiBtn" class="kpi-tog" aria-controls="kpis" aria-expanded="true" data-i18n-title="kpiTip"><span data-i18n="kpiBtn">Tổng quan</span></button>
   <span class="meta"><span id="count"></span><span id="crawled" class="mut"></span></span>
 </nav>
 <div id="kpis" class="kpis"></div>
@@ -63,8 +64,8 @@
 </dialog>
 
 <footer class="foot mut" data-i18n="footer"></footer>
-<script defer src="assets/columns.js?v=22"></script>
-<script defer src="assets/app.js?v=22"></script>
-<script defer src="assets/views.js?v=22"></script>
+<script defer src="assets/columns.js?v=26"></script>
+<script defer src="assets/app.js?v=26"></script>
+<script defer src="assets/views.js?v=26"></script>
 </body>
 </html>
