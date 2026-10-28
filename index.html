@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kingdom Stats</title>
+<meta name="description" content="Player statistics per kingdom: power, merits, kills, achievements, gathering.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%23e0a526' d='M2 13h12v2H2zM2 5l3 3 3-5 3 5 3-3-1 7H3z'/%3E%3C/svg%3E">
+<!-- ?v=N: bump it when assets/ change, so a cached old file (GitHub Pages: 10 min) is not mixed with new ones -->
+<link rel="stylesheet" href="assets/style.css?v=22">
+</head>
+<body>
+<header class="bar">
+  <h1 class="brand"><span class="crown" aria-hidden="true"></span><span data-i18n="title">Kingdom Stats</span></h1>
+  <label class="field"><span class="sr" data-i18n="kingdom">Kingdom</span>
+    <select id="kingdom" aria-label="Kingdom"></select></label>
+  <label class="field" hidden><span class="sr" data-i18n="scan">Scan</span>
+    <select id="scan" aria-label="Scan"></select></label>
+  <label class="field grow"><span class="sr" data-i18n="search">Search</span>
+    <input id="q" type="search" autocomplete="off" data-i18n-ph="searchPh"></label>
+  <label class="field"><span class="sr" data-i18n="alliance">Alliance</span>
+    <select id="alliance" aria-label="Alliance"></select></label>
+  <label class="field"><span class="sr" data-i18n="minPower">Power</span>
+    <select id="minPower" aria-label="Power"></select></label>
+  <div class="tools">
+    <button id="colsBtn" class="btn" type="button"><span data-i18n="columns">Cột</span> <b id="colsCount" class="pill"></b></button>
+    <button id="fmtBtn" class="btn" type="button" aria-pressed="true" data-i18n-title="fmtTip">1.2M</button>
+    <button id="heatBtn" class="btn" type="button" aria-pressed="false" data-i18n="heat" data-i18n-title="heatTip">± TB</button>
+    <button id="langBtn" class="btn" type="button">EN</button>
+    <button id="themeBtn" class="btn icon" type="button" data-i18n-title="theme" aria-label="Theme">◐</button>
+  </div>
+</header>
+<nav id="modes" class="modes" aria-label="View">
+  <button type="button" data-mode="players" data-i18n="mPlayers">Người chơi</button>
+  <button type="button" data-mode="alliances" data-i18n="mAlliances">Liên minh</button>
+  <button type="button" data-mode="chart" data-i18n="mChart">Biểu đồ</button>
+  <span class="meta"><span id="count"></span><span id="crawled" class="mut"></span></span>
+</nav>
+<div id="kpis" class="kpis"></div>
+<main id="grid" class="grid" tabindex="0" aria-label="Players">
+  <div id="sizer" class="sizer">
+    <div id="head" class="head" role="row"></div>
+    <div id="body" class="body"></div>
+  </div>
+  <p id="empty" class="empty" hidden></p>
+</main>
+<section id="panel" class="panel" hidden></section>
+
+<dialog id="cols" class="dlg">
+  <form method="dialog" class="dlg-in">
+    <div class="dlg-top">
+      <h2><span data-i18n="pickCols">Chọn cột hiển thị</span> <b id="colsCount2" class="pill"></b></h2>
+      <button class="btn icon" value="close" aria-label="Close">✕</button>
+    </div>
+    <input id="colsQ" type="search" autocomplete="off" data-i18n-ph="filterCols">
+    <div class="dlg-acts">
+      <button type="button" class="chip" data-act="all" data-i18n="all">Tất cả</button>
+      <button type="button" class="chip" data-act="none" data-i18n="none">Bỏ hết</button>
+      <button type="button" class="chip" data-act="def" data-i18n="defaults">Mặc định</button>
+    </div>
+    <div id="colsList" class="cols-list"></div>
+  </form>
+</dialog>
+
+<footer class="foot mut" data-i18n="footer"></footer>
+<script defer src="assets/columns.js?v=22"></script>
+<script defer src="assets/app.js?v=22"></script>
+<script defer src="assets/views.js?v=22"></script>
+</body>
+</html>

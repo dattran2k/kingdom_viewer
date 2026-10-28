@@ -1,0 +1,179 @@
+:root {
+  --bg: #f6f5f1; --panel: #ffffff; --panel2: #f0eee8; --fg: #1d1c1a; --mut: #6f6a60; --line: #e3dfd5;
+  --acc: #b57a00; --acc-bg: #fff3d6; --row-alt: #faf9f6; --hover: #fff7e3; --pin: #ffffff; --shadow: 0 8px 30px rgba(0,0,0,.12);
+  --up: #1f7a45; --down: #b3261e;
+  --rh: 34px; --hh: 36px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1218; --panel: #161a22; --panel2: #1c212b; --fg: #e6e3dc; --mut: #8d93a0; --line: #262c38;
+    --acc: #f0b429; --acc-bg: #3a2e12; --row-alt: #131720; --hover: #232a36; --pin: #161a22; --shadow: 0 8px 30px rgba(0,0,0,.5);
+    --up: #5fd08a; --down: #ff8a80;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1218; --panel: #161a22; --panel2: #1c212b; --fg: #e6e3dc; --mut: #8d93a0; --line: #262c38;
+  --acc: #f0b429; --acc-bg: #3a2e12; --row-alt: #131720; --hover: #232a36; --pin: #161a22; --shadow: 0 8px 30px rgba(0,0,0,.5);
+  --up: #5fd08a; --down: #ff8a80;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg); display: flex; flex-direction: column;
+  font: 13px/1.4 "Segoe UI", system-ui, -apple-system, Roboto, "Segoe UI Symbol", "Malgun Gothic", "Microsoft YaHei",
+    "Yu Gothic", "Apple SD Gothic Neo", "PingFang SC", "Noto Sans CJK SC", sans-serif; /* names: Hangul, Han, kana */ overflow: hidden;
+}
+button, input, select { font: inherit; color: inherit; }
+.mut { color: var(--mut); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+/* top bar */
+.bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 10px 16px; background: var(--panel); border-bottom: 1px solid var(--line); }
+.brand { display: flex; align-items: center; gap: 8px; margin: 0 8px 0 0; font-size: 16px; font-weight: 700; letter-spacing: .02em; white-space: nowrap; }
+.crown { width: 18px; height: 18px; background: var(--acc); clip-path: polygon(0 85%, 100% 85%, 100% 100%, 0 100%, 0 80%, 0 25%, 25% 50%, 50% 5%, 75% 50%, 100% 25%, 100% 80%, 0 80%); }
+.field { display: flex; }
+.field[hidden] { display: none; }
+.field.grow { flex: 1 1 200px; }
+select, input[type="search"] {
+  height: 32px; padding: 0 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel2); min-width: 0; width: 100%;
+}
+select { width: auto; max-width: 200px; cursor: pointer; }
+input:focus-visible, select:focus-visible, button:focus-visible, .grid:focus-visible { outline: 2px solid var(--acc); outline-offset: 1px; }
+.tools { display: flex; gap: 6px; flex-wrap: wrap; }
+.btn {
+  height: 32px; padding: 0 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel2);
+  cursor: pointer; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+}
+.btn:hover { border-color: var(--acc); }
+.btn.icon { width: 32px; padding: 0; justify-content: center; }
+.btn[aria-pressed="false"] { color: var(--mut); }
+.pill { font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 999px; background: var(--acc-bg); color: var(--acc); }
+.meta { display: flex; gap: 12px; margin-left: auto; padding: 0 0 0 12px; font-size: 12px; align-self: center; flex-wrap: wrap; }
+
+/* view switch: underlined tabs on one line with the list size */
+.modes { display: flex; align-items: stretch; gap: 2px; padding: 0 16px; background: var(--panel); border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.modes button { border: 0; background: none; padding: 9px 12px 7px; cursor: pointer; color: var(--mut); font-weight: 600; border-bottom: 2px solid transparent; }
+.modes button:hover { color: var(--fg); }
+.modes button[aria-pressed="true"] { color: var(--fg); border-bottom-color: var(--acc); }
+
+/* totals strip: one row of figures split by thin rules */
+.kpis { display: flex; flex-wrap: wrap; background: var(--bg); border-bottom: 1px solid var(--line); }
+.kpi { flex: 1 0 118px; display: flex; flex-direction: column; gap: 1px; padding: 8px 14px; min-width: 0;
+  box-shadow: 1px 0 0 var(--line), 0 1px 0 var(--line); /* rules that still line up when the strip wraps */ }
+.kpi.lead { flex-basis: 130px; }
+.k-l { font-size: 11px; color: var(--mut); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.k-v { font-size: 18px; font-variant-numeric: tabular-nums; line-height: 1.25; }
+.kpi.lead .k-v { color: var(--acc); }
+.k-a { font-size: 11px; color: var(--mut); font-variant-numeric: tabular-nums; }
+
+/* above / below the column average (the "± avg" button): text colour only */
+.c.hi { color: var(--up); }
+.c.lo { color: var(--down); }
+
+/* alliances / chart */
+.panel { flex: 1; overflow: auto; padding: 12px 16px 24px; background: var(--bg); }
+.hint { margin: 0 0 8px; font-size: 12px; }
+.tbl-wrap { overflow: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
+.tbl { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+.tbl th { position: sticky; top: 0; background: var(--panel2); font-size: 12px; font-weight: 700; text-align: left; padding: 9px 10px; cursor: pointer; white-space: nowrap; user-select: none; border-bottom: 1px solid var(--line); }
+.tbl th:hover, .tbl th.on { color: var(--acc); }
+.tbl th::after { content: "▼"; display: inline-block; width: 10px; font-size: 10px; margin-left: 3px; visibility: hidden; }
+.tbl th.on::after { content: attr(data-dir); visibility: visible; }
+.tbl td { padding: 7px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; position: relative; max-width: 180px; overflow: hidden; text-overflow: ellipsis; }
+.tbl tbody tr { cursor: pointer; content-visibility: auto; contain-intrinsic-size: auto 33px; }
+.tbl tbody tr:nth-child(even) { background: var(--row-alt); }
+.tbl tbody tr:hover { background: var(--hover); }
+.tbl tbody tr.sel { box-shadow: inset 3px 0 0 var(--acc); }
+.a-i { display: inline-block; min-width: 22px; color: var(--mut); font-size: 11px; }
+.share { position: absolute; left: 10px; bottom: 3px; height: 2px; background: var(--acc); opacity: .7; border-radius: 2px; max-width: calc(100% - 20px); }
+
+.ctl { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-bottom: 12px; }
+.ctl-f { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+.bars { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; }
+.bars li { display: grid; grid-template-columns: minmax(120px, 240px) 1fr 76px; align-items: center; gap: 10px; padding: 3px 6px; border-radius: 6px; }
+.bars li:hover { background: var(--hover); }
+.b-n { display: flex; align-items: baseline; gap: 6px; min-width: 0; }
+.b-i { color: var(--mut); font-size: 11px; min-width: 22px; text-align: right; }
+.b-t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.b-n small { font-size: 11px; white-space: nowrap; }
+.b-track { height: 12px; background: var(--panel2); border-radius: 3px; overflow: hidden; }
+.b-fill { display: block; height: 100%; background: var(--mut); opacity: .55; border-radius: 3px; }
+.bars li.top .b-fill { background: var(--acc); opacity: .9; }
+.bars li.top .b-t { font-weight: 700; }
+.b-v { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* table: one scroll box for both directions; rows are drawn only where visible */
+/* overflow-anchor: none = Chrome must not move the scroll position to keep a row in place: rows are reused and
+   moved while scrolling, so its scroll anchoring pulls a fast scroll back */
+.grid { position: relative; flex: 1; overflow: auto; overscroll-behavior: contain; overflow-anchor: none; background: var(--panel); border-top: 1px solid var(--line); }
+.sizer { position: relative; min-width: 100%; }
+.head { position: sticky; top: 0; z-index: 3; display: flex; height: var(--hh); background: var(--panel2); border-bottom: 1px solid var(--line); }
+.body { position: absolute; left: 0; top: var(--hh); right: 0; }
+.row { position: absolute; left: 0; top: 0; display: flex; height: var(--rh); border-bottom: 1px solid var(--line); background: var(--panel);
+  contain: layout style; /* a row's cells never move anything outside it */ }
+/* no will-change / transform on rows: each row (and its sticky cells) would be a GPU layer as wide as the table, and
+   with dozens of them the compositor stalls the scroll, the more the wider the window */
+.row[hidden] { display: none; }
+.row.alt { background: var(--row-alt); }
+.row.hov { background: var(--hover); }
+/* the pinned columns of all rows: one sticky box (not a sticky cell per row) */
+.pins { position: sticky; left: 0; z-index: 2; box-shadow: 1px 0 0 var(--line), 6px 0 8px -6px rgba(0,0,0,.25); }
+.prow { padding-left: 0; }
+/* every header and cell, numbers too, starts at the left of its column */
+.c {
+  flex: none; padding: 0 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: var(--rh);
+  font-variant-numeric: tabular-nums; contain: layout paint style; /* new text in one cell lays out only that cell */
+}
+.c.blank { color: var(--mut); }
+.c .plus { color: var(--acc); font-weight: 600; }
+.row .c.r1, .row .c.r2, .row .c.r3 { color: var(--acc); font-weight: 700; }
+.h {
+  flex: none; display: flex; align-items: center; gap: 4px; padding: 0 10px; height: var(--hh); font-weight: 700; font-size: 12px;
+  cursor: pointer; user-select: none; overflow: hidden; background: var(--panel2); line-height: 1.2;
+}
+.h span { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; } /* one line: the column is sized to fit it */
+.h:hover { color: var(--acc); }
+.h.on { color: var(--acc); }
+/* the sort arrow always keeps its room, shown or not, so sorting never moves a header's text */
+.h::after { content: "▼"; flex: none; width: 10px; font-size: 10px; visibility: hidden; }
+.h.on::after { content: attr(data-dir); visibility: visible; }
+.h.pin { position: sticky; z-index: 4; }
+.h.pin.last { box-shadow: 1px 0 0 var(--line), 6px 0 8px -6px rgba(0,0,0,.25); }
+.empty { position: absolute; inset: 80px 0 auto; text-align: center; color: var(--mut); }
+
+/* column picker */
+.dlg { padding: 0; border: 1px solid var(--line); border-radius: 14px; background: var(--panel); color: var(--fg); box-shadow: var(--shadow); width: min(720px, calc(100vw - 32px)); max-height: min(640px, calc(100vh - 48px)); }
+.dlg::backdrop { background: rgba(0,0,0,.45); }
+.dlg-in { display: flex; flex-direction: column; gap: 10px; padding: 16px; max-height: inherit; }
+.dlg-top { display: flex; align-items: center; justify-content: space-between; }
+.dlg-top h2 { margin: 0; font-size: 15px; display: flex; gap: 8px; align-items: center; }
+.dlg-acts { display: flex; gap: 6px; flex-wrap: wrap; }
+.chip { height: 28px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--panel2); cursor: pointer; }
+.chip:hover { border-color: var(--acc); }
+.cols-list { overflow: auto; columns: 2 260px; column-gap: 24px; padding-right: 4px; }
+.grp { break-inside: avoid; margin: 0 0 14px; }
+.grp h3 { margin: 0 0 4px; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--mut); display: flex; gap: 6px; align-items: baseline; flex-wrap: wrap; }
+.grp h3 small { text-transform: none; letter-spacing: 0; font-weight: 400; }
+.tog { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 6px 4px; border-radius: 6px; cursor: pointer; }
+.tog:hover { background: var(--panel2); }
+.tog input { appearance: none; flex: none; width: 34px; height: 20px; border-radius: 999px; background: var(--line); position: relative; cursor: pointer; transition: background .15s; margin: 0; }
+.tog input::after { content: ""; position: absolute; top: 3px; left: 3px; width: 14px; height: 14px; border-radius: 50%; background: #fff; transition: transform .15s; }
+.tog input:checked { background: var(--acc); }
+.tog input:checked::after { transform: translateX(14px); }
+.tog input:disabled { opacity: .5; cursor: default; }
+.tog.on span { font-weight: 600; }
+
+.foot { padding: 6px 16px; font-size: 11px; border-top: 1px solid var(--line); background: var(--panel); }
+
+@media (max-width: 640px) {
+  .bar { padding: 8px 16px; }
+  .meta { margin-left: 0; padding: 4px 0 6px; width: 100%; }
+  .bars li { grid-template-columns: minmax(90px, 40%) 1fr 64px; }
+  .brand { width: 100%; }
+  select { max-width: 140px; }
+  .tools { width: 100%; }
+}
