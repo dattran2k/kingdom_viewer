@@ -44,6 +44,29 @@ select, input[type="search"] {
 select { width: auto; max-width: 200px; cursor: pointer; }
 input:focus-visible, select:focus-visible, button:focus-visible, .grid:focus-visible { outline: 2px solid var(--acc); outline-offset: 1px; }
 .tools { display: flex; gap: 6px; flex-wrap: wrap; }
+
+/* kingdom picker: a button that opens a searchable list; the same list shows under the main search box */
+.kpick, .qbox { position: relative; }
+.kbtn {
+  height: 32px; padding: 0 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel2); cursor: pointer;
+  display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; font-variant-numeric: tabular-nums;
+}
+.kbtn:hover { border-color: var(--acc); }
+.kbtn::after { content: ""; width: 6px; height: 6px; border: solid currentColor; border-width: 0 1.5px 1.5px 0; transform: translateY(-2px) rotate(45deg); opacity: .7; }
+.pop {
+  position: absolute; top: calc(100% + 4px); left: 0; z-index: 20; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 10px; box-shadow: var(--shadow); padding: 6px;
+}
+.pop[hidden] { display: none; }
+#kpop { width: 240px; max-width: calc(100vw - 32px); display: flex; flex-direction: column; gap: 6px; }
+#kpop[hidden] { display: none; }
+#qsug { right: 0; min-width: 200px; }
+.klist { list-style: none; margin: 0; padding: 0; max-height: min(360px, 60vh); overflow: auto; overscroll-behavior: contain; }
+.klist li { display: flex; justify-content: space-between; gap: 12px; padding: 7px 8px; border-radius: 6px; cursor: pointer; font-variant-numeric: tabular-nums; }
+.klist li span { color: var(--mut); font-size: 12px; }
+.klist li:hover, .klist li.act { background: var(--hover); }
+.klist li.cur b { color: var(--acc); }
+.klist li.none { color: var(--mut); cursor: default; background: none; }
 .btn {
   height: 32px; padding: 0 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel2);
   cursor: pointer; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
@@ -181,7 +204,9 @@ input:focus-visible, select:focus-visible, button:focus-visible, .grid:focus-vis
   .brand { margin: 0; }
   .brand > span:last-child { display: none; }
   .field.grow { flex-basis: 120px; }
-  select, input[type="search"], .btn { height: 30px; }
+  select, input[type="search"], .btn, .kbtn { height: 30px; }
+  .c.rk, .h.rk { padding: 0 2px 0 6px; font-size: 11px; }
+  .h.rk::after { display: none; } /* no sort arrow room: # is sorted by tapping it, the arrow shows on the column sorted */
   select { max-width: 150px; padding: 0 6px; }
   .btn { padding: 0 9px; }
   .btn.icon { width: 30px; }
