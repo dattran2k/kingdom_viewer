@@ -1,11 +1,9 @@
 # Kingdom Stats
 
-Static page with player statistics per kingdom: power, merits, kills, achievements, gathering, alliance activity.
-Fan-made, not affiliated with the game's publisher. Players under 5M power are not included.
+New data will be crawled when there is free time.
 
-**Views:** Players (table, sorted by highest power), Alliances (click a line to list its members), Chart.
-Filters: power (default > 20M), search, alliance. The kingdom list can be searched, and typing a kingdom
-number (`575`, `#575`) in the main search box offers it too.
+**Live:** https://dattran2k.github.io/kingdom_viewer/ · Visitors: ![visitors](https://machudat.goatcounter.com/counter/TOTAL.svg)
+
 
 ## Run
 - **Locally:** run `python -m http.server 8000 --bind 127.0.0.1` in this folder, then open http://localhost:8000/.
@@ -13,18 +11,6 @@ number (`575`, `#575`) in the main search box offers it too.
 - **GitHub Pages:** Settings → Pages → Deploy from branch → `main` / root. `.nojekyll` turns Jekyll off.
 
 Links keep their place: `#k=357&s=2026-10-28&v=chart` (kingdom, scan, view).
-
-## Layout
-```
-index.html
-assets/app.js        loading, filters, table
-assets/views.js      totals, alliances, chart
-assets/columns.js    column list (one line per column)
-assets/style.css
-data/kingdoms.json   kingdom index
-data/scans/<date>/<kingdom>.json
-```
-After changing `assets/`, bump `?v=N` in `index.html` (Pages caches files for 10 minutes).
 
 ## Data
 One folder per scan date; older scans are kept. Each kingdom opens on its newest scan, and older ones can be
