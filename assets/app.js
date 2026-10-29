@@ -6,7 +6,7 @@
 
 const T = {
   vi: {
-    title: "Kingdom Stats", kingdom: "Kingdom", scan: "Đợt scan", latest: "mới nhất", search: "Tìm", searchPh: "Tìm tên, ID, liên minh…", alliance: "Liên minh",
+    title: "Kingdom Stats", kingdom: "Kingdom", scan: "Đợt scan", latest: "mới nhất", search: "Tìm", searchPh: "Tên, ID, liên minh, #kingdom…", kSearchPh: "Tìm kingdom…", kNone: "Không có kingdom nào", alliance: "Liên minh",
     allAlliances: "Mọi liên minh", noAlliance: "Không liên minh", columns: "Cột", theme: "Đổi giao diện sáng/tối",
     fmtTip: "Số gọn (1.2M) / số đầy đủ", pickCols: "Chọn cột hiển thị", filterCols: "Lọc cột…", all: "Tất cả",
     none: "Bỏ hết", defaults: "Mặc định", players: "người", of: "/", crawled: "Thu thập", loading: "Đang tải…",
@@ -17,7 +17,7 @@ const T = {
     footer: "Thống kê do người chơi tự tổng hợp, không liên quan tới nhà phát hành game. Chỉ gồm người có trên bảng xếp hạng lực chiến.",
   },
   en: {
-    title: "Kingdom Stats", kingdom: "Kingdom", scan: "Scan", latest: "latest", search: "Search", searchPh: "Search name, ID, alliance…", alliance: "Alliance",
+    title: "Kingdom Stats", kingdom: "Kingdom", scan: "Scan", latest: "latest", search: "Search", searchPh: "Name, ID, alliance, #kingdom…", kSearchPh: "Find a kingdom…", kNone: "No such kingdom", alliance: "Alliance",
     allAlliances: "All alliances", noAlliance: "No alliance", columns: "Columns", theme: "Light / dark",
     fmtTip: "Compact (1.2M) / full numbers", pickCols: "Columns", filterCols: "Filter columns…", all: "All",
     none: "None", defaults: "Defaults", players: "players", of: "/", crawled: "Collected", loading: "Loading…",
@@ -97,24 +97,104 @@ async function getJSON(url) {
 }
 
 async function loadIndex() {
-  const sel = $("kingdom");
   let list = [];
   if (location.protocol === "file:") { showEmpty(tr("fileUrl")); return; }
   try { list = (await getJSON("data/kingdoms.json")).kingdoms || []; } catch (e) { console.error(e); showEmpty(tr("noIndex")); return; }
   state.list = list;
-  sel.innerHTML = "";
-  for (const k of list) {
-    const o = document.createElement("option");
-    o.value = k.kingdom;
-    o.textContent = `#${k.kingdom} · ${k.players}`;
-    sel.appendChild(o);
-  }
   if (!list.length) { showEmpty(tr("noData")); return; }
   const hp = new URLSearchParams(location.hash.slice(1));
   const want = Number(hp.get("k")) || store.get("kingdom", list[0].kingdom);
   setMode(MODES.includes(hp.get("v")) ? hp.get("v") : store.get("mode", "players"), true);
-  sel.value = list.some((k) => k.kingdom === want) ? want : list[0].kingdom;
-  await loadKingdom(Number(sel.value), hp.get("s"));
+  await loadKingdom(list.some((k) => k.kingdom === want) ? want : list[0].kingdom, hp.get("s"));
+}
+
+// ---- kingdom picker: a list with a search box (a <select> cannot be searched), and the same list under the main
+// search box when what is typed is a kingdom number ("575", "#575") ----
+function kingdomMatches(q, max = Infinity) {
+  q = q.replace(/[#\s]/g, "");
+  const start = [], inside = [];
+  for (const k of state.list) {
+    const t = String(k.kingdom);
+    if (t.startsWith(q)) start.push(k);
+    else if (t.includes(q)) inside.push(k);
+  }
+  return start.concat(inside).slice(0, max); // 57 -> 57, 570..579, then 157, 257...
+}
+function fillKList(ul, items) {
+  const cur = state.data?.kingdom, n = numFmt();
+  ul.innerHTML = items.length ? "" : `<li class="none">${tr("kNone")}</li>`;
+  for (const k of items) {
+    const li = document.createElement("li");
+    li.setAttribute("role", "option");
+    li.dataset.k = k.kingdom;
+    if (k.kingdom === cur) li.className = "cur";
+    li.innerHTML = `<b>#${k.kingdom}</b><span>${n.format(k.players)} ${tr("players")}</span>`;
+    ul.appendChild(li);
+  }
+  ul.querySelector("li[data-k]")?.classList.add("act");
+}
+// arrows move the highlighted line, Enter opens it; true when the key was used
+function listKeys(e, ul, pick) {
+  const all = [...ul.querySelectorAll("li[data-k]")], i = all.findIndex((li) => li.classList.contains("act"));
+  if (e.key === "Enter") { if (all[Math.max(i, 0)]) pick(Number(all[Math.max(i, 0)].dataset.k)); return true; }
+  if ((e.key !== "ArrowDown" && e.key !== "ArrowUp") || !all.length) return false;
+  const j = Math.min(all.length - 1, Math.max(0, i + (e.key === "ArrowDown" ? 1 : -1)));
+  all[i]?.classList.remove("act");
+  all[j].classList.add("act");
+  all[j].scrollIntoView({ block: "nearest" });
+  return true;
+}
+function openKingdom(id) {
+  $("grid").scrollTop = 0;
+  loadKingdom(id);
+}
+function showPicker(on) {
+  $("kpop").hidden = !on;
+  $("kingdom").setAttribute("aria-expanded", String(on));
+  if (!on) return;
+  $("kq").value = "";
+  fillKList($("klist"), state.list);
+  const cur = $("klist").querySelector("li.cur");
+  if (cur) { $("klist").querySelector(".act")?.classList.remove("act"); cur.classList.add("act"); cur.scrollIntoView({ block: "center" }); }
+  $("kq").focus();
+}
+function showSuggest() {
+  const m = /^#?\s*(\d{1,4})$/.exec($("q").value.trim()), items = m ? kingdomMatches(m[1], 6) : [];
+  $("qsug").hidden = !items.length;
+  if (items.length) fillKList($("qsug"), items);
+}
+function wireKingdomPicker() {
+  $("kingdom").onclick = () => showPicker($("kpop").hidden);
+  $("kq").addEventListener("input", () => fillKList($("klist"), kingdomMatches($("kq").value)));
+  $("kq").addEventListener("keydown", (e) => {
+    if (e.key === "Escape") { showPicker(false); $("kingdom").focus(); }
+    else if (listKeys(e, $("klist"), (k) => { showPicker(false); openKingdom(k); })) e.preventDefault();
+  });
+  $("klist").onclick = (e) => {
+    const li = e.target.closest("li[data-k]");
+    if (li) { showPicker(false); openKingdom(Number(li.dataset.k)); }
+  };
+  // the main search box: a kingdom number shows the matching kingdoms under it; picking one clears the search
+  const pickFromSearch = (k) => {
+    $("q").value = ""; state.q = "";
+    $("qsug").hidden = true;
+    openKingdom(k);
+  };
+  $("q").addEventListener("input", showSuggest);
+  $("q").addEventListener("focus", showSuggest);
+  $("q").addEventListener("blur", () => { $("qsug").hidden = true; });
+  $("q").addEventListener("keydown", (e) => {
+    if ($("qsug").hidden) return;
+    if (e.key === "Escape") $("qsug").hidden = true;
+    else if (listKeys(e, $("qsug"), pickFromSearch)) e.preventDefault();
+  });
+  $("qsug").addEventListener("mousedown", (e) => e.preventDefault()); // keep the focus in the box: no blur before the click
+  $("qsug").onclick = (e) => {
+    const li = e.target.closest("li[data-k]");
+    if (li) pickFromSearch(Number(li.dataset.k));
+  };
+  // a click anywhere else closes the picker
+  document.addEventListener("pointerdown", (e) => { if (!$("kpop").hidden && !e.target.closest(".kpick")) showPicker(false); });
 }
 
 // The kingdom's scans (newest first) into #scan; hidden when it has only one
@@ -136,6 +216,7 @@ async function loadKingdom(id, scan) {
   const item = state.list.find((k) => k.kingdom === id);
   if (!item) return;
   if (!item.scans.includes(scan)) scan = item.scan;
+  $("kingdomLbl").textContent = `#${id} · ${numFmt().format(item.players)}`;
   fillScans(item, scan);
   showEmpty(tr("loading"));
   try {
@@ -309,6 +390,8 @@ function fitWidths() {
   const family = getComputedStyle(document.body).fontFamily;
   for (const c of state.cols) {
     if (c.key === "name") { c.w = state.narrow ? Math.min(c.width, 120) : c.width; continue; }
+    // a phone: # in small type, only as wide as its numbers (the place in the list, at most 600) + its padding
+    if (c.key === "rank" && state.narrow) { c.w = Math.ceil(textWidth("600", `700 11px ${family}`)) + 9; continue; }
     let w = fitted.get(c.key);
     if (w === undefined) {
       // header: bold 12px + the sort arrow's room (10px + 4px gap); values: bold 13px (the top 3 rows are bold)
@@ -332,6 +415,7 @@ function cellClass(c, head) {
   let s = head ? "h" : "c";
   if (NUMERIC.has(c.type)) s += " n";
   if (c.pin) s += " pin" + (c._last ? " last" : "");
+  if (c.key === "rank") s += " rk";
   return s;
 }
 
@@ -656,7 +740,7 @@ function init() {
     pickRows();
     if (state.data) { fillAlliances(); refresh(); }
   };
-  $("kingdom").onchange = (e) => { $("grid").scrollTop = 0; loadKingdom(Number(e.target.value)); };
+  wireKingdomPicker();
   $("scan").onchange = (e) => loadKingdom(state.data.kingdom, e.target.value);
   $("colsBtn").onclick = () => { $("colsQ").value = ""; drawPicker(); $("cols").showModal(); };
   $("colsQ").addEventListener("input", drawPicker);
@@ -693,7 +777,6 @@ function init() {
     if (MODES.includes(hp.get("v") || "players") && (hp.get("v") || "players") !== state.mode) setMode(hp.get("v") || "players");
     const item = state.list.find((x) => x.kingdom === k), scan = hp.get("s") || item?.scan;
     if (item && (k !== state.data?.kingdom || scan !== state.data?.scan)) {
-      $("kingdom").value = k;
       loadKingdom(k, scan);
     }
   });

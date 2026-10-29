@@ -7,17 +7,23 @@
 <meta name="description" content="Player statistics per kingdom: power, merits, kills, achievements, gathering.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%23e0a526' d='M2 13h12v2H2zM2 5l3 3 3-5 3 5 3-3-1 7H3z'/%3E%3C/svg%3E">
 <!-- ?v=N: bump it when assets/ change, so a cached old file (GitHub Pages: 10 min) is not mixed with new ones -->
-<link rel="stylesheet" href="assets/style.css?v=26">
+<link rel="stylesheet" href="assets/style.css?v=28">
 </head>
 <body>
 <header class="bar">
   <h1 class="brand"><span class="crown" aria-hidden="true"></span><span data-i18n="title">Kingdom Stats</span></h1>
-  <label class="field"><span class="sr" data-i18n="kingdom">Kingdom</span>
-    <select id="kingdom" aria-label="Kingdom"></select></label>
+  <div class="field kpick">
+    <button id="kingdom" class="kbtn" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="kpop" aria-label="Kingdom"><span id="kingdomLbl">Kingdom</span></button>
+    <div id="kpop" class="pop" hidden>
+      <input id="kq" type="search" autocomplete="off" inputmode="numeric" data-i18n-ph="kSearchPh">
+      <ul id="klist" class="klist" role="listbox"></ul>
+    </div>
+  </div>
   <label class="field" hidden><span class="sr" data-i18n="scan">Scan</span>
     <select id="scan" aria-label="Scan"></select></label>
-  <label class="field grow"><span class="sr" data-i18n="search">Search</span>
-    <input id="q" type="search" autocomplete="off" data-i18n-ph="searchPh"></label>
+  <label class="field grow qbox"><span class="sr" data-i18n="search">Search</span>
+    <input id="q" type="search" autocomplete="off" data-i18n-ph="searchPh">
+    <ul id="qsug" class="klist pop" role="listbox" hidden></ul></label>
   <label class="field"><span class="sr" data-i18n="alliance">Alliance</span>
     <select id="alliance" aria-label="Alliance"></select></label>
   <label class="field"><span class="sr" data-i18n="minPower">Power</span>
@@ -64,8 +70,8 @@
 </dialog>
 
 <footer class="foot mut" data-i18n="footer"></footer>
-<script defer src="assets/columns.js?v=26"></script>
-<script defer src="assets/app.js?v=26"></script>
-<script defer src="assets/views.js?v=26"></script>
+<script defer src="assets/columns.js?v=28"></script>
+<script defer src="assets/app.js?v=28"></script>
+<script defer src="assets/views.js?v=28"></script>
 </body>
 </html>

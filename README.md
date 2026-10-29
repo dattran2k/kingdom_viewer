@@ -3,8 +3,9 @@
 Static page with player statistics per kingdom: power, merits, kills, achievements, gathering, alliance activity.
 Fan-made, not affiliated with the game's publisher. Players under 5M power are not included.
 
-**Views:** Players (table), Alliances (click a line to list its members), Chart. Filters: power (default > 20M),
-search, alliance.
+**Views:** Players (table, sorted by highest power), Alliances (click a line to list its members), Chart.
+Filters: power (default > 20M), search, alliance. The kingdom list can be searched, and typing a kingdom
+number (`575`, `#575`) in the main search box offers it too.
 
 ## Run
 - **Locally:** run `python -m http.server 8000 --bind 127.0.0.1` in this folder, then open http://localhost:8000/.
