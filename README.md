@@ -2,7 +2,9 @@
 
 New data will be crawled when there is free time.
 
-**Live:** https://dattran2k.github.io/kingdom_viewer/ · Visitors: ![visitors](https://machudat.goatcounter.com/counter/TOTAL.svg)
+[![visitors](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fmachudat.goatcounter.com%2Fcounter%2F%252Fkingdom_viewer%252F.json&query=%24.count&label=visitors&color=blue)](https://dattran2k.github.io/kingdom_viewer/)
+
+**Live:** https://dattran2k.github.io/kingdom_viewer/
 
 
 ## Run
