@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Kingdom Stats</title>
 <meta name="description" content="Player statistics per kingdom: power, merits, kills, achievements, gathering.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%23e0a526' d='M2 13h12v2H2zM2 5l3 3 3-5 3 5 3-3-1 7H3z'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%233b82f6' d='M2 13h12v2H2zM2 5l3 3 3-5 3 5 3-3-1 7H3z'/%3E%3C/svg%3E">
 <!-- ?v=N: bump it when assets/ change, so a cached old file (GitHub Pages: 10 min) is not mixed with new ones -->
-<link rel="stylesheet" href="assets/style.css?v=45">
+<link rel="stylesheet" href="assets/style.css?v=89">
 <script data-goatcounter="https://machudat.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
 </head>
@@ -17,6 +17,8 @@
   <nav class="side-nav">
     <button type="button" data-page="kingdom"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3h12v2H2zM2 7h12v2H2zM2 11h12v2H2z"/></svg><span data-i18n="navKingdom">Kingdom</span></button>
     <button type="button" data-page="compare"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 2h2v12H3zM7 6h2v8H7zM11 4h2v10h-2z"/></svg><span data-i18n="navCompare">So sánh</span></button>
+    <button type="button" data-page="rank"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 2h4v12H6zM1 7h4v7H1zM11 5h4v9h-4z"/></svg><span data-i18n="navRank">Xếp hạng</span></button>
+    <button type="button" data-page="migration"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1 4h9V1l5 4-5 4V6H1zM15 12H6v3l-5-4 5-4v3h9z"/></svg><span data-i18n="navMigration">Di cư</span></button>
   </nav>
   <div class="side-foot">
     <a class="btn icon" href="https://github.com/dattran2k/kingdom_viewer" target="_blank" rel="noopener" data-i18n-title="openSource" aria-label="GitHub"><svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
@@ -26,38 +28,68 @@
 </aside>
 <div id="scrim" class="scrim" hidden></div>
 <div id="kingdomPage" class="page">
-<header class="bar">
+<div class="page-top">
+<header class="bar page-head">
   <button class="btn icon menu-btn" type="button" aria-label="Menu" aria-controls="side">☰</button>
-  <div class="field kpick">
+  <h2 class="page-title" data-i18n="navKingdom">Kingdom</h2>
+  <p class="page-desc" data-i18n="descKingdom"></p>
+</header>
+<header class="bar">
+  <div class="bar-scroll">
+  <button id="vsBtn" class="mode-sw" type="button" role="switch" aria-checked="false" hidden data-i18n-title="cmpDaysTip">
+    <span class="mode-l" data-i18n="modeLabel">Chế độ</span>
+    <span class="mode-a" data-i18n="modeNormal">Thường</span>
+    <i class="mode-t" aria-hidden="true"></i>
+    <span class="mode-b" data-i18n="cmpDays">So sánh</span>
+  </button>
+  </div>
+  <label class="field grow qbox"><span class="sr" data-i18n="search">Search</span>
+    <input id="q" type="search" autocomplete="off" data-i18n-ph="searchPh">
+    <ul id="qsug" class="klist pop" role="listbox" hidden></ul></label>
+</header>
+<!-- always there, so switching the mode moves nothing below it -->
+<div id="cmpBar" class="cmp-bar">
+  <div id="cmpTags" class="x-tags"><span id="cmpChips" class="dv-slot"></span>
+    <div class="field kpick">
     <button id="kingdom" class="kbtn" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="kpop" aria-label="Kingdom"><span id="kingdomLbl">Kingdom</span></button>
     <div id="kpop" class="pop" hidden>
       <input id="kq" type="search" autocomplete="off" inputmode="numeric" data-i18n-ph="kSearchPh">
       <ul id="klist" class="klist" role="listbox"></ul>
     </div>
   </div>
-  <label class="field" hidden><span class="sr" data-i18n="scan">Scan</span>
-    <select id="scan" aria-label="Scan"></select></label>
-  <label class="field grow qbox"><span class="sr" data-i18n="search">Search</span>
-    <input id="q" type="search" autocomplete="off" data-i18n-ph="searchPh">
-    <ul id="qsug" class="klist pop" role="listbox" hidden></ul></label>
-  <label class="field"><span class="sr" data-i18n="alliance">Alliance</span>
-    <select id="alliance" aria-label="Alliance"></select></label>
+  </div>
+  <div class="field cmp-only"><select id="vs" aria-label="Scan"></select></div>
+  <span class="mut cmp-only" aria-hidden="true">→</span>
+  <div id="scanField" class="field" hidden><select id="scan" aria-label="Scan"></select></div>
+</div>
+<div id="kpis" class="kpis"></div>
+<!-- what the table shows: filter, metrics, number format, order -->
+<div class="bar tbl-bar">
   <label class="field"><span class="sr" data-i18n="minPower">Power</span>
     <select id="minPower" aria-label="Power"></select></label>
   <div class="tools">
-    <button id="colsBtn" class="btn" type="button"><span data-i18n="columns">Cột</span> <b id="colsCount" class="pill"></b></button>
+    <button id="colsBtn" class="btn" type="button"><span data-i18n="columns">Chỉ số</span> <b id="colsCount" class="pill"></b></button>
     <button id="fmtBtn" class="btn" type="button" aria-pressed="true" data-i18n-title="fmtTip">1.2M</button>
     <button id="heatBtn" class="btn" type="button" aria-pressed="false" data-i18n="heat" data-i18n-title="heatTip">± TB</button>
   </div>
-</header>
+  <div id="sortBox" class="sort-box">
+    <label><span data-i18n="sortBy">Sắp theo</span><select id="sortKey" aria-label="Sort"></select></label>
+    <span class="sort-modes">
+      <button id="sortValue" type="button" data-i18n="sortValue" data-i18n-title="sortValueTip">Giá trị</button>
+      <button id="sortDelta" type="button">±</button>
+    </span>
+    <button id="sortDir" type="button" data-i18n-title="sortDirTip"></button>
+  </div>
+</div>
+<div id="colChips" class="col-chips"></div>
 <nav id="modes" class="modes" aria-label="View">
   <button type="button" data-mode="players" data-i18n="mPlayers">Người chơi</button>
   <button type="button" data-mode="alliances" data-i18n="mAlliances">Liên minh</button>
   <button type="button" data-mode="chart" data-i18n="mChart">Biểu đồ</button>
-  <button type="button" id="kpiBtn" class="kpi-tog" aria-controls="kpis" aria-expanded="true" data-i18n-title="kpiTip"><span data-i18n="kpiBtn">Tổng quan</span></button>
+  <button type="button" id="allianceOff" class="al-tag" hidden></button>
   <span class="meta"><span id="count"></span><span id="crawled" class="mut"></span></span>
 </nav>
-<div id="kpis" class="kpis"></div>
+</div>
 <main id="grid" class="grid" tabindex="0" aria-label="Players">
   <div id="sizer" class="sizer">
     <div id="head" class="head" role="row"></div>
@@ -66,21 +98,30 @@
   <p id="empty" class="empty" hidden></p>
 </main>
 <section id="panel" class="panel" hidden></section>
-<footer class="foot mut" data-i18n="footer"></footer>
 </div>
 
 <div id="comparePage" class="page" hidden>
 <header class="bar">
   <button class="btn icon menu-btn" type="button" aria-label="Menu" aria-controls="side">☰</button>
   <h2 class="page-title" data-i18n="navCompare">So sánh</h2>
+  <p class="page-desc" data-i18n="descCompare"></p>
 </header>
 <main id="cmp" class="cmp"></main>
+</div>
+
+<div id="dvPage" class="page" hidden>
+<header class="bar">
+  <button class="btn icon menu-btn" type="button" aria-label="Menu" aria-controls="side">☰</button>
+  <h2 id="dvTitle" class="page-title"></h2>
+  <p id="dvDesc" class="page-desc"></p>
+</header>
+<main id="dv" class="cmp dv"></main>
 </div>
 
 <dialog id="cols" class="dlg">
   <form method="dialog" class="dlg-in">
     <div class="dlg-top">
-      <h2><span data-i18n="pickCols">Chọn cột hiển thị</span> <b id="colsCount2" class="pill"></b></h2>
+      <h2><span data-i18n="pickCols">Chọn chỉ số hiển thị</span> <b id="colsCount2" class="pill"></b></h2>
       <button class="btn icon" value="close" aria-label="Close">✕</button>
     </div>
     <input id="colsQ" type="search" autocomplete="off" data-i18n-ph="filterCols">
@@ -93,9 +134,10 @@
   </form>
 </dialog>
 
-<script defer src="assets/columns.js?v=45"></script>
-<script defer src="assets/app.js?v=45"></script>
-<script defer src="assets/views.js?v=45"></script>
-<script defer src="assets/compare.js?v=45"></script>
+<script defer src="assets/columns.js?v=89"></script>
+<script defer src="assets/app.js?v=89"></script>
+<script defer src="assets/views.js?v=89"></script>
+<script defer src="assets/compare.js?v=89"></script>
+<script defer src="assets/pages.js?v=89"></script>
 </body>
 </html>

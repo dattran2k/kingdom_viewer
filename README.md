@@ -12,7 +12,7 @@ New data will be crawled when there is free time.
   Opening `index.html` straight from disk does not work, because the browser blocks `fetch` on `file://`.
 - **GitHub Pages:** Settings → Pages → Deploy from branch → `main` / root. `.nojekyll` turns Jekyll off.
 
-Links keep their place: `#k=357&s=2026-10-28&v=chart` (kingdom, scan, view).
+Links keep their place: `#k=357&s=2026-10-28&v=chart` (kingdom, scan, view), `#k=357&a=2026-10-28` (compare with an older scan).
 
 ## Data
 One folder per scan date; older scans are kept. Each kingdom opens on its newest scan, and older ones can be
@@ -29,6 +29,11 @@ picked from the Scan menu. `schema` is the file format version.
 {"schema": 2, "kingdom": 357, "scan": "2026-10-28", "crawledAt": "...", "players": [{"rank": 1, "id": 1645863, "name": "...", "power": 406226165}]}
 ```
 A player is a flat object. A missing field means "unknown", and `0` means zero.
+
+`data/derived/` holds tables worked out from the scans when the data is exported, for the Rankings and Migration pages:
+`index.json` (scans), `migrations.json` (one row per move of a player between kingdoms, with the player's newest
+numbers), `rollup.json` (the newest scan, one row per kingdom, players above 15M). Tables name their columns in a `cols` list.
+A move is only known to lie between two scans.
 
 | Field | Meaning |
 |---|---|

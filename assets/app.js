@@ -8,26 +8,26 @@ const RUNNING_VERSION = /[?&]v=(\d+)/.exec(document.currentScript?.src || "")?.[
 
 const T = {
   vi: {
-    yes: "Có", no: "Không", title: "Kingdom Stats", kingdom: "Kingdom", scan: "Đợt scan", latest: "mới nhất", search: "Tìm", searchPh: "Tên, ID, liên minh, #kingdom…", kSearchPh: "Tìm kingdom…", kNone: "Không có kingdom nào", alliance: "Liên minh",
-    allAlliances: "Mọi liên minh", noAlliance: "Không liên minh", columns: "Cột", theme: "Đổi giao diện sáng/tối",
-    fmtTip: "Số gọn (1.2M) / số đầy đủ", pickCols: "Chọn cột hiển thị", filterCols: "Lọc cột…", all: "Tất cả",
+    sortBy: "Sắp theo", sortDirTip: "Đổi chiều sắp xếp", colSet: "Chỉ số",
+    sortValue: "Giá trị", sortValueTip: "Sắp theo giá trị của chỉ số", sortDeltaTip: "Sắp theo mức tăng / giảm giữa 2 ngày", sortDeltaOff: "Chỉ có khi so sánh 2 ngày khác nhau",
+    yes: "Có", no: "Không", title: "Kingdom Stats", kingdom: "Kingdom", scan: "Ngày", latest: "mới nhất", search: "Tìm", searchPh: "Tên, ID, liên minh, #kingdom…", kSearchPh: "Tìm kingdom…", kNone: "Không có kingdom nào", alliance: "Liên minh",
+    allAlliances: "Mọi liên minh", noAlliance: "Không liên minh", columns: "Chỉ số", theme: "Đổi giao diện sáng/tối",
+    fmtTip: "Số gọn (1.2M) / số đầy đủ", pickCols: "Chọn chỉ số hiển thị", filterCols: "Lọc chỉ số…", all: "Tất cả",
     none: "Bỏ hết", defaults: "Mặc định", players: "người", of: "/", crawled: "Thu thập", loading: "Đang tải…",
-    kpiBtn: "Tổng quan", kpiTip: "Ẩn / hiện dải tổng số + trung bình",
     heat: "± TB", heatTip: "Tô màu: cao hơn (xanh) / thấp hơn (đỏ) trung bình cột, trong danh sách đang lọc",
     noRows: "Không có người chơi nào khớp.", minPower: "Lực chiến", loadErr: "Không tải được dữ liệu.", noData: "Chưa có kingdom nào trong data/.", noIndex: "Không đọc được data/kingdoms.json.",
     fileUrl: "Trang cần chạy qua web (GitHub Pages). Trên máy: mở terminal TRONG thư mục chứa index.html, chạy python -m http.server 8000 --bind 127.0.0.1 rồi mở http://localhost:8000/. Mở thẳng file index.html thì trình duyệt không cho đọc dữ liệu.",
-    footer: "Thống kê do người chơi tự tổng hợp, không liên quan tới nhà phát hành game. Chỉ gồm người có trên bảng xếp hạng lực chiến.",
   },
   en: {
-    yes: "Yes", no: "No", title: "Kingdom Stats", kingdom: "Kingdom", scan: "Scan", latest: "latest", search: "Search", searchPh: "Name, ID, alliance, #kingdom…", kSearchPh: "Find a kingdom…", kNone: "No such kingdom", alliance: "Alliance",
-    allAlliances: "All alliances", noAlliance: "No alliance", columns: "Columns", theme: "Light / dark",
-    fmtTip: "Compact (1.2M) / full numbers", pickCols: "Columns", filterCols: "Filter columns…", all: "All",
+    sortBy: "Sort by", sortDirTip: "Reverse the order", colSet: "Metrics",
+    sortValue: "Value", sortValueTip: "Sort by the metric's value", sortDeltaTip: "Sort by the change between the two days", sortDeltaOff: "Only while comparing two different days",
+    yes: "Yes", no: "No", title: "Kingdom Stats", kingdom: "Kingdom", scan: "Day", latest: "latest", search: "Search", searchPh: "Name, ID, alliance, #kingdom…", kSearchPh: "Find a kingdom…", kNone: "No such kingdom", alliance: "Alliance",
+    allAlliances: "All alliances", noAlliance: "No alliance", columns: "Metrics", theme: "Light / dark",
+    fmtTip: "Compact (1.2M) / full numbers", pickCols: "Metrics", filterCols: "Filter metrics…", all: "All",
     none: "None", defaults: "Defaults", players: "players", of: "/", crawled: "Collected", loading: "Loading…",
-    kpiBtn: "Summary", kpiTip: "Show / hide the totals and averages strip",
     heat: "± avg", heatTip: "Colour: above (green) / below (red) the column average, over the players listed",
     noRows: "No player matches.", minPower: "Power", loadErr: "Could not load the data.", noData: "No kingdom in data/ yet.", noIndex: "Could not read data/kingdoms.json.",
     fileUrl: "Open this page through a web server (GitHub Pages). Locally: in a terminal IN the folder that holds index.html, run python -m http.server 8000 --bind 127.0.0.1, then open http://localhost:8000/. Opened straight from the disk, the browser does not let it read its data.",
-    footer: "Fan-made statistics, not affiliated with the game's publisher. Only players on the power ranking are listed.",
   },
 };
 
@@ -39,10 +39,12 @@ const store = {
 
 // only players whose power now is above the chosen step are listed: the rest of a ranking is mostly small
 // accounts, and what "small" is depends on the kingdom (a weak one has few players above 20M)
-const POWER_STEPS = [20e6, 15e6, 10e6, 5e6];
+const POWER_STEPS = [20e6, 15e6, 10e6, 5e6], DEFAULT_POWER = 15e6;
 const BY_KEY = Object.fromEntries(COLUMNS.map((c) => [c.key, c]));
 const DEFAULT_COLS = COLUMNS.filter((c) => c.def).map((c) => c.key);
-const NUMERIC = new Set(["int", "num", "pct", "date", "grade", "yesno"]);
+const NUMERIC = new Set(["int", "num", "pct", "date", "grade", "yesno", "kingdom"]);
+const COMPARED = new Set(["int", "num", "pct"]); // shown as before / change / after while comparing
+const MAX_COMPARED = 10;
 const value = (c, p) => (c.get ? c.get(p) : p[c.key]);
 
 const state = {
@@ -50,8 +52,11 @@ const state = {
   compact: store.get("compact", true),
   shown: new Set(store.get("cols", DEFAULT_COLS).filter((k) => BY_KEY[k])),
   sort: { key: "powerMax", dir: -1 }, // default: highest power ever, top first
+  // comparing two scans: same columns and order as always, each cell before / change / after; vs = the older scan
+  comparing: false, diff: false, vs: "", also: [], mainK: 0, // also = the other kingdoms compared with mainK
+  sortDelta: false,
   data: null, rows: [], view: [], cols: [], alliance: "", q: "",
-  minPower: POWER_STEPS.includes(store.get("minPower")) ? store.get("minPower") : POWER_STEPS[0],
+  minPower: POWER_STEPS.includes(store.get("powerStep")) ? store.get("powerStep") : DEFAULT_POWER,
   list: [], mode: "players", heat: store.get("heat", false), avg: {}, avgVer: 0,
   // a phone: the totals strip starts hidden, the name column is narrower
   narrow: matchMedia("(max-width: 640px)").matches,
@@ -80,6 +85,7 @@ function fmt(c, v) {
     case "text": return String(v);
     case "int": return numFmt().format(v);
     case "num": return state.compact ? compact(v) : numFmt().format(v);
+    case "kingdom": return "#" + v;
     case "pct": return numFmt(2).format(v) + "%";
     case "grade": return "R" + v;
     case "yesno": return tr(v ? "yes" : "no");
@@ -108,9 +114,11 @@ async function loadIndex() {
   const hp = new URLSearchParams(location.hash.slice(1));
   const want = Number(hp.get("k")) || store.get("kingdom", list[0].kingdom);
   setMode(MODES.includes(hp.get("v")) ? hp.get("v") : store.get("mode", "players"), true);
-  // a page opened on the compare view loads no kingdom until the kingdom view is opened
-  if (!hp.get("k") && (hp.get("p") || store.get("page", "kingdom")) === "compare") { setPage("compare"); return; }
+  // a page opened on another view loads no kingdom until the kingdom view is opened
+  const first = hp.get("p") || (hp.get("k") ? "kingdom" : store.get("page", "kingdom"));
+  if (first === "compare" || KS.pages[first]) { setPage(first); return; }
   setPage("kingdom", true);
+  if (hp.get("a")) { state.vs = hp.get("a"); setCompare(true); state.also = alsoOf(hp); }
   await loadKingdom(list.some((k) => k.kingdom === want) ? want : list[0].kingdom, hp.get("s"));
 }
 
@@ -126,14 +134,19 @@ function kingdomMatches(q, max = Infinity) {
   }
   return start.concat(inside).slice(0, max); // 57 -> 57, 570..579, then 157, 257...
 }
+const selection = () => (state.comparing ? [state.mainK, ...state.also] : [state.data?.kingdom]);
+const alsoOf = (hp) => [...new Set((hp.get("also") || "").split(",").map(Number).filter(Boolean))].slice(0, MAX_COMPARED - 1);
+// can this kingdom join the comparison: it needs both scans (one, when the two are the same day)
+const hasBoth = (k) => k.scans.includes(state.data?.scan) && k.scans.includes(state.vs);
 function fillKList(ul, items) {
-  const cur = state.data?.kingdom, n = numFmt();
+  const picked = selection(), n = numFmt();
   ul.innerHTML = items.length ? "" : `<li class="none">${tr("kNone")}</li>`;
   for (const k of items) {
     const li = document.createElement("li");
     li.setAttribute("role", "option");
     li.dataset.k = k.kingdom;
-    if (k.kingdom === cur) li.className = "cur";
+    if (picked.includes(k.kingdom)) li.className = "cur";
+    else if (state.comparing && state.data && !hasBoth(k)) li.className = "off";
     li.innerHTML = `<b>#${k.kingdom}</b><span>${n.format(k.players)} ${tr("players")}</span>`;
     ul.appendChild(li);
   }
@@ -151,13 +164,34 @@ function listKeys(e, ul, pick) {
   return true;
 }
 function openKingdom(id) {
-  $("grid").scrollTop = 0;
+  toTable();
+  state.also = [];
   loadKingdom(id);
 }
+// comparing: a kingdom of the list goes in or out, and the list stays open to pick more
+function toggleKingdom(id) {
+  const now = selection(), item = state.list.find((k) => k.kingdom === id);
+  let next;
+  if (now.includes(id)) next = now.filter((k) => k !== id);
+  else if (now.length < MAX_COMPARED && item && hasBoth(item)) next = [...now, id];
+  if (!next?.length) return;
+  state.also = next.slice(1);
+  toTable();
+  loadKingdom(next[0], state.data?.scan);
+  const y = $("klist").scrollTop;
+  fillKList($("klist"), $("kq").value ? kingdomMatches($("kq").value) : state.list);
+  $("klist").scrollTop = y;
+}
+const pickKingdom = (k) => {
+  if (state.comparing) { toggleKingdom(k); return; }
+  showPicker(false);
+  openKingdom(k);
+};
 function showPicker(on) {
   $("kpop").hidden = !on;
   $("kingdom").setAttribute("aria-expanded", String(on));
   if (!on) return;
+  placePop($("kingdom"), $("kpop"));
   $("kq").value = "";
   fillKList($("klist"), state.list);
   const cur = $("klist").querySelector("li.cur");
@@ -174,11 +208,11 @@ function wireKingdomPicker() {
   $("kq").addEventListener("input", () => fillKList($("klist"), kingdomMatches($("kq").value)));
   $("kq").addEventListener("keydown", (e) => {
     if (e.key === "Escape") { showPicker(false); $("kingdom").focus(); }
-    else if (listKeys(e, $("klist"), (k) => { showPicker(false); openKingdom(k); })) e.preventDefault();
+    else if (listKeys(e, $("klist"), pickKingdom)) e.preventDefault();
   });
   $("klist").onclick = (e) => {
     const li = e.target.closest("li[data-k]");
-    if (li) { showPicker(false); openKingdom(Number(li.dataset.k)); }
+    if (li) pickKingdom(Number(li.dataset.k));
   };
   // the main search box: a kingdom number shows the matching kingdoms under it; picking one clears the search
   const pickFromSearch = (k) => {
@@ -203,30 +237,162 @@ function wireKingdomPicker() {
   document.addEventListener("pointerdown", (e) => { if (!$("kpop").hidden && !e.target.closest(".kpick")) showPicker(false); });
 }
 
+// ---- the day menu: stands in for a <select> of days, which stays (hidden) as what holds the value and fires "change" ----
+function dayText(day) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(day);
+  if (!m) return day;
+  if (state.lang === "vi") return `${Number(m[3])} Tháng ${Number(m[2])}, ${m[1]}`;
+  return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+}
+function dayDrop(sel) {
+  const dd = document.createElement("div"), btn = document.createElement("button"), pop = document.createElement("ul");
+  dd.className = "dd";
+  btn.type = "button"; btn.className = "dd-btn"; btn.setAttribute("aria-haspopup", "listbox"); btn.setAttribute("aria-expanded", "false");
+  pop.className = "dd-pop"; pop.hidden = true; pop.setAttribute("role", "listbox");
+  dd.append(btn, pop);
+  sel.hidden = true;
+  sel.after(dd);
+  const part = (cls, text) => { const s = document.createElement("span"); s.className = cls; s.textContent = text; return s; };
+  const open = (on) => {
+    pop.hidden = !on;
+    btn.setAttribute("aria-expanded", String(on));
+    if (!on) return;
+    placePop(btn, pop);
+    pop.classList.remove("right");
+    if (pop.getBoundingClientRect().right > innerWidth - 8) pop.classList.add("right");
+    pop.querySelector(".on")?.scrollIntoView({ block: "nearest" });
+  };
+  const sync = () => {
+    btn.innerHTML = "";
+    if (sel.dataset.prefix) btn.appendChild(part("dd-pre", sel.dataset.prefix));
+    btn.append(part("dd-day", dayText(sel.value)), part("dd-arrow", ""));
+    pop.innerHTML = "";
+    for (const o of sel.options) {
+      const li = document.createElement("li");
+      li.setAttribute("role", "option");
+      if (o.value === sel.value) { li.className = "on"; li.setAttribute("aria-selected", "true"); }
+      li.append(part("dd-day", dayText(o.value)));
+      li.onclick = () => { open(false); if (o.value !== sel.value) { sel.value = o.value; sync(); sel.dispatchEvent(new Event("change")); } };
+      pop.appendChild(li);
+    }
+  };
+  btn.onclick = () => open(pop.hidden);
+  dd.addEventListener("keydown", (e) => { if (e.key === "Escape" && !pop.hidden) { open(false); btn.focus(); } });
+  const outside = (e) => {
+    if (!dd.isConnected) document.removeEventListener("pointerdown", outside); // a page redraw replaced this menu
+    else if (!pop.hidden && !dd.contains(e.target)) open(false);
+  };
+  document.addEventListener("pointerdown", outside);
+  sel._dd = { sync };
+  sync();
+}
+
+// A phone: the rows scroll sideways and would cut off a menu inside them, so it opens over the page, under its button
+function placePop(btn, pop) {
+  const phone = matchMedia("(max-width: 680px)").matches, r = btn.getBoundingClientRect();
+  pop.style.position = phone ? "fixed" : "";
+  pop.style.top = phone ? r.bottom + 6 + "px" : "";
+  pop.style.left = phone ? "16px" : "";
+  pop.style.right = phone ? "16px" : "";
+  pop.style.width = phone ? "auto" : "";
+}
+
 // The kingdom's scans (newest first) into #scan; hidden when it has only one
 function fillScans(item, scan) {
   const sel = $("scan");
   sel.innerHTML = "";
-  for (const [i, s] of item.scans.entries()) {
+  for (const s of item.scans) {
     const o = document.createElement("option");
     o.value = s;
-    o.textContent = i ? s : `${s} · ${tr("latest")}`;
+    o.textContent = s;
     sel.appendChild(o);
   }
   sel.value = scan;
+  sel.dataset.prefix = state.comparing ? tr("gTo") : "";
+  sel._dd.sync();
   sel.parentElement.hidden = item.scans.length < 2;
+  $("vsBtn").hidden = item.scans.length < 2;
+}
+
+// The scan to compare from: any of them; the same day as "to" means the plain table
+function fillVs(item) {
+  const sel = $("vs");
+  sel.innerHTML = "";
+  for (const s of item.scans) { const o = document.createElement("option"); o.value = s; o.textContent = s; sel.appendChild(o); }
+  sel.value = state.vs;
+  sel.dataset.prefix = tr("gFrom");
+  sel._dd.sync();
+}
+
+// the scans of the kingdoms compared: only those all of them have
+const scansOf = (item) => {
+  if (!state.comparing) return item.scans;
+  const others = state.also.map((k) => state.list.find((x) => x.kingdom === k)).filter(Boolean);
+  return item.scans.filter((s) => others.every((o) => o.scans.includes(s)));
+};
+
+function setCompare(on) {
+  if (on === state.comparing) return;
+  if (!on) { state.also = []; state.vs = ""; }
+  state.comparing = on;
+  document.body.dataset.compare = on ? "1" : "";
+  $("vsBtn").setAttribute("aria-checked", String(on));
+  if (!on) $("cmpChips").innerHTML = "";
+}
+
+// Two different scans: the columns and sort of the changes, swapped in and out
+function setDiff(on) {
+  if (on === state.diff) return;
+  state.diff = on;
+  state.sortDelta = on; // comparing opens sorted by the change
+  document.body.dataset.diff = on ? "1" : "";
+  // each cell holds three lines
+  document.documentElement.style.setProperty("--rh", on ? "60px" : "");
+  rowH = 0;
+}
+
+// the kingdoms compared, as chips: a click takes one out (the last one stays)
+function drawChips() {
+  const box = $("cmpChips");
+  box.innerHTML = "";
+  const ks = [state.mainK, ...state.also];
+  for (const k of ks) {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "x-tag"; b.textContent = "#" + k;
+    b.disabled = ks.length < 2;
+    if (!b.disabled) b.title = `${tr("cmpRemove")} #${k}`;
+    b.onclick = () => toggleKingdom(k);
+    box.appendChild(b);
+  }
 }
 
 // scan: a folder under data/scans/ (default the kingdom's newest)
+let loadToken = 0;
 async function loadKingdom(id, scan) {
-  const item = state.list.find((k) => k.kingdom === id);
+  const item = state.list.find((k) => k.kingdom === id), me = ++loadToken;
   if (!item) return;
-  if (!item.scans.includes(scan)) scan = item.scan;
-  $("kingdomLbl").textContent = `#${id} · ${numFmt().format(item.players)}`;
-  fillScans(item, scan);
+  if (state.comparing) {
+    state.also = state.also.filter((k) => k !== id && state.list.some((x) => x.kingdom === k));
+    if (scansOf(item).length < 2) state.also = [];
+    if (item.scans.length < 2) setCompare(false);
+  }
+  state.mainK = id;
+  const scans = scansOf(item);
+  if (!scans.includes(scan)) scan = scans[0];
+  if (state.comparing) {
+    if (!scans.includes(state.vs)) state.vs = scans.find((s) => s < scan) || scan; // by default the scan before
+    if (state.vs > scan) [state.vs, scan] = [scan, state.vs]; // picked the wrong way round: the older one is always "from"
+  }
+  setDiff(state.comparing && state.vs !== scan);
+  $("kingdomLbl").textContent = state.comparing ? tr("xAdd") : `#${id} · ${numFmt().format(item.players)}`;
+  fillScans({ ...item, scans }, scan);
+  if (state.comparing) { fillVs({ scans }); drawChips(); }
   showEmpty(tr("loading"));
   try {
-    state.data = await getJSON(`data/scans/${scan}/${id}.json`);
+    const d = await getJSON(`data/scans/${scan}/${id}.json`);
+    if (state.comparing) await addComparison(d);
+    if (me !== loadToken) return; // a newer pick is on its way
+    state.data = d;
   } catch (e) {
     console.error(e);
     state.data = null; state.rows = [];
@@ -244,26 +410,57 @@ async function loadKingdom(id, scan) {
   idle(() => warmFonts(state.data.players));
 }
 
-// #k=<kingdom>&s=<scan>&v=<view>: a link opens the same kingdom, scan and view (no s = the newest scan)
+// Comparing: each player of the newer scan gets the same player of the older one (p._was); who is in the older one
+// only is added to the list (p._left). Several kingdoms: the player is found in whichever of them, so a move between
+// them still has its changes.
+async function addComparison(d) {
+  d._a = state.vs;
+  const ks = (d._ks = [d.kingdom, ...state.also]);
+  const others = await Promise.all(state.also.map((k) => getJSON(`data/scans/${d.scan}/${k}.json`)));
+  for (const p of d.players) p._k = d.kingdom;
+  for (const f of others) for (const p of f.players) { p._k = f.kingdom; d.players.push(p); }
+  if (state.vs === d.scan) return; // the same day twice: nothing to compare, the plain table
+  d._vs = state.vs;
+  const olds = await Promise.all(ks.map((k) => getJSON(`data/scans/${d._vs}/${k}.json`)));
+  const before = new Map();
+  for (const f of olds) for (const p of f.players) { p._k = f.kingdom; before.set(p.id, p); }
+  const after = new Set(d.players.map((p) => p.id));
+  for (const p of d.players) p._was = before.get(p.id);
+  for (const o of before.values()) if (!after.has(o.id)) d.players.push({ ...o, _left: true });
+}
+// the change of a column between the two scans; undefined when a side has no number
+function deltaOf(c, p) {
+  if (!p._was || p._left) return undefined;
+  const a = value(c, p._was), b = value(c, p);
+  return typeof a === "number" && typeof b === "number" ? b - a : undefined;
+}
+
+// #k=<kingdom>&s=<scan>&v=<view>&a=<older scan>: a link opens the same kingdom, scan, view and comparison (no s = the newest scan)
 function setHash() {
   if (state.page !== "kingdom") return; // the compare view keeps its own link
   const d = state.data, item = d && state.list.find((k) => k.kingdom === d.kingdom);
-  history.replaceState(null, "", "#" + (d ? "k=" + d.kingdom : "") + (item && d.scan !== item.scan ? "&s=" + d.scan : "")
+  history.replaceState(null, "", "#" + (d ? "k=" + d.kingdom : "") + (item && d.scan !== item.scan ? "&s=" + d.scan : "") + (d?._a ? "&a=" + d._a : "") + (d?._ks?.length > 1 ? "&also=" + d._ks.slice(1).join() : "")
     + (state.mode !== "players" ? "&v=" + state.mode : ""));
 }
 
-// The two pages of the side menu. quiet: only switch what is on screen (the caller loads and sets the link).
+// The pages of the side menu. quiet: only switch what is on screen (the caller loads and sets the link).
 function setPage(p, quiet) {
   state.page = p;
   store.set("page", p);
   $("kingdomPage").hidden = p !== "kingdom";
   $("comparePage").hidden = p !== "compare";
+  $("dvPage").hidden = !KS.pages[p];
   document.querySelectorAll(".side-nav button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.page === p)));
   showMenu(false);
   if (quiet) return;
   if (p === "compare") { KS.compare.show(); return; }
+  if (KS.pages[p]) { drawDvHead(); KS.pages[p].show(); return; }
   if (state.data) { setHash(); rowH = 0; drawn = ""; schedule(); } // the table had no size while hidden
   else if (state.list.length) loadKingdom(store.get("kingdom", state.list[0].kingdom));
+}
+function drawDvHead() {
+  $("dvTitle").textContent = tr(KS.pages[state.page].title);
+  $("dvDesc").textContent = tr(KS.pages[state.page].desc);
 }
 // a narrow window: the side menu is a drawer over the page
 function showMenu(on) {
@@ -291,7 +488,7 @@ function setMode(m, quiet) {
 // after it loads: the fonts are in before the rows are scrolled to.
 function warmFonts(players) {
   const seen = new Set();
-  for (const p of players) for (const t of [p.name, p.alliance]) if (t) for (const ch of t) if (ch.codePointAt(0) > 0x2ff) seen.add(ch);
+  for (const p of players) for (const t of [p.name, p.alliance]) if (t) for (const ch of String(t)) if (ch.codePointAt(0) > 0x2ff) seen.add(ch);
   if (!seen.size) return;
   let w = $("fontWarm");
   if (!w) {
@@ -322,17 +519,13 @@ function fillPower() {
   sel.value = state.minPower;
 }
 
+// The alliance filter comes from a click in the alliance view; the chip says which one and takes it off
 function fillAlliances() {
-  const sel = $("alliance"), count = new Map();
-  let none = 0;
-  for (const p of state.rows) p.alliance ? count.set(p.alliance, (count.get(p.alliance) || 0) + 1) : none++;
-  const keep = count.has(state.alliance) || (state.alliance === "-" && none) ? state.alliance : "";
-  sel.innerHTML = "";
-  const add = (v, t) => { const o = document.createElement("option"); o.value = v; o.textContent = t; sel.appendChild(o); };
-  add("", tr("allAlliances"));
-  [...count].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).forEach(([a, n]) => add(a, `${a} (${n})`));
-  if (none) add("-", `${tr("noAlliance")} (${none})`);
-  sel.value = state.alliance = keep;
+  const has = state.alliance === "-" ? state.rows.some((p) => !p.alliance) : state.rows.some((p) => p.alliance === state.alliance);
+  if (!has) state.alliance = "";
+  const b = $("allianceOff");
+  b.hidden = !state.alliance;
+  b.textContent = `${state.alliance === "-" ? tr("noAlliance") : state.alliance} ✕`;
 }
 
 // ---- view: filter + sort ----
@@ -340,7 +533,8 @@ function refresh() {
   const q = state.q.trim().toLowerCase(), al = state.alliance;
   let v = state.rows.filter((p) => (!q || p._s.includes(q)) && (!al || (al === "-" ? !p.alliance : p.alliance === al)));
   const c = BY_KEY[state.sort.key] || BY_KEY.rank, dir = state.sort.dir, num = NUMERIC.has(c.type);
-  const keyed = v.map((p) => [value(c, p), p]);
+  const byDelta = state.diff && state.sortDelta && COMPARED.has(c.type);
+  const keyed = v.map((p) => [byDelta ? deltaOf(c, p) : value(c, p), p]);
   keyed.sort((a, b) => {
     const x = a[0], y = b[0];
     if (x == null || x === "") return y == null || y === "" ? a[1].rank - b[1].rank : 1; // blanks last either way
@@ -351,8 +545,9 @@ function refresh() {
   if (state.heat) averages();
   const n = numFmt(), at = state.data && new Date(state.data.crawledAt), loc = state.lang === "vi" ? "vi-VN" : "en-GB";
   // a phone: "202/202" and the date only, beside the view tabs
-  $("count").textContent = state.narrow ? `${n.format(state.view.length)}/${n.format(state.rows.length)}`
-    : `${n.format(state.view.length)} ${tr("of")} ${n.format(state.rows.length)} ${tr("players")}`;
+  // both numbers only while a filter hides someone
+  const listed = state.view.length === state.rows.length ? n.format(state.rows.length) : `${n.format(state.view.length)}${state.narrow ? "/" : ` ${tr("of")} `}${n.format(state.rows.length)}`;
+  $("count").textContent = state.narrow ? listed : `${listed} ${tr("players")}`;
   $("crawled").textContent = !at ? "" : state.narrow ? at.toLocaleDateString(loc) : `${tr("crawled")}: ${at.toLocaleString(loc)}`;
   $("crawled").title = at ? at.toLocaleString(loc) : "";
   if (!state.view.length) showEmpty(state.data ? tr("noRows") : tr("loadErr"));
@@ -385,8 +580,10 @@ function showEmpty(msg) {
 }
 
 // ---- header ----
+const pickable = () => COLUMNS.filter((c) => !c.auto);
 function layout() {
-  state.cols = COLUMNS.filter((c) => state.shown.has(c.key));
+  const many = state.data?._ks?.length > 1; // several kingdoms: say whose each line is
+  state.cols = COLUMNS.filter((c) => (c.auto ? c.key === "home" && many : state.shown.has(c.key)));
   let left = 0;
   const pins = state.cols.filter((c) => c.pin);
   fitWidths();
@@ -398,7 +595,7 @@ function layout() {
   newCellKey();
   const w = state.cols.reduce((s, c) => s + c.w, 0);
   $("sizer").style.width = w + "px";
-  $("colsCount").textContent = $("colsCount2").textContent = `${state.cols.length}/${COLUMNS.length}`;
+  $("colsCount").textContent = $("colsCount2").textContent = `${state.cols.length}/${pickable().length}`;
 }
 
 // A column is as wide as the wider of its header (one line) and the longest value it has in the kingdom (every
@@ -411,26 +608,29 @@ function textWidth(text, font) {
   return measure.measureText(text).width;
 }
 function fitWidths() {
-  const key = `${state.data?.kingdom}|${state.compact}|${state.lang}|${state.narrow}`;
+  const key = `${state.data?.kingdom}|${state.data?.scan}|${state.data?._vs}|${state.data?._ks}|${state.compact}|${state.lang}|${state.narrow}`;
   if (key !== fitKey) { fitKey = key; fitted = new Map(); }
   const family = getComputedStyle(document.body).fontFamily;
   for (const c of state.cols) {
-    if (c.key === "name") { c.w = state.narrow ? Math.min(c.width, 120) : c.width; continue; }
+    if (c.key === "name") { c.w = state.narrow ? Math.min(c.width, 110) : c.width; continue; }
     // a phone: # in small type, only as wide as its numbers (the place in the list, at most 600) + its padding
     if (c.key === "rank" && state.narrow) { c.w = Math.ceil(textWidth("600", `700 11px ${family}`)) + 9; continue; }
     let w = fitted.get(c.key);
     if (w === undefined) {
-      // header: bold 12px + the sort arrow's room (10px + 4px gap); values: bold 13px (the top 3 rows are bold)
-      w = textWidth(label(c), `700 12px ${family}`) + 14;
+      // header: bold 12px + the sort arrow's room (10px + 4px gap); values: bold 13px (the top 3 rows are bold).
+      // A phone: header in 11px with a 2px gap, a thinner chip and padding (see the 640px block of the stylesheet)
+      w = state.narrow ? textWidth(label(c), `700 11px ${family}`) + 12 : textWidth(label(c), `700 12px ${family}`) + 14;
       if (state.data) {
         let longest = "";
         for (const p of state.data.players) {
-          const s = fmt(c, value(c, p)) + (p.atLeast && p.atLeast.includes(c.key) ? "+" : "");
+          // while comparing the change sits in the cell too, with its sign
+          // an alliance cell: its longest tag + the chip's padding (two tags stack, they don't add up)
+          const s = c.key === "alliance" ? tagsOf(p).reduce((a, t) => (String(t).length > a.length ? String(t) : a), "") + (state.narrow ? "M" : "MM") : (state.data._vs && COMPARED.has(c.type) ? "+" : "") + fmt(c, value(c, p)) + (p.atLeast && p.atLeast.includes(c.key) ? "+" : "");
           if (s.length > longest.length) longest = s;
         }
         w = Math.max(w, textWidth(longest, `700 13px ${family}`));
       }
-      w = Math.ceil(w) + 20 + 4; // + the cell's padding + a little air
+      w = Math.ceil(w) + (state.narrow ? 10 : 20 + 4); // + the cell's padding + a little air (none on a phone)
       fitted.set(c.key, w);
     }
     c.w = w;
@@ -445,8 +645,69 @@ function cellClass(c, head) {
   return s;
 }
 
+// A chip per set of metrics, several at once: the table has # + name + ID + alliance plus what the chips lit bring. A
+// chip is lit while all its columns are shown, so "all" lights every chip, and taking one out turns "all" off.
+const BASE_COLS = COLUMNS.filter((c) => c.fixed || ["id", "alliance"].includes(c.key)).map((c) => c.key);
+const COL_SETS = [
+  { id: "def", name: () => tr("defaults"), keys: () => DEFAULT_COLS },
+  ...GROUPS.filter((g) => g.id !== "basic").map((g) => ({ id: g.id, name: () => label(g), keys: () => [...BASE_COLS, ...COLUMNS.filter((c) => c.group === g.id && !c.auto).map((c) => c.key)] })),
+  { id: "all", name: () => tr("all"), keys: () => pickable().map((c) => c.key) },
+];
+function toggleColSet(set, lit) {
+  if (!lit) { setCols([...state.shown, ...set.keys()]); return; }
+  // "all" or the defaults while everything is shown: down to the defaults
+  const everything = COL_SETS.find((s) => s.id === "all").keys().every((k) => state.shown.has(k));
+  if (set.id === "all" || (set.id === "def" && everything)) { setCols(DEFAULT_COLS); return; }
+  // out, but what another lit chip also brings stays. A chip that is all inside this one goes with it; if this one is
+  // all inside another, it still goes (a click must do something) and that other chip goes dark
+  const has = (s, k) => s.keys().includes(k);
+  const lits = COL_SETS.filter((s) => s !== set && s.id !== "all" && s.keys().every((k) => state.shown.has(k)) && !s.keys().every((k) => has(set, k)));
+  const keep = new Set([...BASE_COLS, ...lits.flatMap((s) => s.keys())]);
+  let drop = set.keys().filter((k) => !keep.has(k));
+  if (!drop.length) drop = set.keys().filter((k) => !BASE_COLS.includes(k));
+  setCols([...state.shown].filter((k) => !drop.includes(k)));
+}
+function drawColChips() {
+  const box = $("colChips");
+  box.innerHTML = "";
+  const lab = document.createElement("span");
+  lab.className = "col-chips-l";
+  lab.textContent = tr("colSet");
+  box.appendChild(lab);
+  for (const s of COL_SETS) {
+    const keys = s.keys(), b = document.createElement("button");
+    b.type = "button";
+    b.textContent = s.name();
+    const lit = keys.every((k) => state.shown.has(k));
+    b.setAttribute("aria-pressed", String(lit));
+    b.onclick = () => toggleColSet(s, lit);
+    box.appendChild(b);
+  }
+}
+
+// the "sort by" box: the columns on screen (and the sorted one, if it was hidden since)
+function drawSortBox() {
+  const sel = $("sortKey"), cur = BY_KEY[state.sort.key];
+  sel.innerHTML = "";
+  for (const c of cur && !state.cols.includes(cur) ? [...state.cols, cur] : state.cols) {
+    const o = document.createElement("option");
+    o.value = c.key;
+    o.textContent = label(c); // the name the table shows
+    sel.appendChild(o);
+  }
+  sel.value = state.sort.key;
+  $("sortDir").textContent = state.sort.dir < 0 ? "↓" : "↑";
+  const d = state.diff && state.sortDelta, delta = $("sortDelta");
+  $("sortValue").setAttribute("aria-pressed", String(!d));
+  delta.setAttribute("aria-pressed", String(d));
+  delta.classList.toggle("off", !state.diff);
+  delta.title = tr(state.diff ? "sortDeltaTip" : "sortDeltaOff");
+}
+
 function drawHead() {
   layout();
+  drawColChips();
+  drawSortBox();
   const h = $("head");
   h.innerHTML = "";
   for (const c of state.cols) {
@@ -521,15 +782,49 @@ function makeRow() {
 // draws ~30 rows x every column a frame. Built ahead while the page is idle (warmCells), else on first draw.
 let cellKey = "", warmJob = 0;
 function newCellKey() {
-  cellKey = state.cols.map((c) => c.key).join() + "|" + state.compact + "|" + state.lang + "|" + (state.heat ? state.avgVer : 0);
+  cellKey = state.cols.map((c) => c.key).join() + "|" + state.compact + "|" + state.lang + "|" + (state.heat ? state.avgVer : 0) + "|" + (state.data?._vs || "");
   warmCells();
 }
+
+// a cell while comparing, when the value changed or is on one side only: [text, class] per line; null = a plain cell
+function comparedCell(c, p, v) {
+  if (c.pin || !state.data?._vs) return null;
+  const was = p._left ? v : p._was ? value(c, p._was) : undefined, now = p._left ? undefined : v;
+  if (was === now || (was == null && now == null)) return null;
+  if (COMPARED.has(c.type)) {
+    const d = deltaOf(c, p);
+    const text = d == null ? "" : c.type === "pct" ? numFmt(2).format(d) + "%" : fmt(c, d);
+    const sign = d > 0 ? "+" : "", mark = d > 0 ? " hi" : d < 0 ? " lo" : "";
+    return [[fmt(c, was) || "–", "d-a"], [d == null ? "" : sign + text, "d-d" + mark], [fmt(c, now) || "–", "d-b"]];
+  }
+  return c.type === "text" && p._was && !p._left ? [[fmt(c, was) || "–", "d-a"], ["→", "d-d"], [fmt(c, now) || "–", "d-b"]] : null;
+}
+
+// the one way an alliance tag is shown, on every page
+function allianceChip(tag) {
+  const s = document.createElement("span");
+  s.className = "al-tag";
+  s.textContent = tag;
+  return s;
+}
+// the tags of a player's alliance cell: two when comparing and the alliance changed
+const tagsOf = (p) => (p._was && !p._left && p._was.alliance && p._was.alliance !== p.alliance && p.alliance ? [p._was.alliance, p.alliance] : p.alliance ? [p.alliance] : []);
 
 function cellsOf(p) {
   if (p._ck === cellKey) return p._cells;
   const out = new Array(state.cols.length);
   for (let i = 0; i < state.cols.length; i++) {
-    const c = state.cols[i], v = value(c, p), s = fmt(c, v);
+    const c = state.cols[i], v = value(c, p), s = fmt(c, v), parts = c.key === "alliance" ? null : comparedCell(c, p, v);
+    if (c.key === "alliance" && v != null) {
+      const tags = tagsOf(p);
+      out[i] = { text: tags.join("→"), cls: c._cls + " al-cell", title: "", plus: false, chips: tags };
+      continue;
+    }
+    if (parts) {
+      const title = c.type === "num" && state.compact ? `${parts[0][0] === "–" ? "–" : numFmt().format(p._left ? v : value(c, p._was))} → ${parts[2][0] === "–" ? "–" : numFmt().format(v)}` : "";
+      out[i] = { text: parts.map((x) => x[0]).join("|"), cls: c._cls, title, plus: false, parts };
+      continue;
+    }
     if (s === "") { out[i] = { text: "–", cls: c._cls + " blank", title: "", plus: false }; continue; }
     let title = "";
     if (c.type === "num" && state.compact) title = numFmt().format(v);
@@ -582,13 +877,25 @@ function fill(r, p, lo, hi) {
       continue;
     }
     d._x = x;
-    if (x.plus) {
+    if (x.chips) {
+      if (x.chips.length > 1) { // was, now: one above the other, like the numbers beside them
+        const box = document.createElement("div");
+        box.className = "al-stack";
+        box.append(...x.chips.map(allianceChip));
+        d.replaceChildren(box);
+      } else d.replaceChildren(...x.chips.map(allianceChip));
+    } else if (x.parts) {
+      const box = document.createElement("div");
+      box.className = "d3";
+      for (const [t, cl] of x.parts) { const s = document.createElement("span"); s.className = cl; s.textContent = t; box.appendChild(s); }
+      d.replaceChildren(box);
+    } else if (x.plus) {
       d.textContent = x.text;
       const b = document.createElement("span");
       b.className = "plus";
       b.textContent = "+";
       d.appendChild(b);
-    } else if (!was || was.text !== x.text || was.plus) d.textContent = x.text;
+    } else if (!was || was.text !== x.text || was.plus || was.parts || was.chips) d.textContent = x.text;
     if (!was || was.cls !== x.cls) d.className = x.cls;
     if (!was || was.title !== x.title) x.title ? (d.title = x.title) : d.removeAttribute("title");
   }
@@ -604,8 +911,9 @@ let drawn = "", dFirst = 0, dLast = 0, partial = false, finish = 0;
 
 function render(full) {
   raf = 0;
-  const g = $("grid"), rh = RH(), n = state.view.length;
-  const top = Math.floor(g.scrollTop / rh), bottom = Math.min(n, Math.ceil((g.scrollTop + g.clientHeight) / rh));
+  // the page scrolls, the rows start under what is above the table and the table's header
+  const g = $("kingdomPage"), rh = RH(), n = state.view.length, y = g.scrollTop - $("grid").offsetTop - $("head").offsetHeight;
+  const top = Math.max(0, Math.floor(y / rh)), bottom = Math.max(0, Math.min(n, Math.ceil((y + g.clientHeight) / rh)));
   const inside = drawn !== "" && top >= dFirst && bottom <= dLast;
   if (partial && inside && full !== true) return; // the screen is drawn; the rest comes with the timer
   const quick = drawn !== "" && !inside && full !== true;
@@ -654,13 +962,18 @@ function render(full) {
   }
 }
 const schedule = () => { if (!raf) raf = requestAnimationFrame(render); };
+// a new list: back to its first row, if the page has scrolled past it
+function toTable() {
+  const g = $("kingdomPage"), t = $("grid").offsetTop;
+  if (g.scrollTop > t) g.scrollTop = t;
+}
 
 // ---- column picker ----
 function drawPicker() {
   const list = $("colsList"), q = $("colsQ").value.trim().toLowerCase();
   list.innerHTML = "";
   for (const g of GROUPS) {
-    const cols = COLUMNS.filter((c) => c.group === g.id && (!q || label(c).toLowerCase().includes(q) || c.key.toLowerCase().includes(q)));
+    const cols = pickable().filter((c) => c.group === g.id && (!q || label(c).toLowerCase().includes(q) || (c.tip && label(c.tip).toLowerCase().includes(q)) || c.key.toLowerCase().includes(q)));
     if (!cols.length) continue;
     const box = document.createElement("section");
     box.className = "grp";
@@ -672,8 +985,8 @@ function drawPicker() {
       const l = document.createElement("label");
       l.className = "tog" + (state.shown.has(c.key) ? " on" : "");
       const s = document.createElement("span");
-      s.textContent = c.tip ? label(c.tip) : label(c); // the full name here; the header shows the short one
-      s.title = label(c);
+      s.textContent = label(c); // the name the table shows; the full one in the tooltip
+      if (c.tip) s.title = label(c.tip);
       const i = document.createElement("input");
       i.type = "checkbox";
       i.checked = state.shown.has(c.key);
@@ -708,7 +1021,8 @@ function applyLang() {
   document.querySelectorAll("[data-i18n-title]").forEach((e) => (e.title = tr(e.dataset.i18nTitle)));
   $("langBtn").textContent = state.lang === "vi" ? "EN" : "VI";
   const item = state.data && state.list.find((k) => k.kingdom === state.data.kingdom);
-  if (item) fillScans(item, state.data.scan);
+  if (item) { const scans = scansOf(item); fillScans({ ...item, scans }, state.data.scan); if (state.comparing) { fillVs({ scans }); drawChips(); } }
+  if (state.comparing) $("kingdomLbl").textContent = tr("xAdd");
 }
 
 function applyTheme(t) {
@@ -718,6 +1032,8 @@ function applyTheme(t) {
 
 // ---- wiring ----
 function init() {
+  dayDrop($("scan"));
+  dayDrop($("vs"));
   applyLang();
   fillPower();
   applyTheme(store.get("theme", ""));
@@ -731,20 +1047,17 @@ function init() {
   };
   document.querySelectorAll("#modes button[data-mode]").forEach((b) => (b.onclick = () => setMode(b.dataset.mode)));
   document.querySelectorAll(".side-nav button").forEach((b) => (b.onclick = () => setPage(b.dataset.page)));
-  document.querySelectorAll(".menu-btn").forEach((b) => (b.onclick = () => showMenu(true)));
+  // the menu button: a wide window hides / shows the side menu (remembered), a narrow one opens it as a drawer
+  document.body.classList.toggle("side-off", store.get("sideOff", false));
+  document.querySelectorAll(".menu-btn").forEach((b) => (b.onclick = () => {
+    if (matchMedia("(max-width: 900px)").matches) { showMenu(true); return; }
+    store.set("sideOff", document.body.classList.toggle("side-off"));
+    rowH = 0; drawn = ""; schedule(); // the table got wider or narrower
+  }));
   $("scrim").onclick = () => showMenu(false);
   addEventListener("keydown", (e) => { if (e.key === "Escape") showMenu(false); });
-  // the totals strip: shown or not is kept per device kind (a phone has little room for it)
-  const kpiKey = state.narrow ? "kpisPhone" : "kpis";
-  const showKpis = (on) => {
-    $("kpis").hidden = !on;
-    $("kpiBtn").setAttribute("aria-expanded", String(on));
-    rowH = 0; drawn = ""; schedule(); // the table got taller or shorter
-  };
-  showKpis(store.get(kpiKey, !state.narrow));
-  $("kpiBtn").onclick = () => { const on = $("kpis").hidden; store.set(kpiKey, on); showKpis(on); };
   // scroll events already come once a frame: drawing right away leaves no blank rows behind a fast scroll
-  $("grid").addEventListener("scroll", render, { passive: true });
+  $("kingdomPage").addEventListener("scroll", render, { passive: true });
   // a row's two halves (main + pinned) light up together
   let hov = null;
   $("body").addEventListener("mouseover", (e) => {
@@ -761,23 +1074,40 @@ function init() {
     rowH = 0; drawn = ""; schedule();
   });
   let qt = 0;
-  $("q").addEventListener("input", (e) => { clearTimeout(qt); qt = setTimeout(() => { state.q = e.target.value; $("grid").scrollTop = 0; refresh(); }, 120); });
-  $("alliance").onchange = (e) => { state.alliance = e.target.value; $("grid").scrollTop = 0; refresh(); };
+  $("q").addEventListener("input", (e) => { clearTimeout(qt); qt = setTimeout(() => { state.q = e.target.value; toTable(); refresh(); }, 120); });
+  $("allianceOff").onclick = () => { toTable(); KS.setAlliance(""); };
   $("minPower").onchange = (e) => {
     state.minPower = Number(e.target.value);
-    store.set("minPower", state.minPower);
-    $("grid").scrollTop = 0;
+    store.set("powerStep", state.minPower);
+    toTable();
     pickRows();
     if (state.data) { fillAlliances(); refresh(); }
   };
   wireKingdomPicker();
+  $("sortKey").onchange = (e) => {
+    const c = BY_KEY[e.target.value];
+    state.sort = { key: c.key, dir: NUMERIC.has(c.type) && c.key !== "rank" ? -1 : 1 };
+    if (state.data) refresh();
+  };
+  $("sortDir").onclick = () => { state.sort = { ...state.sort, dir: -state.sort.dir }; if (state.data) refresh(); };
   $("scan").onchange = (e) => loadKingdom(state.data.kingdom, e.target.value);
+  $("vs").onchange = (e) => { state.vs = e.target.value; loadKingdom(state.data.kingdom, state.data.scan); };
+  $("vsBtn").onclick = () => {
+    const d = state.data;
+    if (!d) return;
+    setCompare(!state.comparing);
+    if (state.comparing) loadKingdom(d.kingdom); // the newest day against the one before
+    else loadKingdom(d.kingdom, d.scan);
+  };
+  const sortMode = (on) => { if (state.diff && state.sortDelta !== on) { state.sortDelta = on; if (state.data) refresh(); } };
+  $("sortValue").onclick = () => sortMode(false);
+  $("sortDelta").onclick = () => sortMode(true);
   $("colsBtn").onclick = () => { $("colsQ").value = ""; drawPicker(); $("cols").showModal(); };
   $("colsQ").addEventListener("input", drawPicker);
   $("cols").addEventListener("click", (e) => {
     if (e.target === $("cols")) $("cols").close(); // click on the backdrop
     const act = e.target.dataset?.act;
-    if (act === "all") setCols(COLUMNS.map((c) => c.key));
+    if (act === "all") setCols(pickable().map((c) => c.key));
     if (act === "none") setCols([]);
     if (act === "def") setCols(DEFAULT_COLS);
   });
@@ -794,6 +1124,7 @@ function init() {
     fillPower();
     if (state.data) { fillAlliances(); refresh(); }
     if (state.page === "compare") KS.compare.draw();
+    if (KS.pages[state.page]) { drawDvHead(); KS.pages[state.page].show(); }
   };
   $("themeBtn").onclick = () => {
     const dark = document.documentElement.dataset.theme
@@ -805,11 +1136,16 @@ function init() {
   };
   addEventListener("hashchange", () => {
     const hp = new URLSearchParams(location.hash.slice(1)), k = Number(hp.get("k"));
-    if (hp.get("p") === "compare") { setPage("compare"); return; }
-    if (state.page === "compare") { setPage("kingdom", true); rowH = 0; drawn = ""; schedule(); }
+    if (hp.get("p") === "compare" || KS.pages[hp.get("p")]) { setPage(hp.get("p")); return; }
+    if (state.page !== "kingdom") { setPage("kingdom", true); rowH = 0; drawn = ""; schedule(); }
+    const older = hp.get("a") || "";
+    if (older) state.vs = older;
+    setCompare(!!older);
+    const also = alsoOf(hp);
+    if (older) state.also = also;
     if (MODES.includes(hp.get("v") || "players") && (hp.get("v") || "players") !== state.mode) setMode(hp.get("v") || "players");
     const item = state.list.find((x) => x.kingdom === k), scan = hp.get("s") || item?.scan;
-    if (item && (k !== state.data?.kingdom || scan !== state.data?.scan)) {
+    if (item && (k !== state.data?.kingdom || scan !== state.data?.scan || older !== (state.data?._a || "") || also.join() !== (state.data?._ks?.slice(1) || []).join())) {
       loadKingdom(k, scan);
     }
   });
@@ -841,10 +1177,22 @@ document.addEventListener("visibilitychange", () => {
   if (!document.hidden && Date.now() - lastCheck > CHECK_EVERY_MS) checkVersion();
 });
 
+// A redraw that rebuilds a table loses where it was scrolled to: back to the same place (once the new table is in,
+// which may be after a file load)
+function keepScroll(root, draw) {
+  const w = root.querySelector(".tbl-wrap"), top = root.scrollTop, y = w?.scrollTop, x = w?.scrollLeft;
+  draw();
+  requestAnimationFrame(() => {
+    root.scrollTop = top;
+    const n = root.querySelector(".tbl-wrap");
+    if (n && w) { n.scrollTop = y; n.scrollLeft = x; }
+  });
+}
+
 // what views.js uses
 const KS = (window.KS = {
-  state, T, tr, label, $, store, fmt, compact, numFmt, getJSON, BY_KEY, NUMERIC, value, idle, POWER_STEPS,
-  setMode, refresh, setHash, kingdomMatches, listKeys, checkVersion,
+  state, T, tr, label, $, store, fmt, compact, numFmt, getJSON, BY_KEY, NUMERIC, value, idle, POWER_STEPS, DEFAULT_POWER,
+  setMode, refresh, setHash, kingdomMatches, listKeys, checkVersion, deltaOf, keepScroll, allianceChip, dayDrop,
   setAlliance(al) { state.alliance = al; fillAlliances(); refresh(); },
 });
 // views.js (a deferred script after this one) is in by then
