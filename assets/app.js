@@ -8,7 +8,7 @@ const RUNNING_VERSION = /[?&]v=(\d+)/.exec(document.currentScript?.src || "")?.[
 
 const T = {
   vi: {
-    title: "Kingdom Stats", kingdom: "Kingdom", scan: "Đợt scan", latest: "mới nhất", search: "Tìm", searchPh: "Tên, ID, liên minh, #kingdom…", kSearchPh: "Tìm kingdom…", kNone: "Không có kingdom nào", alliance: "Liên minh",
+    yes: "Có", no: "Không", title: "Kingdom Stats", kingdom: "Kingdom", scan: "Đợt scan", latest: "mới nhất", search: "Tìm", searchPh: "Tên, ID, liên minh, #kingdom…", kSearchPh: "Tìm kingdom…", kNone: "Không có kingdom nào", alliance: "Liên minh",
     allAlliances: "Mọi liên minh", noAlliance: "Không liên minh", columns: "Cột", theme: "Đổi giao diện sáng/tối",
     fmtTip: "Số gọn (1.2M) / số đầy đủ", pickCols: "Chọn cột hiển thị", filterCols: "Lọc cột…", all: "Tất cả",
     none: "Bỏ hết", defaults: "Mặc định", players: "người", of: "/", crawled: "Thu thập", loading: "Đang tải…",
@@ -19,7 +19,7 @@ const T = {
     footer: "Thống kê do người chơi tự tổng hợp, không liên quan tới nhà phát hành game. Chỉ gồm người có trên bảng xếp hạng lực chiến.",
   },
   en: {
-    title: "Kingdom Stats", kingdom: "Kingdom", scan: "Scan", latest: "latest", search: "Search", searchPh: "Name, ID, alliance, #kingdom…", kSearchPh: "Find a kingdom…", kNone: "No such kingdom", alliance: "Alliance",
+    yes: "Yes", no: "No", title: "Kingdom Stats", kingdom: "Kingdom", scan: "Scan", latest: "latest", search: "Search", searchPh: "Name, ID, alliance, #kingdom…", kSearchPh: "Find a kingdom…", kNone: "No such kingdom", alliance: "Alliance",
     allAlliances: "All alliances", noAlliance: "No alliance", columns: "Columns", theme: "Light / dark",
     fmtTip: "Compact (1.2M) / full numbers", pickCols: "Columns", filterCols: "Filter columns…", all: "All",
     none: "None", defaults: "Defaults", players: "players", of: "/", crawled: "Collected", loading: "Loading…",
@@ -42,7 +42,7 @@ const store = {
 const POWER_STEPS = [20e6, 15e6, 10e6, 5e6];
 const BY_KEY = Object.fromEntries(COLUMNS.map((c) => [c.key, c]));
 const DEFAULT_COLS = COLUMNS.filter((c) => c.def).map((c) => c.key);
-const NUMERIC = new Set(["int", "num", "pct", "date", "grade"]);
+const NUMERIC = new Set(["int", "num", "pct", "date", "grade", "yesno"]);
 const value = (c, p) => (c.get ? c.get(p) : p[c.key]);
 
 const state = {
@@ -82,6 +82,7 @@ function fmt(c, v) {
     case "num": return state.compact ? compact(v) : numFmt().format(v);
     case "pct": return numFmt(2).format(v) + "%";
     case "grade": return "R" + v;
+    case "yesno": return tr(v ? "yes" : "no");
     case "date": {
       const d = new Date(v);
       return d.toLocaleDateString(state.lang === "vi" ? "vi-VN" : "en-GB", { day: "2-digit", month: "2-digit", year: "numeric" });
