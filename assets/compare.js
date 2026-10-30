@@ -9,7 +9,7 @@ Object.assign(KS.T.vi, {
   xSideA: "Phe 1", xSideB: "Phe 2", xAdd: "+ Kingdom", xRemove: "Bỏ", xEmpty: "Thêm kingdom vào cả hai phe để xem so sánh.",
   xPlayers: "người", xSum: "Tổng", xAvg: "TB", xAggTip: "Tổng / trung bình mỗi người", xTopAll: "Mọi người", xTop: "Top", xReset: "Đặt lại",
   xgScale: "Quy mô", xgBattle: "Giao tranh", xgTop: "Tài khoản mạnh (theo LC đỉnh)", xgMigration: "Di cư & decor", xgUnits: "Công trạng theo binh chủng",
-  xMigrationSum: "Điểm di cư", xMigrationBand: "Di cư", xEach: "Từng kingdom", xScan: "Đợt scan", xKingdom: "Kingdom",
+  xMigrationSum: "Điểm di cư", xMigrationBand: "Di cư", xEach: "Từng kingdom", xScan: "Ngày", xKingdom: "Kingdom",
   xCount: "Người chơi", xAlliances: "Liên minh", xLoadErr: "Không tải được:",
 });
 Object.assign(KS.T.en, {
@@ -17,7 +17,7 @@ Object.assign(KS.T.en, {
   xSideA: "Side 1", xSideB: "Side 2", xAdd: "+ Kingdom", xRemove: "Remove", xEmpty: "Add kingdoms to both sides to compare them.",
   xPlayers: "players", xSum: "Total", xAvg: "Avg", xAggTip: "Total / average per player", xTopAll: "Everyone", xTop: "Top", xReset: "Reset",
   xgScale: "Scale", xgBattle: "Battles", xgTop: "Top accounts (by peak power)", xgMigration: "Migration & decor", xgUnits: "Merits by unit",
-  xMigrationSum: "Migration score", xMigrationBand: "Migration", xEach: "Each kingdom", xScan: "Scan", xKingdom: "Kingdom",
+  xMigrationSum: "Migration score", xMigrationBand: "Migration", xEach: "Each kingdom", xScan: "Day", xKingdom: "Kingdom",
   xCount: "Players", xAlliances: "Alliances", xLoadErr: "Could not load:",
 });
 
@@ -27,7 +27,7 @@ const POWER_BANDS = [[100e6, 200e6, "100–200M"], [200e6, 300e6, "200–300M"],
 const MIGRATION_BANDS = [[24, 28, "24–27"], [28, 31, "28–30"], [31, Infinity, "31+"]];
 const DECOR_MAX = 5; // the last tier of the achievement: an account with this many counts as max decor
 
-const cfg = Object.assign({ a: [], b: [], minPower: KS.POWER_STEPS[KS.POWER_STEPS.length - 1], top: 0, avg: false }, KS.store.get("cmp", {}));
+const cfg = Object.assign({ a: [], b: [], minStep: KS.DEFAULT_POWER, top: 0, avg: false }, KS.store.get("cmp", {}));
 const cache = new Map();   // "<scan>/<kingdom>" -> file (a promise while it loads)
 let token = 0;             // a newer draw makes an older, still loading one give up
 let openSide = null;       // the side whose picker is open
@@ -47,7 +47,7 @@ function load(id) {
 // the players of a side: every kingdom's over the power step, then the side's strongest N
 function sidePlayers(files) {
   let ps = [];
-  for (const f of files) if (f) for (const p of f.players) if ((p.power ?? 0) > cfg.minPower) ps.push(p);
+  for (const f of files) if (f) for (const p of f.players) if ((p.power ?? 0) > cfg.minStep) ps.push(p);
   if (cfg.top) ps = ps.sort((x, y) => (y.power ?? 0) - (x.power ?? 0)).slice(0, cfg.top);
   return ps;
 }
@@ -202,7 +202,7 @@ function controls() {
   reset.type = "button";
   reset.onclick = () => { cfg.a = []; cfg.b = []; openSide = null; save(); draw(); };
   bar.append(
-    sel(KS.POWER_STEPS.map((v) => [v, `${tr("minPower")} > ${v / 1e6}M`]), cfg.minPower, (v) => (cfg.minPower = v)),
+    sel(KS.POWER_STEPS.map((v) => [v, `${tr("minPower")} > ${v / 1e6}M`]), cfg.minStep, (v) => (cfg.minStep = v)),
     sel(TOPS.map((v) => [v, v ? `${tr("xTop")} ${v}` : tr("xTopAll")]), cfg.top, (v) => (cfg.top = v)),
     fmt, avg, reset,
   );
@@ -217,7 +217,7 @@ function eachKingdom(fa, fb) {
   t.appendChild(el("thead")).appendChild(hr);
   const tb = t.appendChild(el("tbody"));
   for (const [side, files] of [["a", fa], ["b", fb]]) {
-    const rows = files.filter(Boolean).map((f) => ({ f, ps: f.players.filter((p) => (p.power ?? 0) > cfg.minPower) }));
+    const rows = files.filter(Boolean).map((f) => ({ f, ps: f.players.filter((p) => (p.power ?? 0) > cfg.minStep) }));
     rows.sort((x, y) => (measure(KS.BY_KEY.power, y.ps) ?? 0) - (measure(KS.BY_KEY.power, x.ps) ?? 0));
     for (const { f, ps } of rows) {
       const r = el("tr");
@@ -249,7 +249,7 @@ async function draw() {
   const groups = !ready ? [] : [
     group(tr("xgScale"), ...cols("power", "powerMax", "merits")),
     group(tr("xgBattle"), ...cols("kills", "heals", "deaths")),
-    group(tr("xgTop"), ...bands("powerMax", [[cfg.minPower, POWER_BANDS[0][0], `${cfg.minPower / 1e6}–100M`], ...POWER_BANDS], "")),
+    group(tr("xgTop"), ...bands("powerMax", [[cfg.minStep, POWER_BANDS[0][0], `${cfg.minStep / 1e6}–100M`], ...POWER_BANDS], "")),
     group(tr("xgMigration"), colLine("migrationScore", pa, pb, tr("xMigrationSum")),
       ...bands("migrationScore", MIGRATION_BANDS, tr("xMigrationBand") + " "),
       ...bands("maxDecor", [[DECOR_MAX, Infinity, KS.label(KS.BY_KEY.maxDecor)]], "")),

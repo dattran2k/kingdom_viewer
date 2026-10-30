@@ -14,7 +14,7 @@ Object.assign(KS.T.vi, {
   aNone: "(không liên minh)", aHint: "Bấm một liên minh để xem thành viên.",
   cMetric: "Chỉ số", cScope: "Theo", cScopeP: "Người chơi", cScopeA: "Liên minh", cAgg: "Gộp", cSum: "Tổng",
   cAvg: "Trung bình", cTop: "Hiện", cAll: "Tất cả", cOrder: "Thứ tự", cDesc: "Cao → thấp", cAsc: "Thấp → cao",
-  cEmpty: "Không có số liệu cho chỉ số này.",
+  cEmpty: "Không có số liệu cho chỉ số này.", cDelta: "Mức thay đổi",
 });
 Object.assign(KS.T.en, {
   mPlayers: "Players", mAlliances: "Alliances", mChart: "Chart",
@@ -25,7 +25,7 @@ Object.assign(KS.T.en, {
   aShare: "Share of power", aNone: "(no alliance)", aHint: "Click an alliance to list its members.",
   cMetric: "Metric", cScope: "By", cScopeP: "Player", cScopeA: "Alliance", cAgg: "Combine", cSum: "Total",
   cAvg: "Average", cTop: "Show", cAll: "All", cOrder: "Order", cDesc: "High → low", cAsc: "Low → high",
-  cEmpty: "No data for this metric.",
+  cEmpty: "No data for this metric.", cDelta: "Change",
 });
 
 const short = (v) => (v == null || Number.isNaN(v) ? "–" : KS.compact(v));
@@ -52,10 +52,33 @@ const KPIS = [
   { key: "heals", label: () => KS.label(KS.BY_KEY.heals), get: (p) => p.heals },
 ];
 
+// comparing two scans: what changed over the players listed, and from what to what
+// (the same figures as the plain strip: switching the mode must not change the strip's height)
+const GROWTH_KPIS = [["power", (p) => p.power], ["merits", (p) => p.merits], ["kills", (p) => p.kills], ["deaths", (p) => p.deaths], ["heals", (p) => p.heals]];
+function drawGrowthKpis(box, list) {
+  const n = numFmt(), joined = list.filter((p) => !p._was && !p._left).length, left = list.filter((p) => p._left).length;
+  const first = el("div", "kpi lead");
+  first.append(el("span", "k-l", tr("kPlayers")), el("b", "k-v", n.format(list.length - left)), el("span", "k-a", `+${n.format(joined)} · −${n.format(left)}`));
+  box.appendChild(first);
+  for (const [k, get] of GROWTH_KPIS) {
+    let a = 0, b = 0;
+    for (const p of list) {
+      if (p._left) { a += get(p) ?? 0; continue; }
+      b += get(p) ?? 0;
+      if (p._was) a += get(p._was) ?? 0;
+    }
+    const d = el("div", "kpi"), v = el("b", "k-v " + (b > a ? "up" : b < a ? "down" : ""), (b > a ? "+" : "") + short(b - a));
+    v.title = full(b - a);
+    d.append(el("span", "k-l", KS.label(KS.BY_KEY[k])), v, el("span", "k-a", `${short(a)} → ${short(b)}`));
+    box.appendChild(d);
+  }
+}
+
 function drawKpis() {
   const box = $("kpis"), list = state.view;
   box.innerHTML = "";
   if (!state.data) return;
+  if (state.data._vs) { drawGrowthKpis(box, list); return; }
   const tags = new Set(list.map((p) => p.alliance).filter(Boolean));
   const first = el("div", "kpi lead");
   first.append(el("span", "k-l", tr("kPlayers")), el("b", "k-v", numFmt().format(list.length)),
@@ -73,26 +96,51 @@ function drawKpis() {
 }
 
 // ---- alliances ----
-// one line per alliance of the players listed (search + power step; not the alliance picker, which this view sets)
+// While comparing two scans, a list of players is two lists: as they are now, and as they were (each under the alliance
+// they had then: an alliance's "before" is who was in it then)
+const comparing = () => !!state.data?._vs;
+const nowOf = (list) => list.filter((p) => !p._left);
+const thenOf = (list) => list.map((p) => (p._left ? p : p._was)).filter(Boolean);
+function byTag(list) {
+  const groups = new Map();
+  for (const p of list) { const k = p.alliance || ""; (groups.get(k) || groups.set(k, []).get(k)).push(p); }
+  return groups;
+}
+
+function allianceLine(tag, ps, total) {
+  const pw = agg(ps, (p) => p.power), pmax = agg(ps, (p) => p.powerMax), mer = agg(ps, (p) => p.merits);
+  const top = ps.reduce((a, b) => ((b.power ?? 0) > (a.power ?? 0) ? b : a), ps[0]);
+  return {
+    tag, members: ps.length, power: pw.sum, avgPower: pw.avg, top, powerMax: pmax.sum, merits: mer.sum,
+    meritRatio: mer.sum != null && pmax.sum ? (100 * mer.sum) / pmax.sum : undefined,
+    kills: agg(ps, (p) => p.kills).sum, deaths: agg(ps, (p) => p.deaths).sum, heals: agg(ps, (p) => p.heals).sum,
+    helps: agg(ps, (p) => p.helps).sum, gather: agg(ps, gathered).sum, migration: agg(ps, (p) => p.migrationScore).avg,
+    share: pw.sum != null ? pw.sum / total : 0, players: ps,
+  };
+}
+
+// one line per alliance of the players listed (search + power step; not the alliance filter, which this view sets);
+// comparing: line._was = the same alliance in the older scan
 function allianceStats() {
-  const q = state.q.trim().toLowerCase(), groups = new Map();
-  for (const p of state.rows) {
-    if (q && !p._s.includes(q)) continue;
-    const k = p.alliance || "";
-    (groups.get(k) || groups.set(k, []).get(k)).push(p);
-  }
-  const total = agg(state.rows, (p) => p.power).sum || 1;
-  return [...groups].map(([tag, ps]) => {
-    const pw = agg(ps, (p) => p.power), pmax = agg(ps, (p) => p.powerMax), mer = agg(ps, (p) => p.merits);
-    const top = ps.reduce((a, b) => ((b.power ?? 0) > (a.power ?? 0) ? b : a));
-    return {
-      tag, members: ps.length, power: pw.sum, avgPower: pw.avg, top, powerMax: pmax.sum, merits: mer.sum,
-      meritRatio: mer.sum != null && pmax.sum ? (100 * mer.sum) / pmax.sum : undefined,
-      kills: agg(ps, (p) => p.kills).sum, deaths: agg(ps, (p) => p.deaths).sum, heals: agg(ps, (p) => p.heals).sum,
-      helps: agg(ps, (p) => p.helps).sum, gather: agg(ps, gathered).sum, migration: agg(ps, (p) => p.migrationScore).avg,
-      share: pw.sum != null ? pw.sum / total : 0, players: ps,
-    };
+  const q = state.q.trim().toLowerCase(), listed = q ? state.rows.filter((p) => p._s.includes(q)) : state.rows;
+  const now = byTag(comparing() ? nowOf(listed) : listed), total = agg(comparing() ? nowOf(state.rows) : state.rows, (p) => p.power).sum || 1;
+  if (!comparing()) return [...now].map(([tag, ps]) => allianceLine(tag, ps, total));
+  const then = byTag(thenOf(listed)), oldTotal = agg(thenOf(state.rows), (p) => p.power).sum || 1;
+  return [...new Set([...now.keys(), ...then.keys()])].map((tag) => {
+    const line = allianceLine(tag, now.get(tag) || [], total);
+    if (then.has(tag)) line._was = allianceLine(tag, then.get(tag), oldTotal);
+    return line;
   });
+}
+
+// before / change / after, as a cell of the player table
+function threeLines(was, now, show) {
+  const d = was != null && now != null ? now - was : null;
+  const box = el("div", "d3");
+  box.append(el("span", "d-a", was == null ? "–" : show(was)),
+    el("span", "d-d" + (d > 0 ? " hi" : d < 0 ? " lo" : ""), d == null ? "" : (d > 0 ? "+" : "") + show(d)),
+    el("span", "d-b", now == null ? "–" : show(now)));
+  return box;
 }
 
 const A_COLS = [
@@ -119,7 +167,8 @@ function drawAlliances() {
   if (!state.data) return;
   const rows = allianceStats();
   const col = A_COLS.find((c) => c.key === aSort.key) || A_COLS[2];
-  const sortVal = col.sortBy || ((a) => a[col.key]);
+  const delta = (a) => (a._was && a[col.key] != null && a._was[col.key] != null ? a[col.key] - a._was[col.key] : null);
+  const sortVal = comparing() && state.sortDelta && !col.text ? delta : col.sortBy || ((a) => a[col.key]);
   rows.sort((a, b) => {
     const x = sortVal(a), y = sortVal(b);
     if (x == null) return y == null ? 0 : 1;
@@ -132,7 +181,7 @@ function drawAlliances() {
   for (const c of A_COLS) {
     const th = el("th", c.text ? "" : "n", tr(c.t));
     if (aSort.key === c.key) { th.classList.add("on"); th.dataset.dir = aSort.dir > 0 ? "▲" : "▼"; }
-    th.onclick = () => { aSort = aSort.key === c.key ? { key: c.key, dir: -aSort.dir } : { key: c.key, dir: c.text ? 1 : -1 }; drawAlliances(); };
+    th.onclick = () => { aSort = aSort.key === c.key ? { key: c.key, dir: -aSort.dir } : { key: c.key, dir: c.text ? 1 : -1 }; KS.keepScroll($("kingdomPage"), drawAlliances); };
     hr.appendChild(th);
   }
   t.appendChild(el("thead")).appendChild(hr);
@@ -143,10 +192,12 @@ function drawAlliances() {
     for (const c of A_COLS) {
       const td = el("td", c.text ? "" : "n");
       if (c.key === "tag") {
-        td.append(el("span", "a-i", String(i + 1)), el("b", "", a.tag || tr("aNone")));
+        td.append(el("span", "a-i", String(i + 1)), a.tag ? KS.allianceChip(a.tag) : el("b", "", tr("aNone")));
       } else if (c.key === "top") {
-        td.textContent = a.top.name ?? "";
-        td.title = `${a.top.name ?? ""} · ${full(a.top.power)}`;
+        td.textContent = a.top?.name ?? "";
+        td.title = a.top ? `${a.top.name ?? ""} · ${full(a.top.power)}` : "";
+      } else if (comparing() && a._was?.[c.key] !== a[c.key]) {
+        td.appendChild(threeLines(a._was?.[c.key], a[c.key], c.f || short));
       } else {
         const v = a[c.key];
         td.textContent = v == null ? "–" : c.f ? c.f(v) : short(v);
@@ -172,14 +223,14 @@ const CHART_SKIP = new Set(["rank", "id", "faction", "cityLevel", "allianceRank"
 const chart = Object.assign({ metric: "power", scope: "players", agg: "sum", top: 30, dir: -1 }, KS.store.get("chart", {}));
 
 function metricList() {
-  return COLUMNS.filter((c) => !CHART_SKIP.has(c.key) && (c.type === "num" || c.type === "int" || c.type === "pct"));
+  return COLUMNS.filter((c) => !c.auto && !CHART_SKIP.has(c.key) && (c.type === "num" || c.type === "int" || c.type === "pct"));
 }
 
 function select(opts, val, on) {
   const s = el("select");
   for (const [v, t] of opts) { const o = el("option", "", t); o.value = v; s.appendChild(o); }
   s.value = String(val);
-  s.onchange = () => { on(s.value); KS.store.set("chart", chart); drawChart(); };
+  s.onchange = () => { on(s.value); KS.store.set("chart", chart); KS.keepScroll($("kingdomPage"), drawChart); };
   return s;
 }
 
@@ -187,6 +238,7 @@ function drawChart() {
   const panel = $("panel");
   panel.innerHTML = "";
   if (!state.data) return;
+  const diff = comparing(); // the bars show the change between the two scans
   const metrics = metricList();
   if (!metrics.some((c) => c.key === chart.metric)) chart.metric = "power";
   const c = KS.BY_KEY[chart.metric];
@@ -203,18 +255,18 @@ function drawChart() {
     lab("cOrder", select([[-1, tr("cDesc")], [1, tr("cAsc")]], chart.dir, (v) => (chart.dir = Number(v)))),
   );
   panel.appendChild(bar);
+  if (diff) panel.appendChild(el("p", "hint mut", `${tr("cDelta")}: ${state.data._vs} → ${state.data.scan}`));
 
   // the items: players of the list, or alliances (their total / average; a % column always averages)
   let items;
   if (chart.scope === "players") {
-    items = state.view.map((p) => ({ name: p.name ?? String(p.id), sub: p.alliance || "", v: KS.value(c, p) }));
+    items = state.view.map((p) => ({ name: p.name ?? String(p.id), tag: p.alliance, v: diff ? KS.deltaOf(c, p) : KS.value(c, p) }));
   } else {
-    const groups = new Map();
-    for (const p of state.view) { const k = p.alliance || ""; (groups.get(k) || groups.set(k, []).get(k)).push(p); }
-    const avg = chart.agg === "avg" || c.type === "pct";
-    items = [...groups].map(([tag, ps]) => {
-      const a = agg(ps, (p) => KS.value(c, p));
-      return { name: tag || tr("aNone"), sub: `${ps.length} ${tr("players")}`, v: avg ? a.avg : a.sum };
+    const avg = chart.agg === "avg" || c.type === "pct", now = byTag(diff ? nowOf(state.view) : state.view), then = byTag(diff ? thenOf(state.view) : []);
+    const of = (ps) => { const a = agg(ps || [], (p) => KS.value(c, p)); return avg ? a.avg : a.sum; };
+    items = [...new Set([...now.keys(), ...then.keys()])].map((tag) => {
+      const a = of(now.get(tag)), b = of(then.get(tag));
+      return { name: tag || tr("aNone"), sub: `${(now.get(tag) || []).length} ${tr("players")}`, v: !diff ? a : (a ?? 0) - (b ?? 0) };
     });
   }
   items = items.filter((x) => typeof x.v === "number" && !Number.isNaN(x.v));
@@ -228,12 +280,14 @@ function drawChart() {
     const li = el("li", i < 3 && chart.dir < 0 ? "top" : "");
     const name = el("span", "b-n");
     name.append(el("span", "b-i", String(i + 1)), el("span", "b-t", x.name));
-    if (x.sub) name.appendChild(el("small", "mut", x.sub));
+    if (x.tag) name.appendChild(KS.allianceChip(x.tag));
+    else if (x.sub) name.appendChild(el("small", "mut", x.sub));
     name.title = x.name;
-    const track = el("span", "b-track"), fill = el("i", "b-fill");
+    const track = el("span", "b-track"), fill = el("i", "b-fill" + (x.v < 0 ? " neg" : ""));
     fill.style.width = ((100 * Math.abs(x.v)) / max).toFixed(2) + "%";
     track.appendChild(fill);
-    const val = el("span", "b-v", c.type === "pct" ? numFmt(2).format(x.v) + "%" : c.type === "int" ? numFmt().format(x.v) : short(x.v));
+    const sign = diff && x.v > 0 ? "+" : "";
+    const val = el("span", "b-v" + (diff ? (x.v > 0 ? " up" : x.v < 0 ? " down" : "") : ""), sign + (c.type === "pct" ? numFmt(2).format(x.v) + "%" : c.type === "int" ? numFmt().format(x.v) : short(x.v)));
     val.title = full(x.v);
     li.append(name, track, val);
     list.appendChild(li);
@@ -245,6 +299,6 @@ KS.views = { alliances: drawAlliances, chart: drawChart };
 // after every change of the list (filters, sort, language, kingdom): the strip, and the view on screen
 KS.onRefresh = () => {
   drawKpis();
-  if (state.mode !== "players") KS.views[state.mode]?.();
+  if (state.mode !== "players" && KS.views[state.mode]) KS.keepScroll($("kingdomPage"), KS.views[state.mode]);
 };
 })();

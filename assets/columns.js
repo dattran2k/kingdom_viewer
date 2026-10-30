@@ -2,6 +2,7 @@
 // is derived from other fields. type: text | int (always full) | num (compact or full) | pct | date | grade | yesno (1 / 0).
 // Every column is sized to fit its header and its values; `width` is used only for the name column.
 // `def` = shown by default, `pin` = stays on the left while scrolling sideways, `fixed` = cannot be hidden.
+// `auto` = not in the column picker, the page shows it by itself.
 // Groups and columns are in the order the table shows them. `vi` / `en` = the short header, `tip` = the full name
 // (header tooltip, column picker, chart).
 
@@ -19,6 +20,7 @@ const GROUPS = [
   { id: "glory", vi: "Vinh quang", en: "Glory" },
 ];
 
+const gatheredOf = (p) => { const v = ["gold", "wood", "ore", "mana"].filter((k) => p[k] != null); return v.length ? v.reduce((s, k) => s + p[k], 0) : undefined; };
 const ratio = (a, b) => (p) => (p[a] != null && p[b] ? (100 * p[a]) / p[b] : undefined);
 
 const COLUMNS = [
@@ -30,6 +32,7 @@ const COLUMNS = [
   { key: "cityLevel", vi: "Thành", en: "City", group: "basic", type: "int", width: 76,
     tip: { vi: "Cấp thành chính", en: "City (town center) level" } },
   { key: "faction", vi: "Phe", en: "Faction", group: "basic", type: "int", width: 60 },
+  { key: "home", vi: "Kingdom", en: "Kingdom", group: "basic", type: "kingdom", width: 80, auto: true, get: (p) => p._k }, // several kingdoms compared
   { key: "migrationScore", vi: "Di cư", en: "Migration", group: "basic", type: "int", width: 92, def: true,
     tip: { vi: "Điểm di cư", en: "Migration score" } },
 
@@ -52,7 +55,7 @@ const COLUMNS = [
   { key: "meritsMax", vi: "CT mùa đỉnh", en: "Best season", group: "combat", type: "num", width: 100,
     tip: { vi: "Công trạng cao nhất trong một mùa", en: "Best merits in one season" } },
   { key: "kills", vi: "Tiêu diệt", en: "Kills", group: "combat", type: "num", width: 92, def: true },
-  { key: "deaths", vi: "Tử trận", en: "Dead", group: "combat", type: "num", width: 88 },
+  { key: "deaths", vi: "Tử trận", en: "Dead", group: "combat", type: "num", width: 88, def: true },
   { key: "heals", vi: "Chữa trị", en: "Healed", group: "combat", type: "num", width: 92, def: true,
     tip: { vi: "Lính đã chữa", en: "Units healed" } },
   { key: "victories", vi: "Thắng", en: "Wins", group: "combat", type: "num", width: 84,
@@ -98,7 +101,7 @@ const COLUMNS = [
 
   { key: "allianceRank", vi: "Bậc", en: "Rank", group: "alliance", type: "grade", width: 56, def: true,
     tip: { vi: "Bậc trong liên minh (R1–R5)", en: "Alliance rank (R1–R5)" } },
-  { key: "helps", vi: "Giúp đỡ", en: "Helps", group: "alliance", type: "num", width: 84,
+  { key: "helps", vi: "Giúp đỡ", en: "Helps", group: "alliance", type: "num", width: 84, def: true,
     tip: { vi: "Lượt giúp đỡ liên minh", en: "Alliance helps" } },
   { key: "builds", vi: "Xây dựng", en: "Builds", group: "alliance", type: "num", width: 84,
     tip: { vi: "Lượt xây dựng liên minh", en: "Alliance builds" } },
@@ -109,6 +112,8 @@ const COLUMNS = [
   { key: "lastLogin", vi: "Online", en: "Last seen", group: "alliance", type: "date", width: 104,
     tip: { vi: "Đăng nhập lần cuối", en: "Last login" } },
 
+  { key: "gathered", vi: "Thu thập", en: "Gathered", group: "gather", type: "num", width: 88, def: true, get: gatheredOf,
+    tip: { vi: "Tổng vàng + gỗ + đá + mana đã thu", en: "Gold + wood + ore + mana gathered" } },
   { key: "gold", vi: "Vàng thu", en: "Gold gathered", group: "gather", type: "num", width: 88,
     tip: { vi: "Vàng đã thu thập", en: "Gold gathered" } },
   { key: "wood", vi: "Gỗ thu", en: "Wood gathered", group: "gather", type: "num", width: 88,
