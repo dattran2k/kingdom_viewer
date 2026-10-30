@@ -1,5 +1,5 @@
 // Column catalogue. `key` is a field of data/scans/<scan>/<id>.json (README "Data"); a column with `get`
-// is derived from other fields. type: text | int (always full) | num (compact or full) | pct | date | grade.
+// is derived from other fields. type: text | int (always full) | num (compact or full) | pct | date | grade | yesno (1 / 0).
 // Every column is sized to fit its header and its values; `width` is used only for the name column.
 // `def` = shown by default, `pin` = stays on the left while scrolling sideways, `fixed` = cannot be hidden.
 // Groups and columns are in the order the table shows them. `vi` / `en` = the short header, `tip` = the full name
@@ -70,8 +70,8 @@ const COLUMNS = [
     tip: { vi: "Số thành tựu đã đạt", en: "Achievements done" } },
   { key: "cityTheme", vi: "Nhà Thiên Đỉnh", en: "Legendary city themes", group: "trophy", type: "int", width: 100, def: true,
     tip: { vi: "Giao diện thành Huyền thoại vĩnh viễn", en: "Permanent legendary city themes" } },
-  { key: "legendaryArtifacts", vi: "Bảo vật đỏ", en: "Red artifacts", group: "trophy", type: "int", width: 88, def: true,
-    tip: { vi: "Bảo vật Huyền thoại", en: "Legendary artifacts" } },
+  { key: "redArtifact", vi: "Bảo vật đỏ", en: "Red artifact", group: "trophy", type: "yesno", width: 88, def: true,
+    tip: { vi: "Hoàn thành Chìa Khóa Vạn Năng (rút 2.000 báu vật)", en: "Universal Key done (2,000 artifact draws)" } },
   { key: "pets8Skills3Star", vi: "Pet max", en: "Max pets", group: "trophy", type: "int", width: 104, def: true,
     tip: { vi: "Pet đủ 8 kỹ năng 3★", en: "Pets with 8 skills at 3★" } },
   { key: "maxDecor", vi: "Decor max", en: "Max decor", group: "trophy", type: "int", width: 80, def: true,

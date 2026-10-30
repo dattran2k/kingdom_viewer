@@ -43,6 +43,7 @@ A player is a flat object. A missing field means "unknown", and `0` means zero.
 | `kvkJoined`, `kvkWon`, `rootsJoined`, `rootsWon` | KvK / Roots of War joined, won |
 | `migrationScore` | realm migration score |
 | `achievementsDone`, `cityTheme`, `legendaryArtifacts`, `pets8Skills3Star`, `maxDecor`, `exchangeCoinsSpent`, `gemsSpent`, `awakenedHeroes`, `artifactSkillsLv5` | achievements ² |
+| `redArtifact` | 1 / 0: the last tier of the Universal Key achievement (2,000 artifact draws) is done |
 | `missing` | parts that could not be read |
 
 ¹ Players in an alliance only. ² Read from achievement tiers, so a value stops at the last tier. Fields listed
