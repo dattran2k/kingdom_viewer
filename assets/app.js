@@ -105,6 +105,9 @@ async function loadIndex() {
   const hp = new URLSearchParams(location.hash.slice(1));
   const want = Number(hp.get("k")) || store.get("kingdom", list[0].kingdom);
   setMode(MODES.includes(hp.get("v")) ? hp.get("v") : store.get("mode", "players"), true);
+  // a page opened on the compare view loads no kingdom until the kingdom view is opened
+  if (!hp.get("k") && (hp.get("p") || store.get("page", "kingdom")) === "compare") { setPage("compare"); return; }
+  setPage("kingdom", true);
   await loadKingdom(list.some((k) => k.kingdom === want) ? want : list[0].kingdom, hp.get("s"));
 }
 
@@ -240,9 +243,29 @@ async function loadKingdom(id, scan) {
 
 // #k=<kingdom>&s=<scan>&v=<view>: a link opens the same kingdom, scan and view (no s = the newest scan)
 function setHash() {
+  if (state.page !== "kingdom") return; // the compare view keeps its own link
   const d = state.data, item = d && state.list.find((k) => k.kingdom === d.kingdom);
   history.replaceState(null, "", "#" + (d ? "k=" + d.kingdom : "") + (item && d.scan !== item.scan ? "&s=" + d.scan : "")
     + (state.mode !== "players" ? "&v=" + state.mode : ""));
+}
+
+// The two pages of the side menu. quiet: only switch what is on screen (the caller loads and sets the link).
+function setPage(p, quiet) {
+  state.page = p;
+  store.set("page", p);
+  $("kingdomPage").hidden = p !== "kingdom";
+  $("comparePage").hidden = p !== "compare";
+  document.querySelectorAll(".side-nav button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.page === p)));
+  showMenu(false);
+  if (quiet) return;
+  if (p === "compare") { KS.compare.show(); return; }
+  if (state.data) { setHash(); rowH = 0; drawn = ""; schedule(); } // the table had no size while hidden
+  else if (state.list.length) loadKingdom(store.get("kingdom", state.list[0].kingdom));
+}
+// a narrow window: the side menu is a drawer over the page
+function showMenu(on) {
+  $("side").classList.toggle("open", on);
+  $("scrim").hidden = !on;
 }
 
 // players = the table (#grid); the other views draw into #panel (views.js)
@@ -704,6 +727,10 @@ function init() {
     if (state.data) refresh();
   };
   document.querySelectorAll("#modes button[data-mode]").forEach((b) => (b.onclick = () => setMode(b.dataset.mode)));
+  document.querySelectorAll(".side-nav button").forEach((b) => (b.onclick = () => setPage(b.dataset.page)));
+  document.querySelectorAll(".menu-btn").forEach((b) => (b.onclick = () => showMenu(true)));
+  $("scrim").onclick = () => showMenu(false);
+  addEventListener("keydown", (e) => { if (e.key === "Escape") showMenu(false); });
   // the totals strip: shown or not is kept per device kind (a phone has little room for it)
   const kpiKey = state.narrow ? "kpisPhone" : "kpis";
   const showKpis = (on) => {
@@ -763,6 +790,7 @@ function init() {
     applyLang();
     fillPower();
     if (state.data) { fillAlliances(); refresh(); }
+    if (state.page === "compare") KS.compare.draw();
   };
   $("themeBtn").onclick = () => {
     const dark = document.documentElement.dataset.theme
@@ -774,6 +802,8 @@ function init() {
   };
   addEventListener("hashchange", () => {
     const hp = new URLSearchParams(location.hash.slice(1)), k = Number(hp.get("k"));
+    if (hp.get("p") === "compare") { setPage("compare"); return; }
+    if (state.page === "compare") { setPage("kingdom", true); rowH = 0; drawn = ""; schedule(); }
     if (MODES.includes(hp.get("v") || "players") && (hp.get("v") || "players") !== state.mode) setMode(hp.get("v") || "players");
     const item = state.list.find((x) => x.kingdom === k), scan = hp.get("s") || item?.scan;
     if (item && (k !== state.data?.kingdom || scan !== state.data?.scan)) {
@@ -785,8 +815,8 @@ function init() {
 
 // what views.js uses
 const KS = (window.KS = {
-  state, T, tr, label, $, store, fmt, compact, numFmt, getJSON, BY_KEY, NUMERIC, value, idle,
-  setMode, refresh, setHash,
+  state, T, tr, label, $, store, fmt, compact, numFmt, getJSON, BY_KEY, NUMERIC, value, idle, POWER_STEPS,
+  setMode, refresh, setHash, kingdomMatches, listKeys,
   setAlliance(al) { state.alliance = al; fillAlliances(); refresh(); },
 });
 // views.js (a deferred script after this one) is in by then
