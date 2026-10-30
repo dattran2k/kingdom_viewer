@@ -4,6 +4,8 @@
 (() => {
 "use strict";
 
+const RUNNING_VERSION = /[?&]v=(\d+)/.exec(document.currentScript?.src || "")?.[1];
+
 const T = {
   vi: {
     title: "Kingdom Stats", kingdom: "Kingdom", scan: "Đợt scan", latest: "mới nhất", search: "Tìm", searchPh: "Tên, ID, liên minh, #kingdom…", kSearchPh: "Tìm kingdom…", kNone: "Không có kingdom nào", alliance: "Liên minh",
@@ -811,12 +813,37 @@ function init() {
     }
   });
   loadIndex();
+  checkVersion();
 }
+
+// ---- new version check ----
+// GitHub Pages lets a browser keep index.html for 10 minutes, so a reload can bring back the old page. The running
+// version is the ?v= of this script; index.html, asked for past the cache, says the newest one. When they differ the
+// page reloads once under a new address (?r=<version>), which has no cached copy. Once per version: if the new address
+// still brings the old page, it stays until the cache expires.
+const VERSION_RE = /assets\/app\.js\?v=(\d+)/;
+const CHECK_EVERY_MS = 5 * 60 * 1000;
+let lastCheck = 0;
+async function checkVersion() {
+  if (!RUNNING_VERSION || location.protocol === "file:") return;
+  lastCheck = Date.now();
+  let newest;
+  try { newest = VERSION_RE.exec(await (await fetch("index.html", { cache: "no-cache" })).text())?.[1]; } catch { return; } // offline
+  if (!newest || newest === RUNNING_VERSION || sessionStorage.getItem("ks.reloadedFor") === newest) return;
+  sessionStorage.setItem("ks.reloadedFor", newest);
+  const url = new URL(location.href);
+  url.searchParams.set("r", newest);
+  location.replace(url.href);
+}
+// a phone keeps a tab for days: check again when the page comes back on screen
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden && Date.now() - lastCheck > CHECK_EVERY_MS) checkVersion();
+});
 
 // what views.js uses
 const KS = (window.KS = {
   state, T, tr, label, $, store, fmt, compact, numFmt, getJSON, BY_KEY, NUMERIC, value, idle, POWER_STEPS,
-  setMode, refresh, setHash, kingdomMatches, listKeys,
+  setMode, refresh, setHash, kingdomMatches, listKeys, checkVersion,
   setAlliance(al) { state.alliance = al; fillAlliances(); refresh(); },
 });
 // views.js (a deferred script after this one) is in by then
