@@ -15,32 +15,32 @@
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #16233c; --panel: #1d2c48; --panel2: #263857; --fg: #eaf1fb; --mut: #b7c6dc; --line: #35496e;
-    --acc: #7fbcff; --acc-bg: #27477a; --row-alt: #1a2842; --hover: #2a4066; --pin: #1d2c48; --shadow: 0 8px 30px rgba(0,0,0,.55);
-    --up: #5fd08a; --down: #ff8a80;
-    --g-page: linear-gradient(160deg, #17253f 0%, #1a2f54 100%);
-    --g-side: linear-gradient(180deg, #22345a 0%, #18263f 100%);
-    --g-bar: linear-gradient(90deg, #1d2c48 0%, #24395f 100%);
-    --g-card: linear-gradient(150deg, #25375b 0%, #1b2943 100%);
-    --g-head: linear-gradient(180deg, #2a3e62 0%, #243655 100%);
+    --bg: #0b0e14; --panel: #11151d; --panel2: #181d27; --fg: #e8edf5; --mut: #94a1b5; --line: #232a37;
+    --acc: #5aa7ff; --acc-bg: #14294a; --row-alt: #0e1219; --hover: #1a2536; --pin: #11151d; --shadow: 0 8px 30px rgba(0,0,0,.55);
+    --up: #4cc38a; --down: #ff7b72;
+    --g-page: linear-gradient(160deg, #0b0e14 0%, #0d1119 100%);
+    --g-side: linear-gradient(180deg, #11151d 0%, #0c0f15 100%);
+    --g-bar: linear-gradient(90deg, #11151d 0%, #131925 100%);
+    --g-card: linear-gradient(150deg, #151b26 0%, #10141c 100%);
+    --g-head: linear-gradient(180deg, #1a202b 0%, #151a23 100%);
     --g-acc: linear-gradient(135deg, #62a8fa 0%, #3f7fe6 100%);
-    --g-btn: linear-gradient(180deg, #2b4066 0%, #233554 100%);
-    --edge: #40597f; --on-acc: #ffffff;
+    --g-btn: linear-gradient(180deg, #1c2330 0%, #171c26 100%);
+    --edge: #2a3342; --on-acc: #ffffff;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #16233c; --panel: #1d2c48; --panel2: #263857; --fg: #eaf1fb; --mut: #b7c6dc; --line: #35496e;
-  --acc: #7fbcff; --acc-bg: #27477a; --row-alt: #1a2842; --hover: #2a4066; --pin: #1d2c48; --shadow: 0 8px 30px rgba(0,0,0,.55);
-  --up: #5fd08a; --down: #ff8a80;
-  --g-page: linear-gradient(160deg, #17253f 0%, #1a2f54 100%);
-  --g-side: linear-gradient(180deg, #22345a 0%, #18263f 100%);
-  --g-bar: linear-gradient(90deg, #1d2c48 0%, #24395f 100%);
-  --g-card: linear-gradient(150deg, #25375b 0%, #1b2943 100%);
-  --g-head: linear-gradient(180deg, #2a3e62 0%, #243655 100%);
+  --bg: #0b0e14; --panel: #11151d; --panel2: #181d27; --fg: #e8edf5; --mut: #94a1b5; --line: #232a37;
+  --acc: #5aa7ff; --acc-bg: #14294a; --row-alt: #0e1219; --hover: #1a2536; --pin: #11151d; --shadow: 0 8px 30px rgba(0,0,0,.55);
+  --up: #4cc38a; --down: #ff7b72;
+  --g-page: linear-gradient(160deg, #0b0e14 0%, #0d1119 100%);
+  --g-side: linear-gradient(180deg, #11151d 0%, #0c0f15 100%);
+  --g-bar: linear-gradient(90deg, #11151d 0%, #131925 100%);
+  --g-card: linear-gradient(150deg, #151b26 0%, #10141c 100%);
+  --g-head: linear-gradient(180deg, #1a202b 0%, #151a23 100%);
   --g-acc: linear-gradient(135deg, #62a8fa 0%, #3f7fe6 100%);
-  --g-btn: linear-gradient(180deg, #2b4066 0%, #233554 100%);
-  --edge: #40597f; --on-acc: #ffffff;
+  --g-btn: linear-gradient(180deg, #1c2330 0%, #171c26 100%);
+  --edge: #2a3342; --on-acc: #ffffff;
   color-scheme: dark;
 }
 
