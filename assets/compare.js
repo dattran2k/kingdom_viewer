@@ -8,16 +8,22 @@ Object.assign(KS.T.vi, {
   navKingdom: "Kingdom", navCompare: "So sánh", openSource: "Mã nguồn mở trên GitHub",
   xSideA: "Phe 1", xSideB: "Phe 2", xAdd: "+ Kingdom", xRemove: "Bỏ", xEmpty: "Thêm kingdom vào cả hai phe để xem so sánh.",
   xPlayers: "người", xSum: "Tổng", xAvg: "TB", xAggTip: "Tổng / trung bình mỗi người", xTopAll: "Mọi người", xTop: "Top", xReset: "Đặt lại",
-  xgScale: "Quy mô", xgBattle: "Giao tranh", xgTop: "Tài khoản mạnh (theo LC đỉnh)", xgMigration: "Di cư & decor", xgUnits: "Công trạng theo binh chủng",
-  xMigrationSum: "Điểm di cư", xMigrationBand: "Di cư", xEach: "Từng kingdom", xScan: "Ngày", xKingdom: "Kingdom",
+  xdDuels: "Các mức LC max, mức điểm di cư, Decor max, Pet max, Bảo vật đỏ và Nhà Thiên Đỉnh đếm số người chơi. CT / LC là trung bình mỗi người. Các số còn lại là {agg}.",
+  xAggSum: "tổng của cả phe", xAggAvg: "trung bình mỗi người", xBand: "LC max",
+  xInfantry: "CT bộ binh", xCavalry: "CT kỵ binh", xArcher: "CT cung thủ", xMagic: "CT pháp sư",
+  xdEach: "Số tổng của từng kingdom ở ngày mới nhất, chỉ tính người qua mức lực chiến đã chọn.",
+  xMigrationSum: "Điểm di cư", xMigrationBand: "Điểm di cư", xEach: "Từng kingdom", xScan: "Ngày", xKingdom: "Kingdom",
   xCount: "Người chơi", xAlliances: "Liên minh", xLoadErr: "Không tải được:",
 });
 Object.assign(KS.T.en, {
   navKingdom: "Kingdom", navCompare: "Compare", openSource: "Open source on GitHub",
   xSideA: "Side 1", xSideB: "Side 2", xAdd: "+ Kingdom", xRemove: "Remove", xEmpty: "Add kingdoms to both sides to compare them.",
   xPlayers: "players", xSum: "Total", xAvg: "Avg", xAggTip: "Total / average per player", xTopAll: "Everyone", xTop: "Top", xReset: "Reset",
-  xgScale: "Scale", xgBattle: "Battles", xgTop: "Top accounts (by peak power)", xgMigration: "Migration & decor", xgUnits: "Merits by unit",
-  xMigrationSum: "Migration score", xMigrationBand: "Migration", xEach: "Each kingdom", xScan: "Day", xKingdom: "Kingdom",
+  xdDuels: "Peak power bands, migration bands, Max decor, Max pets, Red artifact and Legendary themes count players. Merit % is the average per player. The other figures are the {agg}.",
+  xAggSum: "total of the side", xAggAvg: "average per player", xBand: "Peak power",
+  xInfantry: "Infantry merits", xCavalry: "Cavalry merits", xArcher: "Archer merits", xMagic: "Magic merits",
+  xdEach: "Totals of each kingdom on its newest day, only players over the chosen power step.",
+  xMigrationSum: "Migration score", xMigrationBand: "Migration score", xEach: "Each kingdom", xScan: "Day", xKingdom: "Kingdom",
   xCount: "Players", xAlliances: "Alliances", xLoadErr: "Could not load:",
 });
 
@@ -31,6 +37,7 @@ const cache = new Map();   // "<scan>/<kingdom>" -> file (a promise while it loa
 let token = 0;             // a newer draw makes an older, still loading one give up
 let openSide = null;       // the side whose picker is open
 
+function iconOf(key, cls) { const i = el("img", cls); i.src = `assets/icons/${key}.png`; i.alt = ""; return i; }
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
 const num = (v) => (state.compact ? KS.compact(v) : numFmt().format(Math.round(v)));
 const itemOf = (id) => state.list.find((k) => k.kingdom === id);
@@ -60,39 +67,11 @@ function measure(c, ps) {
 }
 const show = (c, v) => (v == null ? "–" : c.type === "pct" ? numFmt(2).format(v) + "%" : cfg.avg && c.type === "int" ? numFmt(1).format(v) : c.type === "int" ? numFmt().format(v) : num(v));
 
-// a line: the name in the middle, a bar growing outwards from it on each side: the larger value is the full bar, the
-// other its share of that. The value sits at the middle end, with how far ahead for the larger one
-function line(name, tip, va, vb, text) {
-  const r = el("div", "x-row");
-  const lead = va != null && vb != null && va !== vb ? (va > vb ? "a" : "b") : "";
-  const high = Math.max(va || 0, vb || 0), low = Math.min(va || 0, vb || 0);
-  const bar = (side, v) => {
-    const t = el("div", "x-track " + side + (lead === side ? " lead" : "")), f = el("i"), val = el("span", "x-v");
-    f.style.width = (high > 0 ? (100 * Math.max(v || 0, 0)) / high : 0).toFixed(2) + "%";
-    const b = el("b", "", text(v));
-    if (typeof v === "number") b.title = numFmt().format(Math.round(v));
-    val.appendChild(b);
-    if (lead === side && low > 0) val.appendChild(el("small", "", `+${numFmt(1).format((100 * (high - low)) / high)}%`));
-    t.append(f, val);
-    return t;
-  };
-  // a triangle beside the name points at the larger side; both keep their room, so the name stays centred
-  const lab = el("span", "x-name" + (lead ? " lead-" + lead : "")), arrow = (side) => el("i", "x-arrow " + side + (lead === side ? " on" : ""));
-  lab.append(arrow("a"), el("span", "", name), arrow("b"));
-  if (tip) lab.title = tip;
-  r.append(bar("a", va), lab, bar("b", vb));
-  return r;
-}
-
-function colLine(key, pa, pb, name) {
-  const c = KS.BY_KEY[key];
-  return line(name || KS.label(c), KS.label(c.tip || c), measure(c, pa), measure(c, pb), (v) => show(c, v));
-}
-
-// a titled block of lines
-function group(title, ...kids) {
-  const g = el("section", "x-grp"), top = el("div", "x-grp-top");
-  top.appendChild(el("h3", "", title));
+// a titled block
+function group(icon, title, desc, ...kids) {
+  const g = el("section", "x-grp"), top = el("div", "x-grp-top"), text = el("div", "x-gt");
+  text.append(el("h3", "", title), el("p", "x-gd", desc.replace("{agg}", tr(cfg.avg ? "xAggAvg" : "xAggSum"))));
+  top.append(iconOf(icon, "x-gi"), text);
   g.appendChild(top);
   g.append(...kids);
   return g;
@@ -160,15 +139,6 @@ function sidePanel(side, titleKey, ps) {
   }
   tags.appendChild(picker(side));
   box.append(head, tags);
-  if (ids.length) {
-    const figs = el("div", "x-figs");
-    for (const k of ["power", "merits"]) {
-      const c = KS.BY_KEY[k], f = el("div");
-      f.append(el("span", "", KS.label(c)), el("b", "", show(c, measure(c, ps))));
-      figs.appendChild(f);
-    }
-    box.appendChild(figs);
-  }
   return box;
 }
 
@@ -233,6 +203,64 @@ function eachKingdom(fa, fb) {
   return wrap;
 }
 
+// the two sides as six cards: each figure's value and its share of the two, with what belongs to it underneath.
+// Three columns of two cards, each card as tall as what it holds
+function duels(pa, pb) {
+  const box = el("div", "x-duels"), int = (v) => numFmt().format(v);
+  const short = (c) => (v) => (c.type === "num" ? KS.compact(v) : show(c, v)); // always short: full numbers break across lines on a phone
+  const col = (k, name, icon) => { const c = KS.BY_KEY[k]; return [name || KS.label(c), (ps) => measure(c, ps), short(c), icon]; };
+  const main = (k, name) => col(k, name).slice(0, 3); // a card's own figure: name, value, text
+  const spelled = (k) => col(k, KS.label(KS.BY_KEY[k].tip)); // the short column name says too little here
+  const counted = (key, lo, hi, name) => [name, (ps) => ps.filter((p) => (p[key] ?? 0) >= lo && (p[key] ?? 0) < hi).length, int];
+  const owners = (k) => counted(k, 1, Infinity, KS.label(KS.BY_KEY[k]));
+  const peak = [[cfg.minStep, POWER_BANDS[0][0], `${cfg.minStep / 1e6}–100M`], ...POWER_BANDS];
+  const items = [
+    ["players", tr("xCount"), (ps) => ps.length, int, [[tr("xAlliances"), (ps) => new Set(ps.map((p) => p.alliance).filter(Boolean)).size, int]]],
+    ["power", ...main("power"), [col("powerMax"), ...peak.map(([lo, hi, t]) => counted("powerMax", lo, hi, `${tr("xBand")} ${t}`))]],
+    ["merits", ...main("merits"), [col("meritsMax"), col("meritRatio"), col("meritInfantry", tr("xInfantry")), col("meritCavalry", tr("xCavalry")), col("meritArcher", tr("xArcher")), col("meritMagic", tr("xMagic"))]],
+    ["maxDecor", KS.label(KS.BY_KEY.maxDecor), (ps) => ps.filter((p) => (p.maxDecor ?? 0) >= DECOR_MAX).length, int,
+      [owners("pets8Skills3Star"), owners("redArtifact"), owners("cityTheme"), ...["awakenedHeroes", "artifactSkillsLv5", "gemsSpent", "exchangeCoinsSpent"].map(spelled)]],
+    ["kills", ...main("kills"), [col("deaths", null, "deaths"), col("heals", null, "heals")]],
+    ["migrationScore", ...main("migrationScore", tr("xMigrationSum")), MIGRATION_BANDS.map(([lo, hi, t]) => counted("migrationScore", lo, hi, `${tr("xMigrationBand")} ${t}`))],
+  ];
+  // the larger side also says how far ahead; the bar is the share of the two, with a mark at half
+  const ahead = (va, vb) => {
+    const high = Math.max(va || 0, vb || 0), low = Math.min(va || 0, vb || 0);
+    return low > 0 && high > low ? el("small", "", `+${numFmt(1).format((100 * (high - low)) / high)}%`) : null;
+  };
+  const value = (side, v, other, text) => {
+    const lead = v != null && other != null && v > other, b = el("b", side + (lead ? " lead" : ""), v == null ? "–" : text(v));
+    const more = lead && ahead(v, other);
+    if (more) b.appendChild(more);
+    return b;
+  };
+  const share = (va, vb, cls) => {
+    const bar = el("div", cls), fill = el("i"), all = (va || 0) + (vb || 0);
+    fill.style.width = (all > 0 ? (100 * (va || 0)) / all : 50).toFixed(2) + "%";
+    bar.appendChild(fill);
+    return bar;
+  };
+  const cols = [0, 1, 2].map(() => box.appendChild(el("div", "x-col")));
+  items.forEach(([key, label, get, text, subs], i) => {
+    const va = get(pa), vb = get(pb);
+    const d = el("div", "x-duel"), top = el("div", "x-d-top"), vals = el("div", "x-d-vals");
+    d.dataset.k = key;
+    d.style.order = i; // one column on a phone: the cards read row by row
+    top.append(el("span", "x-d-l", label), iconOf(key, "x-d-i"));
+    vals.append(value("a", va, vb, text), value("b", vb, va, text));
+    d.append(top, vals, share(va, vb, "x-d-bar"));
+    for (const [name, of, fmt, icon] of subs || []) {
+      const x = of(pa), y = of(pb), r = el("div", "x-d-sub"), lab = el("span", "x-d-n");
+      if (icon) lab.appendChild(iconOf(icon, "x-d-si"));
+      lab.appendChild(document.createTextNode(name));
+      r.append(lab, value("a", x, y, fmt), value("b", y, x, fmt), share(x, y, "x-d-bar mini"));
+      d.appendChild(r);
+    }
+    cols[i % 3].appendChild(d);
+  });
+  return box;
+}
+
 async function draw() {
   const me = ++token, box = $("cmp");
   // kingdoms that left the index (a link from another time)
@@ -240,20 +268,6 @@ async function draw() {
   const [fa, fb] = await Promise.all([Promise.all(cfg.a.map(load)), Promise.all(cfg.b.map(load))]);
   if (me !== token) return;
   const pa = sidePlayers(fa), pb = sidePlayers(fb), ready = cfg.a.length && cfg.b.length;
-
-  const count = (ps, key, lo, hi) => ps.reduce((n, p) => n + ((p[key] ?? 0) >= lo && (p[key] ?? 0) < hi ? 1 : 0), 0);
-  const int = (v) => (v == null ? "–" : numFmt().format(v));
-  const cols = (...keys) => keys.map((k) => colLine(k, pa, pb));
-  const bands = (key, list, prefix) => list.map(([lo, hi, t]) => line(prefix + t, "", count(pa, key, lo, hi), count(pb, key, lo, hi), int));
-  const groups = !ready ? [] : [
-    group(tr("xgScale"), ...cols("power", "powerMax", "merits")),
-    group(tr("xgBattle"), ...cols("kills", "heals", "deaths")),
-    group(tr("xgTop"), ...bands("powerMax", [[cfg.minStep, POWER_BANDS[0][0], `${cfg.minStep / 1e6}–100M`], ...POWER_BANDS], "")),
-    group(tr("xgMigration"), colLine("migrationScore", pa, pb, tr("xMigrationSum")),
-      ...bands("migrationScore", MIGRATION_BANDS, tr("xMigrationBand") + " "),
-      ...bands("maxDecor", [[DECOR_MAX, Infinity, KS.label(KS.BY_KEY.maxDecor)]], "")),
-    group(tr("xgUnits"), ...cols("meritInfantry", "meritCavalry", "meritArcher", "meritMagic")),
-  ];
 
   const keepY = box.scrollTop;
   box.innerHTML = "";
@@ -266,9 +280,7 @@ async function draw() {
   const bad = [...cfg.a.filter((_, i) => !fa[i]), ...cfg.b.filter((_, i) => !fb[i])];
   if (bad.length) box.appendChild(el("p", "hint x-err", `${tr("xLoadErr")} ${bad.map((k) => "#" + k).join(", ")}`));
   if (ready) {
-    const grid = el("div", "x-grid");
-    grid.append(...groups);
-    box.append(grid, group(tr("xEach"), eachKingdom(fa, fb)));
+    box.append(el("p", "x-gd x-note", tr("xdDuels").replace("{agg}", tr(cfg.avg ? "xAggAvg" : "xAggSum"))), duels(pa, pb), group("players", tr("xEach"), tr("xdEach"), eachKingdom(fa, fb)));
   } else box.appendChild(el("p", "hint mut x-hint", tr("xEmpty")));
   box.scrollTop = keepY;
 }

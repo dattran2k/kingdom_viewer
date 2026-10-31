@@ -15,7 +15,7 @@ Object.assign(KS.T.vi, {
   rKingdoms: "kingdom", 
   rSearch: "#kingdom, tag…", rHint: "Tính theo người có lực chiến hiện tại trên 15M, trong top lực chiến mỗi kingdom. Bấm một dòng để mở.",
   cKingdom: "Kingdom", cTopAlliance: "LM mạnh nhất", cPlayers: "Người chơi", cAlliances: "Số LM",
-  cPower: "Lực chiến", cPowerMax: "LC đỉnh", cMerits: "Công trạng", cKills: "Tiêu diệt", cDeaths: "Tử trận", cHeals: "Chữa trị", cHelps: "Giúp đỡ", cGathered: "Thu thập",
+  cPower: "Lực chiến", cPowerMax: "LC max", cMerits: "Công trạng", cKills: "Tiêu diệt", cDeaths: "Tử trận", cHeals: "Chữa trị", cHelps: "Giúp đỡ", cGathered: "Thu thập",
   cMigration: "Điểm di cư", cDecor: "Decor max", cInf: "CT bộ", cCav: "CT kỵ", cArc: "CT cung", cMag: "CT phép",
   gFrom: "Từ ngày", gTo: "Đến ngày", gName: "Người chơi",
   mStart: "Từ ngày", mEnd: "Đến ngày", mLords: "Người chơi", mServers: "Kingdom", mKingdom: "Kingdom", mLord: "ID / tên", mMin: "Lực chiến ≥ (M)",
@@ -104,7 +104,8 @@ function pager(total, page, go, size = PAGE_SIZE) {
   box.append(btn(tr("mPrev"), page - 1, page <= 1), el("span", "mut", `${tr("mPage")} ${page} / ${pages}`), btn(tr("mNext"), page + 1, page >= pages));
   return box;
 }
-// a sortable table: cols = [{key, label, get(row), text(row), cls(row), tip(row), nosort}]; sort = {key, dir}
+// a sortable table: cols = [{key, label, get(row), text(row), cls(row), tip(row), nosort, ranked}]; sort = {key, dir};
+// a ranked column takes its colour from the row's place in the whole list, r._i
 function table(cols, rows, sort, onSort, onRow) {
   const wrap = el("div", "tbl-wrap dv-wrap"), t = el("table", "tbl"), hr = el("tr");
   for (const c of cols) {
@@ -121,6 +122,7 @@ function table(cols, rows, sort, onSort, onRow) {
     for (const c of cols) {
       const td = el("td", c.cls?.(r) || "", c.node ? null : c.text ? c.text(r) : num(c.get(r)));
       if (c.node) td.appendChild(c.node(r));
+      if (c.ranked) td.style.color = KS.rankColour(r._i);
       const tip = c.tip ? c.tip(r) : c.text ? null : fullNum(c.get(r));
       if (tip) td.title = tip;
       line.appendChild(td);
@@ -184,7 +186,7 @@ async function drawRank(out) {
   if (q) rows = rows.filter((r) => (kq && String(r.kingdom).startsWith(kq)) || String(r.topAlliance).toLowerCase().includes(q));
   const cols = [
     { key: "#", label: "#", nosort: true, text: (r) => String(r._i), cls: () => "mut" },
-    { key: "kingdom", label: tr("cKingdom"), get: (r) => r.kingdom, text: (r) => "#" + r.kingdom, cls: () => "dv-b" },
+    { key: "kingdom", label: tr("cKingdom"), get: (r) => r.kingdom, text: (r) => "#" + r.kingdom, cls: () => "dv-b", ranked: true },
     { key: "topAlliance", label: tr("cTopAlliance"), get: (r) => r.topAlliance, node: (r) => allianceChip(r.topAlliance) },
     { key: "players", label: tr("cPlayers"), get: (r) => r.players, text: (r) => numFmt().format(r.players) },
     { key: "alliances", label: tr("cAlliances"), get: (r) => r.alliances, text: (r) => numFmt().format(r.alliances) },
@@ -263,7 +265,7 @@ function drawMigration(out, moves) {
   const kCell = (key, label, cls) => ({ key, label: tr(label), get: (m) => m[key], text: (m) => "#" + m[key], cls: () => cls });
   const cols = [
     { key: "id", label: "ID", get: (m) => m.id, text: (m) => String(m.id), cls: () => "mut" },
-    { key: "name", label: tr("gName"), get: (m) => m.name, text: (m) => m.name ?? "", cls: () => "dv-b" },
+    { key: "name", label: tr("gName"), get: (m) => m.name, text: (m) => m.name ?? "", cls: () => "dv-b", ranked: true },
     kCell("from", "mFrom", "dv-b"), kCell("to", "mTo", "dv-b mv-to"),
     { key: "allianceFrom", label: tr("mAllianceFrom"), get: (m) => m.allianceFrom, node: (m) => allianceChip(m.allianceFrom) },
     { key: "allianceTo", label: tr("mAllianceTo"), get: (m) => m.allianceTo, node: (m) => allianceChip(m.allianceTo) },
@@ -273,6 +275,7 @@ function drawMigration(out, moves) {
   ];
   const col = cols.find((c) => c.key === mig.sort.key) || cols[6];
   list = sortRows(list, col.get, mig.sort.dir);
+  list.forEach((m, i) => { m._i = i + 1; });
   const people = new Set(list.map((m) => m.id)).size;
   out.appendChild(el("p", "hint mut", `${numFmt().format(list.length)} ${tr("mTotal")} · ${numFmt().format(people)} ${tr("mPeople")}. ${tr("mHint")}`));
   if (!list.length) { out.appendChild(el("p", "hint mut", tr("mNone"))); return; }
@@ -295,7 +298,7 @@ function drawFlows(out, list, moves) {
   const int = (v) => numFmt().format(v);
   const netCls = (n) => (n > 0 ? "dv-up" : n < 0 ? "dv-down" : "");
   const cols = [
-    { key: "kingdom", label: tr("cKingdom"), get: (r) => r.kingdom, text: (r) => "#" + r.kingdom, cls: () => "dv-b" },
+    { key: "kingdom", label: tr("cKingdom"), get: (r) => r.kingdom, text: (r) => "#" + r.kingdom, cls: () => "dv-b", ranked: true },
     { key: "countIn", label: `${tr("cPlayers")} ${tr("mIn")}`, get: (r) => r.countIn, text: (r) => int(r.countIn) },
     { key: "countOut", label: `${tr("cPlayers")} ${tr("mOut")}`, get: (r) => r.countOut, text: (r) => int(r.countOut) },
     { key: "netCount", label: `${tr("cPlayers")} ${tr("mNet")}`, get: (r) => r.countIn - r.countOut, text: (r) => (r.countIn > r.countOut ? "+" : "") + int(r.countIn - r.countOut), cls: (r) => netCls(r.countIn - r.countOut) },
@@ -305,6 +308,7 @@ function drawFlows(out, list, moves) {
   ];
   const col = cols.find((c) => c.key === mig.flowSort.key) || cols[3];
   rows = sortRows(rows, col.get, mig.flowSort.dir);
+  rows.forEach((r, i) => { r._i = i + 1; });
   const go = () => drawMigration(out, moves);
   out.appendChild(el("p", "hint mut", `${numFmt().format(rows.length)} ${tr("rKingdoms")} · ${numFmt().format(list.length)} ${tr("mTotal")}.`));
   out.appendChild(table(cols, rows.slice((mig.page - 1) * MOVES_PAGE_SIZE, mig.page * MOVES_PAGE_SIZE), { key: col.key, dir: mig.flowSort.dir },

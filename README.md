@@ -12,7 +12,7 @@ New data will be crawled when there is free time.
   Opening `index.html` straight from disk does not work, because the browser blocks `fetch` on `file://`.
 - **GitHub Pages:** Settings → Pages → Deploy from branch → `main` / root. `.nojekyll` turns Jekyll off.
 
-Links keep their place: `#k=357&s=2026-10-28&v=chart` (kingdom, scan, view), `#k=357&a=2026-10-28` (compare with an older scan).
+Links keep their place: `#k=357&s=2026-10-28` (kingdom, scan), `#k=357&a=2026-10-28` (compare with an older scan).
 
 ## Data
 One folder per scan date; older scans are kept. Each kingdom opens on its newest scan, and older ones can be
