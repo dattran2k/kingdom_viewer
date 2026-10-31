@@ -24,8 +24,7 @@ Object.assign(KS.T.en, {
 const MAX_PER_SIDE = 10;
 const TOPS = [0, 100, 200, 300, 500];
 const POWER_BANDS = [[100e6, 200e6, "100–200M"], [200e6, 300e6, "200–300M"], [300e6, Infinity, "300M+"]];
-const MIGRATION_BANDS = [[24, 28, "24–27"], [28, 31, "28–30"], [31, Infinity, "31+"]];
-const DECOR_MAX = 5; // the last tier of the achievement: an account with this many counts as max decor
+const { MIGRATION_BANDS, DECOR_MAX } = KS;
 
 const cfg = Object.assign({ a: [], b: [], minStep: KS.DEFAULT_POWER, top: 0, avg: false }, KS.store.get("cmp", {}));
 const cache = new Map();   // "<scan>/<kingdom>" -> file (a promise while it loads)

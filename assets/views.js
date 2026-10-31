@@ -7,7 +7,7 @@ const KS = window.KS, { state, tr, $, numFmt } = KS;
 
 Object.assign(KS.T.vi, {
   mPlayers: "Người chơi", mAlliances: "Liên minh", mChart: "Biểu đồ",
-  kPlayers: "Người chơi", kAlliances: "liên minh", kAvg: "TB",
+  kPlayers: "Người chơi", kAlliances: "liên minh", kAvg: "TB", kMigration: "Tổng di cư", kPetSome: "Pet max ≥ 1", kPetNone: "0 pet max",
   aTag: "Liên minh", aMembers: "Thành viên", aPower: "Lực chiến", aAvgPower: "LC TB", aTop: "Mạnh nhất",
   aPowerMax: "LC max", aMerits: "Công trạng", aMeritRatio: "CT / LC max", aKills: "Tiêu diệt", aDeaths: "Tử trận",
   aHeals: "Chữa lính", aHelps: "Giúp đỡ", aGather: "Thu thập", aMigration: "Điểm di cư TB", aShare: "Tỷ trọng lực chiến",
@@ -18,7 +18,7 @@ Object.assign(KS.T.vi, {
 });
 Object.assign(KS.T.en, {
   mPlayers: "Players", mAlliances: "Alliances", mChart: "Chart",
-  kPlayers: "Players", kAlliances: "alliances", kAvg: "avg",
+  kPlayers: "Players", kAlliances: "alliances", kAvg: "avg", kMigration: "Total migration", kPetSome: "Max pets ≥ 1", kPetNone: "0 max pets",
   aTag: "Alliance", aMembers: "Members", aPower: "Power", aAvgPower: "Avg power", aTop: "Strongest",
   aPowerMax: "Highest power", aMerits: "Merits", aMeritRatio: "Merits / highest power", aKills: "Kills",
   aDeaths: "Deaths", aHeals: "Heals", aHelps: "Helps", aGather: "Gathered", aMigration: "Avg migration score",
@@ -44,6 +44,25 @@ function agg(list, get) {
 }
 
 // ---- totals strip (above every view) ----
+KS.MIGRATION_BANDS = [[24, 28, "24–27"], [28, 31, "28–30"], [31, Infinity, "31+"]];
+KS.DECOR_MAX = 5; // the last tier of the achievement: an account with this many counts as max decor
+const isMaxDecor = (p) => ((p.maxDecor ?? 0) >= KS.DECOR_MAX ? 1 : 0);
+// the small line of a card: plain strings stay quiet, { b: value } stands out
+function kSub(...bits) {
+  const s = el("span", "k-a");
+  for (const bit of bits) s.append(typeof bit === "string" ? bit : el("b", null, bit.b));
+  return s;
+}
+// one card; its colour comes from data-k in the stylesheet, its picture from assets/icons/<key>.png
+function kpiCard(key, label, value, sub) {
+  const d = el("div", "kpi"), head = el("div", "k-top"), icon = el("img", "k-i");
+  d.dataset.k = key;
+  icon.src = `assets/icons/${key}.png`;
+  icon.alt = "";
+  head.append(icon, el("span", "k-l", label));
+  d.append(head, value, sub);
+  return d;
+}
 const KPIS = [
   { key: "power", label: () => KS.label(KS.BY_KEY.power), get: (p) => p.power },
   { key: "merits", label: () => KS.label(KS.BY_KEY.merits), get: (p) => p.merits },
@@ -54,12 +73,11 @@ const KPIS = [
 
 // comparing two scans: what changed over the players listed, and from what to what
 // (the same figures as the plain strip: switching the mode must not change the strip's height)
-const GROWTH_KPIS = [["power", (p) => p.power], ["merits", (p) => p.merits], ["kills", (p) => p.kills], ["deaths", (p) => p.deaths], ["heals", (p) => p.heals]];
+const GROWTH_KPIS = [["power", (p) => p.power], ["merits", (p) => p.merits], ["kills", (p) => p.kills], ["deaths", (p) => p.deaths], ["heals", (p) => p.heals],
+  ["migrationScore", (p) => p.migrationScore], ["maxDecor", isMaxDecor]];
 function drawGrowthKpis(box, list) {
   const n = numFmt(), joined = list.filter((p) => !p._was && !p._left).length, left = list.filter((p) => p._left).length;
-  const first = el("div", "kpi lead");
-  first.append(el("span", "k-l", tr("kPlayers")), el("b", "k-v", n.format(list.length - left)), el("span", "k-a", `+${n.format(joined)} · −${n.format(left)}`));
-  box.appendChild(first);
+  box.appendChild(kpiCard("players", tr("kPlayers"), el("b", "k-v", n.format(list.length - left)), kSub({ b: `+${n.format(joined)}` }, " · ", { b: `−${n.format(left)}` })));
   for (const [k, get] of GROWTH_KPIS) {
     let a = 0, b = 0;
     for (const p of list) {
@@ -67,11 +85,38 @@ function drawGrowthKpis(box, list) {
       b += get(p) ?? 0;
       if (p._was) a += get(p._was) ?? 0;
     }
-    const d = el("div", "kpi"), v = el("b", "k-v " + (b > a ? "up" : b < a ? "down" : ""), (b > a ? "+" : "") + short(b - a));
+    const v = el("b", "k-v " + (b > a ? "up" : b < a ? "down" : ""), (b > a ? "+" : "") + short(b - a));
     v.title = full(b - a);
-    d.append(el("span", "k-l", KS.label(KS.BY_KEY[k])), v, el("span", "k-a", `${short(a)} → ${short(b)}`));
-    box.appendChild(d);
+    box.appendChild(kpiCard(k, k === "migrationScore" ? tr("kMigration") : KS.label(KS.BY_KEY[k]), v, kSub({ b: short(a) }, " → ", { b: short(b) })));
   }
+}
+
+// a total with its breakdown under it, one small figure per part
+function breakdownKpi(key, label, value, parts) {
+  const v = el("b", "k-v", numFmt().format(value)), box = el("span", "k-a k-parts");
+  v.title = full(value);
+  for (const [l, n] of parts) {
+    const part = el("span", "k-p", `${l} `);
+    part.appendChild(el("b", null, numFmt().format(n)));
+    box.appendChild(part);
+  }
+  return kpiCard(key, label, v, box);
+}
+const countIf = (list, test) => list.reduce((n, p) => n + (test(p) ? 1 : 0), 0);
+
+// The crawl has no kingdom-wide migration score, only each player's: the total is theirs added up. Players without the
+// figure (a crawl that did not get it) are in no band.
+function migrationKpi(list) {
+  const has = list.filter((p) => p.migrationScore != null);
+  const bands = [[-Infinity, 24, "<24"], ...KS.MIGRATION_BANDS];
+  return breakdownKpi("migrationScore", tr("kMigration"), agg(has, (p) => p.migrationScore).sum ?? 0,
+    bands.map(([lo, hi, l]) => [l, countIf(has, (p) => p.migrationScore >= lo && p.migrationScore < hi)]));
+}
+function decorKpi(list) {
+  // the breakdown splits the card's own figure: of the max decor accounts, who also has a max pet
+  const has = list.filter((p) => isMaxDecor(p) && p.pets8Skills3Star != null);
+  return breakdownKpi("maxDecor", KS.label(KS.BY_KEY.maxDecor), countIf(list, isMaxDecor),
+    [[tr("kPetSome"), countIf(has, (p) => p.pets8Skills3Star >= 1)], [tr("kPetNone"), countIf(has, (p) => p.pets8Skills3Star === 0)]]);
 }
 
 function drawKpis() {
@@ -80,19 +125,17 @@ function drawKpis() {
   if (!state.data) return;
   if (state.data._vs) { drawGrowthKpis(box, list); return; }
   const tags = new Set(list.map((p) => p.alliance).filter(Boolean));
-  const first = el("div", "kpi lead");
-  first.append(el("span", "k-l", tr("kPlayers")), el("b", "k-v", numFmt().format(list.length)),
-    el("span", "k-a", `${numFmt().format(tags.size)} ${tr("kAlliances")}`));
-  box.appendChild(first);
+  box.appendChild(kpiCard("players", tr("kPlayers"), el("b", "k-v", numFmt().format(list.length)),
+    kSub({ b: numFmt().format(tags.size) }, ` ${tr("kAlliances")}`)));
   for (const k of KPIS) {
-    const a = agg(list, k.get), d = el("div", "kpi");
+    const a = agg(list, k.get);
     const v = el("b", "k-v", short(a.sum));
     v.title = full(a.sum);
-    const avg = el("span", "k-a", `${tr("kAvg")} ${short(a.avg)}`);
+    const avg = kSub(`${tr("kAvg")} `, { b: short(a.avg) });
     avg.title = full(a.avg);
-    d.append(el("span", "k-l", k.label()), v, avg);
-    box.appendChild(d);
+    box.appendChild(kpiCard(k.key, k.label(), v, avg));
   }
+  box.append(migrationKpi(list), decorKpi(list));
 }
 
 // ---- alliances ----
