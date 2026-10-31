@@ -607,6 +607,21 @@ function textWidth(text, font) {
   measure.font = font;
   return measure.measureText(text).width;
 }
+// Cells use tabular digits and the canvas does not: on a font whose "1" is narrow, an ID full of them measures short.
+// So digits are counted at the width the page really draws them.
+let digitW = 0;
+function cellWidth(text, family) {
+  if (!digitW) {
+    const s = document.createElement("span");
+    s.style.cssText = `position:absolute;visibility:hidden;white-space:nowrap;font:700 13px ${family};font-variant-numeric:tabular-nums`;
+    s.textContent = "0000000000";
+    document.body.appendChild(s);
+    digitW = s.getBoundingClientRect().width / 10;
+    s.remove();
+  }
+  const rest = text.replace(/\d/g, "");
+  return textWidth(rest, `700 13px ${family}`) + (text.length - rest.length) * digitW;
+}
 function fitWidths() {
   const key = `${state.data?.kingdom}|${state.data?.scan}|${state.data?._vs}|${state.data?._ks}|${state.compact}|${state.lang}|${state.narrow}`;
   if (key !== fitKey) { fitKey = key; fitted = new Map(); }
@@ -628,9 +643,9 @@ function fitWidths() {
           const s = c.key === "alliance" ? tagsOf(p).reduce((a, t) => (String(t).length > a.length ? String(t) : a), "") + (state.narrow ? "M" : "MM") : (state.data._vs && COMPARED.has(c.type) ? "+" : "") + fmt(c, value(c, p)) + (p.atLeast && p.atLeast.includes(c.key) ? "+" : "");
           if (s.length > longest.length) longest = s;
         }
-        w = Math.max(w, textWidth(longest, `700 13px ${family}`));
+        w = Math.max(w, cellWidth(longest, family));
       }
-      w = Math.ceil(w) + (state.narrow ? 10 : 20 + 4); // + the cell's padding + a little air (none on a phone)
+      w = Math.ceil(w) + (state.narrow ? 10 + 1 : 20 + 4); // + the cell's padding + a little air (just rounding on a phone)
       fitted.set(c.key, w);
     }
     c.w = w;
