@@ -1,347 +1,203 @@
-// The views besides the player table: the totals strip, the alliance breakdown and the bar chart. A classic script
-// loaded after app.js; everything it needs from the page comes through window.KS. Every view works on the players
-// the filters at the top let through (power step, search, and for the strip and the chart the alliance too).
-(() => {
-"use strict";
-const KS = window.KS, { state, tr, $, numFmt } = KS;
-
-Object.assign(KS.T.vi, {
-  mPlayers: "Người chơi", mAlliances: "Liên minh", mChart: "Biểu đồ",
-  kPlayers: "Người chơi", kAlliances: "liên minh", kAvg: "TB", kMigration: "Tổng di cư", kPetSome: "Pet max ≥ 1", kPetNone: "0 pet max",
-  aTag: "Liên minh", aMembers: "Thành viên", aPower: "Lực chiến", aAvgPower: "LC TB", aTop: "Mạnh nhất",
-  aPowerMax: "LC max", aMerits: "Công trạng", aMeritRatio: "CT / LC max", aKills: "Tiêu diệt", aDeaths: "Tử trận",
-  aHeals: "Chữa lính", aHelps: "Giúp đỡ", aGather: "Thu thập", aMigration: "Điểm di cư TB", aShare: "Tỷ trọng lực chiến",
-  aNone: "(không liên minh)", aHint: "Bấm một liên minh để xem thành viên.",
-  cMetric: "Chỉ số", cScope: "Theo", cScopeP: "Người chơi", cScopeA: "Liên minh", cAgg: "Gộp", cSum: "Tổng",
-  cAvg: "Trung bình", cTop: "Hiện", cAll: "Tất cả", cOrder: "Thứ tự", cDesc: "Cao → thấp", cAsc: "Thấp → cao",
-  cEmpty: "Không có số liệu cho chỉ số này.", cDelta: "Mức thay đổi",
-});
-Object.assign(KS.T.en, {
-  mPlayers: "Players", mAlliances: "Alliances", mChart: "Chart",
-  kPlayers: "Players", kAlliances: "alliances", kAvg: "avg", kMigration: "Total migration", kPetSome: "Max pets ≥ 1", kPetNone: "0 max pets",
-  aTag: "Alliance", aMembers: "Members", aPower: "Power", aAvgPower: "Avg power", aTop: "Strongest",
-  aPowerMax: "Highest power", aMerits: "Merits", aMeritRatio: "Merits / highest power", aKills: "Kills",
-  aDeaths: "Deaths", aHeals: "Heals", aHelps: "Helps", aGather: "Gathered", aMigration: "Avg migration score",
-  aShare: "Share of power", aNone: "(no alliance)", aHint: "Click an alliance to list its members.",
-  cMetric: "Metric", cScope: "By", cScopeP: "Player", cScopeA: "Alliance", cAgg: "Combine", cSum: "Total",
-  cAvg: "Average", cTop: "Show", cAll: "All", cOrder: "Order", cDesc: "High → low", cAsc: "Low → high",
-  cEmpty: "No data for this metric.", cDelta: "Change",
-});
-
-const short = (v) => (v == null || Number.isNaN(v) ? "–" : KS.compact(v));
-const full = (v) => (v == null || Number.isNaN(v) ? "" : numFmt().format(Math.round(v)));
-const gathered = (p) => {
-  const v = (p.gold ?? 0) + (p.wood ?? 0) + (p.ore ?? 0) + (p.mana ?? 0);
-  return p.gold == null && p.wood == null && p.ore == null && p.mana == null ? undefined : v;
-};
-const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
-
-// sum + average of a field over a list, only over the players that have it
-function agg(list, get) {
-  let s = 0, n = 0;
-  for (const p of list) { const v = get(p); if (typeof v === "number" && !Number.isNaN(v)) { s += v; n++; } }
-  return { sum: n ? s : undefined, avg: n ? s / n : undefined, n };
-}
-
-// ---- totals strip (above every view) ----
-KS.MIGRATION_BANDS = [[24, 28, "24–27"], [28, 31, "28–30"], [31, Infinity, "31+"]];
-KS.DECOR_MAX = 5; // the last tier of the achievement: an account with this many counts as max decor
-const isMaxDecor = (p) => ((p.maxDecor ?? 0) >= KS.DECOR_MAX ? 1 : 0);
-// the small line of a card: plain strings stay quiet, { b: value } stands out
-function kSub(...bits) {
-  const s = el("span", "k-a");
-  for (const bit of bits) s.append(typeof bit === "string" ? bit : el("b", null, bit.b));
-  return s;
-}
-// one card; its colour comes from data-k in the stylesheet, its picture from assets/icons/<key>.png
-function kpiCard(key, label, value, sub) {
-  const d = el("div", "kpi"), head = el("div", "k-top"), icon = el("img", "k-i");
-  d.dataset.k = key;
-  icon.src = `assets/icons/${key}.png`;
-  icon.alt = "";
-  head.append(icon, el("span", "k-l", label));
-  d.append(head, value, sub);
-  return d;
-}
-const KPIS = [
-  { key: "power", label: () => KS.label(KS.BY_KEY.power), get: (p) => p.power },
-  { key: "merits", label: () => KS.label(KS.BY_KEY.merits), get: (p) => p.merits },
-  { key: "kills", label: () => KS.label(KS.BY_KEY.kills), get: (p) => p.kills },
-  { key: "deaths", label: () => KS.label(KS.BY_KEY.deaths), get: (p) => p.deaths },
-  { key: "heals", label: () => KS.label(KS.BY_KEY.heals), get: (p) => p.heals },
-];
-
-// comparing two scans: what changed over the players listed, and from what to what
-// (the same figures as the plain strip: switching the mode must not change the strip's height)
-const GROWTH_KPIS = [["power", (p) => p.power], ["merits", (p) => p.merits], ["kills", (p) => p.kills], ["deaths", (p) => p.deaths], ["heals", (p) => p.heals],
-  ["migrationScore", (p) => p.migrationScore], ["maxDecor", isMaxDecor]];
-function drawGrowthKpis(box, list) {
-  const n = numFmt(), joined = list.filter((p) => !p._was && !p._left).length, left = list.filter((p) => p._left).length;
-  box.appendChild(kpiCard("players", tr("kPlayers"), el("b", "k-v", n.format(list.length - left)), kSub({ b: `+${n.format(joined)}` }, " · ", { b: `−${n.format(left)}` })));
-  for (const [k, get] of GROWTH_KPIS) {
-    let a = 0, b = 0;
-    for (const p of list) {
-      if (p._left) { a += get(p) ?? 0; continue; }
-      b += get(p) ?? 0;
-      if (p._was) a += get(p._was) ?? 0;
-    }
-    const v = el("b", "k-v " + (b > a ? "up" : b < a ? "down" : ""), (b > a ? "+" : "") + short(b - a));
-    v.title = full(b - a);
-    box.appendChild(kpiCard(k, k === "migrationScore" ? tr("kMigration") : KS.label(KS.BY_KEY[k]), v, kSub({ b: short(a) }, " → ", { b: short(b) })));
-  }
-}
-
-// a total with its breakdown under it, one small figure per part
-function breakdownKpi(key, label, value, parts) {
-  const v = el("b", "k-v", numFmt().format(value)), box = el("span", "k-a k-parts");
-  v.title = full(value);
-  for (const [l, n] of parts) {
-    const part = el("span", "k-p", `${l} `);
-    part.appendChild(el("b", null, numFmt().format(n)));
-    box.appendChild(part);
-  }
-  return kpiCard(key, label, v, box);
-}
-const countIf = (list, test) => list.reduce((n, p) => n + (test(p) ? 1 : 0), 0);
-
-// The crawl has no kingdom-wide migration score, only each player's: the total is theirs added up. Players without the
-// figure (a crawl that did not get it) are in no band.
-function migrationKpi(list) {
-  const has = list.filter((p) => p.migrationScore != null);
-  const bands = [[-Infinity, 24, "<24"], ...KS.MIGRATION_BANDS];
-  return breakdownKpi("migrationScore", tr("kMigration"), agg(has, (p) => p.migrationScore).sum ?? 0,
-    bands.map(([lo, hi, l]) => [l, countIf(has, (p) => p.migrationScore >= lo && p.migrationScore < hi)]));
-}
-function decorKpi(list) {
-  // the breakdown splits the card's own figure: of the max decor accounts, who also has a max pet
-  const has = list.filter((p) => isMaxDecor(p) && p.pets8Skills3Star != null);
-  return breakdownKpi("maxDecor", KS.label(KS.BY_KEY.maxDecor), countIf(list, isMaxDecor),
-    [[tr("kPetSome"), countIf(has, (p) => p.pets8Skills3Star >= 1)], [tr("kPetNone"), countIf(has, (p) => p.pets8Skills3Star === 0)]]);
-}
-
-function drawKpis() {
-  const box = $("kpis"), list = state.view;
-  box.innerHTML = "";
-  if (!state.data) return;
-  if (state.data._vs) { drawGrowthKpis(box, list); return; }
-  const tags = new Set(list.map((p) => p.alliance).filter(Boolean));
-  box.appendChild(kpiCard("players", tr("kPlayers"), el("b", "k-v", numFmt().format(list.length)),
-    kSub({ b: numFmt().format(tags.size) }, ` ${tr("kAlliances")}`)));
-  for (const k of KPIS) {
-    const a = agg(list, k.get);
-    const v = el("b", "k-v", short(a.sum));
-    v.title = full(a.sum);
-    const avg = kSub(`${tr("kAvg")} `, { b: short(a.avg) });
-    avg.title = full(a.avg);
-    box.appendChild(kpiCard(k.key, k.label(), v, avg));
-  }
-  box.append(migrationKpi(list), decorKpi(list));
-}
-
-// ---- alliances ----
-// While comparing two scans, a list of players is two lists: as they are now, and as they were (each under the alliance
-// they had then: an alliance's "before" is who was in it then)
-const comparing = () => !!state.data?._vs;
-const nowOf = (list) => list.filter((p) => !p._left);
-const thenOf = (list) => list.map((p) => (p._left ? p : p._was)).filter(Boolean);
-function byTag(list) {
-  const groups = new Map();
-  for (const p of list) { const k = p.alliance || ""; (groups.get(k) || groups.set(k, []).get(k)).push(p); }
-  return groups;
-}
-
-function allianceLine(tag, ps, total) {
-  const pw = agg(ps, (p) => p.power), pmax = agg(ps, (p) => p.powerMax), mer = agg(ps, (p) => p.merits);
-  const top = ps.reduce((a, b) => ((b.power ?? 0) > (a.power ?? 0) ? b : a), ps[0]);
-  return {
-    tag, members: ps.length, power: pw.sum, avgPower: pw.avg, top, powerMax: pmax.sum, merits: mer.sum,
-    meritRatio: mer.sum != null && pmax.sum ? (100 * mer.sum) / pmax.sum : undefined,
-    kills: agg(ps, (p) => p.kills).sum, deaths: agg(ps, (p) => p.deaths).sum, heals: agg(ps, (p) => p.heals).sum,
-    helps: agg(ps, (p) => p.helps).sum, gather: agg(ps, gathered).sum, migration: agg(ps, (p) => p.migrationScore).avg,
-    share: pw.sum != null ? pw.sum / total : 0, players: ps,
-  };
-}
-
-// one line per alliance of the players listed (search + power step; not the alliance filter, which this view sets);
-// comparing: line._was = the same alliance in the older scan
-function allianceStats() {
-  const q = state.q.trim().toLowerCase(), listed = q ? state.rows.filter((p) => p._s.includes(q)) : state.rows;
-  const now = byTag(comparing() ? nowOf(listed) : listed), total = agg(comparing() ? nowOf(state.rows) : state.rows, (p) => p.power).sum || 1;
-  if (!comparing()) return [...now].map(([tag, ps]) => allianceLine(tag, ps, total));
-  const then = byTag(thenOf(listed)), oldTotal = agg(thenOf(state.rows), (p) => p.power).sum || 1;
-  return [...new Set([...now.keys(), ...then.keys()])].map((tag) => {
-    const line = allianceLine(tag, now.get(tag) || [], total);
-    if (then.has(tag)) line._was = allianceLine(tag, then.get(tag), oldTotal);
-    return line;
-  });
-}
-
-// before / change / after, as a cell of the player table
-function threeLines(was, now, show) {
-  const d = was != null && now != null ? now - was : null;
-  const box = el("div", "d3");
-  box.append(el("span", "d-a", was == null ? "–" : show(was)),
-    el("span", "d-d" + (d > 0 ? " hi" : d < 0 ? " lo" : ""), d == null ? "" : (d > 0 ? "+" : "") + show(d)),
-    el("span", "d-b", now == null ? "–" : show(now)));
-  return box;
-}
-
-const A_COLS = [
-  { key: "tag", t: "aTag", text: true },
-  { key: "members", t: "aMembers", f: (v) => numFmt().format(v) },
-  { key: "power", t: "aPower", share: true },
-  { key: "avgPower", t: "aAvgPower" },
-  { key: "top", t: "aTop", text: true, sortBy: (a) => a.top.power ?? 0 },
-  { key: "powerMax", t: "aPowerMax" },
-  { key: "merits", t: "aMerits" },
-  { key: "meritRatio", t: "aMeritRatio", f: (v) => numFmt(2).format(v) + "%" },
-  { key: "kills", t: "aKills" },
-  { key: "deaths", t: "aDeaths" },
-  { key: "heals", t: "aHeals" },
-  { key: "helps", t: "aHelps" },
-  { key: "gather", t: "aGather" },
-  { key: "migration", t: "aMigration", f: (v) => numFmt(1).format(v) },
-];
-let aSort = { key: "power", dir: -1 };
-
-function drawAlliances() {
-  const panel = $("panel");
-  panel.innerHTML = "";
-  if (!state.data) return;
-  const rows = allianceStats();
-  const col = A_COLS.find((c) => c.key === aSort.key) || A_COLS[2];
-  const delta = (a) => (a._was && a[col.key] != null && a._was[col.key] != null ? a[col.key] - a._was[col.key] : null);
-  const sortVal = comparing() && state.sortDelta && !col.text ? delta : col.sortBy || ((a) => a[col.key]);
-  rows.sort((a, b) => {
-    const x = sortVal(a), y = sortVal(b);
-    if (x == null) return y == null ? 0 : 1;
-    if (y == null) return -1;
-    return (typeof x === "string" ? x.localeCompare(y) : x - y) * aSort.dir || (b.power ?? 0) - (a.power ?? 0);
-  });
-  panel.appendChild(el("p", "hint mut", tr("aHint")));
-  const wrap = el("div", "tbl-wrap"), t = el("table", "tbl");
-  const hr = el("tr");
-  for (const c of A_COLS) {
-    const th = el("th", c.text ? "" : "n", tr(c.t));
-    if (aSort.key === c.key) { th.classList.add("on"); th.dataset.dir = aSort.dir > 0 ? "▲" : "▼"; }
-    th.onclick = () => { aSort = aSort.key === c.key ? { key: c.key, dir: -aSort.dir } : { key: c.key, dir: c.text ? 1 : -1 }; KS.keepScroll($("kingdomPage"), drawAlliances); };
-    hr.appendChild(th);
-  }
-  t.appendChild(el("thead")).appendChild(hr);
-  const tb = t.appendChild(el("tbody"));
-  rows.forEach((a, i) => {
-    const r = el("tr");
-    if (state.alliance && (state.alliance === a.tag || (state.alliance === "-" && !a.tag))) r.classList.add("sel");
-    for (const c of A_COLS) {
-      const td = el("td", c.text ? "" : "n");
-      if (c.key === "tag") {
-        td.append(el("span", "a-i", String(i + 1)), a.tag ? KS.allianceChip(a.tag) : el("b", "", tr("aNone")));
-      } else if (c.key === "top") {
-        td.textContent = a.top?.name ?? "";
-        td.title = a.top ? `${a.top.name ?? ""} · ${full(a.top.power)}` : "";
-      } else if (comparing() && a._was?.[c.key] !== a[c.key]) {
-        td.appendChild(threeLines(a._was?.[c.key], a[c.key], c.f || short));
-      } else {
-        const v = a[c.key];
-        td.textContent = v == null ? "–" : c.f ? c.f(v) : short(v);
-        if (v != null && !c.f) td.title = full(v);
-        if (c.share) { // the alliance's share of the kingdom's power, as a thin bar under the number
-          const bar = el("i", "share");
-          bar.style.width = (100 * a.share).toFixed(1) + "%";
-          td.title += ` · ${numFmt(1).format(100 * a.share)}% ${tr("aShare").toLowerCase()}`;
-          td.appendChild(bar);
-        }
-      }
-      r.appendChild(td);
-    }
-    r.onclick = () => { KS.setAlliance(a.tag || "-"); KS.setMode("players"); };
-    tb.appendChild(r);
-  });
-  wrap.appendChild(t);
-  panel.appendChild(wrap);
-}
-
-// ---- chart: horizontal bars of one metric ----
-const CHART_SKIP = new Set(["rank", "id", "faction", "cityLevel", "allianceRank", "lastLogin"]);
-const chart = Object.assign({ metric: "power", scope: "players", agg: "sum", top: 30, dir: -1 }, KS.store.get("chart", {}));
-
-function metricList() {
-  return COLUMNS.filter((c) => !c.auto && !CHART_SKIP.has(c.key) && (c.type === "num" || c.type === "int" || c.type === "pct"));
-}
-
-function select(opts, val, on) {
-  const s = el("select");
-  for (const [v, t] of opts) { const o = el("option", "", t); o.value = v; s.appendChild(o); }
-  s.value = String(val);
-  s.onchange = () => { on(s.value); KS.store.set("chart", chart); KS.keepScroll($("kingdomPage"), drawChart); };
-  return s;
-}
-
-function drawChart() {
-  const panel = $("panel");
-  panel.innerHTML = "";
-  if (!state.data) return;
-  const diff = comparing(); // the bars show the change between the two scans
-  const metrics = metricList();
-  if (!metrics.some((c) => c.key === chart.metric)) chart.metric = "power";
-  const c = KS.BY_KEY[chart.metric];
-  const bar = el("div", "ctl");
-  const lab = (t, node) => { const l = el("label", "ctl-f"); l.append(el("span", "mut", tr(t)), node); return l; };
-  bar.append(
-    lab("cMetric", select(metrics.map((m) => [m.key, KS.label(m.tip || m)]), chart.metric, (v) => (chart.metric = v))),
-    lab("cScope", select([["players", tr("cScopeP")], ["alliances", tr("cScopeA")]], chart.scope, (v) => (chart.scope = v))),
-  );
-  if (chart.scope === "alliances" && c.type !== "pct")
-    bar.append(lab("cAgg", select([["sum", tr("cSum")], ["avg", tr("cAvg")]], chart.agg, (v) => (chart.agg = v))));
-  bar.append(
-    lab("cTop", select([[20, "20"], [30, "30"], [50, "50"], [100, "100"], [0, tr("cAll")]], chart.top, (v) => (chart.top = Number(v)))),
-    lab("cOrder", select([[-1, tr("cDesc")], [1, tr("cAsc")]], chart.dir, (v) => (chart.dir = Number(v)))),
-  );
-  panel.appendChild(bar);
-  if (diff) panel.appendChild(el("p", "hint mut", `${tr("cDelta")}: ${state.data._vs} → ${state.data.scan}`));
-
-  // the items: players of the list, or alliances (their total / average; a % column always averages)
-  let items;
-  if (chart.scope === "players") {
-    items = state.view.map((p) => ({ name: p.name ?? String(p.id), tag: p.alliance, v: diff ? KS.deltaOf(c, p) : KS.value(c, p) }));
-  } else {
-    const avg = chart.agg === "avg" || c.type === "pct", now = byTag(diff ? nowOf(state.view) : state.view), then = byTag(diff ? thenOf(state.view) : []);
-    const of = (ps) => { const a = agg(ps || [], (p) => KS.value(c, p)); return avg ? a.avg : a.sum; };
-    items = [...new Set([...now.keys(), ...then.keys()])].map((tag) => {
-      const a = of(now.get(tag)), b = of(then.get(tag));
-      return { name: tag || tr("aNone"), sub: `${(now.get(tag) || []).length} ${tr("players")}`, v: !diff ? a : (a ?? 0) - (b ?? 0) };
-    });
-  }
-  items = items.filter((x) => typeof x.v === "number" && !Number.isNaN(x.v));
-  items.sort((a, b) => (a.v - b.v) * chart.dir);
-  if (chart.top) items = items.slice(0, chart.top);
-  if (!items.length) { panel.appendChild(el("p", "hint mut", tr("cEmpty"))); return; }
-
-  const max = Math.max(...items.map((x) => Math.abs(x.v))) || 1;
-  const list = el("ol", "bars");
-  items.forEach((x, i) => {
-    const li = el("li", i < 3 && chart.dir < 0 ? "top" : "");
-    const name = el("span", "b-n");
-    name.append(el("span", "b-i", String(i + 1)), el("span", "b-t", x.name));
-    if (x.tag) name.appendChild(KS.allianceChip(x.tag));
-    else if (x.sub) name.appendChild(el("small", "mut", x.sub));
-    name.title = x.name;
-    const track = el("span", "b-track"), fill = el("i", "b-fill" + (x.v < 0 ? " neg" : ""));
-    fill.style.width = ((100 * Math.abs(x.v)) / max).toFixed(2) + "%";
-    track.appendChild(fill);
-    const sign = diff && x.v > 0 ? "+" : "";
-    const val = el("span", "b-v" + (diff ? (x.v > 0 ? " up" : x.v < 0 ? " down" : "") : ""), sign + (c.type === "pct" ? numFmt(2).format(x.v) + "%" : c.type === "int" ? numFmt().format(x.v) : short(x.v)));
-    val.title = full(x.v);
-    li.append(name, track, val);
-    list.appendChild(li);
-  });
-  panel.appendChild(list);
-}
-
-KS.views = { alliances: drawAlliances, chart: drawChart };
-// after every change of the list (filters, sort, language, kingdom): the strip, and the view on screen
-KS.onRefresh = () => {
-  drawKpis();
-  if (state.mode !== "players" && KS.views[state.mode]) KS.keepScroll($("kingdomPage"), KS.views[state.mode]);
-};
-})();
+// What goes with the player table: the totals strip and the two bar charts. A classic script
+// loaded after app.js; everything it needs from the page comes through window.KS. Every view works on the players
+// the filters at the top let through (power step, search).
+(() => {
+"use strict";
+const KS = window.KS, { state, tr, $, numFmt } = KS;
+
+Object.assign(KS.T.vi, {
+  kPlayers: "Người chơi", kAlliances: "liên minh", kAvg: "TB", kMigration: "Tổng di cư", kPetSome: "Pet max ≥ 1", kPetNone: "0 pet max",
+  cMetric: "Chỉ số", cTop: "Hiện", cAll: "Tất cả", cOrder: "Thứ tự", cDesc: "Cao → thấp", cAsc: "Thấp → cao",
+  cEmpty: "Không có số liệu cho chỉ số này.", cDelta: "Mức thay đổi",
+});
+Object.assign(KS.T.en, {
+  kPlayers: "Players", kAlliances: "alliances", kAvg: "avg", kMigration: "Total migration", kPetSome: "Max pets ≥ 1", kPetNone: "0 max pets",
+  cMetric: "Metric", cTop: "Show", cAll: "All", cOrder: "Order", cDesc: "High → low", cAsc: "Low → high",
+  cEmpty: "No data for this metric.", cDelta: "Change",
+});
+
+const short = (v) => (v == null || Number.isNaN(v) ? "–" : KS.compact(v));
+const full = (v) => (v == null || Number.isNaN(v) ? "" : numFmt().format(Math.round(v)));
+const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+
+// sum + average of a field over a list, only over the players that have it
+function agg(list, get) {
+  let s = 0, n = 0;
+  for (const p of list) { const v = get(p); if (typeof v === "number" && !Number.isNaN(v)) { s += v; n++; } }
+  return { sum: n ? s : undefined, avg: n ? s / n : undefined, n };
+}
+
+// ---- totals strip (above every view) ----
+KS.MIGRATION_BANDS = [[24, 28, "24–27"], [28, 31, "28–30"], [31, Infinity, "31+"]];
+KS.DECOR_MAX = 5; // the last tier of the achievement: an account with this many counts as max decor
+const isMaxDecor = (p) => ((p.maxDecor ?? 0) >= KS.DECOR_MAX ? 1 : 0);
+// the small line of a card: plain strings stay quiet, { b: value } stands out
+function kSub(...bits) {
+  const s = el("span", "k-a");
+  for (const bit of bits) s.append(typeof bit === "string" ? bit : el("b", null, bit.b));
+  return s;
+}
+// one card; its colour comes from data-k in the stylesheet, its picture from assets/icons/<key>.png
+function kpiCard(key, label, value, sub) {
+  const d = el("div", "kpi"), head = el("div", "k-top"), icon = el("img", "k-i");
+  d.dataset.k = key;
+  icon.src = `assets/icons/${key}.png`;
+  icon.alt = "";
+  head.append(icon, el("span", "k-l", label));
+  d.append(head, value, sub);
+  return d;
+}
+const KPIS = [
+  { key: "power", label: () => KS.label(KS.BY_KEY.power), get: (p) => p.power },
+  { key: "merits", label: () => KS.label(KS.BY_KEY.merits), get: (p) => p.merits },
+  { key: "kills", label: () => KS.label(KS.BY_KEY.kills), get: (p) => p.kills },
+  { key: "deaths", label: () => KS.label(KS.BY_KEY.deaths), get: (p) => p.deaths },
+  { key: "heals", label: () => KS.label(KS.BY_KEY.heals), get: (p) => p.heals },
+];
+
+// comparing two scans: what changed over the players listed, and from what to what
+// (the same figures as the plain strip: switching the mode must not change the strip's height)
+const GROWTH_KPIS = [["power", (p) => p.power], ["merits", (p) => p.merits], ["kills", (p) => p.kills], ["deaths", (p) => p.deaths], ["heals", (p) => p.heals],
+  ["migrationScore", (p) => p.migrationScore], ["maxDecor", isMaxDecor]];
+function drawGrowthKpis(box, list) {
+  const n = numFmt(), joined = list.filter((p) => !p._was && !p._left).length, left = list.filter((p) => p._left).length;
+  box.appendChild(kpiCard("players", tr("kPlayers"), el("b", "k-v", n.format(list.length - left)), kSub({ b: `+${n.format(joined)}` }, " · ", { b: `−${n.format(left)}` })));
+  for (const [k, get] of GROWTH_KPIS) {
+    let a = 0, b = 0;
+    for (const p of list) {
+      if (p._left) { a += get(p) ?? 0; continue; }
+      b += get(p) ?? 0;
+      if (p._was) a += get(p._was) ?? 0;
+    }
+    const v = el("b", "k-v " + (b > a ? "up" : b < a ? "down" : ""), (b > a ? "+" : "") + short(b - a));
+    v.title = full(b - a);
+    box.appendChild(kpiCard(k, k === "migrationScore" ? tr("kMigration") : KS.label(KS.BY_KEY[k]), v, kSub({ b: short(a) }, " → ", { b: short(b) })));
+  }
+}
+
+// a total with its breakdown under it, one small figure per part
+function breakdownKpi(key, label, value, parts) {
+  const v = el("b", "k-v", numFmt().format(value)), box = el("span", "k-a k-parts");
+  v.title = full(value);
+  for (const [l, n] of parts) {
+    const part = el("span", "k-p", `${l} `);
+    part.appendChild(el("b", null, numFmt().format(n)));
+    box.appendChild(part);
+  }
+  return kpiCard(key, label, v, box);
+}
+const countIf = (list, test) => list.reduce((n, p) => n + (test(p) ? 1 : 0), 0);
+
+// The crawl has no kingdom-wide migration score, only each player's: the total is theirs added up. Players without the
+// figure (a crawl that did not get it) are in no band.
+function migrationKpi(list) {
+  const has = list.filter((p) => p.migrationScore != null);
+  const bands = [[-Infinity, 24, "<24"], ...KS.MIGRATION_BANDS];
+  return breakdownKpi("migrationScore", tr("kMigration"), agg(has, (p) => p.migrationScore).sum ?? 0,
+    bands.map(([lo, hi, l]) => [l, countIf(has, (p) => p.migrationScore >= lo && p.migrationScore < hi)]));
+}
+function decorKpi(list) {
+  // the breakdown splits the card's own figure: of the max decor accounts, who also has a max pet
+  const has = list.filter((p) => isMaxDecor(p) && p.pets8Skills3Star != null);
+  return breakdownKpi("maxDecor", KS.label(KS.BY_KEY.maxDecor), countIf(list, isMaxDecor),
+    [[tr("kPetSome"), countIf(has, (p) => p.pets8Skills3Star >= 1)], [tr("kPetNone"), countIf(has, (p) => p.pets8Skills3Star === 0)]]);
+}
+
+function drawKpis() {
+  const box = $("kpis"), list = state.view;
+  box.innerHTML = "";
+  if (!state.data) return;
+  if (state.data._vs) { drawGrowthKpis(box, list); return; }
+  const tags = new Set(list.map((p) => p.alliance).filter(Boolean));
+  box.appendChild(kpiCard("players", tr("kPlayers"), el("b", "k-v", numFmt().format(list.length)),
+    kSub({ b: numFmt().format(tags.size) }, ` ${tr("kAlliances")}`)));
+  for (const k of KPIS) {
+    const a = agg(list, k.get);
+    const v = el("b", "k-v", short(a.sum));
+    v.title = full(a.sum);
+    const avg = kSub(`${tr("kAvg")} `, { b: short(a.avg) });
+    avg.title = full(a.avg);
+    box.appendChild(kpiCard(k.key, k.label(), v, avg));
+  }
+  box.append(migrationKpi(list), decorKpi(list));
+}
+
+// ---- charts: horizontal bars of one metric, the same on every page ----
+// A page's two charts, remembered under a key of their own: [{ metric, top, dir }]
+KS.chartSet = (key, metrics) => {
+  const saved = KS.store.get(key, []);
+  return metrics.map((metric, i) => Object.assign({ metric, top: 10, dir: -1 }, saved[i]));
+};
+// one chart. metrics = [[key, label]]; items(key) = [{ name, tag, v }]; text(key, v) = the value as shown;
+// delta(key) = the values are changes (signed, coloured); changed() runs after the viewer picks something.
+// The first bar has the full colour and each one after fades, down to almost white on the last
+KS.barCard = (chart, { metrics, items, text, delta, changed }) => {
+  if (!metrics.some(([k]) => k === chart.metric)) chart.metric = metrics[0][0];
+  const card = el("div", "chart-card"), bar = el("div", "ctl"), isDelta = !!delta?.(chart.metric);
+  card.dataset.k = chart.metric;
+  const pick = (t, opts, val, on) => {
+    const l = el("label", "ctl-f"), s = el("select");
+    for (const [v, name] of opts) { const o = el("option", "", name); o.value = v; s.appendChild(o); }
+    s.value = String(val);
+    s.onchange = () => { on(s.value); changed(); };
+    l.append(el("span", "mut", tr(t)), s);
+    return l;
+  };
+  bar.append(
+    pick("cMetric", metrics, chart.metric, (v) => (chart.metric = v)),
+    pick("cTop", [[10, "10"], [20, "20"], [30, "30"], [50, "50"], [100, "100"], [0, tr("cAll")]], chart.top, (v) => (chart.top = Number(v))),
+    pick("cOrder", [[-1, tr("cDesc")], [1, tr("cAsc")]], chart.dir, (v) => (chart.dir = Number(v))),
+  );
+  card.appendChild(bar);
+
+  let list = items(chart.metric).filter((x) => typeof x.v === "number" && !Number.isNaN(x.v));
+  list.sort((a, b) => (a.v - b.v) * chart.dir);
+  if (chart.top) list = list.slice(0, chart.top);
+  if (!list.length) { card.appendChild(el("p", "hint mut", tr("cEmpty"))); return card; }
+
+  const max = Math.max(...list.map((x) => Math.abs(x.v))) || 1, ol = el("ol", "bars");
+  list.forEach((x, i) => {
+    const li = el("li", i < 3 && chart.dir < 0 ? "top" : ""), name = el("span", "b-n");
+    name.append(el("span", "b-i", String(i + 1)), el("span", "b-t", x.name));
+    if (x.tag) name.appendChild(KS.allianceChip(x.tag));
+    name.title = x.name;
+    const track = el("span", "b-track"), fill = el("i", "b-fill");
+    fill.style.width = ((100 * Math.abs(x.v)) / max).toFixed(2) + "%";
+    const colour = list.length > 1 ? 100 - (88 * i) / (list.length - 1) : 100;
+    fill.style.background = `color-mix(in srgb, ${x.v < 0 ? "var(--down)" : "var(--t, var(--acc))"} ${colour.toFixed(1)}%, var(--b-end))`;
+    track.appendChild(fill);
+    const val = el("span", "b-v" + (isDelta ? (x.v > 0 ? " up" : x.v < 0 ? " down" : "") : ""), (isDelta && x.v > 0 ? "+" : "") + text(chart.metric, x.v));
+    val.title = full(x.v);
+    li.append(name, track, val);
+    ol.appendChild(li);
+  });
+  card.appendChild(ol);
+  return card;
+};
+
+// ---- the kingdom page's charts, over the players listed ----
+// Only metrics that say something as bars: the rest are mostly 0, capped, or follow power
+const CHART_METRICS = ["power", "merits", "meritRatio", "kills", "deaths", "heals", "gathered", "migrationScore"];
+const charts = KS.chartSet("charts", ["power", "merits"]);
+
+function drawCharts() {
+  const panel = $("panel");
+  panel.innerHTML = "";
+  if (!state.data) return;
+  const diff = !!state.data._vs; // the bars show the change between the two scans
+  if (diff) panel.appendChild(el("p", "hint mut", `${tr("cDelta")}: ${state.data._vs} → ${state.data.scan}`));
+  panel.append(...charts.map((chart) => KS.barCard(chart, {
+    metrics: CHART_METRICS.map((k) => [k, KS.label(KS.BY_KEY[k].tip || KS.BY_KEY[k])]),
+    items: (k) => state.view.map((p) => ({ name: p.name ?? String(p.id), tag: p.alliance, v: diff ? KS.deltaOf(KS.BY_KEY[k], p) : KS.value(KS.BY_KEY[k], p) })),
+    text: (k, v) => { const c = KS.BY_KEY[k]; return c.type === "pct" ? numFmt(2).format(v) + "%" : c.type === "int" ? numFmt().format(v) : short(v); },
+    delta: () => diff,
+    changed: () => { KS.store.set("charts", charts); KS.keepScroll($("kingdomPage"), drawCharts); },
+  })));
+}
+
+// after every change of the list (filters, sort, language, kingdom): the strip and the charts
+KS.onRefresh = () => {
+  drawKpis();
+  KS.keepScroll($("kingdomPage"), drawCharts);
+};
+})();

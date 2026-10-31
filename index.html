@@ -7,7 +7,7 @@
 <meta name="description" content="Player statistics per kingdom: power, merits, kills, achievements, gathering.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%233b82f6' d='M2 13h12v2H2zM2 5l3 3 3-5 3 5 3-3-1 7H3z'/%3E%3C/svg%3E">
 <!-- ?v=N: bump it when assets/ change, so a cached old file (GitHub Pages: 10 min) is not mixed with new ones -->
-<link rel="stylesheet" href="assets/style.css?v=97">
+<link rel="stylesheet" href="assets/style.css?v=116">
 <script data-goatcounter="https://machudat.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
 </head>
@@ -63,6 +63,7 @@
   <div id="scanField" class="field" hidden><select id="scan" aria-label="Scan"></select></div>
 </div>
 <div id="kpis" class="kpis"></div>
+<section id="panel" class="panel charts"></section>
 <!-- what the table shows: filter, metrics, number format, order -->
 <div class="bar tbl-bar">
   <label class="field"><span class="sr" data-i18n="minPower">Power</span>
@@ -82,13 +83,7 @@
   </div>
 </div>
 <div id="colChips" class="col-chips"></div>
-<nav id="modes" class="modes" aria-label="View">
-  <button type="button" data-mode="players" data-i18n="mPlayers">Người chơi</button>
-  <button type="button" data-mode="alliances" data-i18n="mAlliances">Liên minh</button>
-  <button type="button" data-mode="chart" data-i18n="mChart">Biểu đồ</button>
-  <button type="button" id="allianceOff" class="al-tag" hidden></button>
-  <span class="meta"><span id="count"></span><span id="crawled" class="mut"></span></span>
-</nav>
+<div class="list-meta"><span class="meta"><span id="count"></span><span id="crawled" class="mut"></span></span></div>
 </div>
 <main id="grid" class="grid" tabindex="0" aria-label="Players">
   <div id="sizer" class="sizer">
@@ -97,7 +92,6 @@
   </div>
   <p id="empty" class="empty" hidden></p>
 </main>
-<section id="panel" class="panel" hidden></section>
 </div>
 
 <div id="comparePage" class="page" hidden>
@@ -134,10 +128,10 @@
   </form>
 </dialog>
 
-<script defer src="assets/columns.js?v=97"></script>
-<script defer src="assets/app.js?v=97"></script>
-<script defer src="assets/views.js?v=97"></script>
-<script defer src="assets/compare.js?v=97"></script>
-<script defer src="assets/pages.js?v=97"></script>
+<script defer src="assets/columns.js?v=116"></script>
+<script defer src="assets/app.js?v=116"></script>
+<script defer src="assets/views.js?v=116"></script>
+<script defer src="assets/compare.js?v=116"></script>
+<script defer src="assets/pages.js?v=116"></script>
 </body>
 </html>
