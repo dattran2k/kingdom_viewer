@@ -1036,7 +1036,7 @@ function init() {
   dayDrop($("vs"));
   applyLang();
   fillPower();
-  applyTheme(store.get("theme", ""));
+  applyTheme(store.get("theme", "dark"));
   $("fmtBtn").setAttribute("aria-pressed", String(state.compact));
   $("heatBtn").setAttribute("aria-pressed", String(state.heat));
   $("heatBtn").onclick = () => {
