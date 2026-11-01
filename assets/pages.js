@@ -109,7 +109,7 @@ function pager(total, page, go, size = PAGE_SIZE) {
 function table(cols, rows, sort, onSort, onRow) {
   const wrap = el("div", "tbl-wrap dv-wrap"), t = el("table", "tbl"), hr = el("tr");
   for (const c of cols) {
-    const th = el("th", sort.key === c.key ? "on" : "", c.label);
+    const th = el("th", (sort.key === c.key ? "on" : "") + (c.left ? " nm" : ""), c.label);
     if (sort.key === c.key) th.dataset.dir = sort.dir < 0 ? "▼" : "▲";
     if (c.nosort) th.classList.add("nosort");
     else th.onclick = () => onSort(c.key);
@@ -120,8 +120,9 @@ function table(cols, rows, sort, onSort, onRow) {
   for (const r of rows) {
     const line = el("tr");
     for (const c of cols) {
-      const td = el("td", c.cls?.(r) || "", c.node ? null : c.text ? c.text(r) : num(c.get(r)));
+      const td = el("td", (c.cls?.(r) || "") + (c.left ? " nm" : ""), c.node ? null : c.text ? c.text(r) : num(c.get(r)));
       if (c.node) td.appendChild(c.node(r));
+      if (c.max && c.get(r) != null) { td.classList.add("pg", "b-" + c.key); td.style.setProperty("--p", Math.max(0, c.get(r) / c.max)); }
       if (c.ranked) td.style.color = KS.rankColour(r._i);
       const tip = c.tip ? c.tip(r) : c.text ? null : fullNum(c.get(r));
       if (tip) td.title = tip;
@@ -163,6 +164,7 @@ const RANK_METRICS = [
   ["helps", "cHelps"], ["gathered", "cGathered"], ["migrationScore", "cMigration"], ["migration24", "24–27"], ["migration28", "28–30"], ["migration31", "31+"],
   ["decorMax", "cDecor"], ["meritInfantry", "cInf"], ["meritCavalry", "cCav"], ["meritArcher", "cArc"], ["meritMagic", "cMag"],
 ];
+const tradesOf = (r) => (r.heals ? (100 * (r.kills || 0)) / r.heals : null);
 const rank = { q: "", page: 1, sort: { key: "powerMax", dir: -1 } };
 
 async function showRank() {
@@ -186,11 +188,13 @@ async function drawRank(out) {
   if (q) rows = rows.filter((r) => (kq && String(r.kingdom).startsWith(kq)) || String(r.topAlliance).toLowerCase().includes(q));
   const cols = [
     { key: "#", label: "#", nosort: true, text: (r) => String(r._i), cls: () => "mut" },
-    { key: "kingdom", label: tr("cKingdom"), get: (r) => r.kingdom, text: (r) => "#" + r.kingdom, cls: () => "dv-b", ranked: true },
+    { key: "kingdom", label: tr("cKingdom"), get: (r) => r.kingdom, node: (r) => el("span", r._i <= 8 ? "kd top" : "kd", String(r.kingdom)) },
     { key: "topAlliance", label: tr("cTopAlliance"), get: (r) => r.topAlliance, node: (r) => allianceChip(r.topAlliance) },
     { key: "players", label: tr("cPlayers"), get: (r) => r.players, text: (r) => numFmt().format(r.players) },
     { key: "alliances", label: tr("cAlliances"), get: (r) => r.alliances, text: (r) => numFmt().format(r.alliances) },
-    ...RANK_METRICS.map(([key, label]) => ({ key, label: tr(label), get: (r) => r[key] })),
+    ...RANK_METRICS.map(([key, label]) => ({ key, label: tr(label), get: (r) => r[key],
+      max: rows.reduce((m, r) => Math.max(m, r[key] ?? 0), 0) })),
+    { key: "trades", label: "Trades", get: tradesOf, tip: () => tr("tradesTip"), node: (r) => el("span", "tr-b", tradesOf(r) == null ? "–" : numFmt(0).format(tradesOf(r)) + "%") },
   ];
   const col = cols.find((c) => c.key === rank.sort.key) || cols.find((c) => c.key === "powerMax");
   rows = sortRows(rows, col.get, rank.sort.dir);
@@ -265,7 +269,7 @@ function drawMigration(out, moves) {
   const kCell = (key, label, cls) => ({ key, label: tr(label), get: (m) => m[key], text: (m) => "#" + m[key], cls: () => cls });
   const cols = [
     { key: "id", label: "ID", get: (m) => m.id, text: (m) => String(m.id), cls: () => "mut" },
-    { key: "name", label: tr("gName"), get: (m) => m.name, text: (m) => m.name ?? "", cls: () => "dv-b", ranked: true },
+    { key: "name", label: tr("gName"), get: (m) => m.name, text: (m) => m.name ?? "", cls: () => "dv-b", ranked: true, left: true },
     kCell("from", "mFrom", "dv-b"), kCell("to", "mTo", "dv-b mv-to"),
     { key: "allianceFrom", label: tr("mAllianceFrom"), get: (m) => m.allianceFrom, node: (m) => allianceChip(m.allianceFrom) },
     { key: "allianceTo", label: tr("mAllianceTo"), get: (m) => m.allianceTo, node: (m) => allianceChip(m.allianceTo) },

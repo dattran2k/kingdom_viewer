@@ -207,7 +207,7 @@ function eachKingdom(fa, fb) {
 // Three columns of two cards, each card as tall as what it holds
 function duels(pa, pb) {
   const box = el("div", "x-duels"), int = (v) => numFmt().format(v);
-  const short = (c) => (v) => (c.type === "num" ? KS.compact(v) : show(c, v)); // always short: full numbers break across lines on a phone
+  const short = (c) => (v) => (c.type === "num" && state.compact ? KS.compact(v) : show(c, v)); // follows the 1.2M switch
   const col = (k, name, icon) => { const c = KS.BY_KEY[k]; return [name || KS.label(c), (ps) => measure(c, ps), short(c), icon]; };
   const main = (k, name) => col(k, name).slice(0, 3); // a card's own figure: name, value, text
   const spelled = (k) => col(k, KS.label(KS.BY_KEY[k].tip)); // the short column name says too little here

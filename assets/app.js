@@ -10,7 +10,7 @@ const T = {
   vi: {
     sortBy: "Sắp theo", sortDirTip: "Đổi chiều sắp xếp", colSet: "Chỉ số",
     sortValue: "Giá trị", sortValueTip: "Sắp theo giá trị của chỉ số", sortDeltaTip: "Sắp theo mức tăng / giảm giữa 2 ngày", sortDeltaOff: "Chỉ có khi so sánh 2 ngày khác nhau",
-    yes: "Có", no: "Không", title: "Kingdom Stats", kingdom: "Kingdom", scan: "Ngày", latest: "mới nhất", search: "Tìm", searchPh: "Tên, ID, liên minh, #kingdom…", kSearchPh: "Tìm kingdom…", kNone: "Không có kingdom nào", alliance: "Liên minh",
+    tradesTip: "Tiêu diệt / Chữa trị", tblPlayers: "Người chơi", yes: "Có", no: "Không", title: "Kingdom Stats", kingdom: "Kingdom", scan: "Ngày", latest: "mới nhất", search: "Tìm", searchPh: "Tên, ID, liên minh…", kSearchPh: "Tìm kingdom…", kNone: "Không có kingdom nào", alliance: "Liên minh",
     allAlliances: "Mọi liên minh", columns: "Chỉ số", theme: "Đổi giao diện sáng/tối",
     fmtTip: "Số gọn (1.2M) / số đầy đủ", pickCols: "Chọn chỉ số hiển thị", filterCols: "Lọc chỉ số…", all: "Tất cả",
     none: "Bỏ hết", defaults: "Mặc định", players: "người", of: "/", crawled: "Thu thập", loading: "Đang tải…",
@@ -21,7 +21,7 @@ const T = {
   en: {
     sortBy: "Sort by", sortDirTip: "Reverse the order", colSet: "Metrics",
     sortValue: "Value", sortValueTip: "Sort by the metric's value", sortDeltaTip: "Sort by the change between the two days", sortDeltaOff: "Only while comparing two different days",
-    yes: "Yes", no: "No", title: "Kingdom Stats", kingdom: "Kingdom", scan: "Day", latest: "latest", search: "Search", searchPh: "Name, ID, alliance, #kingdom…", kSearchPh: "Find a kingdom…", kNone: "No such kingdom", alliance: "Alliance",
+    tradesTip: "Kills / Healed", tblPlayers: "Players", yes: "Yes", no: "No", title: "Kingdom Stats", kingdom: "Kingdom", scan: "Day", latest: "latest", search: "Search", searchPh: "Name, ID, alliance…", kSearchPh: "Find a kingdom…", kNone: "No such kingdom", alliance: "Alliance",
     allAlliances: "All alliances", columns: "Metrics", theme: "Light / dark",
     fmtTip: "Compact (1.2M) / full numbers", pickCols: "Metrics", filterCols: "Filter metrics…", all: "All",
     none: "None", defaults: "Defaults", players: "players", of: "/", crawled: "Collected", loading: "Loading…",
@@ -62,6 +62,7 @@ const state = {
   narrow: matchMedia("(max-width: 640px)").matches,
 };
 COLUMNS.filter((c) => c.fixed).forEach((c) => state.shown.add(c.key));
+if (!store.get("tradesAdded")) { state.shown.add("trades"); store.set("cols", [...state.shown]); store.set("tradesAdded", true); } // a list saved before this column existed
 
 const tr = (k) => T[state.lang][k] ?? k;
 const label = (o) => o[state.lang] ?? o.vi;
@@ -85,7 +86,7 @@ function fmt(c, v) {
     case "int": return numFmt().format(v);
     case "num": return state.compact ? compact(v) : numFmt().format(v);
     case "kingdom": return "#" + v;
-    case "pct": return numFmt(2).format(v) + "%";
+    case "pct": return numFmt(c.dec ?? 2).format(v) + "%";
     case "grade": return "R" + v;
     case "yesno": return tr(v ? "yes" : "no");
     case "date": {
@@ -121,7 +122,7 @@ async function loadIndex() {
 }
 
 // ---- kingdom picker: a list with a search box (a <select> cannot be searched), and the same list under the main
-// search box when what is typed is a kingdom number ("575", "#575") ----
+// search box, which only finds kingdoms ("575", "#575") ----
 function kingdomMatches(q, max = Infinity) {
   q = q.replace(/[#\s]/g, "");
   const start = [], inside = [];
@@ -214,7 +215,7 @@ function wireKingdomPicker() {
   };
   // the main search box: a kingdom number shows the matching kingdoms under it; picking one clears the search
   const pickFromSearch = (k) => {
-    $("q").value = ""; state.q = "";
+    $("q").value = ""; $("pq").value = ""; state.q = "";
     $("qsug").hidden = true;
     openKingdom(k);
   };
@@ -349,6 +350,15 @@ function setDiff(on) {
   rowH = 0;
 }
 
+// the kingdom button: the kingdom shown and its size; while comparing the kingdoms are chips and this one adds
+function kingdomLabel(item) {
+  const b = $("kingdomLbl");
+  if (state.comparing) { b.textContent = tr("xAdd"); return; }
+  const size = document.createElement("small");
+  size.textContent = `${numFmt().format(item.players)} ${tr("players")}`;
+  b.replaceChildren(`#${item.kingdom}`, size);
+}
+
 // the kingdoms compared, as chips: a click takes one out (the last one stays)
 function drawChips() {
   const box = $("cmpChips");
@@ -382,7 +392,7 @@ async function loadKingdom(id, scan) {
     if (state.vs > scan) [state.vs, scan] = [scan, state.vs]; // picked the wrong way round: the older one is always "from"
   }
   setDiff(state.comparing && state.vs !== scan);
-  $("kingdomLbl").textContent = state.comparing ? tr("xAdd") : `#${id} · ${numFmt().format(item.players)}`;
+  kingdomLabel(item);
   fillScans({ ...item, scans }, scan);
   if (state.comparing) { fillVs({ scans }); drawChips(); }
   showEmpty(tr("loading"));
@@ -532,7 +542,7 @@ function refresh() {
   KS.onRefresh?.();
 }
 
-const NO_AVG = new Set(["rank", "faction", "allianceRank"]); // numbers that are labels, not amounts
+const NO_AVG = new Set(["rank", "allianceRank"]); // numbers that are labels, not amounts
 // column averages over the players listed, for the above / below colouring (numbers only, blanks left out)
 function averages() {
   state.avg = {};
@@ -609,6 +619,7 @@ function fitWidths() {
       // header: bold 12px + the sort arrow's room (10px + 4px gap); values: bold 13px (the top 3 rows are bold).
       // A phone: header in 11px with a 2px gap, a thinner chip and padding (see the 640px block of the stylesheet)
       w = state.narrow ? textWidth(label(c), `700 11px ${family}`) + 12 : textWidth(label(c), `700 12px ${family}`) + 14;
+      if (HEAD_ICONS.has(c.key)) w += 18;
       if (state.data) {
         let longest = "";
         for (const p of state.data.players) {
@@ -620,23 +631,27 @@ function fitWidths() {
         w = Math.max(w, cellWidth(longest, family));
       }
       w = Math.ceil(w) + (state.narrow ? 10 + 1 : 20 + 4); // + the cell's padding + a little air (just rounding on a phone)
+      if (state.data?._vs && COMPARED.has(c.type)) w += 22; // the change's box and arrow
       fitted.set(c.key, w);
     }
     c.w = w;
   }
 }
 
+const HEAD_ICONS = new Set(["power", "merits", "kills", "deaths", "heals", "migrationScore", "maxDecor"]); // assets/icons/<key>.png, see .ic-<key>
 function cellClass(c, head) {
   let s = head ? "h" : "c";
   if (NUMERIC.has(c.type)) s += " n";
   if (c.pin) s += " pin" + (c._last ? " last" : "");
   if (c.key === "rank") s += " rk";
+  if (head && HEAD_ICONS.has(c.key)) s += " ic ic-" + c.key;
+  if (c.key === "name") s += " nm";
   return s;
 }
 
-// A chip per set of metrics, several at once: the table has # + name + ID + alliance plus what the chips lit bring. A
+// A chip per set of metrics, several at once: the table has # + name + alliance plus what the chips lit bring. A
 // chip is lit while all its columns are shown, so "all" lights every chip, and taking one out turns "all" off.
-const BASE_COLS = COLUMNS.filter((c) => c.fixed || ["id", "alliance"].includes(c.key)).map((c) => c.key);
+const BASE_COLS = COLUMNS.filter((c) => c.fixed || ["alliance"].includes(c.key)).map((c) => c.key);
 const COL_SETS = [
   { id: "def", name: () => tr("defaults"), keys: () => DEFAULT_COLS },
   ...GROUPS.filter((g) => g.id !== "basic").map((g) => ({ id: g.id, name: () => label(g), keys: () => [...BASE_COLS, ...COLUMNS.filter((c) => c.group === g.id && !c.auto).map((c) => c.key)] })),
@@ -775,22 +790,25 @@ function newCellKey() {
   warmCells();
 }
 
-// a cell while comparing, when the value changed or is on one side only: [text, class] per line; null = a plain cell
+// a cell while comparing: [text, class] per line (the change, then the value now; the value before is in the tooltip);
+// null = a plain cell
 function comparedCell(c, p, v) {
   if (c.pin || !state.data?._vs) return null;
   const was = p._left ? v : p._was ? value(c, p._was) : undefined, now = p._left ? undefined : v;
-  if (was === now || (was == null && now == null)) return null;
+  if (was == null && now == null) return null;
+  if (was === now) return COMPARED.has(c.type) ? [["→ 0", "d-d"], [fmt(c, now), "d-b"]] : null;
   if (COMPARED.has(c.type)) {
     const d = deltaOf(c, p);
-    const text = d == null ? "" : c.type === "pct" ? numFmt(2).format(d) + "%" : fmt(c, d);
-    const sign = d > 0 ? "+" : "", mark = d > 0 ? " hi" : d < 0 ? " lo" : "";
-    return [[fmt(c, was) || "–", "d-a"], [d == null ? "" : sign + text, "d-d" + mark], [fmt(c, now) || "–", "d-b"]];
+    const value_ = [fmt(c, now) || "–", "d-b"];
+    if (d == null) return [value_];
+    if (fmt(c, Math.abs(d)) === fmt(c, 0)) return [["→ 0", "d-d"], value_]; // too small to show
+    return [[(d > 0 ? "↑ " : "↓ ") + fmt(c, Math.abs(d)), "d-d" + (d > 0 ? " hi" : " lo")], value_];
   }
-  return c.type === "text" && p._was && !p._left ? [[fmt(c, was) || "–", "d-a"], ["→", "d-d"], [fmt(c, now) || "–", "d-b"]] : null;
+  return c.type === "text" && p._was && !p._left ? [[(fmt(c, was) || "–") + " →", "d-a"], [fmt(c, now) || "–", "d-b"]] : null;
 }
 
 // the colour of a table's name by its place in the list as shown: the accent at the top, fading to white by 100th
-const rankColour = (n) => `color-mix(in srgb, var(--acc) ${(100 - Math.min(n - 1, 99) * 100 / 99).toFixed(1)}%, var(--b-end))`;
+const rankColour = (n) => `color-mix(in srgb, var(--acc) ${(100 - Math.min(n - 1, 99) * 100 / 99).toFixed(1)}%, var(--fg))`;
 
 // the one way an alliance tag is shown, on every page
 function allianceChip(tag) {
@@ -801,6 +819,18 @@ function allianceChip(tag) {
 }
 // the tags of a player's alliance cell: two when comparing and the alliance changed
 const tagsOf = (p) => (p._was && !p._left && p._was.alliance && p._was.alliance !== p.alliance && p.alliance ? [p._was.alliance, p.alliance] : p.alliance ? [p.alliance] : []);
+
+// every amount has a bar under the number (colour: .b-<key> or .g-<group> in the stylesheet); its length = value / the list's largest
+const hasBar = (c) => (c.type === "num" || c.type === "int") && !NO_AVG.has(c.key);
+const withBar = (c, v, cell) => {
+  if (hasBar(c) && typeof v === "number" && barMax(c) > 0) { cell.bar = Math.max(0, v / barMax(c)); cell.cls += ` pg b-${c.key} g-${c.group}`; }
+  return cell;
+};
+let maxOf = null, maxes = {};
+function barMax(c) {
+  if (maxOf !== state.rows) { maxOf = state.rows; maxes = {}; }
+  return (maxes[c.key] ??= state.rows.reduce((m, p) => { const v = value(c, p); return typeof v === "number" && v > m ? v : m; }, 0));
+}
 
 function cellsOf(p) {
   if (p._ck === cellKey) return p._cells;
@@ -814,7 +844,7 @@ function cellsOf(p) {
     }
     if (parts) {
       const title = c.type === "num" && state.compact ? `${parts[0][0] === "–" ? "–" : numFmt().format(p._left ? v : value(c, p._was))} → ${parts[2][0] === "–" ? "–" : numFmt().format(v)}` : "";
-      out[i] = { text: parts.map((x) => x[0]).join("|"), cls: c._cls, title, plus: false, parts };
+      out[i] = withBar(c, v, { text: parts.map((x) => x[0]).join("|"), cls: c._cls, title, plus: false, parts });
       continue;
     }
     if (s === "") { out[i] = { text: "–", cls: c._cls + " blank", title: "", plus: false }; continue; }
@@ -824,7 +854,7 @@ function cellsOf(p) {
     let cls = c._cls;
     const a = state.heat ? state.avg[c.key] : undefined; // above / below the column average
     if (a !== undefined && typeof v === "number" && v !== a) cls += v > a ? " hi" : " lo";
-    out[i] = { text: s, cls, title, plus: !!(p.atLeast && p.atLeast.includes(c.key)) };
+    out[i] = withBar(c, v, { text: s, cls, title, plus: !!(p.atLeast && p.atLeast.includes(c.key)), badge: !!c.badge, sub: c.key === "name" ? String(p.id ?? "") : "" });
   }
   p._ck = cellKey;
   return (p._cells = out);
@@ -885,14 +915,27 @@ function fill(r, p, lo, hi) {
       box.className = "d3";
       for (const [t, cl] of x.parts) { const s = document.createElement("span"); s.className = cl; s.textContent = t; box.appendChild(s); }
       d.replaceChildren(box);
+    } else if (x.badge) {
+      const b = document.createElement("span");
+      b.className = "tr-b";
+      b.textContent = x.text;
+      d.replaceChildren(b);
+    } else if (x.sub) { // a name, its ID under it
+      const box = document.createElement("div"), a = document.createElement("span"), b = document.createElement("small");
+      box.className = "nm2";
+      a.textContent = x.text;
+      b.textContent = x.sub;
+      box.append(a, b);
+      d.replaceChildren(box);
     } else if (x.plus) {
       d.textContent = x.text;
       const b = document.createElement("span");
       b.className = "plus";
       b.textContent = "+";
       d.appendChild(b);
-    } else if (!was || was.text !== x.text || was.plus || was.parts || was.chips) d.textContent = x.text;
+    } else if (!was || was.text !== x.text || was.plus || was.parts || was.chips || was.badge) d.textContent = x.text;
     if (!was || was.cls !== x.cls) d.className = x.cls;
+    if (x.bar != null && (!was || was.bar !== x.bar)) d.style.setProperty("--p", x.bar);
     if (!was || was.title !== x.title) x.title ? (d.title = x.title) : d.removeAttribute("title");
   }
 }
@@ -1018,7 +1061,7 @@ function applyLang() {
   $("langBtn").textContent = state.lang === "vi" ? "EN" : "VI";
   const item = state.data && state.list.find((k) => k.kingdom === state.data.kingdom);
   if (item) { const scans = scansOf(item); fillScans({ ...item, scans }, state.data.scan); if (state.comparing) { fillVs({ scans }); drawChips(); } }
-  if (state.comparing) $("kingdomLbl").textContent = tr("xAdd");
+  if (item) kingdomLabel(item);
 }
 
 function applyTheme(t) {
@@ -1069,7 +1112,7 @@ function init() {
     rowH = 0; drawn = ""; schedule();
   });
   let qt = 0;
-  $("q").addEventListener("input", (e) => { clearTimeout(qt); qt = setTimeout(() => { state.q = e.target.value; toTable(); refresh(); }, 120); });
+  $("pq").addEventListener("input", (e) => { clearTimeout(qt); qt = setTimeout(() => { state.q = e.target.value; toTable(); refresh(); }, 120); });
   $("minPower").onchange = (e) => {
     state.minPower = Number(e.target.value);
     store.set("powerStep", state.minPower);

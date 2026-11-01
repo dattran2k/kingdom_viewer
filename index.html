@@ -7,7 +7,7 @@
 <meta name="description" content="Player statistics per kingdom: power, merits, kills, achievements, gathering.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%233b82f6' d='M2 13h12v2H2zM2 5l3 3 3-5 3 5 3-3-1 7H3z'/%3E%3C/svg%3E">
 <!-- ?v=N: bump it when assets/ change, so a cached old file (GitHub Pages: 10 min) is not mixed with new ones -->
-<link rel="stylesheet" href="assets/style.css?v=118">
+<link rel="stylesheet" href="assets/style.css?v=125">
 <script data-goatcounter="https://machudat.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
 </head>
@@ -34,21 +34,8 @@
   <h2 class="page-title" data-i18n="navKingdom">Kingdom</h2>
   <p class="page-desc" data-i18n="descKingdom"></p>
 </header>
-<header class="bar">
-  <div class="bar-scroll">
-  <button id="vsBtn" class="mode-sw" type="button" role="switch" aria-checked="false" hidden data-i18n-title="cmpDaysTip">
-    <span class="mode-l" data-i18n="modeLabel">Chế độ</span>
-    <span class="mode-a" data-i18n="modeNormal">Thường</span>
-    <i class="mode-t" aria-hidden="true"></i>
-    <span class="mode-b" data-i18n="cmpDays">So sánh</span>
-  </button>
-  </div>
-  <label class="field grow qbox"><span class="sr" data-i18n="search">Search</span>
-    <input id="q" type="search" autocomplete="off" data-i18n-ph="searchPh">
-    <ul id="qsug" class="klist pop" role="listbox" hidden></ul></label>
-</header>
-<!-- always there, so switching the mode moves nothing below it -->
-<div id="cmpBar" class="cmp-bar">
+<!-- what is shown: mode, kingdoms, scans, search -->
+<div class="k-row">
   <div id="cmpTags" class="x-tags"><span id="cmpChips" class="dv-slot"></span>
     <div class="field kpick">
     <button id="kingdom" class="kbtn" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="kpop" aria-label="Kingdom"><span id="kingdomLbl">Kingdom</span></button>
@@ -58,14 +45,27 @@
     </div>
   </div>
   </div>
+</div>
+<div id="cmpBar" class="bar cmp-bar">
+  <button id="vsBtn" class="mode-sw" type="button" role="switch" aria-checked="false" hidden data-i18n-title="cmpDaysTip">
+    <span class="mode-l" data-i18n="modeLabel">Chế độ</span>
+    <span class="mode-a" data-i18n="modeNormal">Thường</span>
+    <i class="mode-t" aria-hidden="true"></i>
+    <span class="mode-b" data-i18n="cmpDays">So sánh</span>
+  </button>
   <div class="field cmp-only"><select id="vs" aria-label="Scan"></select></div>
   <span class="mut cmp-only" aria-hidden="true">→</span>
   <div id="scanField" class="field" hidden><select id="scan" aria-label="Scan"></select></div>
+  <label class="field grow qbox"><span class="sr" data-i18n="search">Search</span>
+    <input id="q" type="search" autocomplete="off" inputmode="numeric" data-i18n-ph="kSearchPh">
+    <ul id="qsug" class="klist pop" role="listbox" hidden></ul></label>
 </div>
 <div id="kpis" class="kpis"></div>
 <section id="panel" class="panel charts"></section>
 <!-- what the table shows: filter, metrics, number format, order -->
 <div class="bar tbl-bar">
+  <div class="tbl-title"><b data-i18n="tblPlayers">Người chơi</b><span class="meta"><span id="count"></span><span id="crawled"></span></span></div>
+  <label class="field pbox"><span class="sr" data-i18n="search">Search</span><input id="pq" type="search" autocomplete="off" data-i18n-ph="searchPh"></label>
   <label class="field"><span class="sr" data-i18n="minPower">Power</span>
     <select id="minPower" aria-label="Power"></select></label>
   <div class="tools">
@@ -83,7 +83,6 @@
   </div>
 </div>
 <div id="colChips" class="col-chips"></div>
-<div class="list-meta"><span class="meta"><span id="count"></span><span id="crawled" class="mut"></span></span></div>
 </div>
 <main id="grid" class="grid" tabindex="0" aria-label="Players">
   <div id="sizer" class="sizer">
@@ -128,10 +127,10 @@
   </form>
 </dialog>
 
-<script defer src="assets/columns.js?v=118"></script>
-<script defer src="assets/app.js?v=118"></script>
-<script defer src="assets/views.js?v=118"></script>
-<script defer src="assets/compare.js?v=118"></script>
-<script defer src="assets/pages.js?v=118"></script>
+<script defer src="assets/columns.js?v=125"></script>
+<script defer src="assets/app.js?v=125"></script>
+<script defer src="assets/views.js?v=125"></script>
+<script defer src="assets/compare.js?v=125"></script>
+<script defer src="assets/pages.js?v=125"></script>
 </body>
 </html>

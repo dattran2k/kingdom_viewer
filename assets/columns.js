@@ -27,12 +27,9 @@ const ratio = (a, b) => (p) => (p[a] != null && p[b] ? (100 * p[a]) / p[b] : und
 const COLUMNS = [
   { key: "rank", vi: "#", en: "#", group: "basic", type: "int", width: 52, pin: true, def: true, fixed: true },
   { key: "name", vi: "Tên", en: "Name", group: "basic", type: "text", width: 170, pin: true, def: true, fixed: true },
-  { key: "id", vi: "ID", en: "ID", group: "basic", type: "text", width: 96, def: true,
+  { key: "id", vi: "ID", en: "ID", group: "basic", type: "text", width: 96, auto: true, // shown under the name
     tip: { vi: "ID người chơi", en: "Player ID" } },
   { key: "alliance", vi: "Liên minh", en: "Alliance", group: "basic", type: "text", width: 84, def: true },
-  { key: "cityLevel", vi: "Thành", en: "City", group: "basic", type: "int", width: 76,
-    tip: { vi: "Cấp thành chính", en: "City (town center) level" } },
-  { key: "faction", vi: "Phe", en: "Faction", group: "basic", type: "int", width: 60 },
   { key: "home", vi: "Kingdom", en: "Kingdom", group: "basic", type: "kingdom", width: 80, auto: true, get: (p) => p._k }, // several kingdoms compared
   { key: "migrationScore", vi: "Di cư", en: "Migration", group: "basic", type: "int", width: 92, def: true,
     tip: { vi: "Điểm di cư", en: "Migration score" } },
@@ -53,6 +50,9 @@ const COLUMNS = [
   { key: "meritRatio", vi: "CT / LC", en: "Merit %", group: "combat", type: "pct", width: 80, def: true,
     get: ratio("merits", "powerMax"),
     tip: { vi: "Công trạng / LC max", en: "Merits / peak power" } },
+  { key: "trades", vi: "Trades", en: "Trades", group: "combat", type: "pct", dec: 0, width: 72, def: true, badge: true,
+    get: ratio("kills", "heals"),
+    tip: { vi: "Tiêu diệt / Chữa trị", en: "Kills / Healed" } },
   { key: "meritsMax", vi: "CT mùa đỉnh", en: "Best season", group: "combat", type: "num", width: 100,
     tip: { vi: "Công trạng cao nhất trong một mùa", en: "Best merits in one season" } },
   { key: "kills", vi: "Tiêu diệt", en: "Kills", group: "combat", type: "num", width: 92, def: true },
@@ -63,12 +63,6 @@ const COLUMNS = [
     tip: { vi: "Trận PvP thắng", en: "PvP battles won" } },
   { key: "defeats", vi: "Thua", en: "Losses", group: "combat", type: "num", width: 84,
     tip: { vi: "Trận PvP thua", en: "PvP battles lost" } },
-  { key: "winRate", vi: "% thắng", en: "Win %", group: "combat", type: "pct", width: 84,
-    get: (p) => (p.victories != null && p.victories + (p.defeats || 0) ? (100 * p.victories) / (p.victories + (p.defeats || 0)) : undefined),
-    tip: { vi: "Tỉ lệ thắng PvP", en: "PvP win rate" } },
-  { key: "cityAttacks", vi: "Công thành", en: "City hits", group: "combat", type: "num", width: 88,
-    tip: { vi: "Số lần tấn công thành", en: "City attacks" } },
-  { key: "scouts", vi: "Do thám", en: "Scouts", group: "combat", type: "num", width: 80 },
 
   { key: "achievementsDone", vi: "Thành tựu", en: "Achieved", group: "trophy", type: "int", width: 96,
     tip: { vi: "Số thành tựu đã đạt", en: "Achievements done" } },
