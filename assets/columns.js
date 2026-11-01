@@ -20,7 +20,8 @@ const GROUPS = [
   { id: "glory", vi: "Vinh quang", en: "Glory" },
 ];
 
-const gatheredOf = (p) => { const v = ["gold", "wood", "ore", "mana"].filter((k) => p[k] != null); return v.length ? v.reduce((s, k) => s + p[k], 0) : undefined; };
+const sumOf = (...keys) => (p) => { const v = keys.filter((k) => p[k] != null); return v.length ? v.reduce((s, k) => s + p[k], 0) : undefined; };
+const gatheredOf = sumOf("gold", "wood", "ore", "mana");
 const ratio = (a, b) => (p) => (p[a] != null && p[b] ? (100 * p[a]) / p[b] : undefined);
 
 const COLUMNS = [
@@ -114,6 +115,8 @@ const COLUMNS = [
 
   { key: "gathered", vi: "Thu thập", en: "Gathered", group: "gather", type: "num", width: 88, def: true, get: gatheredOf,
     tip: { vi: "Tổng vàng + gỗ + đá + mana đã thu", en: "Gold + wood + ore + mana gathered" } },
+  { key: "gatheredRss", vi: "Vàng + gỗ + đá", en: "Gold + wood + ore", group: "gather", type: "num", width: 104, get: sumOf("gold", "wood", "ore"),
+    tip: { vi: "Tổng vàng + gỗ + đá đã thu", en: "Gold + wood + ore gathered" } },
   { key: "gold", vi: "Vàng thu", en: "Gold gathered", group: "gather", type: "num", width: 88,
     tip: { vi: "Vàng đã thu thập", en: "Gold gathered" } },
   { key: "wood", vi: "Gỗ thu", en: "Wood gathered", group: "gather", type: "num", width: 88,
