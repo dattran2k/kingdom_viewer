@@ -336,7 +336,7 @@ const battleOf = (idx, k) => idx?.battles.find((x) => x.id === idx.kvkOf[k]);
 KS.season = { of: battleOf, title: seasonTitle, status: statusName, dates, list: () => load("kvk/index.json"), art: (node, season) => { clearArt(node); setArt(node, season); } };
 KS.onKingdomShown = async (k) => {
   let chip = $("kStatus");
-  if (!chip) { chip = el("span", "k-status"); chip.id = "kStatus"; $("cmpTags").appendChild(chip); }
+  if (!chip) { chip = el("span", "k-status"); chip.id = "kStatus"; chip.hidden = true; $("cmpTags").appendChild(chip); }
   const seen = await load("kvk/index.json"), st = seen?.servers?.[k]?.[1];
   const all = state.comparing ? [state.mainK, ...state.also] : [k];
   chip.hidden = !statusName(st) || all.some((x) => seen?.kvkOf[x] !== seen?.kvkOf[k]); // kingdoms apart: no one status for them

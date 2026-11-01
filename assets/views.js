@@ -104,10 +104,24 @@ function decorKpi(list) {
     [[tr("kPetSome"), countIf(has, (p) => p.pets8Skills3Star >= 1)], [tr("kPetNone"), countIf(has, (p) => p.pets8Skills3Star === 0)]]);
 }
 
+// Until the players are in: the real cards, with sample figures hidden under a moving bar, so they have the real size
+function holdKpis() {
+  const box = $("kpis"), line = (text) => { const s = el("span", "k-a", text); return s; };
+  box.innerHTML = "";
+  box.classList.add("holding");
+  box.appendChild(kpiCard("players", tr("kPlayers"), el("b", "k-v", "000"), line(`00 ${tr("kAlliances")}`)));
+  for (const k of KPIS) box.appendChild(kpiCard(k.key, k.label(), el("b", "k-v", "00,0B"), line(`${tr("kAvg")} 000M`)));
+  box.append(
+    breakdownKpi("migrationScore", tr("kMigration"), 0, [["<24", 114], ...KS.MIGRATION_BANDS.map(([, , l], i) => [l, 57 >> i])]),
+    breakdownKpi("maxDecor", KS.label(KS.BY_KEY.maxDecor), 0, [[tr("kPetSome"), 7], [tr("kPetNone"), 2]]));
+  for (const c of box.children) c.classList.add("sk-block");
+}
+
 function drawKpis() {
   const box = $("kpis"), list = state.view;
   if (!state.data) return;
   box.innerHTML = "";
+  box.classList.remove("holding");
   if (state.data._vs) { drawGrowthKpis(box, list); return; }
   const tags = new Set(list.map((p) => p.alliance).filter(Boolean));
   box.appendChild(kpiCard("players", tr("kPlayers"), el("b", "k-v", numFmt().format(list.length)),
@@ -181,14 +195,31 @@ KS.barCard = (chart, { metrics, items, text, delta, changed }) => {
 const CHART_METRICS = ["power", "merits", "meritRatio", "kills", "deaths", "heals", "gatheredRss", "mana", "migrationScore"];
 const charts = KS.chartSet("charts", ["power", "merits"]);
 
+const CHART_OPTIONS = () => CHART_METRICS.map((k) => [k, KS.label(KS.BY_KEY[k].tip || KS.BY_KEY[k])]);
+function holdCharts() {
+  const panel = $("panel");
+  panel.innerHTML = "";
+  panel.classList.add("holding");
+  panel.appendChild(el("p", "hint mut sk-block", "\u00a0"));
+  for (const chart of charts) {
+    const n = Math.min(chart.top || 10, 10), card = KS.barCard({ ...chart, top: n }, {
+      metrics: CHART_OPTIONS(), items: () => Array.from({ length: n }, (_, i) => ({ name: "Player name", tag: "TAG", v: n - i })),
+      text: () => "000M", delta: () => false, changed: () => {},
+    });
+    card.classList.add("sk-block");
+    panel.appendChild(card);
+  }
+}
+
 function drawCharts() {
   const panel = $("panel");
   if (!state.data) return;
   panel.innerHTML = "";
+  panel.classList.remove("holding");
   const diff = !!state.data._vs; // the bars show the change between the two scans
   panel.appendChild(el("p", "hint mut", diff ? `${tr("cDelta")}: ${state.data._vs} → ${state.data.scan}` : " ")); // its line stays, so changing mode moves nothing below
   panel.append(...charts.map((chart) => KS.barCard(chart, {
-    metrics: CHART_METRICS.map((k) => [k, KS.label(KS.BY_KEY[k].tip || KS.BY_KEY[k])]),
+    metrics: CHART_OPTIONS(),
     items: (k) => state.view.map((p) => ({ name: p.name ?? String(p.id), tag: p.alliance, v: diff ? KS.deltaOf(KS.BY_KEY[k], p) : KS.value(KS.BY_KEY[k], p) })),
     text: (k, v) => { const c = KS.BY_KEY[k]; return c.type === "pct" ? numFmt(2).format(v) + "%" : c.type === "int" ? numFmt().format(v) : short(v); },
     delta: () => diff,
@@ -202,4 +233,6 @@ KS.onRefresh = () => {
   drawKpis();
   KS.keepScroll($("kingdomPage"), drawCharts);
 };
+KS.hold = () => { holdKpis(); holdCharts(); };
+KS.hold();
 })();

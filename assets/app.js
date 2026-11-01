@@ -412,6 +412,11 @@ async function loadKingdom(id, scan) {
   kingdomLabel(item);
   fillScans({ ...item, scans }, scan);
   if (state.comparing) { fillVs({ scans }); drawChips(); }
+  $("kingdomPage").classList.remove("wait");
+  if ($("kCamps").querySelector(".sk-block")) { // room for the camps and the KvK's lines only if it is in one
+    $("kCamps").hidden = !item.kvk;
+    if (!item.kvk) $("kMeta").innerHTML = `<span class="mut">${tr("iNoKvk")}</span>`;
+  }
   KS.onKingdomShown?.(id); // what comes from the small files does not wait for the players
   showLoading();
   try {
@@ -633,6 +638,7 @@ function showLoading() {
 function showEmpty(msg) {
   const e = $("empty");
   e.classList.remove("sk-rows");
+  $("kingdomPage").classList.remove("wait");
   document.querySelectorAll("#kingdomTop .sk-block").forEach((x) => x.remove()); // nothing is coming: no shapes left waiting
   e.textContent = msg;
   e.hidden = false;
