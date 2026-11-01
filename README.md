@@ -1,20 +1,32 @@
-# Kingdom Stats
+# 👑 Kingdom Stats
 
-New data will be crawled when there is free time.
+> Call of Dragons kingdom data: power, merits, kills, achievements and realm migration for every player on the rankings.
 
-[![visitors](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fmachudat.goatcounter.com%2Fcounter%2F%252Fkingdom_viewer%252F.json&query=%24.count&label=visitors&color=blue)](https://dattran2k.github.io/kingdom_viewer/)
+![Open source](https://img.shields.io/badge/open%20source-free%20data-brightgreen?logo=opensourceinitiative&logoColor=white)
+[![visitors](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fmachudat.goatcounter.com%2Fcounter%2F%252Fkingdom_viewer%252F.json&query=%24.count&label=visitors&color=blue&logo=googleanalytics&logoColor=white)](https://dattran2k.github.io/kingdom_viewer/)
+![Discord](https://img.shields.io/badge/Discord-trandat2030-5865F2?logo=discord&logoColor=white)
 
-**Live:** https://dattran2k.github.io/kingdom_viewer/
+🌐 **Live:** https://dattran2k.github.io/kingdom_viewer/
 
+🕒 New data is crawled when there is free time.
 
-## Run
+## 💬 Contact
+Questions, bugs, ideas, or want a kingdom crawled: message me on Discord, **`trandat2030`**.
+
+## ✨ What it shows
+- 🏰 **Kingdom**: every player over a power step, with totals, charts and a sortable table (compare two days, ± average).
+- ⚔️ **Compare**: two sides of up to 10 kingdoms each, head to head.
+- 🏆 **Rankings**: kingdoms ranked by power, merits and kills.
+- 🔁 **Migration**: who moved between kingdoms, and when.
+
+## 🚀 Run
 - **Locally:** run `python -m http.server 8000 --bind 127.0.0.1` in this folder, then open http://localhost:8000/.
   Opening `index.html` straight from disk does not work, because the browser blocks `fetch` on `file://`.
 - **GitHub Pages:** Settings → Pages → Deploy from branch → `main` / root. `.nojekyll` turns Jekyll off.
 
 Links keep their place: `#k=357&s=2026-10-28` (kingdom, scan), `#k=357&a=2026-10-28` (compare with an older scan).
 
-## Data
+## 📦 Data
 One folder per scan date; older scans are kept. Each kingdom opens on its newest scan, and older ones can be
 picked from the Scan menu. `schema` is the file format version.
 

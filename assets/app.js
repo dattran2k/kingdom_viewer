@@ -8,22 +8,22 @@ const RUNNING_VERSION = /[?&]v=(\d+)/.exec(document.currentScript?.src || "")?.[
 
 const T = {
   vi: {
-    sortBy: "Sắp theo", sortDirTip: "Đổi chiều sắp xếp", colSet: "Chỉ số",
+    sortBy: "Sắp theo", sortDirTip: "Đổi chiều sắp xếp",
     sortValue: "Giá trị", sortValueTip: "Sắp theo giá trị của chỉ số", sortDeltaTip: "Sắp theo mức tăng / giảm giữa 2 ngày", sortDeltaOff: "Chỉ có khi so sánh 2 ngày khác nhau",
     tradesTip: "Tiêu diệt / Chữa trị", tblPlayers: "Người chơi", yes: "Có", no: "Không", title: "Kingdom Stats", kingdom: "Kingdom", scan: "Ngày", latest: "mới nhất", search: "Tìm", searchPh: "Tên, ID, liên minh…", kSearchPh: "Tìm kingdom…", kNone: "Không có kingdom nào", alliance: "Liên minh",
     allAlliances: "Mọi liên minh", columns: "Chỉ số", theme: "Đổi giao diện sáng/tối",
-    fmtTip: "Số gọn (1.2M) / số đầy đủ", pickCols: "Chọn chỉ số hiển thị", filterCols: "Lọc chỉ số…", all: "Tất cả",
+    view: "View", viewTitle: "Tuỳ chọn hiển thị", fmtName: "Số gọn (1.2M)", fmtTip: "Bật: 1.2M, tắt: số đầy đủ", pickCols: "Chọn chỉ số hiển thị", filterCols: "Lọc chỉ số…", all: "Tất cả",
     none: "Bỏ hết", defaults: "Mặc định", players: "người", of: "/", crawled: "Thu thập", loading: "Đang tải…",
     heat: "± TB", heatTip: "Tô màu: cao hơn (xanh) / thấp hơn (đỏ) trung bình cột, trong danh sách đang lọc",
     noRows: "Không có người chơi nào khớp.", minPower: "Lực chiến", loadErr: "Không tải được dữ liệu.", noData: "Chưa có kingdom nào trong data/.", noIndex: "Không đọc được data/kingdoms.json.",
     fileUrl: "Trang cần chạy qua web (GitHub Pages). Trên máy: mở terminal TRONG thư mục chứa index.html, chạy python -m http.server 8000 --bind 127.0.0.1 rồi mở http://localhost:8000/. Mở thẳng file index.html thì trình duyệt không cho đọc dữ liệu.",
   },
   en: {
-    sortBy: "Sort by", sortDirTip: "Reverse the order", colSet: "Metrics",
+    sortBy: "Sort by", sortDirTip: "Reverse the order",
     sortValue: "Value", sortValueTip: "Sort by the metric's value", sortDeltaTip: "Sort by the change between the two days", sortDeltaOff: "Only while comparing two different days",
     tradesTip: "Kills / Healed", tblPlayers: "Players", yes: "Yes", no: "No", title: "Kingdom Stats", kingdom: "Kingdom", scan: "Day", latest: "latest", search: "Search", searchPh: "Name, ID, alliance…", kSearchPh: "Find a kingdom…", kNone: "No such kingdom", alliance: "Alliance",
     allAlliances: "All alliances", columns: "Metrics", theme: "Light / dark",
-    fmtTip: "Compact (1.2M) / full numbers", pickCols: "Metrics", filterCols: "Filter metrics…", all: "All",
+    view: "View", viewTitle: "Display options", fmtName: "Compact numbers (1.2M)", fmtTip: "On: 1.2M, off: full numbers", pickCols: "Metrics", filterCols: "Filter metrics…", all: "All",
     none: "None", defaults: "Defaults", players: "players", of: "/", crawled: "Collected", loading: "Loading…",
     heat: "± avg", heatTip: "Colour: above (green) / below (red) the column average, over the players listed",
     noRows: "No player matches.", minPower: "Power", loadErr: "Could not load the data.", noData: "No kingdom in data/ yet.", noIndex: "Could not read data/kingdoms.json.",
@@ -39,7 +39,7 @@ const store = {
 
 // only players whose power now is above the chosen step are listed: the rest of a ranking is mostly small
 // accounts, and what "small" is depends on the kingdom (a weak one has few players above 20M)
-const POWER_STEPS = [20e6, 15e6, 10e6, 5e6], DEFAULT_POWER = 15e6;
+const POWER_STEPS = [20e6, 15e6, 10e6, 5e6], DEFAULT_POWER = 15e6, KINGDOM_POWER = 20e6; // the Kingdom page opens on > 20M
 const BY_KEY = Object.fromEntries(COLUMNS.map((c) => [c.key, c]));
 const DEFAULT_COLS = COLUMNS.filter((c) => c.def).map((c) => c.key);
 const NUMERIC = new Set(["int", "num", "pct", "date", "grade", "yesno", "kingdom"]);
@@ -56,7 +56,7 @@ const state = {
   comparing: false, diff: false, vs: "", also: [], mainK: 0, // also = the other kingdoms compared with mainK
   sortDelta: false,
   data: null, rows: [], view: [], cols: [], q: "",
-  minPower: POWER_STEPS.includes(store.get("powerStep")) ? store.get("powerStep") : DEFAULT_POWER,
+  minPower: POWER_STEPS.includes(store.get("powerStep")) ? store.get("powerStep") : KINGDOM_POWER,
   list: [], heat: store.get("heat", false), avg: {}, avgVer: 0,
   // a phone: the totals strip starts hidden, the name column is narrower
   narrow: matchMedia("(max-width: 640px)").matches,
@@ -649,46 +649,6 @@ function cellClass(c, head) {
   return s;
 }
 
-// A chip per set of metrics, several at once: the table has # + name + alliance plus what the chips lit bring. A
-// chip is lit while all its columns are shown, so "all" lights every chip, and taking one out turns "all" off.
-const BASE_COLS = COLUMNS.filter((c) => c.fixed || ["alliance"].includes(c.key)).map((c) => c.key);
-const COL_SETS = [
-  { id: "def", name: () => tr("defaults"), keys: () => DEFAULT_COLS },
-  ...GROUPS.filter((g) => g.id !== "basic").map((g) => ({ id: g.id, name: () => label(g), keys: () => [...BASE_COLS, ...COLUMNS.filter((c) => c.group === g.id && !c.auto).map((c) => c.key)] })),
-  { id: "all", name: () => tr("all"), keys: () => pickable().map((c) => c.key) },
-];
-function toggleColSet(set, lit) {
-  if (!lit) { setCols([...state.shown, ...set.keys()]); return; }
-  // "all" or the defaults while everything is shown: down to the defaults
-  const everything = COL_SETS.find((s) => s.id === "all").keys().every((k) => state.shown.has(k));
-  if (set.id === "all" || (set.id === "def" && everything)) { setCols(DEFAULT_COLS); return; }
-  // out, but what another lit chip also brings stays. A chip that is all inside this one goes with it; if this one is
-  // all inside another, it still goes (a click must do something) and that other chip goes dark
-  const has = (s, k) => s.keys().includes(k);
-  const lits = COL_SETS.filter((s) => s !== set && s.id !== "all" && s.keys().every((k) => state.shown.has(k)) && !s.keys().every((k) => has(set, k)));
-  const keep = new Set([...BASE_COLS, ...lits.flatMap((s) => s.keys())]);
-  let drop = set.keys().filter((k) => !keep.has(k));
-  if (!drop.length) drop = set.keys().filter((k) => !BASE_COLS.includes(k));
-  setCols([...state.shown].filter((k) => !drop.includes(k)));
-}
-function drawColChips() {
-  const box = $("colChips");
-  box.innerHTML = "";
-  const lab = document.createElement("span");
-  lab.className = "col-chips-l";
-  lab.textContent = tr("colSet");
-  box.appendChild(lab);
-  for (const s of COL_SETS) {
-    const keys = s.keys(), b = document.createElement("button");
-    b.type = "button";
-    b.textContent = s.name();
-    const lit = keys.every((k) => state.shown.has(k));
-    b.setAttribute("aria-pressed", String(lit));
-    b.onclick = () => toggleColSet(s, lit);
-    box.appendChild(b);
-  }
-}
-
 // the "sort by" box: the columns on screen (and the sorted one, if it was hidden since)
 function drawSortBox() {
   const sel = $("sortKey"), cur = BY_KEY[state.sort.key];
@@ -710,7 +670,6 @@ function drawSortBox() {
 
 function drawHead() {
   layout();
-  drawColChips();
   drawSortBox();
   const h = $("head");
   h.innerHTML = "";
@@ -1154,6 +1113,17 @@ function init() {
     $("fmtBtn").setAttribute("aria-pressed", String(state.compact));
     if (state.data) refresh(); // column widths follow the number style (the strip and the other views too)
   };
+  const showView = (on) => {
+    const pop = $("viewPop");
+    pop.hidden = !on;
+    $("viewBtn").setAttribute("aria-expanded", String(on));
+    // open towards the side with room: to the right of the button unless that runs off the window
+    pop.classList.remove("flip");
+    if (on && pop.getBoundingClientRect().right > innerWidth - 8) pop.classList.add("flip");
+  };
+  $("viewBtn").onclick = () => showView($("viewPop").hidden);
+  document.addEventListener("pointerdown", (e) => { if (!$("viewPop").hidden && !e.target.closest(".vpick")) showView(false); });
+  addEventListener("keydown", (e) => { if (e.key === "Escape") showView(false); });
   $("langBtn").onclick = () => {
     state.lang = state.lang === "vi" ? "en" : "vi";
     store.set("lang", state.lang);

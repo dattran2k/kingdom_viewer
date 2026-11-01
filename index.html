@@ -7,7 +7,7 @@
 <meta name="description" content="Player statistics per kingdom: power, merits, kills, achievements, gathering.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%233b82f6' d='M2 13h12v2H2zM2 5l3 3 3-5 3 5 3-3-1 7H3z'/%3E%3C/svg%3E">
 <!-- ?v=N: bump it when assets/ change, so a cached old file (GitHub Pages: 10 min) is not mixed with new ones -->
-<link rel="stylesheet" href="assets/style.css?v=125">
+<link rel="stylesheet" href="assets/style.css?v=129">
 <script data-goatcounter="https://machudat.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
 </head>
@@ -69,9 +69,17 @@
   <label class="field"><span class="sr" data-i18n="minPower">Power</span>
     <select id="minPower" aria-label="Power"></select></label>
   <div class="tools">
-    <button id="colsBtn" class="btn" type="button"><span data-i18n="columns">Chỉ số</span> <b id="colsCount" class="pill"></b></button>
-    <button id="fmtBtn" class="btn" type="button" aria-pressed="true" data-i18n-title="fmtTip">1.2M</button>
-    <button id="heatBtn" class="btn" type="button" aria-pressed="false" data-i18n="heat" data-i18n-title="heatTip">± TB</button>
+    <button id="colsBtn" class="btn" type="button"><svg class="bi" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 4h7M13 4h1M2 12h1M7 12h7"/><circle cx="11" cy="4" r="1.8"/><circle cx="5" cy="12" r="1.8"/></svg><span data-i18n="columns">Chỉ số</span> <b id="colsCount" class="pill"></b></button>
+    <div class="vpick">
+      <button id="viewBtn" class="btn primary" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="viewPop"><svg class="bi" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 8s2.6-5 7-5 7 5 7 5-2.6 5-7 5-7-5-7-5z"/><circle cx="8" cy="8" r="2.2"/></svg><span data-i18n="view">View</span><svg class="bi chev" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg></button>
+      <div id="viewPop" class="pop view-pop" hidden>
+        <h3 data-i18n="viewTitle">Tuỳ chọn hiển thị</h3>
+        <button id="fmtBtn" class="vopt" type="button" role="switch" aria-pressed="true">
+          <span class="vopt-t"><b data-i18n="fmtName">Số gọn (1.2M)</b><small data-i18n="fmtTip"></small></span><i class="vopt-sw" aria-hidden="true"></i></button>
+        <button id="heatBtn" class="vopt" type="button" role="switch" aria-pressed="false">
+          <span class="vopt-t"><b data-i18n="heat">± TB</b><small data-i18n="heatTip"></small></span><i class="vopt-sw" aria-hidden="true"></i></button>
+      </div>
+    </div>
   </div>
   <div id="sortBox" class="sort-box">
     <label><span data-i18n="sortBy">Sắp theo</span><select id="sortKey" aria-label="Sort"></select></label>
@@ -82,7 +90,6 @@
     <button id="sortDir" type="button" data-i18n-title="sortDirTip"></button>
   </div>
 </div>
-<div id="colChips" class="col-chips"></div>
 </div>
 <main id="grid" class="grid" tabindex="0" aria-label="Players">
   <div id="sizer" class="sizer">
@@ -127,10 +134,10 @@
   </form>
 </dialog>
 
-<script defer src="assets/columns.js?v=125"></script>
-<script defer src="assets/app.js?v=125"></script>
-<script defer src="assets/views.js?v=125"></script>
-<script defer src="assets/compare.js?v=125"></script>
-<script defer src="assets/pages.js?v=125"></script>
+<script defer src="assets/columns.js?v=129"></script>
+<script defer src="assets/app.js?v=129"></script>
+<script defer src="assets/views.js?v=129"></script>
+<script defer src="assets/compare.js?v=129"></script>
+<script defer src="assets/pages.js?v=129"></script>
 </body>
 </html>
