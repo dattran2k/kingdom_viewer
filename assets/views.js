@@ -66,6 +66,7 @@ function drawGrowthKpis(box, list) {
     let a = 0, b = 0;
     for (const p of list) {
       if (p._left) { a += get(p) ?? 0; continue; }
+      if (state.kvk && !p._was) continue; // a KvK's open day holds only part of the players: totals count those it has
       b += get(p) ?? 0;
       if (p._was) a += get(p._was) ?? 0;
     }
@@ -105,8 +106,8 @@ function decorKpi(list) {
 
 function drawKpis() {
   const box = $("kpis"), list = state.view;
-  box.innerHTML = "";
   if (!state.data) return;
+  box.innerHTML = "";
   if (state.data._vs) { drawGrowthKpis(box, list); return; }
   const tags = new Set(list.map((p) => p.alliance).filter(Boolean));
   box.appendChild(kpiCard("players", tr("kPlayers"), el("b", "k-v", numFmt().format(list.length)),
@@ -182,10 +183,10 @@ const charts = KS.chartSet("charts", ["power", "merits"]);
 
 function drawCharts() {
   const panel = $("panel");
-  panel.innerHTML = "";
   if (!state.data) return;
+  panel.innerHTML = "";
   const diff = !!state.data._vs; // the bars show the change between the two scans
-  if (diff) panel.appendChild(el("p", "hint mut", `${tr("cDelta")}: ${state.data._vs} → ${state.data.scan}`));
+  panel.appendChild(el("p", "hint mut", diff ? `${tr("cDelta")}: ${state.data._vs} → ${state.data.scan}` : " ")); // its line stays, so changing mode moves nothing below
   panel.append(...charts.map((chart) => KS.barCard(chart, {
     metrics: CHART_METRICS.map((k) => [k, KS.label(KS.BY_KEY[k].tip || KS.BY_KEY[k])]),
     items: (k) => state.view.map((p) => ({ name: p.name ?? String(p.id), tag: p.alliance, v: diff ? KS.deltaOf(KS.BY_KEY[k], p) : KS.value(KS.BY_KEY[k], p) })),
@@ -197,6 +198,7 @@ function drawCharts() {
 
 // after every change of the list (filters, sort, language, kingdom): the strip and the charts
 KS.onRefresh = () => {
+  if (state.kvk) return; // a KvK has its own top
   drawKpis();
   KS.keepScroll($("kingdomPage"), drawCharts);
 };

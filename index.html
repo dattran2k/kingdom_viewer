@@ -7,7 +7,8 @@
 <meta name="description" content="Player statistics per kingdom: power, merits, kills, achievements, gathering.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%233b82f6' d='M2 13h12v2H2zM2 5l3 3 3-5 3 5 3-3-1 7H3z'/%3E%3C/svg%3E">
 <!-- ?v=N: bump it when assets/ change, so a cached old file (GitHub Pages: 10 min) is not mixed with new ones -->
-<link rel="stylesheet" href="assets/style.css?v=129">
+<link rel="preload" as="image" href="assets/kvk/cod_background.jpg">
+<link rel="stylesheet" href="assets/style.css?v=207">
 <script data-goatcounter="https://machudat.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
 </head>
@@ -18,6 +19,7 @@
     <button type="button" data-page="kingdom"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3h12v2H2zM2 7h12v2H2zM2 11h12v2H2z"/></svg><span data-i18n="navKingdom">Kingdom</span></button>
     <button type="button" data-page="compare"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 2h2v12H3zM7 6h2v8H7zM11 4h2v10h-2z"/></svg><span data-i18n="navCompare">So sánh</span></button>
     <button type="button" data-page="rank"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 2h4v12H6zM1 7h4v7H1zM11 5h4v9h-4z"/></svg><span data-i18n="navRank">Xếp hạng</span></button>
+    <button type="button" data-page="kvk"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1l6 3v4c0 3.5-2.5 6-6 7-3.5-1-6-3.5-6-7V4zM8 3.2 4 5.2V8c0 2.3 1.5 4 4 4.9z"/></svg><span data-i18n="navKvk">KvK</span></button>
     <button type="button" data-page="migration"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1 4h9V1l5 4-5 4V6H1zM15 12H6v3l-5-4 5-4v3h9z"/></svg><span data-i18n="navMigration">Di cư</span></button>
   </nav>
   <div class="side-foot">
@@ -28,14 +30,20 @@
 </aside>
 <div id="scrim" class="scrim" hidden></div>
 <div id="kingdomPage" class="page">
-<div class="page-top">
+<div id="kingdomTop" class="page-top">
 <header class="bar page-head">
   <button class="btn icon menu-btn" type="button" aria-label="Menu" aria-controls="side">☰</button>
   <h2 class="page-title" data-i18n="navKingdom">Kingdom</h2>
   <p class="page-desc" data-i18n="descKingdom"></p>
 </header>
 <!-- what is shown: mode, kingdoms, scans, search -->
-<div class="k-row">
+<div class="k-row has-art art-wide">
+  <button id="vsBtn" class="mode-sw" type="button" role="switch" aria-checked="false" hidden data-i18n-title="cmpDaysTip">
+    <span class="mode-l" data-i18n="modeLabel">Chế độ</span>
+    <span class="mode-a" data-i18n="modeNormal">Thường</span>
+    <i class="mode-t" aria-hidden="true"></i>
+    <span class="mode-b" data-i18n="cmpDays">So sánh</span>
+  </button>
   <div id="cmpTags" class="x-tags"><span id="cmpChips" class="dv-slot"></span>
     <div class="field kpick">
     <button id="kingdom" class="kbtn" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="kpop" aria-label="Kingdom"><span id="kingdomLbl">Kingdom</span></button>
@@ -45,14 +53,9 @@
     </div>
   </div>
   </div>
+  <div id="kMeta" class="k-meta"><div class="k-meta-l"><i class="sk" style="width:220px"></i></div><div class="k-meta-c"><i class="sk" style="width:320px"></i></div></div>
 </div>
 <div id="cmpBar" class="bar cmp-bar">
-  <button id="vsBtn" class="mode-sw" type="button" role="switch" aria-checked="false" hidden data-i18n-title="cmpDaysTip">
-    <span class="mode-l" data-i18n="modeLabel">Chế độ</span>
-    <span class="mode-a" data-i18n="modeNormal">Thường</span>
-    <i class="mode-t" aria-hidden="true"></i>
-    <span class="mode-b" data-i18n="cmpDays">So sánh</span>
-  </button>
   <div class="field cmp-only"><select id="vs" aria-label="Scan"></select></div>
   <span class="mut cmp-only" aria-hidden="true">→</span>
   <div id="scanField" class="field" hidden><select id="scan" aria-label="Scan"></select></div>
@@ -60,10 +63,12 @@
     <input id="q" type="search" autocomplete="off" inputmode="numeric" data-i18n-ph="kSearchPh">
     <ul id="qsug" class="klist pop" role="listbox" hidden></ul></label>
 </div>
-<div id="kpis" class="kpis"></div>
-<section id="panel" class="panel charts"></section>
+<div id="kpis" class="kpis"><div class="kpi sk-block"><div class="k-top"><span class="k-i"></span><span class="k-l"><i class="sk" style="width:60%"></i></span></div><b class="k-v"><i class="sk" style="width:70%"></i></b><span class="k-a"><i class="sk" style="width:50%"></i></span></div><div class="kpi sk-block"><div class="k-top"><span class="k-i"></span><span class="k-l"><i class="sk" style="width:60%"></i></span></div><b class="k-v"><i class="sk" style="width:70%"></i></b><span class="k-a"><i class="sk" style="width:50%"></i></span></div><div class="kpi sk-block"><div class="k-top"><span class="k-i"></span><span class="k-l"><i class="sk" style="width:60%"></i></span></div><b class="k-v"><i class="sk" style="width:70%"></i></b><span class="k-a"><i class="sk" style="width:50%"></i></span></div><div class="kpi sk-block"><div class="k-top"><span class="k-i"></span><span class="k-l"><i class="sk" style="width:60%"></i></span></div><b class="k-v"><i class="sk" style="width:70%"></i></b><span class="k-a"><i class="sk" style="width:50%"></i></span></div><div class="kpi sk-block"><div class="k-top"><span class="k-i"></span><span class="k-l"><i class="sk" style="width:60%"></i></span></div><b class="k-v"><i class="sk" style="width:70%"></i></b><span class="k-a"><i class="sk" style="width:50%"></i></span></div><div class="kpi sk-block"><div class="k-top"><span class="k-i"></span><span class="k-l"><i class="sk" style="width:60%"></i></span></div><b class="k-v"><i class="sk" style="width:70%"></i></b><span class="k-a"><i class="sk" style="width:50%"></i></span></div><div class="kpi sk-block"><div class="k-top"><span class="k-i"></span><span class="k-l"><i class="sk" style="width:60%"></i></span></div><b class="k-v"><i class="sk" style="width:70%"></i></b><span class="k-a"><i class="sk" style="width:50%"></i></span></div><div class="kpi sk-block"><div class="k-top"><span class="k-i"></span><span class="k-l"><i class="sk" style="width:60%"></i></span></div><b class="k-v"><i class="sk" style="width:70%"></i></b><span class="k-a"><i class="sk" style="width:50%"></i></span></div></div>
+<div id="kRank" class="k-block"><div class="kr-head sk-block"><h2><i class="sk" style="width:110px"></i></h2><span class="kr-link-sk"></span></div><div class="kr-grid sk-block"><div class="kr-tile"><div class="kr-top"><span><i class="sk" style="width:56px"></i></span><b><i class="sk" style="width:32px"></i></b></div><div class="kr-low"><b><i class="sk" style="width:48px"></i></b></div><div class="kr-meter"></div></div><div class="kr-tile"><div class="kr-top"><span><i class="sk" style="width:56px"></i></span><b><i class="sk" style="width:32px"></i></b></div><div class="kr-low"><b><i class="sk" style="width:48px"></i></b></div><div class="kr-meter"></div></div><div class="kr-tile"><div class="kr-top"><span><i class="sk" style="width:56px"></i></span><b><i class="sk" style="width:32px"></i></b></div><div class="kr-low"><b><i class="sk" style="width:48px"></i></b></div><div class="kr-meter"></div></div><div class="kr-tile"><div class="kr-top"><span><i class="sk" style="width:56px"></i></span><b><i class="sk" style="width:32px"></i></b></div><div class="kr-low"><b><i class="sk" style="width:48px"></i></b></div><div class="kr-meter"></div></div><div class="kr-tile"><div class="kr-top"><span><i class="sk" style="width:56px"></i></span><b><i class="sk" style="width:32px"></i></b></div><div class="kr-low"><b><i class="sk" style="width:48px"></i></b></div><div class="kr-meter"></div></div><div class="kr-tile"><div class="kr-top"><span><i class="sk" style="width:56px"></i></span><b><i class="sk" style="width:32px"></i></b></div><div class="kr-low"><b><i class="sk" style="width:48px"></i></b></div><div class="kr-meter"></div></div><div class="kr-tile"><div class="kr-top"><span><i class="sk" style="width:56px"></i></span><b><i class="sk" style="width:32px"></i></b></div><div class="kr-low"><b><i class="sk" style="width:48px"></i></b></div><div class="kr-meter"></div></div><div class="kr-tile"><div class="kr-top"><span><i class="sk" style="width:56px"></i></span><b><i class="sk" style="width:32px"></i></b></div><div class="kr-low"><b><i class="sk" style="width:48px"></i></b></div><div class="kr-meter"></div></div><div class="kr-tile"><div class="kr-top"><span><i class="sk" style="width:56px"></i></span><b><i class="sk" style="width:32px"></i></b></div><div class="kr-low"><b><i class="sk" style="width:48px"></i></b></div><div class="kr-meter"></div></div></div></div>
+<div id="kCamps" class="k-block"><div class="kr-head sk-block"><h2><i class="sk" style="width:120px"></i></h2><span class="kr-link-sk"></span></div><section class="kv-panel sk-block sk-camps"></section></div>
+<section id="panel" class="panel charts"><p class="hint mut sk-block">&nbsp;</p><div class="chart-card sk-block sk-chart"></div><div class="chart-card sk-block sk-chart"></div></section>
 <!-- what the table shows: filter, metrics, number format, order -->
-<div class="bar tbl-bar">
+<div id="tblBar" class="bar tbl-bar">
   <div class="tbl-title"><b data-i18n="tblPlayers">Người chơi</b><span class="meta"><span id="count"></span><span id="crawled"></span></span></div>
   <label class="field pbox"><span class="sr" data-i18n="search">Search</span><input id="pq" type="search" autocomplete="off" data-i18n-ph="searchPh"></label>
   <label class="field"><span class="sr" data-i18n="minPower">Power</span>
@@ -98,6 +103,18 @@
   </div>
   <p id="empty" class="empty" hidden></p>
 </main>
+<div id="kPager"></div>
+</div>
+
+<!-- one KvK: its own top; the table and its bar (the same ones as the Kingdom page) move here while it is open -->
+<div id="kvkPage" class="page" hidden>
+<div id="kvkTop" class="page-top">
+<header class="bar page-head">
+  <button class="btn icon menu-btn" type="button" aria-label="Menu" aria-controls="side">☰</button>
+  <h2 class="page-title" data-i18n="navKvk">KvK</h2>
+</header>
+<div id="kvkSlot"></div>
+</div>
 </div>
 
 <div id="comparePage" class="page" hidden>
@@ -134,10 +151,12 @@
   </form>
 </dialog>
 
-<script defer src="assets/columns.js?v=129"></script>
-<script defer src="assets/app.js?v=129"></script>
-<script defer src="assets/views.js?v=129"></script>
-<script defer src="assets/compare.js?v=129"></script>
-<script defer src="assets/pages.js?v=129"></script>
+<script defer src="assets/columns.js?v=207"></script>
+<script defer src="assets/app.js?v=207"></script>
+<script defer src="assets/views.js?v=207"></script>
+<script defer src="assets/compare.js?v=207"></script>
+<script defer src="assets/pages.js?v=207"></script>
+<script defer src="assets/kvk.js?v=207"></script>
+<script defer src="assets/kinfo.js?v=207"></script>
 </body>
 </html>

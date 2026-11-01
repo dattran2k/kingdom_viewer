@@ -47,7 +47,7 @@ const COLUMNS = [
     tip: { vi: "Lực chiến tướng", en: "Hero power" } },
 
   { key: "merits", vi: "Công trạng", en: "Merits", group: "combat", type: "num", width: 96, def: true },
-  { key: "meritRatio", vi: "CT / LC", en: "Merit %", group: "combat", type: "pct", width: 80, def: true,
+  { key: "meritRatio", vi: "CT / LC", en: "Merit %", group: "combat", type: "pct", width: 88, def: true,
     get: ratio("merits", "powerMax"),
     tip: { vi: "Công trạng / LC max", en: "Merits / peak power" } },
   { key: "trades", vi: "Trades", en: "Trades", group: "combat", type: "pct", dec: 0, width: 72, def: true, badge: true,

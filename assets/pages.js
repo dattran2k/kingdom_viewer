@@ -13,7 +13,7 @@ Object.assign(KS.T.vi, {
   navRank: "Xếp hạng", navMigration: "Di cư", cmpDays: "So sánh", modeLabel: "Chế độ", modeNormal: "Thường", cmpRemove: "Bỏ", cmpDaysTip: "So sánh 2 ngày của một hoặc nhiều kingdom: mỗi người tăng bao nhiêu",
   noDerived: "Chưa có dữ liệu tổng hợp (data/derived/).", dvLoadErr: "Không tải được dữ liệu.",
   rKingdoms: "kingdom", 
-  rSearch: "#kingdom, tag…", rHint: "Tính theo người có lực chiến hiện tại trên 15M, trong top lực chiến mỗi kingdom. Bấm một dòng để mở.",
+  rSearch: "#kingdom, tag…", rSearchK: "SoS8-10045, #kingdom…", rHint: "Tính theo người có lực chiến hiện tại trên 15M, trong top lực chiến mỗi kingdom. Bấm một dòng để mở.",
   cKingdom: "Kingdom", cTopAlliance: "LM mạnh nhất", cPlayers: "Người chơi", cAlliances: "Số LM",
   cPower: "Lực chiến", cPowerMax: "LC max", cMerits: "Công trạng", cKills: "Tiêu diệt", cDeaths: "Tử trận", cHeals: "Chữa trị", cHelps: "Giúp đỡ", cGathered: "Thu thập",
   cMigration: "Điểm di cư", cDecor: "Decor max", cInf: "CT bộ", cCav: "CT kỵ", cArc: "CT cung", cMag: "CT phép",
@@ -31,7 +31,7 @@ Object.assign(KS.T.en, {
   navRank: "Rankings", navMigration: "Migration", cmpDays: "Compare", modeLabel: "Mode", modeNormal: "Normal", cmpRemove: "Remove", cmpDaysTip: "Compare two days of one or more kingdoms: how much each player gained",
   noDerived: "No summary data yet (data/derived/).", dvLoadErr: "Could not load the data.",
   rKingdoms: "kingdoms", 
-  rSearch: "#kingdom, tag…", rHint: "Counts players whose power now is above 15M, within each kingdom's power ranking. Click a line to open it.",
+  rSearch: "#kingdom, tag…", rSearchK: "SoS8-10045, #kingdom…", rHint: "Counts players whose power now is above 15M, within each kingdom's power ranking. Click a line to open it.",
   cKingdom: "Kingdom", cTopAlliance: "Top alliance", cPlayers: "Players", cAlliances: "Alliances",
   cPower: "Power", cPowerMax: "Peak power", cMerits: "Merits", cKills: "Kills", cDeaths: "Dead", cHeals: "Healed", cHelps: "Helps", cGathered: "Gathered",
   cMigration: "Migration score", cDecor: "Max decor", cInf: "Infantry", cCav: "Cavalry", cArc: "Archers", cMag: "Magic",
@@ -42,7 +42,9 @@ Object.assign(KS.T.en, {
   mIn: "in", mOut: "out", mNet: "net", mHint: "Power and the other numbers are the newest known. The real moment lies within the range in the When column. Only players on the power ranking at 5M or more at both ends can be seen.",
 });
 
-const PAGE_SIZE = 50, MOVES_PAGE_SIZE = 300;
+const PAGE_SIZES = [20, 50, 100, 200, 0]; // 0 = all
+const pageSize = () => KS.store.get("pageSize", 20);
+const onPage = (rows, page) => { const size = pageSize(); return size ? rows.slice((page - 1) * size, page * size) : rows; };
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
 const num = (v) => (v == null ? "–" : state.compact ? KS.compact(v) : numFmt().format(Math.round(v)));
 const fullNum = (v) => (v == null ? "" : numFmt().format(Math.round(v)));
@@ -97,30 +99,145 @@ function fmtBtn(redraw) {
   };
   return b;
 }
-function pager(total, page, go, size = PAGE_SIZE) {
-  const pages = Math.max(1, Math.ceil(total / size)), box = el("div", "dv-pager");
+// "Show [20] per page", then the page buttons: 1 2 3 ... 373
+function pager(total, page, go, { size = pageSize(), sizes = PAGE_SIZES, key = "pageSize" } = {}) {
+  const pages = size ? Math.max(1, Math.ceil(total / size)) : 1, box = el("div", "dv-pager"), left = el("label", "dv-psize"), pick = el("select"), nums = el("nav", "dv-pnums");
+  for (const n of sizes) { const o = el("option", "", n ? String(n) : tr("all")); o.value = n; pick.appendChild(o); }
+  pick.value = size;
+  pick.onchange = () => { KS.store.set(key, Number(pick.value)); go(1); };
+  left.append(el("span", "", tr("kShow")), pick, el("span", "", tr("kPerPage")));
+  box.appendChild(left);
   if (pages < 2) return box;
-  const btn = (t, to, off) => { const b = el("button", "btn", t); b.type = "button"; b.disabled = off; b.onclick = () => go(to); return b; };
-  box.append(btn(tr("mPrev"), page - 1, page <= 1), el("span", "mut", `${tr("mPage")} ${page} / ${pages}`), btn(tr("mNext"), page + 1, page >= pages));
+  const btn = (text, to, on, off) => {
+    const b = el("button", on ? "on" : "", text);
+    b.type = "button"; b.disabled = !!off;
+    b.onclick = () => go(to);
+    nums.appendChild(b);
+  };
+  btn("‹", page - 1, false, page <= 1);
+  let last = 0;
+  for (let n = 1; n <= pages; n++) {
+    if (n !== 1 && n !== pages && Math.abs(n - page) > 1) continue;
+    if (n - last > 1) nums.appendChild(el("span", "mut", "…"));
+    btn(String(n), n, n === page);
+    last = n;
+  }
+  btn("›", page + 1, false, page >= pages);
+  box.appendChild(nums);
   return box;
 }
 // a sortable table: cols = [{key, label, get(row), text(row), cls(row), tip(row), nosort, ranked}]; sort = {key, dir};
 // a ranked column takes its colour from the row's place in the whole list, r._i
+const HEAD_ICONS = new Set(["power", "merits", "kills", "deaths", "heals"]);
+// the cells shared by the tables: a name with its ID under it, a kingdom chip, a figure with its bar
+const whoCell = (name, id) => { const d = el("span", "who"); d.append(el("b", "", name ?? "–"), el("small", "", String(id ?? ""))); return d; };
+const kdCell = (k, top) => el("span", top ? "kd top" : "kd", String(k));
+const barCol = (key, label, rows) => ({ key, label: tr(label), get: (r) => r[key], max: rows.reduce((m, r) => Math.max(m, r[key] ?? 0), 0) });
+// Widths come from every row of the list (cols.all), not the ones on this page: sorting or paging never moves a column
+const NODE_W = { name: 190, kingdom: 76, from: 76, to: 76, kvk: 190, st: 156, alliance: 96, allianceFrom: 96, allianceTo: 96, topAlliance: 96, trades: 84 };
+const measure = document.createElement("canvas").getContext("2d");
+function textW(text, font) {
+  measure.font = `${font} ${getComputedStyle(document.body).fontFamily}`;
+  return measure.measureText(text).width;
+}
+function colWidth(c, all) {
+  const head = textW(c.label, "600 12px") + (HEAD_ICONS.has(c.key) ? 20 : 0) + (c.nosort ? 0 : 13) + 20;
+  if (c.node) return Math.ceil(Math.max(head, c.w ?? NODE_W[c.key] ?? 110));
+  let long = "";
+  for (const r of all) { const t = String(c.text ? c.text(r) : num(c.get(r))); if (t.length > long.length || (t.length === long.length && t > long)) long = t; } // the same pick in any order
+  return Math.ceil(Math.max(head, textW(long, "600 13px") * 1.06 + 24));
+}
+// The bar above a table, the Kingdom table's: its title, Show, View, sort by. Returns the columns to show.
+let barPop = ""; // the menu left open across a redraw
+function tableBar(out, { id, title, meta, cols, holder, prop, redraw, hideFirst = [] }) {
+  const bar = el("div", "bar tbl-bar dv-tbar"), head = el("div", "tbl-title"), tools = el("div", "tools");
+  head.append(el("b", "", title), el("p", "meta", meta));
+  const hidden = new Set(KS.store.get("hide_" + id, hideFirst));
+  const can = cols.filter((c) => !PIN.has(c.key));
+  const shown = cols.filter((c) => PIN.has(c.key) || !hidden.has(c.key));
+  const menu = (name, button, pop) => {
+    const wrap = el("div", "vpick");
+    pop.hidden = barPop !== id + name;
+    button.onclick = () => { const on = pop.hidden; barPop = on ? id + name : ""; document.querySelectorAll(".dv-tbar .pop").forEach((x) => { x.hidden = true; }); pop.hidden = !on; };
+    wrap.append(button, pop);
+    return wrap;
+  };
+  const colsBtn = el("button", "btn");
+  colsBtn.type = "button";
+  colsBtn.innerHTML = $("colsBtn").querySelector("svg").outerHTML;
+  colsBtn.append(tr("kShowCols") + " ", el("span", "dv-count", `${shown.length - (cols.length - can.length)}/${can.length}`));
+  colsBtn.onclick = () => {
+    const key = "hide_" + id, get = () => new Set(KS.store.get(key, hideFirst));
+    const save = (set) => { KS.store.set(key, [...set]); redraw(); };
+    KS.openPicker({
+      cols: cols.map((c) => ({ key: c.key, label: c.label, fixed: PIN.has(c.key) })),
+      on: (k) => PIN.has(k) || !get().has(k),
+      toggle: (k, on) => { const h = get(); on ? h.delete(k) : h.add(k); save(h); },
+      act: (what) => save(new Set(what === "none" ? can.map((c) => c.key) : what === "def" ? hideFirst : [])),
+      count: () => `${can.filter((c) => !get().has(c.key)).length}/${can.length}`,
+    });
+  };
+  const viewBtn = el("button", "btn primary");
+  viewBtn.type = "button";
+  viewBtn.innerHTML = $("viewBtn").querySelector("svg").outerHTML;
+  viewBtn.append(" View");
+  const view = el("div", "pop view-pop flip");
+  view.append(el("h3", "", tr("viewTitle")), fmtBtn(redraw));
+  tools.append(colsBtn, menu("view", viewBtn, view));
+  const sortBox = el("div", "sort-box"), label = el("label"), select = el("select"), dir = el("button");
+  for (const c of shown) if (!c.nosort) { const o = el("option", "", c.label); o.value = c.key; select.appendChild(o); }
+  select.value = holder[prop].key;
+  select.onchange = () => { holder[prop] = { key: select.value, dir: -1 }; redraw(); };
+  label.append(el("span", "", tr("sortBy")), select);
+  dir.type = "button"; dir.title = tr("sortDirTip"); dir.textContent = holder[prop].dir < 0 ? "↓" : "↑";
+  dir.onclick = () => { holder[prop] = { ...holder[prop], dir: -holder[prop].dir }; redraw(); };
+  sortBox.append(label, dir);
+  bar.append(head, tools, sortBox);
+  out.appendChild(bar);
+  return shown;
+}
+document.addEventListener("pointerdown", (e) => {
+  if (e.target.closest(".dv-tbar .vpick")) return;
+  barPop = "";
+  document.querySelectorAll(".dv-tbar .pop").forEach((x) => { x.hidden = true; });
+});
+const PIN = new Set(["#", "name", "kingdom"]); // the first of these stay on screen when the page scrolls sideways
 function table(cols, rows, sort, onSort, onRow) {
   const wrap = el("div", "tbl-wrap dv-wrap"), t = el("table", "tbl"), hr = el("tr");
+  const all = cols.all || rows, group = t.appendChild(el("colgroup"));
+  let total = 0, pinning = true;
+  const pins = new Map();
+  for (const c of cols) {
+    const w = colWidth(c, all);
+    pinning = pinning && PIN.has(c.key);
+    if (pinning) pins.set(c.key, total);
+    total += w;
+    group.appendChild(el("col")).style.width = w + "px";
+  }
+  const pin = (c, node) => {
+    if (!pins.has(c.key)) return;
+    node.classList.add("pin");
+    node.style.left = pins.get(c.key) + "px";
+    if ([...pins.keys()].pop() === c.key) node.classList.add("pin-last");
+  };
+  t.style.minWidth = total + "px";
+  queueMicrotask(() => { const page = wrap.closest("#dv .dv-out"); if (page) page.style.minWidth = total + "px"; }); // the sticky bars need a parent as wide as the table
   for (const c of cols) {
     const th = el("th", (sort.key === c.key ? "on" : "") + (c.left ? " nm" : ""), c.label);
+    if (HEAD_ICONS.has(c.key)) { const i = el("img", "th-ic"); i.src = `assets/icons/${c.key}.png`; i.alt = ""; th.prepend(i); }
     if (sort.key === c.key) th.dataset.dir = sort.dir < 0 ? "▼" : "▲";
     if (c.nosort) th.classList.add("nosort");
     else th.onclick = () => onSort(c.key);
+    pin(c, th);
     hr.appendChild(th);
   }
   t.appendChild(el("thead")).appendChild(hr);
   const tb = t.appendChild(el("tbody"));
   for (const r of rows) {
-    const line = el("tr");
+    const line = el("tr", r._cls || "");
     for (const c of cols) {
       const td = el("td", (c.cls?.(r) || "") + (c.left ? " nm" : ""), c.node ? null : c.text ? c.text(r) : num(c.get(r)));
+      pin(c, td);
       if (c.node) td.appendChild(c.node(r));
       if (c.max && c.get(r) != null) { td.classList.add("pg", "b-" + c.key); td.style.setProperty("--p", Math.max(0, c.get(r) / c.max)); }
       if (c.ranked) td.style.color = KS.rankColour(r._i);
@@ -164,44 +281,152 @@ const RANK_METRICS = [
   ["helps", "cHelps"], ["gathered", "cGathered"], ["migrationScore", "cMigration"], ["migration24", "24–27"], ["migration28", "28–30"], ["migration31", "31+"],
   ["decorMax", "cDecor"], ["meritInfantry", "cInf"], ["meritCavalry", "cCav"], ["meritArcher", "cArc"], ["meritMagic", "cMag"],
 ];
-const tradesOf = (r) => (r.heals ? (100 * (r.kills || 0)) / r.heals : null);
-const rank = { q: "", page: 1, sort: { key: "powerMax", dir: -1 } };
+const tradesCol = () => ({ key: "trades", label: "Trades", get: (r) => r.trades, tip: () => tr("tradesTip"), node: (r) => el("span", "tr-b", r.trades == null ? "–" : numFmt(0).format(r.trades) + "%") });
+const rank = { q: "", page: 1, sort: { key: "powerMax", dir: -1 }, mode: "server", st: "" };
 
 async function showRank() {
   const { ctl, out } = frame();
+  const asked = { players: "member", kvk: "kvk" }[new URLSearchParams(location.hash.slice(1)).get("m")] || "server";
+  if (rank.mode !== asked) { rank.mode = asked; rank.sort = { key: asked === "member" ? "power" : "powerMax", dir: -1 }; rank.page = 1; }
   const redraw = () => drawRank(out);
   const restart = () => { rank.page = 1; redraw(); };
-  ctl.append(searchBox(tr("rSearch"), rank.q, (v) => { rank.q = v; restart(); }), fmtBtn(redraw));
+  const seg = el("nav", "rk-seg");
+  const box = searchBox("", rank.q, (v) => { rank.q = v; restart(); });
+  const paint = () => {
+    box.placeholder = tr(rank.mode === "member" ? "rSearchP" : rank.mode === "kvk" ? "rSearchK" : "rSearch");
+    seg.querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x.dataset.m === rank.mode)));
+  };
+  for (const [m, label] of [["server", "rServers"], ["member", "rMembers"], ["kvk", "rKvks"]]) {
+    const b = el("button", "", tr(label));
+    b.type = "button"; b.dataset.m = m;
+    b.onclick = () => { if (rank.mode === m) return; rank.mode = m; rank.sort = { key: m === "member" ? "power" : "powerMax", dir: -1 }; paint(); restart(); };
+    seg.appendChild(b);
+  }
+  paint();
+  ctl.append(seg, box);
   redraw();
+}
+
+// the KvK of each kingdom, a chip like the sample's: its code and season
+const kvkCell = (b) => {
+  if (!b) return el("span", "mut", "–");
+  const a = el("a", "rk-kvk");
+  a.href = "#kvk=" + b.id;
+  a.onclick = (e) => e.stopPropagation();
+  a.append(el("b", "", b.name), el("small", "mut", KS.season.title(b.season)));
+  return a;
+};
+const statusCell = (st) => { const c = el("span", "k-status", KS.season.status(st) || "–"); c.dataset.st = st ?? ""; return c; };
+async function drawMembers(out, me) {
+  const cur = await load("derived/top_players.json");
+  if (me !== rankToken) return;
+  setLink("rank", { m: "players" });
+  out.innerHTML = "";
+  if (!cur) { out.appendChild(el("p", "hint", tr("noDerived"))); return; }
+  let rows = objects(cur.cols, cur.rows);
+  const q = rank.q.toLowerCase();
+  if (q) rows = rows.filter((r) => String(r.kingdom) === q.replace("#", "") || String(r.id).startsWith(q) || String(r.name).toLowerCase().includes(q) || String(r.alliance).toLowerCase().includes(q));
+  const metric = (key, label) => barCol(key, label, rows);
+  const cols = [
+    { key: "#", label: "#", nosort: true, text: (r) => String(r._i), cls: () => "mut" },
+    { key: "kingdom", label: tr("cKingdom"), get: (r) => r.kingdom, node: (r) => kdCell(r.kingdom, r._i <= 8) },
+    { key: "name", label: tr("cName"), left: true, get: (r) => r.name, node: (r) => whoCell(r.name, r.id) },
+    { key: "alliance", label: tr("cAlliance"), get: (r) => r.alliance, node: (r) => allianceChip(r.alliance) },
+    metric("powerMax", "cPowerMax"), metric("power", "cPower"), metric("merits", "cMerits"), metric("kills", "cKills"), metric("deaths", "cDeaths"), metric("heals", "cHeals"),
+    metric("meritInfantry", "cInf"), metric("meritCavalry", "cCav"), metric("meritArcher", "cArc"), metric("meritMagic", "cMag"), metric("helps", "cHelps"), metric("migrationScore", "cMigration"),
+    tradesCol(),
+  ];
+  const col = cols.find((c) => c.key === rank.sort.key) || cols.find((c) => c.key === "power");
+  rows = sortRows(rows, col.get, rank.sort.dir);
+  rows.forEach((r, i) => { r._i = i + 1; });
+  const shown = onPage(rows, rank.page);
+  const view = tableBar(out, { id: "members", title: tr("rMembers"), meta: `${numFmt().format(rows.length)} ${tr("cPlayers").toLowerCase()}`, cols, holder: rank, prop: "sort", redraw: () => KS.keepScroll($("dv"), () => drawRank(out)) });
+  view.all = rows;
+  out.appendChild(table(view, shown, { key: col.key, dir: rank.sort.dir }, (k) => { rank.sort = nextSort(rank.sort, k); rank.page = 1; KS.keepScroll($("dv"), () => drawRank(out)); },
+    (r) => { location.hash = "k=" + r.kingdom; }));
+  out.appendChild(pager(rows.length, rank.page, (p) => { rank.page = p; drawRank(out); }));
+}
+
+async function drawKvks(out, me) {
+  const kvk = await KS.season.list();
+  if (me !== rankToken) return;
+  setLink("rank", { m: "kvk" });
+  out.innerHTML = "";
+  if (!kvk) { out.appendChild(el("p", "hint", tr("noDerived"))); return; }
+  let rows = kvk.battles.filter((b) => b.rank).map((b) => ({ ...b.totals, id: b.id, kvk: b, have: b.have, powerMax: b.powerMax, rank: b.rank }));
+  const q = rank.q.toLowerCase().replace("#", "");
+  if (q) rows = rows.filter((r) => r.kvk.name.toLowerCase().includes(q) || r.kvk.kingdoms.some((k) => String(k.k).startsWith(q)));
+  const cols = [
+    { key: "#", label: "#", nosort: true, text: (r) => String(r.rank), cls: () => "mut" },
+    { key: "kvk", label: "KvK", left: true, get: (r) => r.kvk.name, node: (r) => kvkCell(r.kvk) },
+    { key: "kingdoms", label: tr("cKingdom"), left: true, w: 240, get: (r) => r.kvk.kingdoms.length, node: (r) => {
+      const d = el("span", "rk-kds");
+      d.append(...r.kvk.kingdoms.map((k) => kdCell(k.k, false)));
+      if (r.have < r.kvk.kingdoms.length) d.append(el("small", "mut", `${r.have}/${r.kvk.kingdoms.length}`));
+      return d;
+    } },
+    { key: "players", label: tr("cPlayers"), get: (r) => r.players, text: (r) => (r.players == null ? "–" : numFmt().format(r.players)) },
+    ...[["powerMax", "cPowerMax"], ["power", "cPower"], ["merits", "cMerits"], ["kills", "cKills"], ["deaths", "cDeaths"], ["heals", "cHeals"]].map(([key, label]) => barCol(key, label, rows)),
+  ];
+  const col = cols.find((c) => c.key === rank.sort.key) || cols.find((c) => c.key === "powerMax");
+  rows = sortRows(rows, col.get, rank.sort.dir);
+  const shown = onPage(rows, rank.page);
+  const view = tableBar(out, { id: "kvks", title: tr("rKvks"), meta: `${numFmt().format(rows.length)} KvK`, cols, holder: rank, prop: "sort", redraw: () => KS.keepScroll($("dv"), () => drawRank(out)) });
+  view.all = rows;
+  out.appendChild(table(view, shown, { key: col.key, dir: rank.sort.dir }, (k) => { rank.sort = nextSort(rank.sort, k); rank.page = 1; KS.keepScroll($("dv"), () => drawRank(out)); },
+    (r) => { location.hash = "kvk=" + r.id; }));
+  out.appendChild(pager(rows.length, rank.page, (p) => { rank.page = p; drawRank(out); }));
 }
 
 let rankToken = 0;
 async function drawRank(out) {
   const me = ++rankToken;
-  const cur = await load("derived/rollup.json");
+  if (rank.mode === "member") return drawMembers(out, me);
+  if (rank.mode === "kvk") return drawKvks(out, me);
+  const [cur, kvk] = await Promise.all([load("derived/rollup.json"), KS.season.list()]);
   if (me !== rankToken) return;
   setLink("rank", {});
   out.innerHTML = "";
   if (!cur) { out.appendChild(el("p", "hint", tr("noDerived"))); return; }
   let rows = objects(cur.kingdomCols, cur.kingdoms);
+  rows.forEach((r) => { r.kvk = KS.season.of(kvk, r.kingdom); r.st = kvk?.servers?.[r.kingdom]?.[1]; });
+  const counts = new Map();
+  rows.forEach((r) => { if (KS.season.status(r.st)) counts.set(r.st, (counts.get(r.st) || 0) + 1); });
+  if (rank.st && !counts.has(Number(rank.st))) rank.st = "";
+  const pills = el("nav", "kv-pills");
+  const pill = (st, name, n) => {
+    const b = el("button");
+    b.type = "button";
+    b.append(name + " ", el("small", "", numFmt().format(n)));
+    b.setAttribute("aria-pressed", String(String(rank.st) === String(st)));
+    b.onclick = () => { rank.st = st; rank.page = 1; drawRank(out); };
+    pills.appendChild(b);
+  };
+  pill("", tr("kAll"), rows.length);
+  [...counts.entries()].sort((a, b) => b[1] - a[1]).forEach(([st, n]) => pill(st, KS.season.status(st), n));
+  if (rank.st !== "") rows = rows.filter((r) => String(r.st) === String(rank.st));
   const q = rank.q.toLowerCase(), kq = /^#?(\d+)$/.exec(q)?.[1];
   if (q) rows = rows.filter((r) => (kq && String(r.kingdom).startsWith(kq)) || String(r.topAlliance).toLowerCase().includes(q));
   const cols = [
     { key: "#", label: "#", nosort: true, text: (r) => String(r._i), cls: () => "mut" },
-    { key: "kingdom", label: tr("cKingdom"), get: (r) => r.kingdom, node: (r) => el("span", r._i <= 8 ? "kd top" : "kd", String(r.kingdom)) },
+    { key: "kingdom", label: tr("cKingdom"), get: (r) => r.kingdom, node: (r) => kdCell(r.kingdom, r._i <= 8) },
+    { key: "kvk", label: "KvK", get: (r) => r.kvk?.name ?? "", node: (r) => kvkCell(r.kvk) },
+    { key: "st", label: tr("rStatus"), get: (r) => r.st ?? -1, node: (r) => statusCell(r.st) },
     { key: "topAlliance", label: tr("cTopAlliance"), get: (r) => r.topAlliance, node: (r) => allianceChip(r.topAlliance) },
     { key: "players", label: tr("cPlayers"), get: (r) => r.players, text: (r) => numFmt().format(r.players) },
     { key: "alliances", label: tr("cAlliances"), get: (r) => r.alliances, text: (r) => numFmt().format(r.alliances) },
     ...RANK_METRICS.map(([key, label]) => ({ key, label: tr(label), get: (r) => r[key],
       max: rows.reduce((m, r) => Math.max(m, r[key] ?? 0), 0) })),
-    { key: "trades", label: "Trades", get: tradesOf, tip: () => tr("tradesTip"), node: (r) => el("span", "tr-b", tradesOf(r) == null ? "–" : numFmt(0).format(tradesOf(r)) + "%") },
+    tradesCol(),
   ];
   const col = cols.find((c) => c.key === rank.sort.key) || cols.find((c) => c.key === "powerMax");
   rows = sortRows(rows, col.get, rank.sort.dir);
   rows.forEach((r, i) => { r._i = i + 1; });
-  const shown = rows.slice((rank.page - 1) * PAGE_SIZE, rank.page * PAGE_SIZE);
-  out.appendChild(el("p", "hint mut", `${numFmt().format(rows.length)} ${tr("rKingdoms")} · ${cur.scan}. ${tr("rHint")}`));
-  out.appendChild(table(cols, shown, { key: col.key, dir: rank.sort.dir }, (k) => { rank.sort = nextSort(rank.sort, k); rank.page = 1; KS.keepScroll($("dv"), () => drawRank(out)); },
+  const shown = onPage(rows, rank.page);
+  out.appendChild(pills);
+  const view = tableBar(out, { id: "servers", title: tr("rServers"), meta: `${numFmt().format(rows.length)} kingdom`, cols, holder: rank, prop: "sort", redraw: () => KS.keepScroll($("dv"), () => drawRank(out)) });
+  view.all = rows;
+  out.appendChild(table(view, shown, { key: col.key, dir: rank.sort.dir }, (k) => { rank.sort = nextSort(rank.sort, k); rank.page = 1; KS.keepScroll($("dv"), () => drawRank(out)); },
     (r) => { location.hash = "k=" + r.kingdom; }));
   out.appendChild(pager(rows.length, rank.page, (p) => { rank.page = p; drawRank(out); }));
 }
@@ -245,7 +470,7 @@ async function showMigration() {
   ctl.append(tabs,
     dayField(tr("mStart"), scans.slice().reverse(), mig.a, (v) => { mig.a = v; restart(); }),
     dayField(tr("mEnd"), scans.slice().reverse(), mig.b, (v) => { mig.b = v; restart(); }),
-    kBox, searchBox(tr("mLord"), mig.q, (v) => { mig.q = v; restart(); }), field(tr("mMin"), min), fmtBtn(redraw));
+    kBox, searchBox(tr("mLord"), mig.q, (v) => { mig.q = v; restart(); }), field(tr("mMin"), min));
   setView(mig.view);
   redraw();
 }
@@ -265,28 +490,28 @@ function drawMigration(out, moves) {
   out.innerHTML = "";
   if (mig.view === "servers") return drawFlows(out, list, moves);
   if (mig.k) list = list.filter((m) => m.from === mig.k || m.to === mig.k);
-  const stat = (key, label) => ({ key, label: tr(label), get: (m) => m[key] });
-  const kCell = (key, label, cls) => ({ key, label: tr(label), get: (m) => m[key], text: (m) => "#" + m[key], cls: () => cls });
+  const stat = (key, label) => barCol(key, label, list);
+  const kCell = (key, label) => ({ key, label: tr(label), get: (m) => m[key], node: (m) => kdCell(m[key]) });
   const cols = [
-    { key: "id", label: "ID", get: (m) => m.id, text: (m) => String(m.id), cls: () => "mut" },
-    { key: "name", label: tr("gName"), get: (m) => m.name, text: (m) => m.name ?? "", cls: () => "dv-b", ranked: true, left: true },
-    kCell("from", "mFrom", "dv-b"), kCell("to", "mTo", "dv-b mv-to"),
+    { key: "name", label: tr("gName"), get: (m) => m.name, node: (m) => whoCell(m.name, m.id), left: true },
+    kCell("from", "mFrom"), kCell("to", "mTo"),
     { key: "allianceFrom", label: tr("mAllianceFrom"), get: (m) => m.allianceFrom, node: (m) => allianceChip(m.allianceFrom) },
     { key: "allianceTo", label: tr("mAllianceTo"), get: (m) => m.allianceTo, node: (m) => allianceChip(m.allianceTo) },
-    stat("power", "cPower"), stat("merits", "cMerits"), stat("kills", "cKills"), stat("deaths", "cDeaths"), stat("heals", "cHeals"),
+    stat("powerMax", "cPowerMax"), stat("power", "cPower"), stat("merits", "cMerits"), stat("kills", "cKills"), stat("deaths", "cDeaths"), stat("heals", "cHeals"),
     { key: "date", label: tr("mDate"), get: (m) => m.arrivedAt, text: (m) => `${stamp(m.seenAt)} → ${stamp(m.arrivedAt)}`,
       tip: (m) => tr("mWindow").replace("{a}", stamp(m.seenAt)).replace("{b}", stamp(m.arrivedAt)), cls: () => "mut" },
   ];
-  const col = cols.find((c) => c.key === mig.sort.key) || cols[6];
+  const col = cols.find((c) => c.key === mig.sort.key) || cols.find((c) => c.key === "power");
   list = sortRows(list, col.get, mig.sort.dir);
   list.forEach((m, i) => { m._i = i + 1; });
   const people = new Set(list.map((m) => m.id)).size;
-  out.appendChild(el("p", "hint mut", `${numFmt().format(list.length)} ${tr("mTotal")} · ${numFmt().format(people)} ${tr("mPeople")}. ${tr("mHint")}`));
   if (!list.length) { out.appendChild(el("p", "hint mut", tr("mNone"))); return; }
   const go = () => drawMigration(out, moves);
-  out.appendChild(table(cols, list.slice((mig.page - 1) * MOVES_PAGE_SIZE, mig.page * MOVES_PAGE_SIZE), { key: col.key, dir: mig.sort.dir },
+  const view = tableBar(out, { id: "moves", title: tr("cPlayers"), meta: `${numFmt().format(list.length)} ${tr("cPlayers").toLowerCase()}`, cols, holder: mig, prop: "sort", redraw: () => KS.keepScroll($("dv"), go) });
+  view.all = list;
+  out.appendChild(table(view, onPage(list, mig.page), { key: col.key, dir: mig.sort.dir },
     (k) => { mig.sort = nextSort(mig.sort, k); mig.page = 1; KS.keepScroll($("dv"), go); }));
-  out.appendChild(pager(list.length, mig.page, (p) => { mig.page = p; go(); }, MOVES_PAGE_SIZE));
+  out.appendChild(pager(list.length, mig.page, (p) => { mig.page = p; go(); }));
 }
 
 // a kingdom's line: how many came in and went out, and how much power that is (at each player's newest numbers)
@@ -302,7 +527,7 @@ function drawFlows(out, list, moves) {
   const int = (v) => numFmt().format(v);
   const netCls = (n) => (n > 0 ? "dv-up" : n < 0 ? "dv-down" : "");
   const cols = [
-    { key: "kingdom", label: tr("cKingdom"), get: (r) => r.kingdom, text: (r) => "#" + r.kingdom, cls: () => "dv-b", ranked: true },
+    { key: "kingdom", label: tr("cKingdom"), get: (r) => r.kingdom, node: (r) => kdCell(r.kingdom) },
     { key: "countIn", label: `${tr("cPlayers")} ${tr("mIn")}`, get: (r) => r.countIn, text: (r) => int(r.countIn) },
     { key: "countOut", label: `${tr("cPlayers")} ${tr("mOut")}`, get: (r) => r.countOut, text: (r) => int(r.countOut) },
     { key: "netCount", label: `${tr("cPlayers")} ${tr("mNet")}`, get: (r) => r.countIn - r.countOut, text: (r) => (r.countIn > r.countOut ? "+" : "") + int(r.countIn - r.countOut), cls: (r) => netCls(r.countIn - r.countOut) },
@@ -314,17 +539,19 @@ function drawFlows(out, list, moves) {
   rows = sortRows(rows, col.get, mig.flowSort.dir);
   rows.forEach((r, i) => { r._i = i + 1; });
   const go = () => drawMigration(out, moves);
-  out.appendChild(el("p", "hint mut", `${numFmt().format(rows.length)} ${tr("rKingdoms")} · ${numFmt().format(list.length)} ${tr("mTotal")}.`));
-  out.appendChild(table(cols, rows.slice((mig.page - 1) * MOVES_PAGE_SIZE, mig.page * MOVES_PAGE_SIZE), { key: col.key, dir: mig.flowSort.dir },
+  const view = tableBar(out, { id: "flows", title: tr("cKingdom"), meta: `${numFmt().format(rows.length)} kingdom`, cols, holder: mig, prop: "flowSort", redraw: () => KS.keepScroll($("dv"), go) });
+  view.all = rows;
+  out.appendChild(table(view, onPage(rows, mig.page), { key: col.key, dir: mig.flowSort.dir },
     (k) => { mig.flowSort = nextSort(mig.flowSort, k); mig.page = 1; KS.keepScroll($("dv"), go); },
     (r) => {
       mig.k = r.kingdom; mig.page = 1; mig.view = "lords"; mig.q = "";
       setLink("migration", { a: mig.a, b: mig.b, k: mig.k });
       showMigration();
     }));
-  out.appendChild(pager(rows.length, mig.page, (p) => { mig.page = p; go(); }, MOVES_PAGE_SIZE));
+  out.appendChild(pager(rows.length, mig.page, (p) => { mig.page = p; go(); }));
 }
 
+KS.ui = { el, num, load, objects, table, sortRows, nextSort, searchBox, fmtBtn, pager, frame, setLink };
 KS.pages = {
   rank: { title: "navRank", desc: "descRank", show: showRank },
   migration: { title: "navMigration", desc: "descMigration", show: showMigration },

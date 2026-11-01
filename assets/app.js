@@ -44,7 +44,7 @@ const BY_KEY = Object.fromEntries(COLUMNS.map((c) => [c.key, c]));
 const DEFAULT_COLS = COLUMNS.filter((c) => c.def).map((c) => c.key);
 const NUMERIC = new Set(["int", "num", "pct", "date", "grade", "yesno", "kingdom"]);
 const COMPARED = new Set(["int", "num", "pct"]); // shown as before / change / after while comparing
-const MAX_COMPARED = 10;
+const MAX_COMPARED = 32; // a KvK map has up to 24 kingdoms
 const value = (c, p) => (c.get ? c.get(p) : p[c.key]);
 
 const state = {
@@ -53,6 +53,7 @@ const state = {
   shown: new Set(store.get("cols", DEFAULT_COLS).filter((k) => BY_KEY[k])),
   sort: { key: "powerMax", dir: -1 }, // default: highest power ever, top first
   // comparing two scans: same columns and order as always, each cell before / change / after; vs = the older scan
+  pageRows: [], pageStart: 0, kPage: 1,
   comparing: false, diff: false, vs: "", also: [], mainK: 0, // also = the other kingdoms compared with mainK
   sortDelta: false,
   data: null, rows: [], view: [], cols: [], q: "",
@@ -105,13 +106,28 @@ async function getJSON(url) {
   return r.json();
 }
 
+// #kvk=<id>: its kingdoms and the day it opened come from the KvK list
+let kvkIndex = null;
+async function kvkParams(hp) {
+  const id = Number(hp.get("kvk"));
+  if (!id || hp.get("k")) return hp;
+  kvkIndex ??= await getJSON("data/kvk/index.json").catch(() => ({ battles: [] }));
+  const b = kvkIndex.battles.find((x) => x.id === id);
+  const ks = (b?.kingdoms || []).filter((k) => !k.other && state.list.some((x) => x.kingdom === k.k)).map((k) => k.k);
+  if (!ks.length) return hp;
+  hp.set("k", ks[0]);
+  if (b.vs) hp.set("a", b.vs);
+  if (ks.length > 1) hp.set("also", ks.slice(1).join());
+  return hp;
+}
 async function loadIndex() {
   let list = [];
   if (location.protocol === "file:") { showEmpty(tr("fileUrl")); return; }
   try { list = (await getJSON("data/kingdoms.json")).kingdoms || []; } catch (e) { console.error(e); showEmpty(tr("noIndex")); return; }
   state.list = list;
   if (!list.length) { showEmpty(tr("noData")); return; }
-  const hp = new URLSearchParams(location.hash.slice(1));
+  const hp = await kvkParams(new URLSearchParams(location.hash.slice(1)));
+  state.kvk = Number(hp.get("kvk")) || 0;
   const want = Number(hp.get("k")) || store.get("kingdom", list[0].kingdom);
   // a page opened on another view loads no kingdom until the kingdom view is opened
   const first = hp.get("p") || (hp.get("k") ? "kingdom" : store.get("page", "kingdom"));
@@ -203,7 +219,10 @@ function showSuggest() {
   if (items.length) fillKList($("qsug"), items);
 }
 function wireKingdomPicker() {
-  $("kingdom").onclick = () => showPicker($("kpop").hidden);
+  $("kingdom").onclick = () => { // the number is only text: a click goes to the search box; comparing, it adds a kingdom
+    if (state.comparing) showPicker($("kpop").hidden);
+    else $("q").focus();
+  };
   $("kq").addEventListener("input", () => fillKList($("klist"), kingdomMatches($("kq").value)));
   $("kq").addEventListener("keydown", (e) => {
     if (e.key === "Escape") { showPicker(false); $("kingdom").focus(); }
@@ -350,13 +369,11 @@ function setDiff(on) {
   rowH = 0;
 }
 
-// the kingdom button: the kingdom shown and its size; while comparing the kingdoms are chips and this one adds
+// the kingdom button: the kingdom shown; while comparing the kingdoms are chips and this one adds
 function kingdomLabel(item) {
   const b = $("kingdomLbl");
   if (state.comparing) { b.textContent = tr("xAdd"); return; }
-  const size = document.createElement("small");
-  size.textContent = `${numFmt().format(item.players)} ${tr("players")}`;
-  b.replaceChildren(`#${item.kingdom}`, size);
+  b.replaceChildren(`#${item.kingdom}`);
 }
 
 // the kingdoms compared, as chips: a click takes one out (the last one stays)
@@ -395,7 +412,8 @@ async function loadKingdom(id, scan) {
   kingdomLabel(item);
   fillScans({ ...item, scans }, scan);
   if (state.comparing) { fillVs({ scans }); drawChips(); }
-  showEmpty(tr("loading"));
+  KS.onKingdomShown?.(id); // what comes from the small files does not wait for the players
+  showLoading();
   try {
     const d = await getJSON(`data/scans/${scan}/${id}.json`);
     if (state.comparing) await addComparison(d);
@@ -414,6 +432,7 @@ async function loadKingdom(id, scan) {
   pickRows();
   refresh();
   KS.onKingdom?.();
+  KS.onKvk?.();
   idle(() => warmFonts(state.data.players));
 }
 
@@ -446,19 +465,43 @@ function deltaOf(c, p) {
 function setHash() {
   if (state.page !== "kingdom") return; // the compare view keeps its own link
   const d = state.data, item = d && state.list.find((k) => k.kingdom === d.kingdom);
-  history.replaceState(null, "", "#" + (d ? "k=" + d.kingdom : "") + (item && d.scan !== item.scan ? "&s=" + d.scan : "") + (d?._a ? "&a=" + d._a : "") + (d?._ks?.length > 1 ? "&also=" + d._ks.slice(1).join() : ""));
+  if (d) KS.onKingdomShown?.(d.kingdom);
+  if (state.kvk) { history.replaceState(null, "", "#kvk=" + state.kvk); return; }
+  history.replaceState(null, "", "#" + (d ? "k=" + d.kingdom : "") + (item && d.scan !== item.scan ? "&s=" + d.scan : "") + (d?._a ? "&a=" + d._a : "") + (d?._ks?.length > 1 ? "&also=" + d._ks.slice(1).join() : "") + (state.kvk ? "&kvk=" + state.kvk : ""));
 }
 
+// The player table belongs to whichever page shows it: the Kingdom page or one KvK
+let kvkShown = false;
+const scroller = () => (state.kvk && state.page === "kingdom" ? $("kvkPage") : $("kingdomPage"));
+function placeTable(kvk) {
+  const host = kvk ? $("kvkPage") : $("kingdomPage");
+  if ($("grid").parentNode === host) return;
+  (kvk ? $("kvkTop") : $("kingdomTop")).appendChild($("tblBar"));
+  host.append($("grid"), $("kPager"));
+  rowH = 0; drawn = "";
+}
 // The pages of the side menu. quiet: only switch what is on screen (the caller loads and sets the link).
 function setPage(p, quiet) {
+  let leftKvk = false;
   state.page = p;
   store.set("page", p);
-  $("kingdomPage").hidden = p !== "kingdom";
+  const kvk = p === "kingdom" && !!state.kvk;
+  $("kingdomPage").hidden = p !== "kingdom" || kvk;
+  $("kvkPage").hidden = !kvk;
+  placeTable(kvk);
+  KS.onKvk?.();
+  if (kvk) kvkShown = true;
+  else if (p === "kingdom") { // the table still holds a KvK's kingdoms: back to one kingdom
+    leftKvk = kvkShown;
+    kvkShown = false;
+  }
   $("comparePage").hidden = p !== "compare";
   $("dvPage").hidden = !KS.pages[p];
-  document.querySelectorAll(".side-nav button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.page === p)));
+  const on = p === "kingdom" && state.kvk ? "kvk" : p; // a KvK's players are the Kingdom table
+  document.querySelectorAll(".side-nav button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.page === on)));
   showMenu(false);
   if (quiet) return;
+  if (leftKvk) { setCompare(false); loadKingdom(state.mainK); return; }
   if (p === "compare") { KS.compare.show(); return; }
   if (KS.pages[p]) { drawDvHead(); KS.pages[p].show(); return; }
   if (state.data) { setHash(); rowH = 0; drawn = ""; schedule(); } // the table had no size while hidden
@@ -496,7 +539,7 @@ function warmFonts(players) {
 }
 
 function pickRows() {
-  state.rows = state.data ? state.data.players.filter((p) => (p.power ?? 0) > state.minPower) : [];
+  state.rows = state.data ? state.data.players.filter((p) => (p.power ?? 0) > state.minPower && (!state.kOnly || state.kOnly.has(p._k))) : [];
 }
 
 function fillPower() {
@@ -512,6 +555,26 @@ function fillPower() {
 }
 
 // ---- view: filter + sort ----
+// The Kingdom table by pages. state.view is the whole list (cards, charts, averages); state.pageRows what the table draws
+const KINGDOM_SIZES = [50, 100, 200, 0]; // 0 = all
+let pageOf = "";
+function slicePage() {
+  const size = store.get("kingdomPageSize", 100), pages = size ? Math.max(1, Math.ceil(state.view.length / size)) : 1;
+  state.kPage = Math.min(state.kPage || 1, pages);
+  state.pageStart = size ? (state.kPage - 1) * size : 0;
+  state.pageRows = size ? state.view.slice(state.pageStart, state.pageStart + size) : state.view;
+  const box = $("kPager");
+  box.innerHTML = "";
+  if (state.data && KS.ui) box.appendChild(KS.ui.pager(state.view.length, state.kPage, (to) => {
+    state.kPage = to;
+    slicePage();
+    $("sizer").style.height = `calc(var(--hh) + ${state.pageRows.length} * var(--rh))`;
+    resetPool();
+    const g = scroller();
+    g.scrollTop = Math.min(g.scrollTop, $("grid").offsetTop);
+    render();
+  }, { size, sizes: KINGDOM_SIZES, key: "kingdomPageSize" }));
+}
 function refresh() {
   const q = state.q.trim().toLowerCase();
   let v = state.rows.filter((p) => !q || p._s.includes(q));
@@ -525,6 +588,9 @@ function refresh() {
     return (num ? x - y : String(x).localeCompare(String(y), undefined, { sensitivity: "base" })) * dir || a[1].rank - b[1].rank;
   });
   state.view = keyed.map((k) => k[1]);
+  const listKey = [state.data?.kingdom, state.data?.scan, state.data?._a, state.also.join(), state.kvk, q, state.sort.key, state.sort.dir, state.minPower, state.kOnly?.size, state.sortDelta].join("|");
+  if (listKey !== pageOf) { pageOf = listKey; state.kPage = 1; }
+  slicePage();
   if (state.heat) averages();
   const n = numFmt(), at = state.data && new Date(state.data.crawledAt), loc = state.lang === "vi" ? "vi-VN" : "en-GB";
   // a phone: "202/202" and the date only, beside the view tabs
@@ -535,7 +601,7 @@ function refresh() {
   $("crawled").title = at ? at.toLocaleString(loc) : "";
   if (!state.view.length) showEmpty(state.data ? tr("noRows") : tr("loadErr"));
   else $("empty").hidden = true;
-  $("sizer").style.height = `calc(var(--hh) + ${state.view.length} * var(--rh))`;
+  $("sizer").style.height = `calc(var(--hh) + ${state.pageRows.length} * var(--rh))`;
   drawHead();
   resetPool();
   render();
@@ -555,8 +621,19 @@ function averages() {
   state.avgVer++;
 }
 
+// the shape of the table until its rows are in
+function showLoading() {
+  const e = $("empty");
+  e.textContent = "";
+  e.classList.add("sk-rows");
+  for (let i = 0; i < 10; i++) e.appendChild(document.createElement("i")).className = "sk";
+  e.hidden = false;
+  if (!state.view.length) resetPool();
+}
 function showEmpty(msg) {
   const e = $("empty");
+  e.classList.remove("sk-rows");
+  document.querySelectorAll("#kingdomTop .sk-block").forEach((x) => x.remove()); // nothing is coming: no shapes left waiting
   e.textContent = msg;
   e.hidden = false;
   if (!state.view.length) resetPool();
@@ -709,7 +786,7 @@ function resetPool() {
   pins.id = "pins";
   pins.className = "pins";
   pins.style.width = state.pinW + "px";
-  pins.style.height = `calc(${state.view.length} * var(--rh))`;
+  pins.style.height = `calc(${state.pageRows.length} * var(--rh))`;
   b.appendChild(pins);
   pool = [];
   drawn = ""; partial = false;
@@ -780,7 +857,7 @@ function allianceChip(tag) {
 const tagsOf = (p) => (p._was && !p._left && p._was.alliance && p._was.alliance !== p.alliance && p.alliance ? [p._was.alliance, p.alliance] : p.alliance ? [p.alliance] : []);
 
 // every amount has a bar under the number (colour: .b-<key> or .g-<group> in the stylesheet); its length = value / the list's largest
-const hasBar = (c) => (c.type === "num" || c.type === "int") && !NO_AVG.has(c.key);
+const hasBar = (c) => ((c.type === "num" || c.type === "int") && !NO_AVG.has(c.key)) || c.key === "meritRatio";
 const withBar = (c, v, cell) => {
   if (hasBar(c) && typeof v === "number" && barMax(c) > 0) { cell.bar = Math.max(0, v / barMax(c)); cell.cls += ` pg b-${c.key} g-${c.group}`; }
   return cell;
@@ -802,7 +879,8 @@ function cellsOf(p) {
       continue;
     }
     if (parts) {
-      const title = c.type === "num" && state.compact ? `${parts[0][0] === "–" ? "–" : numFmt().format(p._left ? v : value(c, p._was))} → ${parts[2][0] === "–" ? "–" : numFmt().format(v)}` : "";
+      const was = p._left ? v : p._was ? value(c, p._was) : undefined;
+      const title = c.type === "num" && state.compact ? `${typeof was === "number" ? numFmt().format(was) : "–"} → ${p._left || typeof v !== "number" ? "–" : numFmt().format(v)}` : "";
       out[i] = withBar(c, v, { text: parts.map((x) => x[0]).join("|"), cls: c._cls, title, plus: false, parts });
       continue;
     }
@@ -824,7 +902,7 @@ function warmCells() {
   cancelIdle(warmJob);
   let i = 0;
   const step = (dl) => {
-    const v = state.view;
+    const v = state.pageRows;
     let n = 0; // at least a slice each time, more while the browser says it is idle
     while (i < v.length && (n++ < 20 || (dl && dl.timeRemaining() > 2))) cellsOf(v[i++]);
     if (i < v.length) warmJob = idle(step);
@@ -842,7 +920,7 @@ const cancelIdle = (id) => (window.cancelIdleCallback ? cancelIdleCallback(id) :
 function fill(r, p, lo, hi) {
   const cells = cellsOf(p), kids = r._cells, cols = state.cols;
   if (state.rankI >= 0) {
-    const d = kids[state.rankI], n = r._idx + 1;
+    const d = kids[state.rankI], n = state.pageStart + r._idx + 1;
     if (d._n !== n) {
       d._n = n;
       d.textContent = n;
@@ -850,7 +928,7 @@ function fill(r, p, lo, hi) {
     }
   }
   if (state.nameI >= 0) {
-    const d = kids[state.nameI], n = r._idx + 1;
+    const d = kids[state.nameI], n = state.pageStart + r._idx + 1;
     if (d._rn !== n) { d._rn = n; d.style.color = rankColour(n); }
   }
   for (let i = 0; i < cells.length; i++) {
@@ -910,7 +988,7 @@ let drawn = "", dFirst = 0, dLast = 0, partial = false, finish = 0;
 function render(full) {
   raf = 0;
   // the page scrolls, the rows start under what is above the table and the table's header
-  const g = $("kingdomPage"), rh = RH(), n = state.view.length, y = g.scrollTop - $("grid").offsetTop - $("head").offsetHeight;
+  const g = scroller(), rh = RH(), n = state.pageRows.length, y = g.scrollTop - $("grid").offsetTop - $("head").offsetHeight;
   const top = Math.max(0, Math.floor(y / rh)), bottom = Math.max(0, Math.min(n, Math.ceil((y + g.clientHeight) / rh)));
   const inside = drawn !== "" && top >= dFirst && bottom <= dLast;
   if (partial && inside && full !== true) return; // the screen is drawn; the rest comes with the timer
@@ -947,12 +1025,12 @@ function render(full) {
   for (let idx = first; idx < last; idx++) {
     const r = pool[idx % size];
     if (r.hidden) r.hidden = r._pin.hidden = false;
-    if (r._idx === idx && r._p === state.view[idx]) {
+    if (r._idx === idx && r._p === state.pageRows[idx]) {
       if (r._lo !== lo || r._hi !== hi) { r._lo = lo; r._hi = hi; fill(r, r._p, lo, hi); } // scrolled sideways
       continue;
     }
     r._idx = idx;
-    r._p = state.view[idx];
+    r._p = state.pageRows[idx];
     r._lo = lo; r._hi = hi;
     r.style.top = r._pin.style.top = idx * rh + "px";
     if (r._alt !== idx % 2) { r._alt = idx % 2; r.classList.toggle("alt", r._alt === 1); r._pin.classList.toggle("alt", r._alt === 1); }
@@ -962,14 +1040,44 @@ function render(full) {
 const schedule = () => { if (!raf) raf = requestAnimationFrame(render); };
 // a new list: back to its first row, if the page has scrolled past it
 function toTable() {
-  const g = $("kingdomPage"), t = $("grid").offsetTop;
+  const g = scroller(), t = $("grid").offsetTop;
   if (g.scrollTop > t) g.scrollTop = t;
 }
 
 // ---- column picker ----
+// The same dialog for another table: picker = { cols: [{key, label, fixed}], on(key), toggle(key, on), act(all|none|def), count() }
+let picker = null;
+function drawOtherPicker(list, q) {
+  $("colsCount2").textContent = picker.count();
+  for (const g of GROUPS) {
+    const cols = picker.cols.filter((c) => (BY_KEY[c.key]?.group || "basic") === g.id && (!q || c.label.toLowerCase().includes(q)));
+    if (!cols.length) continue;
+    const box = document.createElement("section"), h = document.createElement("h3");
+    box.className = "grp";
+    h.textContent = label(g);
+    box.appendChild(h);
+    for (const c of cols) {
+      const l = document.createElement("label"), t = document.createElement("span"), i = document.createElement("input");
+      l.className = "tog" + (picker.on(c.key) ? " on" : "");
+      t.textContent = c.label;
+      i.type = "checkbox"; i.checked = picker.on(c.key); i.disabled = !!c.fixed;
+      i.onchange = () => { picker.toggle(c.key, i.checked); l.classList.toggle("on", i.checked); $("colsCount2").textContent = picker.count(); };
+      l.append(t, i);
+      box.appendChild(l);
+    }
+    list.appendChild(box);
+  }
+}
+function openPicker(p) {
+  picker = p;
+  $("colsQ").value = "";
+  drawPicker();
+  $("cols").showModal();
+}
 function drawPicker() {
   const list = $("colsList"), q = $("colsQ").value.trim().toLowerCase();
   list.innerHTML = "";
+  if (picker) { drawOtherPicker(list, q); return; }
   for (const g of GROUPS) {
     const cols = pickable().filter((c) => c.group === g.id && (!q || label(c).toLowerCase().includes(q) || (c.tip && label(c.tip).toLowerCase().includes(q)) || c.key.toLowerCase().includes(q)));
     if (!cols.length) continue;
@@ -1034,7 +1142,7 @@ function init() {
   dayDrop($("vs"));
   applyLang();
   fillPower();
-  applyTheme(store.get("theme", "dark"));
+  applyTheme(store.get("appTheme", "dark")); // dark unless chosen here; the device has no say, and an older saved choice is dropped
   $("fmtBtn").setAttribute("aria-pressed", String(state.compact));
   $("heatBtn").setAttribute("aria-pressed", String(state.heat));
   $("heatBtn").onclick = () => {
@@ -1043,7 +1151,7 @@ function init() {
     $("heatBtn").setAttribute("aria-pressed", String(state.heat));
     if (state.data) refresh();
   };
-  document.querySelectorAll(".side-nav button").forEach((b) => (b.onclick = () => setPage(b.dataset.page)));
+  document.querySelectorAll(".side-nav button").forEach((b) => (b.onclick = () => { state.kvk = 0; setPage(b.dataset.page); }));
   // the menu button: a wide window hides / shows the side menu (remembered), a narrow one opens it as a drawer
   document.body.classList.toggle("side-off", store.get("sideOff", false));
   document.querySelectorAll(".menu-btn").forEach((b) => (b.onclick = () => {
@@ -1055,6 +1163,7 @@ function init() {
   addEventListener("keydown", (e) => { if (e.key === "Escape") showMenu(false); });
   // scroll events already come once a frame: drawing right away leaves no blank rows behind a fast scroll
   $("kingdomPage").addEventListener("scroll", render, { passive: true });
+  $("kvkPage").addEventListener("scroll", render, { passive: true });
   // a row's two halves (main + pinned) light up together
   let hov = null;
   $("body").addEventListener("mouseover", (e) => {
@@ -1098,11 +1207,12 @@ function init() {
   const sortMode = (on) => { if (state.diff && state.sortDelta !== on) { state.sortDelta = on; if (state.data) refresh(); } };
   $("sortValue").onclick = () => sortMode(false);
   $("sortDelta").onclick = () => sortMode(true);
-  $("colsBtn").onclick = () => { $("colsQ").value = ""; drawPicker(); $("cols").showModal(); };
+  $("colsBtn").onclick = () => { picker = null; $("colsCount2").textContent = $("colsCount").textContent; $("colsQ").value = ""; drawPicker(); $("cols").showModal(); };
   $("colsQ").addEventListener("input", drawPicker);
   $("cols").addEventListener("click", (e) => {
     if (e.target === $("cols")) $("cols").close(); // click on the backdrop
     const act = e.target.dataset?.act;
+    if (act && picker) { picker.act(act); drawPicker(); return; }
     if (act === "all") setCols(pickable().map((c) => c.key));
     if (act === "none") setCols([]);
     if (act === "def") setCols(DEFAULT_COLS);
@@ -1138,13 +1248,15 @@ function init() {
       ? document.documentElement.dataset.theme === "dark"
       : matchMedia("(prefers-color-scheme: dark)").matches;
     const t = dark ? "light" : "dark";
-    store.set("theme", t);
+    store.set("appTheme", t);
     applyTheme(t);
   };
-  addEventListener("hashchange", () => {
-    const hp = new URLSearchParams(location.hash.slice(1)), k = Number(hp.get("k"));
+  addEventListener("hashchange", async () => {
+    const hp = await kvkParams(new URLSearchParams(location.hash.slice(1))), k = Number(hp.get("k"));
+    const wasKvk = state.kvk;
+    state.kvk = Number(hp.get("kvk")) || 0;
     if (hp.get("p") === "compare" || KS.pages[hp.get("p")]) { setPage(hp.get("p")); return; }
-    if (state.page !== "kingdom") { setPage("kingdom", true); rowH = 0; drawn = ""; schedule(); }
+    if (state.page !== "kingdom" || wasKvk !== state.kvk) { setPage("kingdom", true); rowH = 0; drawn = ""; schedule(); }
     const older = hp.get("a") || "";
     if (older) state.vs = older;
     setCompare(!!older);
@@ -1198,6 +1310,8 @@ function keepScroll(root, draw) {
 // what views.js uses
 const KS = (window.KS = {
   state, T, tr, label, $, store, fmt, compact, numFmt, getJSON, BY_KEY, NUMERIC, value, idle, POWER_STEPS, DEFAULT_POWER,
+  openPicker, toggleKingdom,
+  repick: () => { pickRows(); refresh(); },
   refresh, setHash, kingdomMatches, listKeys, checkVersion, deltaOf, keepScroll, allianceChip, rankColour, dayDrop,
 });
 // views.js (a deferred script after this one) is in by then
