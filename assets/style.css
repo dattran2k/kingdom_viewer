@@ -849,6 +849,20 @@ body[data-compare="1"] .k-row .kbtn { height: 52px; }
 .tbl-title .meta { min-height: 1.4em; }
 /* nothing shown before the list says which holders this kingdom needs: a paint without them would move everything */
 #kingdomPage.wait { visibility: hidden; }
+/* a narrow window: the page's header stays on top of the screen, slides away scrolling down and back scrolling up (app.js).
+   The table headers sit under it (--stick); the room it takes is a spacer inside the scroller, whose own padding would stop sticky cells short */
+@media (max-width: 900px) {
+  body { --ph: 50px; --stick: var(--ph); }
+  body.head-off { --stick: 0px; }
+  .page > header.bar, .page-top > header.bar, #kingdomTop > header.bar { position: fixed; top: 0; left: 0; right: 0; z-index: 20; flex-wrap: nowrap; height: var(--ph); padding: 0 12px; background: var(--bg); transition: transform .2s; }
+  body.head-off .page > header.bar, body.head-off .page-top > header.bar, body.head-off #kingdomTop > header.bar { transform: translateY(-100%); }
+  .page > header.bar .page-desc, .page-top > header.bar .page-desc { display: none; }
+  /* under the header, in the scroller: the room it takes and the page's description (data-desc, copied by app.js), which scrolls away with the page */
+  #kingdomPage::before, #kvkPage::before, #cmp::before, #dv::before { content: attr(data-desc); display: block; position: sticky; left: 0; width: 100vw; padding: calc(var(--ph) + 6px) 12px 8px; background: var(--bg); color: var(--mut); font-size: 12px; }
+  #cmp { padding-top: 0; }
+  #cmp::before { position: static; width: auto; margin: 0 -12px 12px; }
+  .head, #dv .tbl th { top: var(--stick); }
+}
 /* a phone, here because the rules above would win: small compare chips; the camps table keeps its room for the figures */
 @media (max-width: 640px) {
   #dv .dv-ctl, #dv .dv-out > :not(.dv-wrap) { padding-inline: 12px; }

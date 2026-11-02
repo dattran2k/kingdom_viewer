@@ -501,6 +501,7 @@ function setPage(p, quiet) {
     kvkShown = false;
   }
   $("comparePage").hidden = p !== "compare";
+  document.body.classList.remove("head-off");
   $("dvPage").hidden = !KS.pages[p];
   const on = p === "kingdom" && state.kvk ? "kvk" : p; // a KvK's players are the Kingdom table
   document.querySelectorAll(".side-nav button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.page === on)));
@@ -1170,6 +1171,22 @@ function init() {
   // scroll events already come once a frame: drawing right away leaves no blank rows behind a fast scroll
   $("kingdomPage").addEventListener("scroll", render, { passive: true });
   $("kvkPage").addEventListener("scroll", render, { passive: true });
+  // a narrow window: the header leaves when the page scrolls down, comes back when it scrolls up or nears the top
+  const headNarrow = matchMedia("(max-width: 900px)"), lastTop = new WeakMap();
+  document.addEventListener("scroll", (e) => {
+    const box = e.target;
+    if (!headNarrow.matches || !box.matches?.("#kingdomPage, #kvkPage, #cmp, #dv")) return;
+    const top = box.scrollTop, dy = top - (lastTop.get(box) ?? 0);
+    if (Math.abs(dy) < 6 && top > 60) return; // a sideways scroll or a trembling finger; the last position stays the reference
+    lastTop.set(box, top);
+    document.body.classList.toggle("head-off", top > 60 && dy > 0);
+  }, { passive: true, capture: true });
+  // the header has no room for the page's description there: its scroller shows a copy (see the stylesheet), kept up with the language and the page
+  for (const [desc, box] of [["#kingdomTop .page-desc", "kingdomPage"], ["#comparePage .page-desc", "cmp"], ["#dvDesc", "dv"]]) {
+    const d = document.querySelector(desc), copy = () => { $(box).dataset.desc = d.textContent; };
+    new MutationObserver(copy).observe(d, { childList: true, characterData: true, subtree: true });
+    copy();
+  }
   // a row's two halves (main + pinned) light up together
   let hov = null;
   $("body").addEventListener("mouseover", (e) => {
