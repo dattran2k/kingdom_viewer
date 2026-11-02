@@ -55,7 +55,7 @@ const state = {
   // comparing two scans: same columns and order as always, each cell before / change / after; vs = the older scan
   pageRows: [], pageStart: 0, kPage: 1,
   comparing: false, diff: false, vs: "", also: [], mainK: 0, // also = the other kingdoms compared with mainK
-  sortDelta: false,
+  sortDelta: false, // sort by the value or the change: the user's choice, kept across columns and comparisons
   data: null, rows: [], view: [], cols: [], q: "",
   minPower: POWER_STEPS.includes(store.get("powerStep")) ? store.get("powerStep") : KINGDOM_POWER,
   list: [], heat: store.get("heat", false), avg: {}, avgVer: 0,
@@ -362,7 +362,6 @@ function setCompare(on) {
 function setDiff(on) {
   if (on === state.diff) return;
   state.diff = on;
-  state.sortDelta = on; // comparing opens sorted by the change
   document.body.dataset.diff = on ? "1" : "";
   // each cell holds three lines
   document.documentElement.style.setProperty("--rh", on ? "60px" : "");
@@ -772,7 +771,6 @@ function drawHead() {
     if (state.sort.key === c.key) { d.classList.add("on"); d.dataset.dir = state.sort.dir > 0 ? "▲" : "▼"; }
     d.onclick = () => {
       const num = NUMERIC.has(c.type) && c.key !== "rank";
-      if (state.sort.key !== c.key) state.sortDelta = false; // a column picked sorts by what it shows; "±" asks for the change
       state.sort = state.sort.key === c.key ? { key: c.key, dir: -state.sort.dir } : { key: c.key, dir: num ? -1 : 1 };
       refresh();
     };
@@ -1217,7 +1215,6 @@ function init() {
   wireKingdomPicker();
   $("sortKey").onchange = (e) => {
     const c = BY_KEY[e.target.value];
-    state.sortDelta = false;
     state.sort = { key: c.key, dir: NUMERIC.has(c.type) && c.key !== "rank" ? -1 : 1 };
     if (state.data) refresh();
   };
