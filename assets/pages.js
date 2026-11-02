@@ -17,7 +17,7 @@ Object.assign(KS.T.vi, {
   cKingdom: "Kingdom", cTopAlliance: "LM mạnh nhất", cPlayers: "Người chơi",
   cPower: "Lực chiến", cPowerMax: "LC max", cMerits: "Công trạng", cKills: "Tiêu diệt", cDeaths: "Tử trận", cHeals: "Chữa trị", cHelps: "Giúp đỡ", cGathered: "Thu thập",
   cMigration: "Điểm di cư", cDecor: "Decor max", cInf: "CT bộ", cCav: "CT kỵ", cArc: "CT cung", cMag: "CT phép",
-  gFrom: "Từ ngày", gTo: "Đến ngày", gName: "Người chơi",
+  gFrom: "Từ", gTo: "Đến", gName: "Người chơi",
   mStart: "Từ ngày", mEnd: "Đến ngày", mLords: "Người chơi", mServers: "Kingdom", mKingdom: "Kingdom", mLord: "ID / tên", mMin: "Lực chiến ≥ (M)",
   mFrom: "Từ", mTo: "Đến", mAllianceFrom: "LM cũ", mAllianceTo: "LM mới", mDate: "Thời điểm",
   mTotal: "lượt di cư", mPeople: "người", mPage: "Trang", mPrev: "◀ Trước", mNext: "Sau ▶", mNone: "Không có lượt di cư nào khớp.", mWindow: "Còn ở kingdom cũ lúc {a}, đã ở kingdom mới lúc {b}",

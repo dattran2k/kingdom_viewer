@@ -242,7 +242,7 @@ body[data-compare="1"] .klist li.cur { background: var(--acc-bg); }
    moved while scrolling, so its scroll anchoring pulls a fast scroll back */
 .grid { position: relative; flex: 1; overflow: auto; overscroll-behavior: contain; overflow-anchor: none; background: var(--panel); }
 .sizer { position: relative; min-width: 100%; }
-.head { position: sticky; top: 0; z-index: 3; display: flex; height: var(--hh); background: var(--panel); border-bottom: 1px solid var(--edge); }
+.head { position: sticky; top: var(--stick, 0px); z-index: 3; display: flex; height: var(--hh); background: var(--panel); border-bottom: 1px solid var(--edge); }
 .body { position: absolute; left: 0; top: var(--hh); right: 0; }
 .row { position: absolute; left: 0; top: 0; display: flex; height: var(--rh); border-bottom: 1px solid var(--line); background: var(--panel);
   contain: layout style; /* a row's cells never move anything outside it */ }
@@ -275,13 +275,16 @@ body[data-compare="1"] .klist li.cur { background: var(--acc-bg); }
 .empty { position: absolute; inset: 80px 0 auto; text-align: center; color: var(--mut); }
 
 /* the kingdom page is one scroller for both directions: what is above the table scrolls away and stays put sideways,
-   then the table's header stays on top (sticky needs no other scrolling box between it and this one) */
-#kingdomPage, #kvkPage { display: block; overflow: auto; overscroll-behavior: contain; overflow-anchor: none; }
+   then the table's header stays on top, under the page's (sticky needs no other scrolling box between it and this one) */
+#kingdomPage, #kvkPage { --stick: var(--head-h, 0px); display: block; overflow: auto; overscroll-behavior: contain; overflow-anchor: none; container-type: inline-size; }
+@media (min-width: 901px) {
+  #kingdomPage > .page-head, #kvkPage > .page-head { position: sticky; top: 0; left: 0; z-index: 20; width: 100cqw; max-width: 100%; }
+}
 #kingdomPage[hidden], #kvkPage[hidden] { display: none; }
 .page-top { position: sticky; left: 0; z-index: 5; background: var(--bg); }
 /* what stays put sideways: a finger on it must not pan the wide page behind it, a phone would draw it shaking left and right.
    Boxes inside that scroll sideways on their own (a table, a row of chips) still do */
-.page-top, #dv .dv-ctl, #dv .dv-out > :not(.dv-wrap) { touch-action: pan-y pinch-zoom; }
+#kingdomPage > .page-head, #kvkPage > .page-head, .page-top, #dv .dv-ctl, #dv .dv-out > :not(.dv-wrap) { touch-action: pan-y pinch-zoom; }
 .tbl-wrap { overscroll-behavior-x: contain; }
 #kingdomPage .grid, #kvkPage .grid { overflow: visible; min-height: 200px; background: none; }
 #kingdomPage .panel { overflow: visible; }
@@ -432,6 +435,7 @@ body:not([data-compare="1"]) .cmp-only { display: none; }
 .dd { position: relative; }
 .dd-btn { height: 32px; display: inline-flex; align-items: center; gap: 8px; padding: 0 10px; border-radius: 6px; font-variant-numeric: tabular-nums; }
 .dd-pre { font-size: 12px; color: var(--mut); }
+.dd-short { display: none; }
 .dd-btn .dd-day { font-weight: 600; }
 .dd-arrow { width: 6px; height: 6px; margin-left: 2px; border: solid var(--mut); border-width: 0 1.5px 1.5px 0; transform: translateY(-2px) rotate(45deg); transition: transform .15s; }
 .dd-btn[aria-expanded="true"] .dd-arrow { transform: translateY(1px) rotate(-135deg); }
@@ -458,7 +462,6 @@ body:not([data-compare="1"]) .cmp-only { display: none; }
 /* a phone: the table gets the room */
 @media (max-width: 680px) {
   .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-  .cmp-bar .field.qbox { flex: 0 0 100%; }
   .tbl-title, .tbl-bar .pbox { flex: 0 0 100%; }
   #pq { width: 100%; }
   .sort-box { min-width: 0; }
@@ -782,18 +785,20 @@ body[data-compare="1"] .k-row.has-art .kbtn { color: #fff; border-color: rgb(255
 :root[data-theme="light"] #kingdomTop { --dim: rgb(8 10 14 / .28); }
 #kingdomTop.art-wide { --w: 100%; --art-at: center top / 100% auto; --mid-h: 56vw; }
 #kingdomTop.has-art::before, #kingdomTop.has-art::after { content: ""; position: absolute; left: 0; right: 0; pointer-events: none; }
-#kingdomTop.has-art::before { top: var(--row-top, 44px); left: auto; width: min(100%, var(--w)); height: min(var(--mid-h), 620px); background: linear-gradient(var(--dim), var(--dim)), var(--art-mid) var(--art-at) no-repeat; -webkit-mask: linear-gradient(to bottom, #000 calc(var(--row-h, 210px) - 10px), transparent 100%); mask: linear-gradient(to bottom, #000 calc(var(--row-h, 210px) - 10px), transparent 100%); }
-#kingdomTop.has-art::after { top: calc(var(--row-top, 44px) + var(--row-h, 210px)); bottom: 0; background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 18%, transparent), color-mix(in srgb, var(--bg) 62%, transparent) 260px, color-mix(in srgb, var(--bg) 82%, transparent) 620px); }
+#kingdomTop.has-art::before { top: var(--row-top, 0px); left: auto; width: min(100%, var(--w)); height: min(var(--mid-h), 620px); background: linear-gradient(var(--dim), var(--dim)), var(--art-mid) var(--art-at) no-repeat; -webkit-mask: linear-gradient(to bottom, #000 calc(var(--row-h, 210px) - 10px), transparent 100%); mask: linear-gradient(to bottom, #000 calc(var(--row-h, 210px) - 10px), transparent 100%); }
+#kingdomTop.has-art::after { top: calc(var(--row-top, 0px) + var(--row-h, 210px)); bottom: 0; background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 18%, transparent), color-mix(in srgb, var(--bg) 62%, transparent) 260px, color-mix(in srgb, var(--bg) 82%, transparent) 620px); }
 #kingdomTop > * { position: relative; z-index: 1; }
-#kingdomTop > .page-head { background: var(--panel); }
 #kingdomTop .k-row.has-art, #kingdomTop .k-row.art-wide { background: none; border-bottom: 0; }
 #kingdomTop .k-row.has-art::before { width: min(100%, var(--w)); background: linear-gradient(var(--dim), var(--dim)), linear-gradient(to right, rgb(8 10 14 / .5), transparent 60%), var(--art) var(--art-at) no-repeat; -webkit-mask: linear-gradient(to bottom, transparent, #000 90px, #000 calc(100% - 44px), transparent), linear-gradient(to right, transparent, #000 30%); -webkit-mask-composite: source-in; mask: linear-gradient(to bottom, transparent, #000 90px, #000 calc(100% - 44px), transparent), linear-gradient(to right, transparent, #000 30%); mask-composite: intersect; }
 #kingdomTop .k-row.art-wide::before { background: linear-gradient(var(--dim), var(--dim)), linear-gradient(to right, rgb(8 10 14 / .6), transparent 60%), var(--art) var(--art-at) no-repeat; -webkit-mask: linear-gradient(to bottom, transparent, #000 90px, #000 calc(100% - 44px), transparent); mask: linear-gradient(to bottom, transparent, #000 90px, #000 calc(100% - 44px), transparent); }
 #kingdomTop:not(.art-wide)::before { -webkit-mask: linear-gradient(to bottom, #000 calc(var(--row-h, 210px) - 10px), transparent 100%), linear-gradient(to right, transparent, #000 30%); -webkit-mask-composite: source-in; mask: linear-gradient(to bottom, #000 calc(var(--row-h, 210px) - 10px), transparent 100%), linear-gradient(to right, transparent, #000 30%); mask-composite: intersect; }
 /* the bar's menus open over the cards below */
 #kingdomTop > .k-row { z-index: 7; }
-#kingdomTop > #cmpBar { z-index: 6; }
 /* the kingdom search: the page's main control */
+/* the header's second line: the days and the kingdom search */
+#kingdomPage > .page-head { flex-wrap: wrap; row-gap: 8px; }
+#kingdomPage > .page-head .page-desc { flex: 1 1 0; min-width: 0; }
+.cmp-bar { flex: 0 0 100%; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .cmp-bar .qbox input { height: 44px; padding: 0 14px; font-size: 15px; }
 #qsug { z-index: 30; }
 #qsug li { padding: 10px 12px; font-size: 15px; }
@@ -826,6 +831,17 @@ body[data-compare="1"] .k-row.has-art .kbtn { color: #fff; border-color: rgb(255
   .head-slot .rk-seg:has(button:nth-child(3)) button { flex: 1 0 auto; padding: 7px 4px; font-size: 13px; }
 }
 .cmp-bar .dd-btn { height: 44px; font-size: 14px; }
+@media (max-width: 680px) {
+  /* one line: short days, the search takes the rest, and its suggestions the header's width */
+  .cmp-bar { flex-wrap: nowrap; gap: 6px; }
+  .cmp-bar > .mut { display: none; }
+  .cmp-bar .dd-btn { height: 38px; padding: 0 8px; gap: 5px; font-size: 13px; }
+  .cmp-bar .dd-btn .dd-day { display: none; }
+  .cmp-bar .dd-btn .dd-short { display: inline; font-weight: 600; }
+  .cmp-bar .field.qbox { position: static; flex: 1 1 0; min-width: 0; }
+  .cmp-bar .qbox input { height: 38px; padding: 0 10px; font-size: 14px; }
+  #qsug { top: 100%; left: 12px; right: 12px; }
+}
 body[data-compare="1"] .k-row .kbtn { height: 52px; }
 /* a camp's or a kingdom's place in the camps table */
 .kv-rk { flex: none; min-width: 34px; padding: 2px 6px; border-radius: 6px; background: var(--acc-bg); color: var(--acc); font-size: 15px; font-weight: 800; line-height: 20px; text-align: center; }
@@ -869,13 +885,13 @@ body[data-compare="1"] .k-row .kbtn { height: 52px; }
 /* a narrow window: the page's header stays on top of the screen, slides away scrolling down and back scrolling up (app.js).
    The table headers sit under it (--stick); the room it takes is a spacer inside the scroller, whose own padding would stop sticky cells short */
 @media (max-width: 900px) {
-  body { --ph: 60px; --stick: var(--ph); }
-  body.head-off { --stick: 0px; }
-  .page > header.bar, .page-top > header.bar, #kingdomTop > header.bar { position: fixed; top: 0; left: 0; right: 0; z-index: 20; flex-wrap: nowrap; height: var(--ph); padding: 0 12px; background: var(--panel); transition: transform .2s; }
-  body.head-off .page > header.bar, body.head-off .page-top > header.bar, body.head-off #kingdomTop > header.bar { transform: translateY(-100%); }
-  .page > header.bar .page-desc, .page-top > header.bar .page-desc { display: none; }
+  body { --ph: 60px; }
+  #kingdomPage, #kvkPage { --ph: var(--head-h, 60px); }
+  .page, #kingdomPage, #kvkPage { --stick: calc(var(--ph) - var(--head-off, 0px)); }
+  #kingdomPage > header.bar { flex-wrap: wrap; height: auto; padding: 8px 12px; }
+  .page > header.bar { position: fixed; top: 0; left: 0; right: 0; z-index: 20; flex-wrap: nowrap; height: var(--ph); padding: 0 12px; background: var(--panel); transform: translateY(calc(-1 * var(--head-off, 0px))); }
+  .page > header.bar .page-desc { display: none; }
   /* under the header, in the scroller: the room it takes and the page's description (data-desc, copied by app.js), which scrolls away with the page */
-  #kingdomPage, #kvkPage { container-type: inline-size; }
   /* max-width: the query counts the scrollbar too. box-sizing: "*" does not reach pseudo elements. Either one left out makes the page scroll sideways */
   #kingdomPage::before, #kvkPage::before, #cmp::before, #dv::before { content: attr(data-desc); display: block; box-sizing: border-box; position: sticky; left: 0; width: 100cqw; max-width: 100%; padding: calc(var(--ph) + 6px) 12px 8px; background: var(--bg); color: var(--mut); font-size: 12px; }
   #cmp { padding-top: 0; }

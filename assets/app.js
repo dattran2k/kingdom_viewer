@@ -262,6 +262,11 @@ function dayText(day) {
   if (state.lang === "vi") return `${Number(m[3])} Tháng ${Number(m[2])}, ${m[1]}`;
   return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
 }
+// the same day where there is little room: the menu still names it in full
+const dayShort = (day) => {
+  const m = /^\d{4}-(\d{2})-(\d{2})$/.exec(day);
+  return !m ? day : state.lang === "vi" ? `${m[2]}/${m[1]}` : `${m[1]}/${m[2]}`;
+};
 function dayDrop(sel) {
   const dd = document.createElement("div"), btn = document.createElement("button"), pop = document.createElement("ul");
   dd.className = "dd";
@@ -283,7 +288,7 @@ function dayDrop(sel) {
   const sync = () => {
     btn.innerHTML = "";
     if (sel.dataset.prefix) btn.appendChild(part("dd-pre", sel.dataset.prefix));
-    btn.append(part("dd-day", dayText(sel.value)), part("dd-arrow", ""));
+    btn.append(part("dd-day", dayText(sel.value)), part("dd-short", dayShort(sel.value)), part("dd-arrow", ""));
     pop.innerHTML = "";
     for (const o of sel.options) {
       const li = document.createElement("li");
@@ -482,6 +487,8 @@ function setHash() {
 // The player table belongs to whichever page shows it: the Kingdom page or one KvK
 let kvkShown = false;
 const scroller = () => (state.kvk && state.page === "kingdom" ? $("kvkPage") : $("kingdomPage"));
+// where the table starts just under the page's header, which stays on top
+const tableTop = (g) => $("grid").offsetTop - g.querySelector(":scope > header").offsetHeight;
 function placeTable(kvk) {
   const host = kvk ? $("kvkPage") : $("kingdomPage");
   if ($("grid").parentNode === host) return;
@@ -505,7 +512,6 @@ function setPage(p, quiet) {
     kvkShown = false;
   }
   $("comparePage").hidden = p !== "compare";
-  document.body.classList.remove("head-off");
   $("dvPage").hidden = !KS.pages[p];
   const on = p === "kingdom" && state.kvk ? "kvk" : p; // a KvK's players are the Kingdom table
   document.querySelectorAll(".side-nav button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.page === on)));
@@ -581,7 +587,7 @@ function slicePage() {
     $("sizer").style.height = `calc(var(--hh) + ${state.pageRows.length} * var(--rh))`;
     resetPool();
     const g = scroller();
-    g.scrollTop = Math.min(g.scrollTop, $("grid").offsetTop);
+    g.scrollTop = Math.min(g.scrollTop, tableTop(g));
     render();
   }, { size, sizes: KINGDOM_SIZES, key: "kingdomPageSize" }));
 }
@@ -1051,7 +1057,7 @@ function render(full) {
 const schedule = () => { if (!raf) raf = requestAnimationFrame(render); };
 // a new list: back to its first row, if the page has scrolled past it
 function toTable() {
-  const g = scroller(), t = $("grid").offsetTop;
+  const g = scroller(), t = tableTop(g);
   if (g.scrollTop > t) g.scrollTop = t;
 }
 
@@ -1175,18 +1181,25 @@ function init() {
   // scroll events already come once a frame: drawing right away leaves no blank rows behind a fast scroll
   $("kingdomPage").addEventListener("scroll", render, { passive: true });
   $("kvkPage").addEventListener("scroll", render, { passive: true });
-  // a narrow window: the header leaves when the page scrolls down, comes back when it scrolls up or nears the top
-  const headNarrow = matchMedia("(max-width: 900px)"), lastTop = new WeakMap();
+  // the header's height, which grows with what it holds: what stays on top of the table goes under it
+  for (const page of [$("kingdomPage"), $("kvkPage")]) {
+    const h = page.querySelector(":scope > header");
+    new ResizeObserver(() => { if (h.offsetHeight) page.style.setProperty("--head-h", h.offsetHeight + "px"); }).observe(h);
+  }
+  // a narrow window: the header moves with the scroll, as many pixels out or back as the page has moved, and is whole at the top
+  const headNarrow = matchMedia("(max-width: 900px)"), lastTop = new WeakMap(), headOff = new WeakMap();
   document.addEventListener("scroll", (e) => {
     const box = e.target;
     if (!headNarrow.matches || !box.matches?.("#kingdomPage, #kvkPage, #cmp, #dv")) return;
-    const top = box.scrollTop, dy = top - (lastTop.get(box) ?? 0);
-    if (Math.abs(dy) < 6 && top > 60) return; // a sideways scroll or a trembling finger; the last position stays the reference
+    const top = Math.max(0, box.scrollTop), dy = top - (lastTop.get(box) ?? 0);
+    if (!dy) return; // a sideways scroll
     lastTop.set(box, top);
-    document.body.classList.toggle("head-off", top > 60 && dy > 0);
+    const page = box.closest(".page"), off = Math.max(0, Math.min((headOff.get(box) ?? 0) + dy, top, page.querySelector(":scope > header").offsetHeight));
+    headOff.set(box, off);
+    page.style.setProperty("--head-off", off + "px");
   }, { passive: true, capture: true });
   // the header has no room for the page's description there: its scroller shows a copy (see the stylesheet), kept up with the language and the page
-  for (const [desc, box] of [["#kingdomTop .page-desc", "kingdomPage"], ["#comparePage .page-desc", "cmp"], ["#dvDesc", "dv"]]) {
+  for (const [desc, box] of [["#kingdomPage .page-desc", "kingdomPage"], ["#comparePage .page-desc", "cmp"], ["#dvDesc", "dv"]]) {
     const d = document.querySelector(desc), copy = () => { $(box).dataset.desc = d.textContent; };
     new MutationObserver(copy).observe(d, { childList: true, characterData: true, subtree: true });
     copy();
