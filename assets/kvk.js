@@ -262,15 +262,19 @@ function drawCamps(box, b) {
   const kingdoms = b.kingdoms.map((k) => kingdomRow(b, k));
   const scale = grouped ? groups : kingdoms;
   const cols = [
-    { key: "name", label: grouped ? `${tr("kCamp")} / ${tr("cKingdom")}` : tr("cKingdom"), left: true, tip: () => "", w: 230, get: (r) => (r.list ? r.camp : r.k), node: (r) => {
+    { key: "name", label: grouped && !state.narrow ? `${tr("kCamp")} / ${tr("cKingdom")}` : grouped ? tr("kCamp") : tr("cKingdom"), left: true, tip: () => "", w: state.narrow ? 108 : 230, get: (r) => (r.list ? r.camp : r.k), node: (r) => {
       if (!r.list) { const d = el("span", "kv-kname"); d.append(kingdomChip(r)); if (r.camp) d.append(el("small", "mut", `${tr("kCamp")} ${r.camp}`)); return d; }
       const d = el("span", "kv-camp-n");
       const top = el("span", "kv-camp-t"), chips = el("span", "kv-chips");
-      top.append(el("b", "", `${tr("kCamp")} ${r.camp}`), el("small", "mut", `${r.list.length} KD`));
+      // a phone: the place on the camp's line, without the kingdom count, to leave the screen to the figures
+      if (state.narrow) top.append(rankMark(r), el("b", "", `${tr("kCamp")} ${r.camp}`));
+      else top.append(el("b", "", `${tr("kCamp")} ${r.camp}`), el("small", "mut", `${r.list.length} KD`));
       chips.append(...r.list.map(kingdomChip));
       const text = el("span", "kv-camp-s");
       text.append(top, chips);
-      d.append(el("i", page.open.has(r.camp) ? "kv-arrow on" : "kv-arrow"), rankMark(r), text);
+      d.append(el("i", page.open.has(r.camp) ? "kv-arrow on" : "kv-arrow"));
+      if (!state.narrow) d.append(rankMark(r));
+      d.append(text);
       return d;
     } },
     { key: "players", label: tr("cPlayers"), get: (r) => r.players, text: (r) => fullNum(r.players), tip: () => "" }, { key: "power", label: tr("cPower"), get: (r) => r.power, text: (r) => fullNum(r.power), tip: () => "" },

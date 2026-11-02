@@ -699,9 +699,9 @@ function fitWidths() {
     if (c.key === "rank" && state.narrow) { c.w = Math.ceil(textWidth("600", `700 11px ${family}`)) + 9; continue; }
     let w = fitted.get(c.key);
     if (w === undefined) {
-      // header: bold 12px + the sort arrow's room (10px + 4px gap); values: bold 13px (the top 3 rows are bold).
+      // header: bold 12px + the sort arrow's room (10px + its 3px margin + 4px gap); values: bold 13px (the top 3 rows are bold).
       // A phone: header in 11px with a 2px gap, a thinner chip and padding (see the 640px block of the stylesheet)
-      w = state.narrow ? textWidth(label(c), `700 11px ${family}`) + 12 : textWidth(label(c), `700 12px ${family}`) + 14;
+      w = state.narrow ? textWidth(label(c), `700 11px ${family}`) + 15 : textWidth(label(c), `700 12px ${family}`) + 17;
       if (HEAD_ICONS.has(c.key)) w += 18;
       if (state.data) {
         let longest = "";
@@ -711,9 +711,9 @@ function fitWidths() {
           const s = c.key === "alliance" ? tagsOf(p).reduce((a, t) => (String(t).length > a.length ? String(t) : a), "") + (state.narrow ? "M" : "MM") : (state.data._vs && COMPARED.has(c.type) ? "+" : "") + fmt(c, value(c, p)) + (p.atLeast && p.atLeast.includes(c.key) ? "+" : "");
           if (s.length > longest.length) longest = s;
         }
-        w = Math.max(w, cellWidth(longest, family));
+        w = Math.max(w, cellWidth(longest, family) * (c.key === "meritRatio" ? 15 / 13 : 1)); // CT / LC is drawn in 15px
       }
-      w = Math.ceil(w) + (state.narrow ? 10 + 1 : 20 + 4); // + the cell's padding + a little air (just rounding on a phone)
+      w = Math.ceil(w) + (state.narrow ? 10 + 2 : 20 + 4); // + the cell's padding + a little air (just rounding on a phone)
       if (state.data?._vs && COMPARED.has(c.type)) w += 22; // the change's box and arrow
       fitted.set(c.key, w);
     }

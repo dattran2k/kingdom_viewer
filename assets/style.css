@@ -682,9 +682,10 @@ body:not([data-compare="1"]) .cmp-only { display: none; }
 .dv-wrap .tbl { table-layout: fixed; }
 /* the Rankings and Migration pages scroll as one, like the Kingdom page: what is above the table stays put sideways, the header stays on top */
 #dv .dv-wrap { max-height: none; overflow: visible; }
-#dv { padding-top: 0; padding-bottom: 24px; container-type: inline-size; }
+/* no side padding on the scroller itself: sticky cells stop at its padding edge, and the rows scrolled past would show in that gap */
+#dv { padding: 0 0 24px; container-type: inline-size; }
 #dv .dv-ctl { padding-top: 12px; }
-#dv .dv-ctl, #dv .dv-out > :not(.dv-wrap) { position: sticky; left: 0; width: 100cqw; max-width: 100%; }
+#dv .dv-ctl, #dv .dv-out > :not(.dv-wrap) { position: sticky; left: 0; width: 100cqw; max-width: 100%; padding-inline: 16px; }
 .dv-tbar { padding: 8px 0; border-top: 0; z-index: 6; }
 .dv-tbar .pop { z-index: 30; }
 .dv-tbar .btn svg { margin-right: 4px; }
@@ -848,3 +849,18 @@ body[data-compare="1"] .k-row .kbtn { height: 52px; }
 .tbl-title .meta { min-height: 1.4em; }
 /* nothing shown before the list says which holders this kingdom needs: a paint without them would move everything */
 #kingdomPage.wait { visibility: hidden; }
+/* a phone, here because the rules above would win: small compare chips; the camps table keeps its room for the figures */
+@media (max-width: 640px) {
+  #dv .dv-ctl, #dv .dv-out > :not(.dv-wrap) { padding-inline: 12px; }
+  body[data-compare="1"] .k-row .kbtn { height: 32px; padding: 0 10px; font-size: 13px; }
+  .k-row .x-tag { height: 32px; padding: 0 10px; font-size: 16px; }
+  .k-block { padding: 12px 8px 0; }
+  .kv-panel { padding: 10px 0; }
+  .kv-panel .kv-note { padding-inline: 10px; }
+  .kv-panel .tbl th, .kv-panel .tbl td { padding-inline: 6px; }
+  .kv-camp-n { gap: 5px; }
+  .kv-camp-t { align-items: center; gap: 5px; }
+  .kv-rk { min-width: 26px; padding: 1px 3px; font-size: 12px; line-height: 16px; }
+  .kv-kname { gap: 4px; padding-left: 0; }
+  .kv-kname small { font-size: 10px; }
+}
