@@ -684,7 +684,7 @@ body:not([data-compare="1"]) .cmp-only { display: none; }
 #dv .dv-wrap { max-height: none; overflow: visible; }
 /* no side padding on the scroller itself: sticky cells stop at its padding edge, and the rows scrolled past would show in that gap */
 #dv { padding: 0 0 24px; container-type: inline-size; }
-#dv .dv-ctl { padding-top: 12px; }
+#dv .dv-ctl { padding-top: 12px; z-index: 7; } /* sticky: a layer of its own, its day menus open over the bar and the table */
 #dv .dv-ctl, #dv .dv-out > :not(.dv-wrap) { position: sticky; left: 0; width: 100cqw; max-width: 100%; padding-inline: 16px; }
 .dv-tbar { padding: 8px 0; border-top: 0; z-index: 6; }
 .dv-tbar .pop { z-index: 30; }
