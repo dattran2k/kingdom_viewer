@@ -136,9 +136,23 @@ const barCol = (key, label, rows) => ({ key, label: tr(label), get: (r) => r[key
 // Widths come from every row of the list (cols.all), not the ones on this page: sorting or paging never moves a column
 const NODE_W = { name: 190, kingdom: 76, from: 76, to: 76, kvk: 190, st: 156, alliance: 96, allianceFrom: 96, allianceTo: 96, topAlliance: 96, trades: 84 };
 const measure = document.createElement("canvas").getContext("2d");
+const digitWs = new Map();
+function digitW(font, family) {
+  let w = digitWs.get(font);
+  if (w === undefined) {
+    const s = el("span", "", "0000000000");
+    s.style.cssText = `position:absolute;visibility:hidden;white-space:nowrap;font:${font} ${family};font-variant-numeric:tabular-nums`;
+    document.body.appendChild(s);
+    w = s.getBoundingClientRect().width / 10;
+    s.remove();
+    digitWs.set(font, w);
+  }
+  return w;
+}
 function textW(text, font) {
-  measure.font = `${font} ${getComputedStyle(document.body).fontFamily}`;
-  return measure.measureText(text).width;
+  const family = getComputedStyle(document.body).fontFamily, rest = text.replace(/\d/g, "");
+  measure.font = `${font} ${family}`;
+  return measure.measureText(rest).width + (text.length - rest.length) * digitW(font, family);
 }
 function colWidth(c, all) {
   const head = textW(c.label, "600 12px") + (HEAD_ICONS.has(c.key) ? 20 : 0) + (c.nosort ? 0 : 13) + 20;
@@ -472,10 +486,13 @@ async function showMigration() {
     tabs.appendChild(b);
   }
   $("dvSlot").appendChild(tabs);
+  const qBox = searchBox(tr("mLord"), mig.q, (v) => { mig.q = v; restart(); });
+  qBox.classList.add("mg-q");
+  ctl.classList.add("mg-ctl");
   ctl.append(
     dayField(tr("mStart"), scans.slice().reverse(), mig.a, (v) => { mig.a = v; restart(); }),
     dayField(tr("mEnd"), scans.slice().reverse(), mig.b, (v) => { mig.b = v; restart(); }),
-    kBox, searchBox(tr("mLord"), mig.q, (v) => { mig.q = v; restart(); }), field(tr("mMin"), min));
+    kBox, qBox, field(tr("mMin"), min));
   setView(mig.view);
   redraw();
 }

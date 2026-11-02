@@ -24,11 +24,21 @@
   color-scheme: dark;
 }
 
+/* Inter, self-hosted (assets/fonts, OFL): only the subsets a page's letters need are fetched */
+@font-face { font-family: "Inter"; font-weight: 100 900; font-display: swap; src: url("fonts/inter-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "Inter"; font-weight: 100 900; font-display: swap; src: url("fonts/inter-vietnamese.woff2") format("woff2");
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB; }
+@font-face { font-family: "Inter"; font-weight: 100 900; font-display: swap; src: url("fonts/inter-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: "Inter"; font-weight: 100 900; font-display: swap; src: url("fonts/inter-cyrillic.woff2") format("woff2");
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; scrollbar-width: thin; scrollbar-color: var(--edge) transparent; } /* a phone paints a rectangle over what is tapped, past rounded corners */
 html, body { height: 100%; }
 body {
   margin: 0; background: var(--bg); color: var(--fg); display: flex; font-weight: 400;
-  font-size: 13px; line-height: 1.4; font-family: "Segoe UI", system-ui, -apple-system, Roboto, "Segoe UI Symbol", "Malgun Gothic", "Microsoft YaHei",
+  font-size: 13px; line-height: 1.4; font-family: "Inter", "Segoe UI", system-ui, -apple-system, Roboto, "Segoe UI Symbol", "Malgun Gothic", "Microsoft YaHei",
     "Yu Gothic", "Apple SD Gothic Neo", "PingFang SC", "Noto Sans CJK SC", sans-serif; /* names: Hangul, Han, kana */ overflow: hidden;
 }
 button, input, select { font: inherit; color: inherit; }
@@ -643,8 +653,7 @@ body:not([data-compare="1"]) .cmp-only { display: none; }
 .kv-nums small { font-size: 11px; }
 .kv-nums b { font-size: 13px; color: var(--fg); }
 .kv-open { display: flex; align-items: center; justify-content: center; height: 34px; text-decoration: none; color: var(--fg); margin-top: auto; }
-@media (max-width: 640px) { .kv-grid { grid-template-columns: 1fr; padding: 10px; } }
-.kv-open.off { opacity: .4; cursor: default; }
+@media (max-width: 640px) { .kv-grid { grid-template-columns: 1fr; padding: 10px; } }.kv-open.off { opacity: .4; cursor: default; }
 :root { --sort-both: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 12'%3E%3Cpath d='M5 1 1.5 4.6h7zM5 11 1.5 7.4h7z'/%3E%3C/svg%3E"); }
 .kv-ctl { flex-wrap: wrap; align-items: center; gap: 10px; }
 .kv-find { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: 8px; padding: 0 12px; border: 1px solid var(--edge); border-radius: 8px; background: var(--panel); color: var(--mut); }
@@ -828,7 +837,7 @@ body[data-compare="1"] .k-row.has-art .kbtn { color: #fff; border-color: rgb(255
   #dvPage > header.bar:has(.rk-seg button:nth-child(3)) { flex-wrap: wrap; align-content: center; gap: 6px 10px; }
   .head-slot:has(.rk-seg button:nth-child(3)) { flex: 0 0 100%; }
   .head-slot .rk-seg:has(button:nth-child(3)) { width: 100%; }
-  .head-slot .rk-seg:has(button:nth-child(3)) button { flex: 1 0 auto; padding: 7px 4px; font-size: 13px; }
+  .head-slot .rk-seg:has(button:nth-child(3)) button { flex: 1 0 auto; padding: 7px 4px; font-size: clamp(12px, 3.3vw, 13px); } /* all three on one line of a 360px phone */
 }
 .cmp-bar .dd-btn { height: 44px; font-size: 14px; }
 @media (max-width: 680px) {
@@ -841,6 +850,16 @@ body[data-compare="1"] .k-row.has-art .kbtn { color: #fff; border-color: rgb(255
   .cmp-bar .field.qbox { position: static; flex: 1 1 0; min-width: 0; }
   .cmp-bar .qbox input { height: 38px; padding: 0 10px; font-size: 14px; }
   #qsug { top: 100%; left: 12px; right: 12px; }
+  /* the Migration filters, as the Kingdom header: short days, even boxes, the search on a line of its own */
+  .dv-ctl.mg-ctl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .mg-ctl .dv-f { min-width: 0; }
+  .mg-ctl .dv-f > :last-child { flex: 1 1 0; min-width: 0; }
+  .mg-ctl .dd-btn { width: 100%; height: 38px; justify-content: space-between; padding: 0 8px; font-size: 13px; }
+  .mg-ctl .dd-btn .dd-day { display: none; }
+  .mg-ctl .dd-btn .dd-short { display: inline; font-weight: 600; }
+  .mg-ctl input[type="search"], .mg-ctl input.dv-k2, .mg-ctl .dv-n { width: 100%; height: 38px; padding: 0 10px; font-size: 14px; }
+  .mg-ctl .mg-q { grid-column: 1 / -1; order: 1; }
+  .mg-ctl input.dv-k2, .mg-ctl .dv-f:last-child { order: 2; }
 }
 body[data-compare="1"] .k-row .kbtn { height: 52px; }
 /* a camp's or a kingdom's place in the camps table */

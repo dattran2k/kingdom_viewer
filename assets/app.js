@@ -536,10 +536,10 @@ function showMenu(on) {
 // Names use letters the page font does not have (ᴬᵁᴿᴬ, Hangul, Han, kana...). The first time the browser meets such a
 // letter it looks for a system font that has it and loads that font, which can take tens of ms (a CJK font is tens of
 // MB); in the middle of a scroll that is a stall. So every such letter of the kingdom is laid out once, hidden, right
-// after it loads: the fonts are in before the rows are scrolled to.
+// after it loads: the fonts are in before the rows are scrolled to. Past ASCII, as Inter's subsets load on first use too.
 function warmFonts(players) {
   const seen = new Set();
-  for (const p of players) for (const t of [p.name, p.alliance]) if (t) for (const ch of String(t)) if (ch.codePointAt(0) > 0x2ff) seen.add(ch);
+  for (const p of players) for (const t of [p.name, p.alliance]) if (t) for (const ch of String(t)) if (ch.codePointAt(0) > 0x7f) seen.add(ch);
   if (!seen.size) return;
   let w = $("fontWarm");
   if (!w) {
@@ -613,13 +613,14 @@ function refresh() {
   if (listKey !== pageOf) { pageOf = listKey; state.kPage = 1; }
   slicePage();
   if (state.heat) averages();
-  const n = numFmt(), at = state.data && new Date(state.data.crawledAt), loc = state.lang === "vi" ? "vi-VN" : "en-GB";
+  const stored = state.data?.crawledAt, utc = { timeZone: "UTC" };
+  const n = numFmt(), at = stored && new Date(`${stored.slice(0, 10)}T${stored.slice(11, 16) || "00:00"}Z`), loc = state.lang === "vi" ? "vi-VN" : "en-GB";
   // a phone: "202/202" and the date only, beside the view tabs
   // both numbers only while a filter hides someone
   const listed = state.view.length === state.rows.length ? n.format(state.rows.length) : `${n.format(state.view.length)}${state.narrow ? "/" : ` ${tr("of")} `}${n.format(state.rows.length)}`;
   $("count").textContent = state.narrow ? listed : `${listed} ${tr("players")}`;
-  $("crawled").textContent = !at ? "" : state.narrow ? at.toLocaleDateString(loc) : `${tr("crawled")}: ${at.toLocaleString(loc)}`;
-  $("crawled").title = at ? at.toLocaleString(loc) : "";
+  $("crawled").textContent = !at ? "" : state.narrow ? at.toLocaleDateString(loc, utc) : `${tr("crawled")}: ${at.toLocaleString(loc, utc)}`;
+  $("crawled").title = at ? at.toLocaleString(loc, utc) : "";
   if (!state.view.length) showEmpty(state.data ? tr("noRows") : tr("loadErr"));
   else $("empty").hidden = true;
   $("sizer").style.height = `calc(var(--hh) + ${state.pageRows.length} * var(--rh))`;
@@ -1357,5 +1358,15 @@ const KS = (window.KS = {
   refresh, setHash, kingdomMatches, listKeys, checkVersion, deltaOf, keepScroll, allianceChip, rankColour, dayDrop,
 });
 // views.js (a deferred script after this one) is in by then
-document.addEventListener("DOMContentLoaded", init);
+// Column widths are measured in the page font, so Inter comes before the first measure. On a slow network the page
+// opens anyway after 1.5 s, and the columns are measured again once it is in.
+document.addEventListener("DOMContentLoaded", () => {
+  let started = false;
+  const start = () => { if (!started) { started = true; init(); } };
+  Promise.all(["a", "ắ"].map((ch) => document.fonts.load("700 13px Inter", ch))).catch(() => {}).then(() => {
+    if (started) { digitW = 0; fitKey = ""; if (state.data) refresh(); }
+    start();
+  });
+  setTimeout(start, 1500);
+});
 })();
