@@ -6,12 +6,12 @@
 const KS = window.KS, { state, tr, $, numFmt } = KS;
 
 Object.assign(KS.T.vi, {
-  kPlayers: "Người chơi", kAlliances: "liên minh", kAvg: "TB", kMigration: "Tổng di cư", kPetSome: "Pet max ≥ 1", kPetNone: "0 pet max",
+  kPlayers: "Người chơi", kAvg: "TB", kMigration: "Tổng di cư", kPetSome: "Pet max ≥ 1", kPetNone: "0 pet max",
   cMetric: "Chỉ số", cTop: "Hiện", cAll: "Tất cả", cOrder: "Thứ tự", cDesc: "Cao → thấp", cAsc: "Thấp → cao",
   cEmpty: "Không có số liệu cho chỉ số này.", cDelta: "Mức thay đổi",
 });
 Object.assign(KS.T.en, {
-  kPlayers: "Players", kAlliances: "alliances", kAvg: "avg", kMigration: "Total migration", kPetSome: "Max pets ≥ 1", kPetNone: "0 max pets",
+  kPlayers: "Players", kAvg: "avg", kMigration: "Total migration", kPetSome: "Max pets ≥ 1", kPetNone: "0 max pets",
   cMetric: "Metric", cTop: "Show", cAll: "All", cOrder: "Order", cDesc: "High → low", cAsc: "Low → high",
   cEmpty: "No data for this metric.", cDelta: "Change",
 });
@@ -109,7 +109,7 @@ function holdKpis() {
   const box = $("kpis"), line = (text) => { const s = el("span", "k-a", text); return s; };
   box.innerHTML = "";
   box.classList.add("holding");
-  box.appendChild(kpiCard("players", tr("kPlayers"), el("b", "k-v", "000"), line(`00 ${tr("kAlliances")}`)));
+  box.appendChild(kpiCard("players", tr("kPlayers"), el("b", "k-v", "000"), line(" ")));
   for (const k of KPIS) box.appendChild(kpiCard(k.key, k.label(), el("b", "k-v", "00,0B"), line(`${tr("kAvg")} 000M`)));
   box.append(
     breakdownKpi("migrationScore", tr("kMigration"), 0, [["<24", 114], ...KS.MIGRATION_BANDS.map(([, , l], i) => [l, 57 >> i])]),
@@ -123,9 +123,7 @@ function drawKpis() {
   box.innerHTML = "";
   box.classList.remove("holding");
   if (state.data._vs) { drawGrowthKpis(box, list); return; }
-  const tags = new Set(list.map((p) => p.alliance).filter(Boolean));
-  box.appendChild(kpiCard("players", tr("kPlayers"), el("b", "k-v", numFmt().format(list.length)),
-    kSub({ b: numFmt().format(tags.size) }, ` ${tr("kAlliances")}`)));
+  box.appendChild(kpiCard("players", tr("kPlayers"), el("b", "k-v", numFmt().format(list.length)), el("span", "k-a", " "))); // an empty line: the same height as its neighbours
   for (const k of KPIS) {
     const a = agg(list, k.get);
     const v = el("b", "k-v", short(a.sum));

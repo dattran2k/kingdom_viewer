@@ -44,7 +44,7 @@ A player is a flat object. A missing field means "unknown", and `0` means zero.
 
 `data/derived/` holds tables worked out from the scans when the data is exported, for the Rankings and Migration pages:
 `index.json` (scans), `migrations.json` (one row per move of a player between kingdoms, with the player's newest
-numbers), `rollup.json` (the newest scan, one row per kingdom, players above 15M). Tables name their columns in a `cols` list.
+numbers), `rollup.json` (the newest scan, one row per kingdom, players above 15M max power). Tables name their columns in a `cols` list.
 A move is only known to lie between two scans.
 
 | Field | Meaning |

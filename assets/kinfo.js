@@ -8,7 +8,7 @@ const { el, load, objects } = KS.ui;
 Object.assign(KS.T.vi, { iSeeRank: "Xem bảng xếp hạng", iRankTitle: "Hạng server", iOf: "/ {n} kingdom", iTop: "Top {p}%", iNoKvk: "Chưa ở trong KvK nào" });
 Object.assign(KS.T.en, { iSeeRank: "See the ranking", iRankTitle: "Kingdom rank", iOf: "/ {n} kingdoms", iTop: "Top {p}%", iNoKvk: "In no KvK yet" });
 
-const RANKED = [["powerMax", "cPowerMax"], ["power", "cPower"], ["merits", "cMerits"], ["kills", "cKills"], ["deaths", "cDeaths"], ["heals", "cHeals"], ["gathered", "cGathered"], ["decorMax", "cDecor"], ["migrationScore", "cMigration"]];
+const RANKED = [["migrationScore", "cMigration"], ["powerMax", "cPowerMax"], ["power", "cPower"], ["merits", "cMerits"], ["kills", "cKills"], ["deaths", "cDeaths"], ["heals", "cHeals"], ["gathered", "cGathered"], ["decorMax", "cDecor"]];
 const rankLink = () => { const a = el("a", "btn kr-link", tr("iSeeRank")); a.href = "#p=rank"; return a; };
 const battleOf = (idx, k) => KS.season.of(idx, k);
 
@@ -22,7 +22,7 @@ async function drawRank(k) {
   box.hidden = !me;
   if (box.hidden) return;
   if (ks.length > 1) { drawRanks(box, rows, ks); return; }
-  const n = rows.length, main = me.powerMaxRank;
+  const n = rows.length, main = me.migrationScoreRank; // the place the ranking opens with
   const head = el("div", "kr-head");
   head.append(el("h2", "", tr("iRankTitle")), el("b", "kr-main", "#" + main), el("span", "mut", tr("iOf").replace("{n}", numFmt().format(n))),
     el("span", "kr-pill", tr("iTop").replace("{p}", numFmt(1).format((100 * main) / n))), rankLink());

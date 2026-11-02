@@ -8,13 +8,13 @@ const KS = window.KS, { state, tr, $, numFmt } = KS;
 Object.assign(KS.T.vi, {
   descKingdom: "Người chơi của từng kingdom theo ngày. Bật So sánh để xem mỗi người tăng giảm bao nhiêu giữa 2 ngày.",
   descCompare: "Đối chiếu hai phe, mỗi phe gồm một hoặc nhiều kingdom, ở ngày mới nhất.",
-  descRank: "Xếp hạng các kingdom ở ngày mới nhất, tính người có lực chiến trên 15M.",
+  descRank: "Xếp hạng các kingdom ở ngày mới nhất, tính người có lực chiến max trên 15M.",
   descMigration: "Ai đã chuyển từ kingdom nào sang kingdom nào giữa 2 ngày.",
   navRank: "Xếp hạng", navMigration: "Di cư", cmpDays: "So sánh", modeLabel: "Chế độ", modeNormal: "Thường", cmpRemove: "Bỏ", cmpDaysTip: "So sánh 2 ngày của một hoặc nhiều kingdom: mỗi người tăng bao nhiêu",
   noDerived: "Chưa có dữ liệu tổng hợp (data/derived/).", dvLoadErr: "Không tải được dữ liệu.",
   rKingdoms: "kingdom", 
-  rSearch: "#kingdom, tag…", rSearchK: "SoS8-10045, #kingdom…", rHint: "Tính theo người có lực chiến hiện tại trên 15M, trong top lực chiến mỗi kingdom. Bấm một dòng để mở.",
-  cKingdom: "Kingdom", cTopAlliance: "LM mạnh nhất", cPlayers: "Người chơi", cAlliances: "Số LM",
+  rSearch: "#kingdom, tag…", rSearchK: "SoS8-10045, #kingdom…", rHint: "Tính theo người có lực chiến max trên 15M, trong top lực chiến mỗi kingdom. Bấm một dòng để mở.",
+  cKingdom: "Kingdom", cTopAlliance: "LM mạnh nhất", cPlayers: "Người chơi",
   cPower: "Lực chiến", cPowerMax: "LC max", cMerits: "Công trạng", cKills: "Tiêu diệt", cDeaths: "Tử trận", cHeals: "Chữa trị", cHelps: "Giúp đỡ", cGathered: "Thu thập",
   cMigration: "Điểm di cư", cDecor: "Decor max", cInf: "CT bộ", cCav: "CT kỵ", cArc: "CT cung", cMag: "CT phép",
   gFrom: "Từ ngày", gTo: "Đến ngày", gName: "Người chơi",
@@ -26,13 +26,13 @@ Object.assign(KS.T.vi, {
 Object.assign(KS.T.en, {
   descKingdom: "Each kingdom's players by day. Turn on Compare to see how much each one changed between two days.",
   descCompare: "Two sides face to face, each of one or more kingdoms, on the newest day.",
-  descRank: "Kingdoms ranked on the newest day, counting players above 15M power.",
+  descRank: "Kingdoms ranked on the newest day, counting players above 15M max power.",
   descMigration: "Who moved from which kingdom to which between two days.",
   navRank: "Rankings", navMigration: "Migration", cmpDays: "Compare", modeLabel: "Mode", modeNormal: "Normal", cmpRemove: "Remove", cmpDaysTip: "Compare two days of one or more kingdoms: how much each player gained",
   noDerived: "No summary data yet (data/derived/).", dvLoadErr: "Could not load the data.",
   rKingdoms: "kingdoms", 
-  rSearch: "#kingdom, tag…", rSearchK: "SoS8-10045, #kingdom…", rHint: "Counts players whose power now is above 15M, within each kingdom's power ranking. Click a line to open it.",
-  cKingdom: "Kingdom", cTopAlliance: "Top alliance", cPlayers: "Players", cAlliances: "Alliances",
+  rSearch: "#kingdom, tag…", rSearchK: "SoS8-10045, #kingdom…", rHint: "Counts players whose max power is above 15M, within each kingdom's power ranking. Click a line to open it.",
+  cKingdom: "Kingdom", cTopAlliance: "Top alliance", cPlayers: "Players",
   cPower: "Power", cPowerMax: "Max power", cMerits: "Merits", cKills: "Kills", cDeaths: "Dead", cHeals: "Healed", cHelps: "Helps", cGathered: "Gathered",
   cMigration: "Migration score", cDecor: "Max decor", cInf: "Infantry", cCav: "Cavalry", cArc: "Archers", cMag: "Magic",
   gFrom: "From", gTo: "To", gName: "Player",
@@ -282,12 +282,13 @@ const RANK_METRICS = [
   ["decorMax", "cDecor"], ["meritInfantry", "cInf"], ["meritCavalry", "cCav"], ["meritArcher", "cArc"], ["meritMagic", "cMag"],
 ];
 const tradesCol = () => ({ key: "trades", label: "Trades", get: (r) => r.trades, tip: () => tr("tradesTip"), node: (r) => el("span", "tr-b", r.trades == null ? "–" : numFmt(0).format(r.trades) + "%") });
-const rank = { q: "", page: 1, sort: { key: "powerMax", dir: -1 }, mode: "server", st: "" };
+const RANK_DEFAULT = { server: "migrationScore", member: "power", kvk: "powerMax" }; // what each ranking is sorted by when it opens
+const rank = { q: "", page: 1, sort: { key: RANK_DEFAULT.server, dir: -1 }, mode: "server", st: "" };
 
 async function showRank() {
   const { ctl, out } = frame();
   const asked = { players: "member", kvk: "kvk" }[new URLSearchParams(location.hash.slice(1)).get("m")] || "server";
-  if (rank.mode !== asked) { rank.mode = asked; rank.sort = { key: asked === "member" ? "power" : "powerMax", dir: -1 }; rank.page = 1; }
+  if (rank.mode !== asked) { rank.mode = asked; rank.sort = { key: RANK_DEFAULT[asked], dir: -1 }; rank.page = 1; }
   const redraw = () => drawRank(out);
   const restart = () => { rank.page = 1; redraw(); };
   const seg = el("nav", "rk-seg");
@@ -299,7 +300,7 @@ async function showRank() {
   for (const [m, label] of [["server", "rServers"], ["member", "rMembers"], ["kvk", "rKvks"]]) {
     const b = el("button", "", tr(label));
     b.type = "button"; b.dataset.m = m;
-    b.onclick = () => { if (rank.mode === m) return; rank.mode = m; rank.sort = { key: m === "member" ? "power" : "powerMax", dir: -1 }; paint(); restart(); };
+    b.onclick = () => { if (rank.mode === m) return; rank.mode = m; rank.sort = { key: RANK_DEFAULT[m], dir: -1 }; paint(); restart(); };
     seg.appendChild(b);
   }
   paint();
@@ -407,19 +408,19 @@ async function drawRank(out) {
   if (rank.st !== "") rows = rows.filter((r) => String(r.st) === String(rank.st));
   const q = rank.q.toLowerCase(), kq = /^#?(\d+)$/.exec(q)?.[1];
   if (q) rows = rows.filter((r) => (kq && String(r.kingdom).startsWith(kq)) || String(r.topAlliance).toLowerCase().includes(q));
+  const metricCol = ([key, label]) => ({ key, label: tr(label), get: (r) => r[key], max: rows.reduce((m, r) => Math.max(m, r[key] ?? 0), 0) });
   const cols = [
     { key: "#", label: "#", nosort: true, text: (r) => String(r._i), cls: () => "mut" },
     { key: "kingdom", label: tr("cKingdom"), get: (r) => r.kingdom, node: (r) => kdCell(r.kingdom, r._i <= 8) },
     { key: "kvk", label: "KvK", get: (r) => r.kvk?.name ?? "", node: (r) => kvkCell(r.kvk) },
     { key: "st", label: tr("rStatus"), get: (r) => r.st ?? -1, node: (r) => statusCell(r.st) },
+    metricCol(RANK_METRICS.find((m) => m[0] === RANK_DEFAULT.server)),
     { key: "topAlliance", label: tr("cTopAlliance"), get: (r) => r.topAlliance, node: (r) => allianceChip(r.topAlliance) },
     { key: "players", label: tr("cPlayers"), get: (r) => r.players, text: (r) => numFmt().format(r.players) },
-    { key: "alliances", label: tr("cAlliances"), get: (r) => r.alliances, text: (r) => numFmt().format(r.alliances) },
-    ...RANK_METRICS.map(([key, label]) => ({ key, label: tr(label), get: (r) => r[key],
-      max: rows.reduce((m, r) => Math.max(m, r[key] ?? 0), 0) })),
+    ...RANK_METRICS.filter((m) => m[0] !== RANK_DEFAULT.server).map(metricCol),
     tradesCol(),
   ];
-  const col = cols.find((c) => c.key === rank.sort.key) || cols.find((c) => c.key === "powerMax");
+  const col = cols.find((c) => c.key === rank.sort.key) || cols.find((c) => c.key === RANK_DEFAULT.server);
   rows = sortRows(rows, col.get, rank.sort.dir);
   rows.forEach((r, i) => { r._i = i + 1; });
   const shown = onPage(rows, rank.page);

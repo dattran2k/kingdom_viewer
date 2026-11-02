@@ -13,7 +13,7 @@ Object.assign(KS.T.vi, {
   xInfantry: "CT bộ binh", xCavalry: "CT kỵ binh", xArcher: "CT cung thủ", xMagic: "CT pháp sư",
   xdEach: "Số tổng của từng kingdom ở ngày mới nhất, chỉ tính người qua mức lực chiến đã chọn.",
   xMigrationSum: "Điểm di cư", xMigrationBand: "Điểm di cư", xEach: "Từng kingdom", xScan: "Ngày", xKingdom: "Kingdom",
-  xCount: "Người chơi", xAlliances: "Liên minh", xLoadErr: "Không tải được:",
+  xCount: "Người chơi", xLoadErr: "Không tải được:",
 });
 Object.assign(KS.T.en, {
   navKingdom: "Kingdom", navCompare: "Compare", openSource: "Open source on GitHub",
@@ -24,7 +24,7 @@ Object.assign(KS.T.en, {
   xInfantry: "Infantry merits", xCavalry: "Cavalry merits", xArcher: "Archer merits", xMagic: "Magic merits",
   xdEach: "Totals of each kingdom on its newest day, only players over the chosen power step.",
   xMigrationSum: "Migration score", xMigrationBand: "Migration score", xEach: "Each kingdom", xScan: "Day", xKingdom: "Kingdom",
-  xCount: "Players", xAlliances: "Alliances", xLoadErr: "Could not load:",
+  xCount: "Players", xLoadErr: "Could not load:",
 });
 
 const MAX_PER_SIDE = 10;
@@ -181,7 +181,7 @@ function controls() {
 // ---- results ----
 function eachKingdom(fa, fb) {
   const wrap = el("div", "tbl-wrap"), t = el("table", "tbl x-tbl"), hr = el("tr");
-  ["xKingdom", "xCount", "xAlliances", "power", "powerMax", "merits", "kills", "xScan"]
+  ["xKingdom", "xCount", "power", "powerMax", "merits", "kills", "xScan"]
     .forEach((k) => hr.appendChild(el("th", "", KS.BY_KEY[k] ? KS.label(KS.BY_KEY[k]) : tr(k))));
   t.appendChild(el("thead")).appendChild(hr);
   const tb = t.appendChild(el("tbody"));
@@ -192,7 +192,6 @@ function eachKingdom(fa, fb) {
       const r = el("tr");
       r.appendChild(el("td", "x-k " + side, "#" + f.kingdom));
       r.appendChild(el("td", "", numFmt().format(ps.length)));
-      r.appendChild(el("td", "", numFmt().format(new Set(ps.map((p) => p.alliance).filter(Boolean)).size)));
       for (const k of ["power", "powerMax", "merits", "kills"]) r.appendChild(el("td", "", show(KS.BY_KEY[k], measure(KS.BY_KEY[k], ps))));
       r.appendChild(el("td", "mut", f.scan));
       r.onclick = () => { location.hash = "k=" + f.kingdom; };
@@ -215,7 +214,7 @@ function duels(pa, pb) {
   const owners = (k) => counted(k, 1, Infinity, KS.label(KS.BY_KEY[k]));
   const peak = [[cfg.minStep, POWER_BANDS[0][0], `${cfg.minStep / 1e6}–100M`], ...POWER_BANDS];
   const items = [
-    ["players", tr("xCount"), (ps) => ps.length, int, [[tr("xAlliances"), (ps) => new Set(ps.map((p) => p.alliance).filter(Boolean)).size, int]]],
+    ["players", tr("xCount"), (ps) => ps.length, int, []],
     ["power", ...main("power"), [col("powerMax"), ...peak.map(([lo, hi, t]) => counted("powerMax", lo, hi, `${tr("xBand")} ${t}`))]],
     ["merits", ...main("merits"), [col("meritsMax"), col("meritRatio"), col("meritInfantry", tr("xInfantry")), col("meritCavalry", tr("xCavalry")), col("meritArcher", tr("xArcher")), col("meritMagic", tr("xMagic"))]],
     ["maxDecor", KS.label(KS.BY_KEY.maxDecor), (ps) => ps.filter((p) => (p.maxDecor ?? 0) >= DECOR_MAX).length, int,
