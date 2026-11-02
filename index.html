@@ -8,7 +8,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%233b82f6' d='M2 13h12v2H2zM2 5l3 3 3-5 3 5 3-3-1 7H3z'/%3E%3C/svg%3E">
 <!-- ?v=N: bump it when assets/ change, so a cached old file (GitHub Pages: 10 min) is not mixed with new ones -->
 <link rel="preload" as="image" href="assets/kvk/cod_background.jpg">
-<link rel="stylesheet" href="assets/style.css?v=240">
+<link rel="stylesheet" href="assets/style.css?v=254">
 <script data-goatcounter="https://machudat.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
 </head>
@@ -34,16 +34,16 @@
 <header class="bar page-head">
   <button class="btn icon menu-btn" type="button" aria-label="Menu" aria-controls="side">☰</button>
   <h2 class="page-title" data-i18n="navKingdom">Kingdom</h2>
-  <p class="page-desc" data-i18n="descKingdom"></p>
-</header>
-<!-- what is shown: mode, kingdoms, scans, search -->
-<div class="k-row has-art art-wide">
   <button id="vsBtn" class="mode-sw" type="button" role="switch" aria-checked="false" hidden data-i18n-title="cmpDaysTip">
     <span class="mode-l" data-i18n="modeLabel">Chế độ</span>
     <span class="mode-a" data-i18n="modeNormal">Thường</span>
     <i class="mode-t" aria-hidden="true"></i>
     <span class="mode-b" data-i18n="cmpDays">So sánh</span>
   </button>
+  <p class="page-desc" data-i18n="descKingdom"></p>
+</header>
+<!-- what is shown: kingdoms, scans, search -->
+<div class="k-row has-art art-wide">
   <div id="cmpTags" class="x-tags"><span id="cmpChips" class="dv-slot"></span>
     <div class="field kpick">
     <button id="kingdom" class="kbtn" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="kpop" aria-label="Kingdom"><span id="kingdomLbl">Kingdom</span></button>
@@ -119,7 +119,7 @@
 </div>
 
 <div id="comparePage" class="page" hidden>
-<header class="bar">
+<header class="bar page-head">
   <button class="btn icon menu-btn" type="button" aria-label="Menu" aria-controls="side">☰</button>
   <h2 class="page-title" data-i18n="navCompare">So sánh</h2>
   <p class="page-desc" data-i18n="descCompare"></p>
@@ -128,9 +128,10 @@
 </div>
 
 <div id="dvPage" class="page" hidden>
-<header class="bar">
+<header class="bar page-head">
   <button class="btn icon menu-btn" type="button" aria-label="Menu" aria-controls="side">☰</button>
   <h2 id="dvTitle" class="page-title"></h2>
+  <div id="dvSlot" class="head-slot"></div>
   <p id="dvDesc" class="page-desc"></p>
 </header>
 <main id="dv" class="cmp dv"></main>
@@ -152,12 +153,12 @@
   </form>
 </dialog>
 
-<script defer src="assets/columns.js?v=240"></script>
-<script defer src="assets/app.js?v=240"></script>
-<script defer src="assets/views.js?v=240"></script>
-<script defer src="assets/compare.js?v=240"></script>
-<script defer src="assets/pages.js?v=240"></script>
-<script defer src="assets/kvk.js?v=240"></script>
-<script defer src="assets/kinfo.js?v=240"></script>
+<script defer src="assets/columns.js?v=254"></script>
+<script defer src="assets/app.js?v=254"></script>
+<script defer src="assets/views.js?v=254"></script>
+<script defer src="assets/compare.js?v=254"></script>
+<script defer src="assets/pages.js?v=254"></script>
+<script defer src="assets/kvk.js?v=254"></script>
+<script defer src="assets/kinfo.js?v=254"></script>
 </body>
 </html>

@@ -270,6 +270,7 @@ function setLink(p, params) {
 function frame() {
   const box = $("dv");
   box.innerHTML = "";
+  $("dvSlot").innerHTML = ""; // what the page puts in its header
   const ctl = el("div", "dv-ctl"), out = el("div", "dv-out");
   box.append(ctl, out);
   return { ctl, out };
@@ -293,6 +294,7 @@ async function showRank() {
   const restart = () => { rank.page = 1; redraw(); };
   const seg = el("nav", "rk-seg");
   const box = searchBox("", rank.q, (v) => { rank.q = v; restart(); });
+  box.classList.add("dv-wide");
   const paint = () => {
     box.placeholder = tr(rank.mode === "member" ? "rSearchP" : rank.mode === "kvk" ? "rSearchK" : "rSearch");
     seg.querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x.dataset.m === rank.mode)));
@@ -304,7 +306,8 @@ async function showRank() {
     seg.appendChild(b);
   }
   paint();
-  ctl.append(seg, box);
+  $("dvSlot").appendChild(seg);
+  ctl.appendChild(box);
   redraw();
 }
 
@@ -457,7 +460,7 @@ async function showMigration() {
   const min = el("input", "dv-n");
   min.type = "number"; min.min = 0; min.step = 5; min.value = mig.min;
   min.addEventListener("input", () => { mig.min = Number(min.value) || 0; restart(); });
-  const tabs = el("nav", "modes dv-tabs");
+  const tabs = el("nav", "rk-seg");
   const setView = (v) => {
     mig.view = v;
     tabs.querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x.dataset.v === v)));
@@ -468,7 +471,8 @@ async function showMigration() {
     b.onclick = () => { setView(v); restart(); };
     tabs.appendChild(b);
   }
-  ctl.append(tabs,
+  $("dvSlot").appendChild(tabs);
+  ctl.append(
     dayField(tr("mStart"), scans.slice().reverse(), mig.a, (v) => { mig.a = v; restart(); }),
     dayField(tr("mEnd"), scans.slice().reverse(), mig.b, (v) => { mig.b = v; restart(); }),
     kBox, searchBox(tr("mLord"), mig.q, (v) => { mig.q = v; restart(); }), field(tr("mMin"), min));

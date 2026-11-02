@@ -49,9 +49,8 @@ button, input, select { font: inherit; color: inherit; }
 .scrim[hidden] { display: none; }
 .page { flex: 1; min-width: 0; height: 100%; display: flex; flex-direction: column; position: relative; background: var(--bg); }
 .page[hidden] { display: none; }
-.page-title { margin: 0; font-size: 15px; font-weight: 600; }
-.page-head { flex-wrap: nowrap; }
-.page-desc { margin: 0 0 0 auto; padding-left: 16px; max-width: 70%; text-align: right; font-size: 12px; color: var(--mut); }
+.page-title { flex: none; margin: 0; font-size: 26px; font-weight: 800; line-height: 1.2; white-space: nowrap; }
+.page-desc { margin: 0 0 0 auto; max-width: 420px; text-align: right; font-size: 12px; color: var(--mut); }
 @media (min-width: 901px) { body.side-off .side { display: none; } }
 
 /* bars */
@@ -98,10 +97,6 @@ body[data-compare="1"] .klist li.cur { background: var(--acc-bg); }
 .meta { display: flex; gap: 12px; margin-left: auto; font-size: 12px; align-self: center; flex-wrap: wrap; color: var(--fg2); }
 
 /* tabs */
-.modes { display: flex; align-items: stretch; gap: 2px; padding: 0 16px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
-.modes button { border: 0; background: none; padding: 9px 12px 7px; cursor: pointer; color: var(--mut); font-weight: 600; border-bottom: 2px solid transparent; }
-.modes button:hover { color: var(--fg); }
-.modes button[aria-pressed="true"] { color: var(--fg); border-bottom-color: var(--acc); }
 
 /* totals */
 .kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; padding: 12px 16px 0; }
@@ -284,6 +279,10 @@ body[data-compare="1"] .klist li.cur { background: var(--acc-bg); }
 #kingdomPage, #kvkPage { display: block; overflow: auto; overscroll-behavior: contain; overflow-anchor: none; }
 #kingdomPage[hidden], #kvkPage[hidden] { display: none; }
 .page-top { position: sticky; left: 0; z-index: 5; background: var(--bg); }
+/* what stays put sideways: a finger on it must not pan the wide page behind it, a phone would draw it shaking left and right.
+   Boxes inside that scroll sideways on their own (a table, a row of chips) still do */
+.page-top, #dv .dv-ctl, #dv .dv-out > :not(.dv-wrap) { touch-action: pan-y pinch-zoom; }
+.tbl-wrap { overscroll-behavior-x: contain; }
 #kingdomPage .grid, #kvkPage .grid { overflow: visible; min-height: 200px; background: none; }
 #kingdomPage .panel { overflow: visible; }
 
@@ -313,7 +312,6 @@ body[data-compare="1"] .k-row .kbtn::after { display: none; }
 body:not([data-compare="1"]) .cmp-only { display: none; }
 .mode-sw { display: inline-flex; align-items: center; gap: 8px; height: 32px; padding: 0 10px; border-radius: 6px; flex: none; }
 .mode-sw[hidden] { display: none; }
-#vsBtn[hidden] { display: none; }
 .mode-l { font-size: 12px; color: var(--mut); }
 .mode-a, .mode-b { font-weight: 600; color: var(--mut); }
 .mode-sw[aria-checked="false"] .mode-a, .mode-sw[aria-checked="true"] .mode-b { color: var(--fg); }
@@ -427,10 +425,6 @@ body:not([data-compare="1"]) .cmp-only { display: none; }
 .dv-wrap .tbl th.nosort { cursor: default; color: var(--mut); }
 .dv-wrap .tbl tbody tr.still { cursor: default; }
 .dv-wrap .mv-to { color: var(--acc); }
-/* the selected tab fills the box, also on a phone, whose .modes have a padding */
-.modes.dv-tabs { flex: none; flex-wrap: nowrap; padding: 0; gap: 0; background: var(--panel); border: 1px solid var(--edge); border-radius: 6px; overflow: hidden; }
-.modes.dv-tabs button { padding: 0 12px; height: 30px; border-bottom: 0; }
-.modes.dv-tabs button[aria-pressed="true"] { background: var(--acc-bg); color: var(--acc); }
 .al-tag { display: inline-block; padding: 0 6px; border: 1px solid var(--tag-bd); border-radius: 4px; background: var(--tag-bg); color: var(--tag-fg); font-size: 12px; font-weight: 600; line-height: 18px; vertical-align: middle; white-space: nowrap; }
 .al-stack { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; height: 100%; line-height: 18px; }
 
@@ -477,8 +471,6 @@ body:not([data-compare="1"]) .cmp-only { display: none; }
 }
 @media (max-width: 640px) {
   .bar { padding: 8px 12px; gap: 6px; }
-  .page-head { flex-wrap: wrap; }
-  .page-desc { flex-basis: 100%; max-width: none; margin: 0; padding: 0; text-align: left; }
   .kpis, #panel, .k-row { padding-left: 12px; padding-right: 12px; }
   .k-row .kbtn, .k-row .x-tag { height: 44px; font-size: 22px; }
   .field.grow { flex-basis: 120px; }
@@ -492,8 +484,6 @@ body:not([data-compare="1"]) .cmp-only { display: none; }
   select { max-width: 150px; padding: 0 6px; }
   .btn { padding: 0 9px; }
   .btn.icon { width: 30px; }
-  .modes { padding: 0 8px; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
-  .modes button { padding: 7px 7px 5px; white-space: nowrap; }
   .meta { gap: 8px; font-size: 11px; white-space: nowrap; }
   .kpi { padding: 10px 12px; }
   .k-top { gap: 8px; }
@@ -541,12 +531,15 @@ body:not([data-compare="1"]) .cmp-only { display: none; }
 .kv-players .dv-ctl { margin-bottom: 8px; }
 .dv-wrap .tbl td:has(.kv-chips) { max-width: 240px; min-width: 150px; white-space: normal; }
 .dv-wrap .tbl th:not(.nm) { text-align: center; }
-.dv-ctl .modes.dv-tabs { max-width: 100%; overflow-x: auto; }
 .kv-panel { margin-bottom: 14px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
 .kv-panel .tbl-wrap { border: 0; max-height: none; background: none; }
-.kv-panel-h { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
-.kv-panel-t { display: flex; flex-direction: column; gap: 2px; }
-.kv-panel-t h3 { margin: 0; font-size: 15px; font-weight: 600; color: var(--fg); }
+/* a table fills its panel up to the rounded edge: no strip beside the pinned column or past the last one */
+.kv-panel:has(.tbl-wrap) { position: relative; padding: 0; overflow: hidden; }
+/* mid-swipe, at a fractional device pixel ratio, the scrolled cells bleed through the half pixel at the scroller's clip, next to the pinned column and on the panel's border.
+   So the clip stays off the border, and on the left under a cover outside the scroller, which does not move with them */
+.kv-panel:has(.tbl-wrap) .tbl-wrap { margin-inline: 2px; }
+.kv-panel:has(.tbl-wrap)::before { content: ""; position: absolute; inset: 0 auto 0 -1px; z-index: 5; width: 4px; background: var(--panel); pointer-events: none; }
+.kv-panel:has(.tbl-wrap) .kv-note { margin: 10px 12px; }
 .kv-head.kv-panel { max-width: none; }
 .kv-note { margin: 0 0 8px; padding: 8px 12px; border: 1px solid color-mix(in srgb, #d4a017 30%, transparent); border-radius: 6px; background: color-mix(in srgb, #d4a017 8%, transparent); color: var(--fg2); font-size: 12px; }
 .kv-total td { color: var(--fg); font-weight: 600; }
@@ -651,10 +644,10 @@ body:not([data-compare="1"]) .cmp-only { display: none; }
 .kv-open.off { opacity: .4; cursor: default; }
 :root { --sort-both: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 12'%3E%3Cpath d='M5 1 1.5 4.6h7zM5 11 1.5 7.4h7z'/%3E%3C/svg%3E"); }
 .kv-ctl { flex-wrap: wrap; align-items: center; gap: 10px; }
-.kv-find { flex: 1 0 100%; display: flex; align-items: center; gap: 8px; padding: 0 12px; border: 1px solid var(--edge); border-radius: 8px; background: var(--panel); color: var(--mut); }
+.kv-find { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: 8px; padding: 0 12px; border: 1px solid var(--edge); border-radius: 8px; background: var(--panel); color: var(--mut); }
 .kv-find:focus-within { border-color: var(--acc); }
 .kv-find svg { flex: none; width: 15px; height: 15px; }
-.kv-find input { flex: 1; min-width: 0; height: 38px; padding: 0; border: 0; outline: 0; background: none; color: var(--fg); font-size: 14px; }
+.kv-find input { flex: 1; min-width: 0; height: 44px; padding: 0; border: 0; outline: 0; background: none; color: var(--fg); font-size: 15px; }
 .kv-pills { display: flex; flex-wrap: wrap; gap: 6px; }
 .kv-pills button { padding: 5px 13px; border: 1px solid var(--edge); border-radius: 999px; background: none; color: var(--fg2); font-size: 13px; font-weight: 600; cursor: pointer; }
 .kv-pills button small { margin-left: 2px; color: var(--mut); font-size: 11px; font-weight: 500; }
@@ -722,7 +715,6 @@ body:not([data-compare="1"]) .cmp-only { display: none; }
 .k-row.has-art > .x-tags > * { pointer-events: auto; }
 .k-block { padding: 14px 16px 0; }
 .k-block[hidden] { display: none; }
-#kCamps .kv-panel-t h3 { font-size: 18px; font-weight: 700; }
 /* whatever is being typed in lights up, in the page's blue */
 input[type="search"]:focus, input[type="text"]:focus, input[type="number"]:focus, select:focus, .kv-find:focus-within { outline: 0; border-color: var(--acc); box-shadow: 0 0 0 3px color-mix(in srgb, var(--acc) 35%, transparent); }
 .kv-find input:focus { box-shadow: none; }
@@ -793,7 +785,7 @@ body[data-compare="1"] .k-row.has-art .kbtn { color: #fff; border-color: rgb(255
 #kingdomTop.has-art::before { top: var(--row-top, 44px); left: auto; width: min(100%, var(--w)); height: min(var(--mid-h), 620px); background: linear-gradient(var(--dim), var(--dim)), var(--art-mid) var(--art-at) no-repeat; -webkit-mask: linear-gradient(to bottom, #000 calc(var(--row-h, 210px) - 10px), transparent 100%); mask: linear-gradient(to bottom, #000 calc(var(--row-h, 210px) - 10px), transparent 100%); }
 #kingdomTop.has-art::after { top: calc(var(--row-top, 44px) + var(--row-h, 210px)); bottom: 0; background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 18%, transparent), color-mix(in srgb, var(--bg) 62%, transparent) 260px, color-mix(in srgb, var(--bg) 82%, transparent) 620px); }
 #kingdomTop > * { position: relative; z-index: 1; }
-#kingdomTop > .page-head { background: var(--bg); }
+#kingdomTop > .page-head { background: var(--panel); }
 #kingdomTop .k-row.has-art, #kingdomTop .k-row.art-wide { background: none; border-bottom: 0; }
 #kingdomTop .k-row.has-art::before { width: min(100%, var(--w)); background: linear-gradient(var(--dim), var(--dim)), linear-gradient(to right, rgb(8 10 14 / .5), transparent 60%), var(--art) var(--art-at) no-repeat; -webkit-mask: linear-gradient(to bottom, transparent, #000 90px, #000 calc(100% - 44px), transparent), linear-gradient(to right, transparent, #000 30%); -webkit-mask-composite: source-in; mask: linear-gradient(to bottom, transparent, #000 90px, #000 calc(100% - 44px), transparent), linear-gradient(to right, transparent, #000 30%); mask-composite: intersect; }
 #kingdomTop .k-row.art-wide::before { background: linear-gradient(var(--dim), var(--dim)), linear-gradient(to right, rgb(8 10 14 / .6), transparent 60%), var(--art) var(--art-at) no-repeat; -webkit-mask: linear-gradient(to bottom, transparent, #000 90px, #000 calc(100% - 44px), transparent); mask: linear-gradient(to bottom, transparent, #000 90px, #000 calc(100% - 44px), transparent); }
@@ -806,20 +798,32 @@ body[data-compare="1"] .k-row.has-art .kbtn { color: #fff; border-color: rgb(255
 #qsug { z-index: 30; }
 #qsug li { padding: 10px 12px; font-size: 15px; }
 .cmp-bar .field select { height: 44px; font-size: 14px; }
-/* normal or comparing: top right of the page */
-.k-row { position: relative; }
-.k-row > #vsBtn, .k-row.has-art > #vsBtn { position: absolute; top: 14px; right: 16px; z-index: 2; height: 48px; padding: 0 16px; gap: 12px; border-radius: 10px; font-size: 16px; background: var(--panel); }
-.k-row.has-art > #vsBtn { border-color: rgb(255 255 255 / .3); background: rgb(8 10 14 / .72); }
-#vsBtn .mode-l { font-size: 14px; }
-#vsBtn .mode-a, #vsBtn .mode-b { color: rgb(255 255 255 / .55); }
-#vsBtn[aria-checked="false"] .mode-a, #vsBtn[aria-checked="true"] .mode-b { color: #fff; }
-.k-row:not(.has-art) #vsBtn .mode-a, .k-row:not(.has-art) #vsBtn .mode-b { color: var(--mut); }
-.k-row:not(.has-art) #vsBtn[aria-checked="false"] .mode-a, .k-row:not(.has-art) #vsBtn[aria-checked="true"] .mode-b { color: var(--fg); }
-#vsBtn .mode-t { width: 42px; height: 22px; }
-#vsBtn .mode-t::after { top: 3px; left: 3px; width: 16px; height: 16px; }
-#vsBtn[aria-checked="true"] .mode-t::after { transform: translateX(20px); }
-@media (max-width: 680px) {
-  .k-row > #vsBtn, .k-row.has-art > #vsBtn { position: relative; top: 0; right: 0; align-self: flex-start; height: 40px; margin-bottom: 8px; }
+/* normal or comparing: in the page's header, right after its title */
+.page-head { flex-wrap: nowrap; gap: 16px; min-height: 72px; padding: 12px 20px; background: var(--panel); border-bottom: 2px solid var(--acc-solid); }
+#vsBtn { height: 44px; padding: 0 14px; gap: 10px; border-radius: 10px; font-size: 15px; }
+#vsBtn .mode-l { font-size: 13px; }
+/* what a page puts in its header: its tabs, or the KvK list's search, which takes the room */
+.head-slot { display: flex; align-items: center; flex: 0 1 auto; min-width: 0; }
+.head-slot:has(.kv-find) { flex: 1 1 auto; }
+.head-slot .rk-seg { max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+.head-slot .rk-seg button { flex: none; padding: 9px 18px; font-size: 15px; white-space: nowrap; }
+.dv-ctl input.dv-wide { flex: 1 1 100%; width: 100%; height: 44px; padding: 0 14px; font-size: 15px; }
+@media (max-width: 900px) {
+  .page-title { font-size: 22px; }
+  .page-head { gap: 10px; min-height: 0; }
+  .head-slot .rk-seg button { padding: 7px 12px; font-size: 14px; }
+  #vsBtn { height: 40px; padding: 0 10px; gap: 8px; font-size: 14px; }
+}
+@media (max-width: 480px) {
+  #vsBtn .mode-l { display: none; }
+}
+/* three long tabs do not fit beside the title: they take a second line of the header */
+@media (max-width: 640px) {
+  body:has(#dvPage:not([hidden]) .head-slot .rk-seg button:nth-child(3)) { --ph: 108px; }
+  #dvPage > header.bar:has(.rk-seg button:nth-child(3)) { flex-wrap: wrap; align-content: center; gap: 6px 10px; }
+  .head-slot:has(.rk-seg button:nth-child(3)) { flex: 0 0 100%; }
+  .head-slot .rk-seg:has(button:nth-child(3)) { width: 100%; }
+  .head-slot .rk-seg:has(button:nth-child(3)) button { flex: 1 0 auto; padding: 7px 4px; font-size: 13px; }
 }
 .cmp-bar .dd-btn { height: 44px; font-size: 14px; }
 body[data-compare="1"] .k-row .kbtn { height: 52px; }
@@ -865,9 +869,9 @@ body[data-compare="1"] .k-row .kbtn { height: 52px; }
 /* a narrow window: the page's header stays on top of the screen, slides away scrolling down and back scrolling up (app.js).
    The table headers sit under it (--stick); the room it takes is a spacer inside the scroller, whose own padding would stop sticky cells short */
 @media (max-width: 900px) {
-  body { --ph: 50px; --stick: var(--ph); }
+  body { --ph: 60px; --stick: var(--ph); }
   body.head-off { --stick: 0px; }
-  .page > header.bar, .page-top > header.bar, #kingdomTop > header.bar { position: fixed; top: 0; left: 0; right: 0; z-index: 20; flex-wrap: nowrap; height: var(--ph); padding: 0 12px; background: var(--bg); transition: transform .2s; }
+  .page > header.bar, .page-top > header.bar, #kingdomTop > header.bar { position: fixed; top: 0; left: 0; right: 0; z-index: 20; flex-wrap: nowrap; height: var(--ph); padding: 0 12px; background: var(--panel); transition: transform .2s; }
   body.head-off .page > header.bar, body.head-off .page-top > header.bar, body.head-off #kingdomTop > header.bar { transform: translateY(-100%); }
   .page > header.bar .page-desc, .page-top > header.bar .page-desc { display: none; }
   /* under the header, in the scroller: the room it takes and the page's description (data-desc, copied by app.js), which scrolls away with the page */

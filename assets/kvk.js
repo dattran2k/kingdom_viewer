@@ -171,7 +171,8 @@ async function showList() {
   find.innerHTML = '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M10.5 10.5 14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
   find.appendChild(q);
   ctl.classList.add("kv-ctl");
-  ctl.append(find, tabs, fmtBtn(draw));
+  $("dvSlot").appendChild(find);
+  ctl.append(tabs, fmtBtn(draw));
   press();
   draw();
 }
@@ -243,14 +244,6 @@ function drawList(out, data) {
 }
 
 // ---- one battle ----
-function panel(title) {
-  const box = el("section", "kv-panel"), head = el("div", "kv-panel-h"), t = el("div", "kv-panel-t");
-  const sub = el("small", "mut");
-  t.append(el("h3", "", title), sub);
-  head.appendChild(t);
-  box.appendChild(head);
-  return { box, head, sub };
-}
 const note = (text) => el("p", "kv-note", text);
 const kingdomRow = (b, k) => ({ ...k, ...(b.sums?.[k.k] || {}), _cls: "kv-kd" });
 const rankMark = (r) => el("b", r.rank === 1 ? "kv-rk top" : "kv-rk", r.rank ? "#" + r.rank : "–");

@@ -513,7 +513,7 @@ function setPage(p, quiet) {
   if (quiet) return;
   if (leftKvk) { setCompare(false); loadKingdom(state.mainK); return; }
   if (p === "compare") { KS.compare.show(); return; }
-  if (KS.pages[p]) { drawDvHead(); KS.pages[p].show(); return; }
+  if (KS.pages[p]) { drawDvHead(); $("dvSlot").innerHTML = ""; KS.pages[p].show(); return; }
   if (state.data) { setHash(); rowH = 0; drawn = ""; schedule(); } // the table had no size while hidden
   else if (state.list.length) loadKingdom(store.get("kingdom", state.list[0].kingdom));
 }
