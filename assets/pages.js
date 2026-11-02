@@ -209,7 +209,7 @@ function table(cols, rows, sort, onSort, onRow) {
   const pins = new Map();
   for (const c of cols) {
     const w = colWidth(c, all);
-    pinning = pinning && PIN.has(c.key);
+    pinning = pinning && PIN.has(c.key) && !c.nopin;
     if (pinning) pins.set(c.key, total);
     total += w;
     group.appendChild(el("col")).style.width = w + "px";
@@ -329,8 +329,8 @@ async function drawMembers(out, me) {
   const metric = (key, label) => barCol(key, label, rows);
   const cols = [
     { key: "#", label: "#", nosort: true, text: (r) => String(r._i), cls: () => "mut" },
-    { key: "kingdom", label: tr("cKingdom"), get: (r) => r.kingdom, node: (r) => kdCell(r.kingdom, r._i <= 8) },
-    { key: "name", label: tr("cName"), left: true, get: (r) => r.name, node: (r) => whoCell(r.name, r.id) },
+    { key: "name", label: tr("cName"), left: true, w: state.narrow ? 120 : undefined, get: (r) => r.name, node: (r) => whoCell(r.name, r.id) },
+    { key: "kingdom", label: tr("cKingdom"), nopin: true, get: (r) => r.kingdom, node: (r) => kdCell(r.kingdom, r._i <= 8) },
     { key: "alliance", label: tr("cAlliance"), get: (r) => r.alliance, node: (r) => allianceChip(r.alliance) },
     metric("powerMax", "cPowerMax"), metric("power", "cPower"), metric("merits", "cMerits"), metric("kills", "cKills"), metric("deaths", "cDeaths"), metric("heals", "cHeals"),
     metric("meritInfantry", "cInf"), metric("meritCavalry", "cCav"), metric("meritArcher", "cArc"), metric("meritMagic", "cMag"), metric("helps", "cHelps"), metric("migrationScore", "cMigration"),
