@@ -628,18 +628,13 @@ function averages() {
   state.avgVer++;
 }
 
-// the shape of the table until its rows are in
+// no loading shapes for the table: it is below the fold anyway, and its rows simply appear
 function showLoading() {
-  const e = $("empty");
-  e.textContent = "";
-  e.classList.add("sk-rows");
-  for (let i = 0; i < 10; i++) e.appendChild(document.createElement("i")).className = "sk";
-  e.hidden = false;
+  $("empty").hidden = true;
   if (!state.view.length) resetPool();
 }
 function showEmpty(msg) {
   const e = $("empty");
-  e.classList.remove("sk-rows");
   $("kingdomPage").classList.remove("wait");
   document.querySelectorAll("#kingdomTop .sk-block").forEach((x) => x.remove()); // nothing is coming: no shapes left waiting
   e.textContent = msg;
