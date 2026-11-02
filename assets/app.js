@@ -460,6 +460,8 @@ async function addComparison(d) {
   for (const o of before.values()) if (!after.has(o.id)) d.players.push({ ...o, _left: true });
 }
 // the change of a column between the two scans; undefined when a side has no number
+// the older scan may not have a metric at all (peak power before it was collected): no change to sort by
+const hasDelta = (c) => COMPARED.has(c.type) && state.rows.some((p) => deltaOf(c, p) !== undefined);
 function deltaOf(c, p) {
   if (!p._was || p._left) return undefined;
   const a = value(c, p._was), b = value(c, p);
@@ -585,7 +587,7 @@ function refresh() {
   const q = state.q.trim().toLowerCase();
   let v = state.rows.filter((p) => !q || p._s.includes(q));
   const c = BY_KEY[state.sort.key] || BY_KEY.rank, dir = state.sort.dir, num = NUMERIC.has(c.type);
-  const byDelta = state.diff && state.sortDelta && COMPARED.has(c.type);
+  const byDelta = state.diff && state.sortDelta && hasDelta(c);
   const keyed = v.map((p) => [byDelta ? deltaOf(c, p) : value(c, p), p]);
   keyed.sort((a, b) => {
     const x = a[0], y = b[0];
@@ -745,10 +747,10 @@ function drawSortBox() {
   }
   sel.value = state.sort.key;
   $("sortDir").textContent = state.sort.dir < 0 ? "↓" : "↑";
-  const d = state.diff && state.sortDelta, delta = $("sortDelta");
+  const can = state.diff && !!cur && hasDelta(cur), d = can && state.sortDelta, delta = $("sortDelta");
   $("sortValue").setAttribute("aria-pressed", String(!d));
   delta.setAttribute("aria-pressed", String(d));
-  delta.classList.toggle("off", !state.diff);
+  delta.classList.toggle("off", !can);
   delta.title = tr(state.diff ? "sortDeltaTip" : "sortDeltaOff");
 }
 
@@ -770,6 +772,7 @@ function drawHead() {
     if (state.sort.key === c.key) { d.classList.add("on"); d.dataset.dir = state.sort.dir > 0 ? "▲" : "▼"; }
     d.onclick = () => {
       const num = NUMERIC.has(c.type) && c.key !== "rank";
+      if (state.sort.key !== c.key) state.sortDelta = false; // a column picked sorts by what it shows; "±" asks for the change
       state.sort = state.sort.key === c.key ? { key: c.key, dir: -state.sort.dir } : { key: c.key, dir: num ? -1 : 1 };
       refresh();
     };
@@ -1214,6 +1217,7 @@ function init() {
   wireKingdomPicker();
   $("sortKey").onchange = (e) => {
     const c = BY_KEY[e.target.value];
+    state.sortDelta = false;
     state.sort = { key: c.key, dir: NUMERIC.has(c.type) && c.key !== "rank" ? -1 : 1 };
     if (state.data) refresh();
   };
@@ -1227,7 +1231,7 @@ function init() {
     if (state.comparing) loadKingdom(d.kingdom); // the newest day against the one before
     else loadKingdom(d.kingdom, d.scan);
   };
-  const sortMode = (on) => { if (state.diff && state.sortDelta !== on) { state.sortDelta = on; if (state.data) refresh(); } };
+  const sortMode = (on) => { if (state.diff && state.sortDelta !== on && (!on || hasDelta(BY_KEY[state.sort.key]))) { state.sortDelta = on; if (state.data) refresh(); } };
   $("sortValue").onclick = () => sortMode(false);
   $("sortDelta").onclick = () => sortMode(true);
   $("colsBtn").onclick = () => { picker = null; $("colsCount2").textContent = $("colsCount").textContent; $("colsQ").value = ""; drawPicker(); $("cols").showModal(); };
@@ -1263,6 +1267,8 @@ function init() {
     applyLang();
     fillPower();
     if (state.data) refresh();
+    if (state.mainK) KS.onKingdomShown?.(state.mainK); // the page's top, rank and camps are drawn per kingdom, not by refresh
+    KS.onKvk?.();
     if (state.page === "compare") KS.compare.draw();
     if (KS.pages[state.page]) { drawDvHead(); KS.pages[state.page].show(); }
   };

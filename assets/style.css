@@ -714,7 +714,8 @@ body:not([data-compare="1"]) .cmp-only { display: none; }
 .k-row.has-art { position: relative; display: flex; flex-direction: column; justify-content: center; gap: 12px; min-height: 210px; background: linear-gradient(rgb(8 10 14 / .5), rgb(8 10 14 / .5)), var(--art-blur) center / cover no-repeat; }
 .k-row.has-art::before { content: ""; position: absolute; top: 0; right: 0; bottom: 0; width: min(100%, 896px); background: var(--art) center / cover no-repeat; -webkit-mask: linear-gradient(to right, transparent, #000 30%); mask: linear-gradient(to right, transparent, #000 30%); }
 .k-row.has-art > * { position: relative; z-index: 1; }
-.k-row.has-art > .x-tags { z-index: 3; } /* its menu opens over what is below */
+.k-row.has-art > .x-tags { z-index: 3; pointer-events: none; } /* its menu opens over what is below; the empty rest of its line leaves the mode switch clickable */
+.k-row.has-art > .x-tags > * { pointer-events: auto; }
 .k-block { padding: 14px 16px 0; }
 .k-block[hidden] { display: none; }
 #kCamps .kv-panel-t h3 { font-size: 18px; font-weight: 700; }
@@ -834,7 +835,18 @@ body[data-compare="1"] .k-row .kbtn { height: 52px; }
 @keyframes sk-move { from { background-position: 100% 0; } to { background-position: -50% 0; } }
 @media (prefers-reduced-motion: reduce) { .sk { animation: none; } }
 .kr-head.sk-block { align-items: center; min-height: 32px; }
-#kMeta:has(.sk) { min-height: 59px; justify-content: center; }
+/* the top of the Kingdom page is one height for every kingdom, in a KvK or not: what a kingdom lacks only leaves its room empty */
+#kMeta { height: 124px; }
+#cmpTags { min-height: 62px; }
+.k-meta-l { flex-wrap: nowrap; white-space: nowrap; }
+.k-meta-c { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+.k-meta-c > * { flex: none; }
+.k-dash { position: sticky; right: 0; }
+@media (max-width: 680px) {
+  #kMeta { height: 150px; }
+  #cmpTags { min-height: 42px; }
+  .k-meta-l { flex-direction: column; gap: 2px; }
+}
 .kr-link-sk { height: 32px; }
 .sk-camps { height: 277px; }
 .empty.sk-rows:not([hidden]) { inset: 12px 16px auto; display: flex; flex-direction: column; gap: 22px; }
@@ -865,6 +877,11 @@ body[data-compare="1"] .k-row .kbtn { height: 52px; }
   #cmp::before { position: static; width: auto; margin: 0 -12px 12px; }
   .head, #dv .tbl th { top: var(--stick); }
 }
+/* the KvK's progress in the Kingdom page's top, on the picture */
+.k-prog { display: flex; flex-direction: column; gap: 6px; max-width: 640px; color: #fff; text-shadow: 0 1px 3px rgb(0 0 0 / .85); }
+.k-prog:empty { display: none; }
+.k-prog .kv-prog-h b { color: #fff; }
+.k-prog .kv-prog { background: rgb(255 255 255 / .22); }
 /* a small window: the table's tools fill the line from both sides, and share a line whenever they fit */
 @media (max-width: 680px) {
   .tbl-bar { justify-content: space-between; }

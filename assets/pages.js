@@ -33,7 +33,7 @@ Object.assign(KS.T.en, {
   rKingdoms: "kingdoms", 
   rSearch: "#kingdom, tag…", rSearchK: "SoS8-10045, #kingdom…", rHint: "Counts players whose power now is above 15M, within each kingdom's power ranking. Click a line to open it.",
   cKingdom: "Kingdom", cTopAlliance: "Top alliance", cPlayers: "Players", cAlliances: "Alliances",
-  cPower: "Power", cPowerMax: "Peak power", cMerits: "Merits", cKills: "Kills", cDeaths: "Dead", cHeals: "Healed", cHelps: "Helps", cGathered: "Gathered",
+  cPower: "Power", cPowerMax: "Max power", cMerits: "Merits", cKills: "Kills", cDeaths: "Dead", cHeals: "Healed", cHelps: "Helps", cGathered: "Gathered",
   cMigration: "Migration score", cDecor: "Max decor", cInf: "Infantry", cCav: "Cavalry", cArc: "Archers", cMag: "Magic",
   gFrom: "From", gTo: "To", gName: "Player",
   mStart: "From", mEnd: "To", mLords: "Players", mServers: "Kingdoms", mKingdom: "Kingdom", mLord: "ID / name", mMin: "Power ≥ (M)",

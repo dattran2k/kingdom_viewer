@@ -10,15 +10,15 @@ Object.assign(KS.T.vi, {
   navKvk: "KvK", descKvk: "Các KvK đang diễn ra theo mùa. Bấm Dashboard để xem phe, kingdom và người chơi từ lúc mở.",
   kNotOpen: "KvK này chưa mở nên chưa có số liệu. Dưới đây là các phe và lực chiến hiện tại của người chơi.", cName: "Tên", cAlliance: "Liên minh", rServers: "Xếp hạng server", rMembers: "Xếp hạng người chơi", rKvks: "Xếp hạng KvK", kSeeAll: "Xem toàn bộ KvK", kRankOf: "/ {n} KvK", kRankTip: "Xếp theo tổng lực chiến max của mọi người chơi trong KvK", rStatus: "Trạng thái", rSearchP: "Tên, ID, liên minh, #kingdom...", rMembersHint: "{n} người chơi (top {top} mỗi chỉ số, trong {all} người) ", kAll: "Tất cả", kS2: "Mùa Giải 2", kS3: "Mùa Giải 3", kSos: "Mùa Giải Xung Đột", kSearch: "Kingdom hoặc mã KvK...", kTime: "Thời gian", kNone: "Không có KvK nào khớp.", kNoData: "Chưa có dữ liệu KvK.",
   kLive: "Đang diễn ra", kSoon: "Sắp mở", kDayLeft: "còn {n} ngày", kOpenIn: "mở sau {n} ngày", kCamp: "Phe", kOpen: "Dashboard", kRunning: "Đang diễn ra", kKds: "KD", kBack: "← Danh sách KvK",
-  kCamps: "Xếp hạng phe", kRankPlayers: "Xếp hạng người chơi", kUngroup: "Bỏ nhóm", kShowCols: "Chỉ số", kView: "Hiển thị", kExport: "Xuất CSV", kShow: "Hiện", kPerPage: "mỗi trang", kGo: "Trang", kShowing: "Hiện {a}–{b} / {n}", kOtherNote: "{n}/{m} kingdom ở khu vực khác: chỉ có lực chiến và công trạng của người chơi lọt top {top} toàn map.", kOther: "khu vực khác", kOtherTip: "Kingdom ở khu vực khác: chỉ có số của người chơi lọt top toàn map.",
+  kCamps: "Xếp hạng KvK", kRankPlayers: "Xếp hạng người chơi", kUngroup: "Bỏ nhóm", kShowCols: "Chỉ số", kView: "Hiển thị", kExport: "Xuất CSV", kShow: "Hiện", kPerPage: "mỗi trang", kGo: "Trang", kShowing: "Hiện {a}–{b} / {n}", kOtherNote: "{n}/{m} kingdom ở khu vực khác: chỉ có lực chiến và công trạng của người chơi lọt top {top} toàn map.", kOther: "khu vực khác", kOtherTip: "Kingdom ở khu vực khác: chỉ có số của người chơi lọt top toàn map.",
   kPending: "Chưa có số liệu.",  kAllCamps: "Mọi phe", kAllKingdoms: "Mọi kingdom",
   kProgress: "Tiến độ KvK",
 });
 Object.assign(KS.T.en, {
   navKvk: "KvK", descKvk: "The running KvKs by season. Open a Dashboard for its camps, kingdoms and players since it opened.",
-  kNotOpen: "This KvK has not opened yet, so it has no numbers. These are its camps, and the players as they are now.", cName: "Name", cAlliance: "Alliance", rServers: "Server ranking", rMembers: "Players ranking", rKvks: "KvK ranking", kSeeAll: "See all KvKs", kRankOf: "/ {n} KvKs", kRankTip: "By the total peak power of all players in the KvK", rStatus: "Status", rSearchP: "Name, ID, alliance, #kingdom...", rMembersHint: "{n} players (top {top} of each metric, out of {all}) ", kAll: "All", kS2: "Season 2", kS3: "Season 3", kSos: "Season of Strife", kSearch: "Kingdom or KvK code...", kTime: "Time", kNone: "No KvK matches.", kNoData: "No KvK data yet.",
+  kNotOpen: "This KvK has not opened yet, so it has no numbers. These are its camps, and the players as they are now.", cName: "Name", cAlliance: "Alliance", rServers: "Server ranking", rMembers: "Players ranking", rKvks: "KvK ranking", kSeeAll: "See all KvKs", kRankOf: "/ {n} KvKs", kRankTip: "By the total max power of all players in the KvK", rStatus: "Status", rSearchP: "Name, ID, alliance, #kingdom...", rMembersHint: "{n} players (top {top} of each metric, out of {all}) ", kAll: "All", kS2: "Season 2", kS3: "Season 3", kSos: "Season of Strife", kSearch: "Kingdom or KvK code...", kTime: "Time", kNone: "No KvK matches.", kNoData: "No KvK data yet.",
   kLive: "Running", kSoon: "Upcoming", kDayLeft: "{n} days left", kOpenIn: "opens in {n} days", kCamp: "Camp", kOpen: "Dashboard", kRunning: "Running", kKds: "KD", kBack: "← All KvKs",
-  kCamps: "Camps ranking", kRankPlayers: "Players ranking", kUngroup: "Ungroup", kShowCols: "Show", kView: "View", kExport: "Export CSV", kShow: "Show", kPerPage: "per page", kGo: "Page", kShowing: "Showing {a}–{b} of {n}", kOtherNote: "{n} of {m} kingdoms are in another region: only the power and merits of players in the map's top {top}.", kOther: "other region", kOtherTip: "A kingdom of another region: numbers of the players in the map's top only.",
+  kCamps: "KvK ranking", kRankPlayers: "Players ranking", kUngroup: "Ungroup", kShowCols: "Show", kView: "View", kExport: "Export CSV", kShow: "Show", kPerPage: "per page", kGo: "Page", kShowing: "Showing {a}–{b} of {n}", kOtherNote: "{n} of {m} kingdoms are in another region: only the power and merits of players in the map's top {top}.", kOther: "other region", kOtherTip: "A kingdom of another region: numbers of the players in the map's top only.",
   kPending: "No numbers yet.",  kAllCamps: "All camps", kAllKingdoms: "All kingdoms",
   kProgress: "KvK progress",
 });
@@ -62,20 +62,22 @@ function hero(b) {
   const name = el("div", "kv-name");
   name.append(el("h2", "", b.name), el("span", "mut", [seasonTitle(b.season), groupLabel(b.group)].filter(Boolean).join(" · ")));
   box.appendChild(name);
-  const now = nowSec();
-  if (b.end) {
-    const pct = Math.max(0, Math.min(100, (100 * (now - b.open)) / (b.end - b.open)));
-    const top = el("div", "kv-prog-h"), t = el("span", "");
-    t.append(el("b", "", tr("kProgress")), el("span", "mut", ` ${numFmt(0).format(pct)}%`));
-    const left = Math.ceil((b.end - now) / DAY);
-    top.append(t, el("span", "mut", tr("kDayLeft").replace("{n}", left)));
-    const bar = el("div", "kv-prog");
-    bar.appendChild(el("i")).style.width = pct + "%";
-    const ends = el("div", "kv-prog-h mut");
-    ends.append(el("span", "", when(b.open)), el("span", "", when(b.end)));
-    box.append(top, bar, ends);
-  }
+  box.append(...progress(b));
   return box;
+}
+// how far along a KvK is: its lines, none if its end is not known; here and on the Kingdom page
+function progress(b) {
+  if (!b.end) return [];
+  const now = nowSec(), pct = Math.max(0, Math.min(100, (100 * (now - b.open)) / (b.end - b.open)));
+  const top = el("div", "kv-prog-h"), t = el("span", "");
+  t.append(el("b", "", tr("kProgress")), el("span", "mut", ` ${numFmt(0).format(pct)}%`));
+  const left = Math.ceil((b.end - now) / DAY);
+  top.append(t, el("span", "mut", tr("kDayLeft").replace("{n}", left)));
+  const bar = el("div", "kv-prog");
+  bar.appendChild(el("i")).style.width = pct + "%";
+  const ends = el("div", "kv-prog-h mut");
+  ends.append(el("span", "", when(b.open)), el("span", "", when(b.end)));
+  return [top, bar, ends];
 }
 function kingdomChip(k) {
   const c = el("span", k.other ? "kd kv-other" : "kd", "#" + k.k);
@@ -210,14 +212,11 @@ function drawList(out, data) {
       grid.append(...list.map(card));
       inner.appendChild(grid);
     };
-    // Only the part on screen is animated, at one speed: a tall season must not fill the screen in a blink
-    let ms = 0;
     const show = (on, animate = true) => {
       if (on) { page.opened.add(name); fill(); } else page.opened.delete(name);
+      const from = body.offsetHeight; // from where it is now: a second click mid-way does not jump
       body.getAnimations().forEach((a) => a.cancel());
-      const seen = Math.max(0, Math.min(inner.offsetHeight, innerHeight - body.getBoundingClientRect().top));
-      ms = matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : Math.round(Math.max(240, Math.min(620, 160 + Math.min(seen, innerHeight) / 1.6)));
-      if (animate && ms && seen) body.animate({ height: on ? ["0px", seen + "px"] : [seen + "px", "0px"] }, { duration: ms, easing: "cubic-bezier(.4, 0, .2, 1)" });
+      if (animate && !matchMedia("(prefers-reduced-motion: reduce)").matches) body.animate({ height: [from + "px", (on ? inner.offsetHeight : 0) + "px"] }, { duration: 280, easing: "ease" });
       sec.classList.toggle("open", on);
       head.setAttribute("aria-expanded", String(on));
       chev.firstChild.classList.toggle("on", on);
@@ -277,8 +276,8 @@ function drawCamps(box, b) {
       d.append(text);
       return d;
     } },
-    { key: "players", label: tr("cPlayers"), get: (r) => r.players, text: (r) => fullNum(r.players), tip: () => "" }, { key: "power", label: tr("cPower"), get: (r) => r.power, text: (r) => fullNum(r.power), tip: () => "" },
-    ...metricCols(METRICS, scale), tradesCol(),
+    { key: "players", label: tr("cPlayers"), get: (r) => r.players, text: (r) => fullNum(r.players), tip: () => "" },
+    ...metricCols([["power", "cPower"], ["powerMax", "cPowerMax"], ...METRICS], scale), tradesCol(),
   ];
   const col = cols.find((c) => c.key === page.kSort.key) || cols[3];
   const sorted = (rows) => sortRows(rows, col.get, page.kSort.dir);
@@ -337,7 +336,7 @@ function drawFilter(b) {
 
 const clearArt = (node) => { node.classList.remove("has-art", "art-wide"); node.style.removeProperty("--art"); node.style.removeProperty("--art-blur"); };
 const battleOf = (idx, k) => idx?.battles.find((x) => x.id === idx.kvkOf[k]);
-KS.season = { of: battleOf, title: seasonTitle, status: statusName, dates, list: () => load("kvk/index.json"), art: (node, season) => { clearArt(node); setArt(node, season); } };
+KS.season = { of: battleOf, title: seasonTitle, status: statusName, dates, progress, list: () => load("kvk/index.json"), art: (node, season) => { clearArt(node); setArt(node, season); } };
 KS.onKingdomShown = async (k) => {
   let chip = $("kStatus");
   if (!chip) { chip = el("span", "k-status"); chip.id = "kStatus"; chip.hidden = true; $("cmpTags").appendChild(chip); }
@@ -351,7 +350,7 @@ KS.onKingdomShown = async (k) => {
   // kingdoms apart have no camps to share: shown only when all of them are in the one KvK
   const one = battleOf(idx, k);
   const list = !state.kvk && one && ks.every((x) => idx.kvkOf[x] === one.id) ? [one] : [];
-  const of = list.map((x) => x.id).join();
+  const of = state.lang + list.map((x) => x.id).join(); // a new language draws them again
   if (box.dataset.of === of) return;
   box.dataset.of = of;
   box.innerHTML = "";
@@ -390,20 +389,21 @@ function campsPanel(b) {
 }
 
 // ---- above the Kingdom table, when it shows a KvK ----
-let slotOf = 0;
+let slotOf = "";
 async function drawSlot() {
   const slot = $("kvkSlot");
   if (!state.kvk) {
-    slot.innerHTML = ""; slotOf = 0;
+    slot.innerHTML = ""; slotOf = "";
     $("kvkFilter")?.remove();
     if (state.kOnly) { state.kOnly = null; KS.repick(); }
     return;
   }
-  if (slotOf === state.kvk) return;
+  if (slotOf === state.kvk + state.lang) return;
   const idx = await load("kvk/index.json");
   const b = idx?.battles.find((x) => x.id === state.kvk);
   if (!b) return;
-  slotOf = b.id;
+  if (slotOf && state.kOnly) { state.kOnly = null; KS.repick(); } // the filter menu is drawn anew, on "all"
+  slotOf = b.id + state.lang;
   slot.innerHTML = "";
   const back = el("a", "btn kv-back", tr("kBack"));
   back.href = page.group ? `#p=kvk&g=${page.group}` : "#p=kvk";

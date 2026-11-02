@@ -35,7 +35,7 @@ const COLUMNS = [
     tip: { vi: "Điểm di cư", en: "Migration score" } },
 
   { key: "power", vi: "Lực chiến", en: "Power", group: "power", type: "num", width: 96, def: true },
-  { key: "powerMax", vi: "LC max", en: "Peak power", group: "power", type: "num", width: 104, def: true,
+  { key: "powerMax", vi: "LC max", en: "Max power", group: "power", type: "num", width: 104, def: true,
     tip: { vi: "Lực chiến cao nhất từng đạt", en: "Highest power ever" } },
   { key: "troopPower", vi: "LC quân", en: "Troops", group: "power", type: "num", width: 96,
     tip: { vi: "Lực chiến đội quân", en: "Troop power" } },
@@ -49,7 +49,7 @@ const COLUMNS = [
   { key: "merits", vi: "Công trạng", en: "Merits", group: "combat", type: "num", width: 96, def: true },
   { key: "meritRatio", vi: "CT / LC", en: "Merit %", group: "combat", type: "pct", width: 88, def: true,
     get: ratio("merits", "powerMax"),
-    tip: { vi: "Công trạng / LC max", en: "Merits / peak power" } },
+    tip: { vi: "Công trạng / LC max", en: "Merits / max power" } },
   { key: "trades", vi: "Trades", en: "Trades", group: "combat", type: "pct", dec: 0, width: 72, def: true, badge: true,
     get: ratio("kills", "heals"),
     tip: { vi: "Tiêu diệt / Chữa trị", en: "Kills / Healed" } },

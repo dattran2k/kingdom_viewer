@@ -90,7 +90,9 @@ async function drawTop(k) {
   }
   open.href = "#kvk=" + b.id;
   chips.appendChild(open);
-  meta.append(line, chips);
+  const prog = el("div", "k-prog");
+  prog.append(...KS.season.progress(b));
+  meta.append(line, prog, chips);
 }
 
 const shown = KS.onKingdomShown;
