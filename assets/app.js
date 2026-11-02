@@ -9,7 +9,7 @@ const RUNNING_VERSION = /[?&]v=(\d+)/.exec(document.currentScript?.src || "")?.[
 const T = {
   vi: {
     sortBy: "Sắp theo", sortDirTip: "Đổi chiều sắp xếp",
-    sortValue: "Giá trị", sortValueTip: "Sắp theo giá trị của chỉ số", sortDeltaTip: "Sắp theo mức tăng / giảm giữa 2 ngày", sortDeltaOff: "Chỉ có khi so sánh 2 ngày khác nhau",
+    sortValue: "Giá trị", sortDeltaName: "Sự thay đổi", sortValueTip: "Sắp theo giá trị của chỉ số", sortDeltaTip: "Sắp theo mức tăng / giảm giữa 2 ngày", sortDeltaOff: "Chỉ có khi so sánh 2 ngày khác nhau",
     tradesTip: "Tiêu diệt / Chữa trị", tblPlayers: "Người chơi", yes: "Có", no: "Không", title: "Kingdom Stats", kingdom: "Kingdom", scan: "Ngày", latest: "mới nhất", search: "Tìm", searchPh: "Tên, ID, liên minh…", kSearchPh: "Tìm kingdom…", kNone: "Không có kingdom nào", alliance: "Liên minh",
     allAlliances: "Mọi liên minh", columns: "Chỉ số", theme: "Đổi giao diện sáng/tối",
     view: "View", viewTitle: "Tuỳ chọn hiển thị", fmtName: "Số gọn (1.2M)", fmtTip: "Bật: 1.2M, tắt: số đầy đủ", pickCols: "Chọn chỉ số hiển thị", filterCols: "Lọc chỉ số…", all: "Tất cả",
@@ -20,7 +20,7 @@ const T = {
   },
   en: {
     sortBy: "Sort by", sortDirTip: "Reverse the order",
-    sortValue: "Value", sortValueTip: "Sort by the metric's value", sortDeltaTip: "Sort by the change between the two days", sortDeltaOff: "Only while comparing two different days",
+    sortValue: "Value", sortDeltaName: "Change", sortValueTip: "Sort by the metric's value", sortDeltaTip: "Sort by the change between the two days", sortDeltaOff: "Only while comparing two different days",
     tradesTip: "Kills / Healed", tblPlayers: "Players", yes: "Yes", no: "No", title: "Kingdom Stats", kingdom: "Kingdom", scan: "Day", latest: "latest", search: "Search", searchPh: "Name, ID, alliance…", kSearchPh: "Find a kingdom…", kNone: "No such kingdom", alliance: "Alliance",
     allAlliances: "All alliances", columns: "Metrics", theme: "Light / dark",
     view: "View", viewTitle: "Display options", fmtName: "Compact numbers (1.2M)", fmtTip: "On: 1.2M, off: full numbers", pickCols: "Metrics", filterCols: "Filter metrics…", all: "All",
@@ -55,7 +55,7 @@ const state = {
   // comparing two scans: same columns and order as always, each cell before / change / after; vs = the older scan
   pageRows: [], pageStart: 0, kPage: 1,
   comparing: false, diff: false, vs: "", also: [], mainK: 0, // also = the other kingdoms compared with mainK
-  sortDelta: false, // sort by the value or the change: the user's choice, kept across columns and comparisons
+  sortDelta: false, // sort by the value or the change: the change when comparing opens, then the user's choice, kept across columns
   data: null, rows: [], view: [], cols: [], q: "",
   minPower: POWER_STEPS.includes(store.get("powerStep")) ? store.get("powerStep") : KINGDOM_POWER,
   list: [], heat: store.get("heat", false), avg: {}, avgVer: 0,
@@ -359,9 +359,12 @@ function setCompare(on) {
 }
 
 // Two different scans: the columns and sort of the changes, swapped in and out
+let deltaOpening = false;
 function setDiff(on) {
   if (on === state.diff) return;
   state.diff = on;
+  state.sortDelta = on; // comparing opens sorted by the change; after that the choice is the user's, across columns
+  deltaOpening = on;
   document.body.dataset.diff = on ? "1" : "";
   // each cell holds three lines
   document.documentElement.style.setProperty("--rh", on ? "60px" : "");
@@ -585,6 +588,11 @@ function slicePage() {
 function refresh() {
   const q = state.q.trim().toLowerCase();
   let v = state.rows.filter((p) => !q || p._s.includes(q));
+  // opening on a column the older scan does not have (peak power): one that has a change to sort by
+  if (deltaOpening && state.rows.length) {
+    deltaOpening = false;
+    if (!hasDelta(BY_KEY[state.sort.key] || BY_KEY.rank)) state.sort = { key: "power", dir: -1 };
+  }
   const c = BY_KEY[state.sort.key] || BY_KEY.rank, dir = state.sort.dir, num = NUMERIC.has(c.type);
   const byDelta = state.diff && state.sortDelta && hasDelta(c);
   const keyed = v.map((p) => [byDelta ? deltaOf(c, p) : value(c, p), p]);

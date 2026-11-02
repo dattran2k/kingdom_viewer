@@ -33,6 +33,7 @@ const POWER_BANDS = [[100e6, 200e6, "100–200M"], [200e6, 300e6, "200–300M"],
 const { MIGRATION_BANDS, DECOR_MAX } = KS;
 
 const cfg = Object.assign({ a: [], b: [], minStep: KS.DEFAULT_POWER, top: 0, avg: false }, KS.store.get("cmp", {}));
+const MAX_FILES = 2 * MAX_PER_SIDE + 20; // the two sides, and some to go back to: a long visit must not keep every kingdom opened
 const cache = new Map();   // "<scan>/<kingdom>" -> file (a promise while it loads)
 let token = 0;             // a newer draw makes an older, still loading one give up
 let openSide = null;       // the side whose picker is open
@@ -44,10 +45,11 @@ const itemOf = (id) => state.list.find((k) => k.kingdom === id);
 
 function load(id) {
   const scan = itemOf(id).scan, key = scan + "/" + id;
-  if (!cache.has(key)) {
-    cache.set(key, KS.getJSON(`data/scans/${scan}/${id}.json`).catch((e) => { cache.delete(key); console.error(e); return null; }));
-  }
-  return cache.get(key);
+  const file = cache.get(key) ?? KS.getJSON(`data/scans/${scan}/${id}.json`).catch((e) => { cache.delete(key); console.error(e); return null; });
+  cache.delete(key); // to the end of the Map: the first one is the longest unused
+  cache.set(key, file);
+  while (cache.size > MAX_FILES) cache.delete(cache.keys().next().value);
+  return file;
 }
 
 // the players of a side: every kingdom's over the power step, then the side's strongest N

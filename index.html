@@ -8,7 +8,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%233b82f6' d='M2 13h12v2H2zM2 5l3 3 3-5 3 5 3-3-1 7H3z'/%3E%3C/svg%3E">
 <!-- ?v=N: bump it when assets/ change, so a cached old file (GitHub Pages: 10 min) is not mixed with new ones -->
 <link rel="preload" as="image" href="assets/kvk/cod_background.jpg">
-<link rel="stylesheet" href="assets/style.css?v=236">
+<link rel="stylesheet" href="assets/style.css?v=240">
 <script data-goatcounter="https://machudat.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
 </head>
@@ -87,11 +87,12 @@
     </div>
   </div>
   <div id="sortBox" class="sort-box">
-    <label><span data-i18n="sortBy">Sắp theo</span><select id="sortKey" aria-label="Sort"></select></label>
+    <span class="sort-lbl" data-i18n="sortBy">Sắp theo</span>
     <span class="sort-modes">
       <button id="sortValue" type="button" data-i18n="sortValue" data-i18n-title="sortValueTip">Giá trị</button>
-      <button id="sortDelta" type="button">±</button>
+      <button id="sortDelta" type="button" data-i18n="sortDeltaName">Sự thay đổi</button>
     </span>
+    <label><select id="sortKey" aria-label="Sort"></select></label>
     <button id="sortDir" type="button" data-i18n-title="sortDirTip"></button>
   </div>
 </div>
@@ -151,12 +152,12 @@
   </form>
 </dialog>
 
-<script defer src="assets/columns.js?v=236"></script>
-<script defer src="assets/app.js?v=236"></script>
-<script defer src="assets/views.js?v=236"></script>
-<script defer src="assets/compare.js?v=236"></script>
-<script defer src="assets/pages.js?v=236"></script>
-<script defer src="assets/kvk.js?v=236"></script>
-<script defer src="assets/kinfo.js?v=236"></script>
+<script defer src="assets/columns.js?v=240"></script>
+<script defer src="assets/app.js?v=240"></script>
+<script defer src="assets/views.js?v=240"></script>
+<script defer src="assets/compare.js?v=240"></script>
+<script defer src="assets/pages.js?v=240"></script>
+<script defer src="assets/kvk.js?v=240"></script>
+<script defer src="assets/kinfo.js?v=240"></script>
 </body>
 </html>
