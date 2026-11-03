@@ -862,8 +862,10 @@ function comparedCell(c, p, v) {
   if (COMPARED.has(c.type)) {
     const d = deltaOf(c, p);
     const value_ = [fmt(c, now) || "–", "d-b"];
+    // no change to show (not in the older scan) or counted from 0 (a KvK's merits: the change is the value): the
+    // plain cell, in the column's own colour and weight; one that left the kingdom keeps its "–"
+    if ((d == null && !p._left) || was === 0) return null;
     if (d == null) return [value_];
-    if (was === 0) return [value_]; // counted from 0 (a KvK's merits): the change is the value, shown once
     if (fmt(c, Math.abs(d)) === fmt(c, 0)) return [["→ 0", "d-d"], value_]; // too small to show
     return [[(d > 0 ? "↑ " : "↓ ") + fmt(c, Math.abs(d)), "d-d" + (d > 0 ? " hi" : " lo")], value_];
   }
@@ -886,7 +888,13 @@ const tagsOf = (p) => (p._was && !p._left && p._was.alliance && p._was.alliance 
 // every amount has a bar under the number (colour: .b-<key> or .g-<group> in the stylesheet); its length = value / the list's largest.
 // While comparing, a figure with a change has the bar of its change, rise or fall alike (|change| / the list's largest; the badge says which)
 const hasBar = (c) => ((c.type === "num" || c.type === "int") && !NO_AVG.has(c.key)) || c.key === "meritRatio";
-const byGrowth = (c) => !!state.data?._vs && COMPARED.has(c.type);
+// a column has growth bars only when some of its rows have a change (an older scan without the metric: value bars)
+const byGrowth = (c) => !!state.data?._vs && COMPARED.has(c.type) && growthCol(c);
+let growthOf = null, growths = {};
+function growthCol(c) {
+  if (growthOf !== state.rows) { growthOf = state.rows; growths = {}; }
+  return (growths[c.key] ??= state.rows.some((p) => deltaOf(c, p) !== undefined));
+}
 const barValue = (c, p) => { if (!byGrowth(c)) return value(c, p); const d = deltaOf(c, p); return d === undefined ? undefined : Math.abs(d); };
 const withBar = (c, p, cell) => {
   const v = barValue(c, p);

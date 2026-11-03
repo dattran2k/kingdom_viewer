@@ -421,8 +421,8 @@ function campsPanel(b, info) {
 }
 // a figure now and its change since the KvK opened: the Kingdom table's cell while comparing
 function changeCell(now, d) {
+  if (d === now) return el("span", "", fullNum(now)); // counted from 0 (merits): the change is the value, a plain cell
   const c = el("span", "d3");
-  if (d === now) { c.append(el("span", "d-b", fullNum(now))); return c; } // counted from 0 (merits): the change is the value, shown once
   if (d) c.append(el("span", "d-d " + (d > 0 ? "hi" : "lo"), (d > 0 ? "↑ " : "↓ ") + fullNum(Math.abs(d))));
   else c.append(el("span", "d-d", "→ 0"));
   c.append(el("span", "d-b", fullNum(now)));
