@@ -381,7 +381,9 @@ body:not([data-compare="1"]) .cmp-only { display: none; }
 .x-pop { width: 240px; max-width: calc(100vw - 72px); display: flex; flex-direction: column; gap: 6px; }
 .x-pop.up { top: auto; bottom: calc(100% + 4px); }
 .x-vs { align-self: center; text-align: center; font-size: 14px; font-weight: 600; color: var(--mut); }
-.x-hint { text-align: center; padding: 24px 0; }
+.x-hint { text-align: center; padding: 24px 0; display: grid; }
+.x-hint > span { grid-area: 1 / 1; }
+.x-hint > .off { visibility: hidden; } /* both texts take the room: "add kingdoms" -> "loading" never moves the page */
 .x-err { color: var(--down); }
 .x-note { margin: 0 0 10px; font-size: 12px; }
 .x-grp { margin-bottom: 8px; break-inside: avoid; background: var(--panel); border: 1px solid var(--edge); border-radius: 8px; overflow: hidden; }

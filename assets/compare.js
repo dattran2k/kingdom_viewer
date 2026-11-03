@@ -48,7 +48,12 @@ const itemOf = (id) => state.list.find((k) => k.kingdom === id);
 
 function load(id) {
   const scan = itemOf(id).scan, key = scan + "/" + id;
-  const file = cache.get(key) ?? KS.getJSON(`data/scans/${scan}/${id}.json`).catch((e) => { cache.delete(key); console.error(e); return null; });
+  // file.value: undefined while it loads (the page is drawn at once without it), null when it failed
+  let file = cache.get(key);
+  if (!file) {
+    file = KS.getJSON(`data/scans/${scan}/${id}.json`).catch((e) => { cache.delete(key); console.error(e); return null; });
+    file.then((f) => { file.value = f; });
+  }
   cache.delete(key); // to the end of the Map: the first one is the longest unused
   cache.set(key, file);
   while (cache.size > MAX_FILES) cache.delete(cache.keys().next().value);
@@ -98,17 +103,12 @@ const linkHash = () => "#p=compare" + cfg.pairs.map((p, i) => `&a${i ? i + 1 : "
 
 function pickerList(ul, q, pair) {
   const used = new Set([...pair.a, ...pair.b]); // one pair's sides never share a kingdom; another pair may have it again
-  ul.innerHTML = "";
   const items = (q ? KS.kingdomMatches(q) : state.list).filter((k) => !used.has(k.kingdom));
-  if (!items.length) { ul.appendChild(el("li", "none", tr("kNone"))); return; }
-  for (const k of items) {
-    const li = el("li");
-    li.setAttribute("role", "option");
-    li.dataset.k = k.kingdom;
-    li.append(el("b", "", "#" + k.kingdom), el("span", "", `${numFmt().format(k.players)} ${tr("players")}`));
-    ul.appendChild(li);
-  }
-  ul.querySelector("li[data-k]").classList.add("act");
+  if (!items.length) { ul.innerHTML = `<li class="none">${tr("kNone")}</li>`; return; }
+  // a thousand kingdoms, built again on every draw while it is open: one string, not three elements each
+  const n = numFmt(), players = tr("players");
+  ul.innerHTML = items.map((k) => `<li role="option" data-k="${k.kingdom}"><b>#${k.kingdom}</b><span>${n.format(k.players)} ${players}</span></li>`).join("");
+  ul.firstElementChild.classList.add("act");
 }
 
 function picker(n, side) {
@@ -298,14 +298,23 @@ function duels(pa, pb) {
 }
 
 async function draw() {
-  const me = ++token, box = $("cmp");
+  const me = ++token;
   // kingdoms that left the index (a link from another time)
   for (const p of cfg.pairs) { p.a = p.a.filter(itemOf); p.b = p.b.filter(itemOf); }
   tidy();
-  const files = await Promise.all(cfg.pairs.map((p) => Promise.all([Promise.all(p.a.map(load)), Promise.all(p.b.map(load))])));
+  // a kingdom just picked shows at once; its figures follow when its file comes (Pages can take most of a second)
+  const loads = cfg.pairs.map((p) => [p.a.map(load), p.b.map(load)]);
+  const waiting = loads.flat(2).some((f) => f.value === undefined);
+  if (waiting) paint(loads.map((sides) => sides.map((fs) => fs.map((f) => f.value))));
+  const files = await Promise.all(loads.map((sides) => Promise.all(sides.map((fs) => Promise.all(fs)))));
   if (me !== token) return;
+  paint(files);
+}
 
-  const keepY = box.scrollTop;
+// files: [pair][side][kingdom], undefined = still loading, null = failed
+function paint(files) {
+  const box = $("cmp"), keepY = box.scrollTop;
+  const before = [...box.querySelectorAll(":scope > .x-pair")]; // a pair still waiting keeps these figures: no blink, no jump
   box.innerHTML = "";
   box.appendChild(controls());
   const pairHead = (n, pa, pb) => {
@@ -317,9 +326,20 @@ async function draw() {
   cfg.pairs.forEach((p, n) => {
     const [fa, fb] = files[n], pa = sidePlayers(fa), pb = sidePlayers(fb), sec = box.appendChild(el("section", "x-pair"));
     sec.appendChild(pairHead(n, pa, pb));
-    const bad = [...p.a.filter((_, i) => !fa[i]), ...p.b.filter((_, i) => !fb[i])];
+    const bad = [...p.a.filter((_, i) => fa[i] === null), ...p.b.filter((_, i) => fb[i] === null)];
     if (bad.length) sec.appendChild(el("p", "hint x-err", `${tr("xLoadErr")} ${bad.map((k) => "#" + k).join(", ")}`));
-    if (!ready(p)) { sec.appendChild(el("p", "hint mut x-hint", tr("xEmpty"))); return; }
+    // one box for the two hints, as high as the longer one, so going from one to the other moves nothing
+    const hint = (key) => {
+      const h = sec.appendChild(el("p", "hint mut x-hint"));
+      for (const k of ["xEmpty", "loading"]) h.appendChild(el("span", k === key ? "" : "off", tr(k)));
+    };
+    if (!ready(p)) { hint("xEmpty"); return; }
+    if ([...fa, ...fb].includes(undefined)) {
+      const kept = before[n] ? [...before[n].querySelectorAll(":scope > .x-note, :scope > .x-duels, :scope > .x-grp")] : [];
+      if (kept.length) { sec.append(...kept); noted ||= kept[0].classList.contains("x-note"); }
+      else hint("loading");
+      return;
+    }
     if (!noted) sec.appendChild(el("p", "x-gd x-note", tr("xdDuels").replace("{agg}", tr(cfg.avg ? "xAggAvg" : "xAggSum"))));
     noted = true;
     sec.append(duels(pa, pb), group("players", tr("xEach"), tr("xdEach"), eachKingdom(fa, fb)));
