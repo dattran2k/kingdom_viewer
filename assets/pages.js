@@ -126,7 +126,7 @@ function pager(total, page, go, { size = pageSize(), sizes = PAGE_SIZES, key = "
   box.appendChild(nums);
   return box;
 }
-// a sortable table: cols = [{key, label, get(row), text(row), cls(row), tip(row), nosort, ranked}]; sort = {key, dir};
+// a sortable table: cols = [{key, label, get(row), text(row), cls(row), tip(row), nosort, ranked, max, bar(row)}]; sort = {key, dir};
 // a ranked column takes its colour from the row's place in the whole list, r._i
 const HEAD_ICONS = new Set(["power", "merits", "kills", "deaths", "heals"]);
 // the cells shared by the tables: a name with its ID under it, a kingdom chip, a figure with its bar
@@ -254,7 +254,10 @@ function table(cols, rows, sort, onSort, onRow) {
       const td = el("td", (c.cls?.(r) || "") + (c.left ? " nm" : ""), c.node ? null : c.text ? c.text(r) : num(c.get(r)));
       pin(c, td);
       if (c.node) td.appendChild(c.node(r));
-      if (c.max && c.get(r) != null) { td.classList.add("pg", "b-" + c.key); td.style.setProperty("--p", Math.max(0, c.get(r) / c.max)); }
+      if (c.max) { // a column may draw its bar from another number than it sorts by
+        const bar = c.bar ? c.bar(r) : c.get(r);
+        if (bar != null) { td.classList.add("pg", "b-" + c.key); td.style.setProperty("--p", Math.max(0, bar / c.max)); }
+      }
       if (c.ranked) td.style.color = KS.rankColour(r._i);
       const tip = c.tip ? c.tip(r) : c.text ? null : fullNum(c.get(r));
       if (tip) td.title = tip;
@@ -587,7 +590,7 @@ function drawFlows(out, list, moves) {
   out.appendChild(pager(rows.length, mig.page, (p) => { mig.page = p; go(); }));
 }
 
-KS.ui = { el, num, load, objects, table, sortRows, nextSort, searchBox, fmtBtn, pager, frame, setLink };
+KS.ui = { el, num, load, objects, table, tableBar, sortRows, nextSort, searchBox, fmtBtn, pager, frame, setLink };
 KS.pages = {
   rank: { title: "navRank", desc: "descRank", show: showRank },
   migration: { title: "navMigration", desc: "descMigration", show: showMigration },

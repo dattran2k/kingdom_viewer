@@ -863,6 +863,7 @@ function comparedCell(c, p, v) {
     const d = deltaOf(c, p);
     const value_ = [fmt(c, now) || "–", "d-b"];
     if (d == null) return [value_];
+    if (was === 0) return [value_]; // counted from 0 (a KvK's merits): the change is the value, shown once
     if (fmt(c, Math.abs(d)) === fmt(c, 0)) return [["→ 0", "d-d"], value_]; // too small to show
     return [[(d > 0 ? "↑ " : "↓ ") + fmt(c, Math.abs(d)), "d-d" + (d > 0 ? " hi" : " lo")], value_];
   }
@@ -882,16 +883,21 @@ function allianceChip(tag) {
 // the tags of a player's alliance cell: two when comparing and the alliance changed
 const tagsOf = (p) => (p._was && !p._left && p._was.alliance && p._was.alliance !== p.alliance && p.alliance ? [p._was.alliance, p.alliance] : p.alliance ? [p.alliance] : []);
 
-// every amount has a bar under the number (colour: .b-<key> or .g-<group> in the stylesheet); its length = value / the list's largest
+// every amount has a bar under the number (colour: .b-<key> or .g-<group> in the stylesheet); its length = value / the list's largest.
+// While comparing, a figure with a change has the bar of its change, rise or fall alike (|change| / the list's largest; the badge says which)
 const hasBar = (c) => ((c.type === "num" || c.type === "int") && !NO_AVG.has(c.key)) || c.key === "meritRatio";
-const withBar = (c, v, cell) => {
+const byGrowth = (c) => !!state.data?._vs && COMPARED.has(c.type);
+const barValue = (c, p) => { if (!byGrowth(c)) return value(c, p); const d = deltaOf(c, p); return d === undefined ? undefined : Math.abs(d); };
+const withBar = (c, p, cell) => {
+  const v = barValue(c, p);
   if (hasBar(c) && typeof v === "number" && barMax(c) > 0) { cell.bar = Math.max(0, v / barMax(c)); cell.cls += ` pg b-${c.key} g-${c.group}`; }
   return cell;
 };
 let maxOf = null, maxes = {};
 function barMax(c) {
   if (maxOf !== state.rows) { maxOf = state.rows; maxes = {}; }
-  return (maxes[c.key] ??= state.rows.reduce((m, p) => { const v = value(c, p); return typeof v === "number" && v > m ? v : m; }, 0));
+  const key = c.key + (byGrowth(c) ? "~" : "");
+  return (maxes[key] ??= state.rows.reduce((m, p) => { const v = barValue(c, p); return typeof v === "number" && v > m ? v : m; }, 0));
 }
 
 function cellsOf(p) {
@@ -907,7 +913,7 @@ function cellsOf(p) {
     if (parts) {
       const was = p._left ? v : p._was ? value(c, p._was) : undefined;
       const title = c.type === "num" && state.compact ? `${typeof was === "number" ? numFmt().format(was) : "–"} → ${p._left || typeof v !== "number" ? "–" : numFmt().format(v)}` : "";
-      out[i] = withBar(c, v, { text: parts.map((x) => x[0]).join("|"), cls: c._cls, title, plus: false, parts });
+      out[i] = withBar(c, p, { text: parts.map((x) => x[0]).join("|"), cls: c._cls, title, plus: false, parts });
       continue;
     }
     if (s === "") { out[i] = { text: "–", cls: c._cls + " blank", title: "", plus: false }; continue; }
@@ -917,7 +923,7 @@ function cellsOf(p) {
     let cls = c._cls;
     const a = state.heat ? state.avg[c.key] : undefined; // above / below the column average
     if (a !== undefined && typeof v === "number" && v !== a) cls += v > a ? " hi" : " lo";
-    out[i] = withBar(c, v, { text: s, cls, title, plus: !!(p.atLeast && p.atLeast.includes(c.key)), badge: !!c.badge, sub: c.key === "name" ? String(p.id ?? "") : "" });
+    out[i] = withBar(c, p, { text: s, cls, title, plus: !!(p.atLeast && p.atLeast.includes(c.key)), badge: !!c.badge, sub: c.key === "name" ? String(p.id ?? "") : "" });
   }
   p._ck = cellKey;
   return (p._cells = out);

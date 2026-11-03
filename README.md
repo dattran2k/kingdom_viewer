@@ -47,6 +47,12 @@ A player is a flat object. A missing field means "unknown", and `0` means zero.
 numbers), `rollup.json` (the newest scan, one row per kingdom, players above 15M max power). Tables name their columns in a `cols` list.
 A move is only known to lie between two scans.
 
+`data/kvk/index.json` lists the running KvKs: their camps and kingdoms, the numbers since each opened, each kingdom's
+top 5 players by merits since then (`top`), and how many fights its War history has (`wars`).
+`data/kvk/battles/<map>.json` is a KvK map's War history: every fight since it opened (place, start, last clash,
+alliances, participants, merits, the top 10 players, whether it is in progress or a merits trade between one kingdom's
+players). The game gives no more than the top 10 of a fight. Times are UTC.
+
 | Field | Meaning |
 |---|---|
 | `rank`, `id`, `name` | power ranking place, player id, name |

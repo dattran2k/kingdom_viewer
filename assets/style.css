@@ -949,3 +949,81 @@ body[data-compare="1"] .k-row .kbtn { height: 52px; }
   .kv-kname { gap: 4px; padding-left: 0; }
   .kv-kname small { font-size: 10px; }
 }
+/* KvK War history tab: the players table's place and look (a dv-out of the Rankings pages: bar, table, pager) */
+.kv-tabs { margin: 4px 0 4px; }
+#kvkPage.kv-war-on #tblBar, #kvkPage.kv-war-on #grid, #kvkPage.kv-war-on #kPager { display: none; }
+#kvkPage:not(.kv-war-on) #kvkWar { display: none; }
+.kv-war-out { container-type: inline-size; }
+.kv-war-out > :not(.dv-wrap) { padding-inline: 16px; }
+.kv-war-out .dv-wrap { max-height: none; overflow-x: auto; overflow-y: visible; }
+.kv-war-ctl { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding-block: 2px 8px; }
+.kv-war-ctl .kv-find { flex: 1 1 220px; max-width: 360px; }
+.kv-war-ctl .kv-find input { height: 34px; font-size: 13px; }
+.kv-war-ctl .rk-seg small { color: var(--mut); font-size: 11px; font-weight: 500; }
+.kv-war-ctl .rk-seg button[aria-pressed="true"] small { color: inherit; }
+.kv-war-hint { margin: 0 0 8px; font-size: 12px; }
+.kv-war-row.live td:first-child { box-shadow: inset 3px 0 0 #e5484d; }
+.kv-war-row.trade td:first-child { box-shadow: inset 3px 0 0 #d4a017; }
+.kv-war-row.open td, .tbl .kv-war-row.open td.pin { background: color-mix(in srgb, var(--acc) 10%, var(--bg)); }
+.kv-war-name { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+.kv-war-t { display: flex; flex-wrap: wrap; align-items: center; gap: 3px 5px; }
+.kv-war-name small { color: var(--mut); font-size: 11px; }
+.kv-badge { padding: 0 6px; border-radius: 999px; font-size: 10px; font-weight: 700; line-height: 16px; white-space: nowrap; }
+.kv-badge.live { background: color-mix(in srgb, #e5484d 18%, transparent); color: #ff6b6f; }
+.kv-badge.trade { background: color-mix(in srgb, #d4a017 18%, transparent); color: #e2b93b; }
+.kv-war-kds, .kv-war-as { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px; }
+.dv-wrap .tbl td:has(.kv-war-kds), .dv-wrap .tbl td:has(.kv-war-as) { white-space: normal; }
+.kv-war-unk { opacity: .55; }
+.kv-war-a { padding: 1px 6px; border: 1px solid var(--edge); border-radius: 5px; color: var(--fg2); font-size: 12px; font-weight: 600; }
+/* the open fight */
+.kv-war-more > td { padding: 0 !important; height: auto !important; max-width: none !important; cursor: default; }
+.kv-war-det { position: sticky; left: 0; box-sizing: border-box; width: 100cqw; padding: 16px; white-space: normal; text-align: left; }
+.kv-war-stats { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+@container (max-width: 760px) { .kv-war-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@container (max-width: 460px) { .kv-war-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } .kv-war-cols { grid-template-columns: 1fr !important; } }
+.kv-war-stat { padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); }
+.kv-war-stat small { display: block; margin-bottom: 2px; color: var(--mut); font-size: 11px; }
+.kv-war-stat b { color: var(--fg); font-size: 13px; font-variant-numeric: tabular-nums; }
+.kv-war-share { display: flex; flex-direction: column; gap: 6px; margin: 12px 0 14px; font-size: 12px; }
+.kv-war-cols { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 20px; }
+.kv-war-col h4 { margin: 0 0 8px; color: var(--fg2); font-size: 12px; font-weight: 600; }
+.kv-war-top { display: flex; flex-direction: column; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.kv-war-top li { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); }
+.kv-war-medal { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--panel2); color: var(--fg2); font-size: 11px; font-weight: 700; }
+.kv-war-top li.p1 .kv-war-medal { background: linear-gradient(135deg, #f7d774, #c99a1c); color: #3b2a00; }
+.kv-war-top li.p2 .kv-war-medal { background: linear-gradient(135deg, #e6e8ee, #9ea3b0); color: #22252c; }
+.kv-war-top li.p3 .kv-war-medal { background: linear-gradient(135deg, #f0b98a, #a8642e); color: #2e1606; }
+.kv-war-who { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.kv-war-line { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.kv-war-pn { overflow: hidden; color: var(--fg); font-size: 13px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.kv-war-tag { flex: none; color: var(--mut); font-size: 12px; }
+.kv-war-line .kd { flex: none; }
+.kv-war-bar { height: 4px; border-radius: 2px; background: var(--panel2); overflow: hidden; }
+.kv-war-bar i { display: block; height: 100%; background: var(--acc-solid); }
+.kv-war-top li.p1 .kv-war-bar i { background: #d4a017; }
+.kv-war-n { display: flex; flex-direction: column; align-items: flex-end; font-variant-numeric: tabular-nums; }
+.kv-war-n b { color: var(--fg); font-size: 13px; font-weight: 600; }
+.kv-war-n small { font-size: 11px; }
+.kv-war-foot { margin: 8px 0 0; font-size: 11px; }
+.kv-war-legion { margin-bottom: 8px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); }
+.kv-war-legion h5 { margin: 0 0 4px; color: var(--mut); font-size: 11px; font-weight: 600; }
+.kv-war-al { display: grid; grid-template-columns: 48px minmax(0, 1fr) auto; align-items: center; gap: 8px; padding: 3px 0; font-size: 13px; }
+.kv-war-al b { color: var(--fg); font-weight: 600; }
+.kv-war-aln { overflow: hidden; color: var(--fg2); text-overflow: ellipsis; white-space: nowrap; }
+.kv-war-det > .kv-war-stats, .kv-war-det > .kv-war-share, .kv-war-det > .kv-war-cols { max-width: 1080px; margin-inline: auto; } /* the middle of the screen */
+.kv-war-kds.rk-kds { padding: 4px 0; }
+.kv-war-ctl .kv-pop { left: 0; right: auto; width: 190px; padding: 6px; max-height: 60vh; overflow: auto; z-index: 30; }
+.kv-war-ctl .kv-pick { height: 36px; }
+/* the KvK info frame of the Kingdom page: the camps ranking and the KvK's top players, each the camps table */
+.kv-info { padding: 14px 16px 2px; border: 1px solid var(--line); border-radius: 12px; background: color-mix(in srgb, var(--panel) 45%, transparent); }
+.kv-info-h { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-start; gap: 8px 12px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+.kv-info-h h2 { margin: 0; font-size: 18px; }
+.kv-info .kr-head h2 { font-size: 15px; }
+.kv-info-link { color: var(--acc-solid); font-size: 13px; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+.kv-info-link:hover { color: var(--acc); }
+/* the frame gives its whole width to the tables: no side padding, the frame's border instead of theirs (the camps
+   table is ~1660 px at the least; the padding scrolled it on a 1920 screen) */
+.kv-info { padding: 0 0 4px; overflow: hidden; }
+.kv-info > .kv-info-h { margin-bottom: 0; padding: 14px 16px 12px; }
+.kv-info > .kr-head { margin-bottom: 0; padding: 12px 16px 10px; }
+#kCamps .kv-info > .kv-panel { margin: 0; border: 0; border-top: 1px solid var(--line); border-radius: 0; background: none; }
