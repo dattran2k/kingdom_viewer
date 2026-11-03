@@ -676,8 +676,16 @@ body:not([data-compare="1"]) .cmp-only { display: none; }
 .k-status { display: inline-block; padding: 2px 8px; border: 1px solid var(--edge); border-radius: 999px; color: var(--fg2); font-size: 12px; font-weight: 600; white-space: nowrap; }
 .k-status[hidden] { display: none; }
 .k-status[data-st="125"] { border-color: color-mix(in srgb, var(--down) 45%, transparent); color: var(--down); }
-.k-status[data-st="110"] { border-color: color-mix(in srgb, #e0a100 55%, transparent); color: #e0a100; }
+.k-status[data-st="110"], .k-status[data-st="111"] { border-color: color-mix(in srgb, #e0a100 55%, transparent); color: #e0a100; }
 .k-status[data-st="120"], .k-status[data-st="115"] { border-color: color-mix(in srgb, var(--up) 45%, transparent); color: var(--up); }
+/* the status filters of the ranking, in the colours of the chips */
+.kv-pills button[data-st="125"] { --st: var(--down); }
+.kv-pills button:is([data-st="110"], [data-st="111"]) { --st: #e0a100; }
+.kv-pills button:is([data-st="120"], [data-st="115"]) { --st: var(--up); }
+.kv-pills button:is([data-st="125"], [data-st="110"], [data-st="111"], [data-st="120"], [data-st="115"]) { border-color: color-mix(in srgb, var(--st) 45%, transparent); color: var(--st); }
+.kv-pills button:is([data-st="125"], [data-st="110"], [data-st="111"], [data-st="120"], [data-st="115"]):hover { border-color: var(--st); }
+.kv-pills button:is([data-st="125"], [data-st="110"], [data-st="111"], [data-st="120"], [data-st="115"])[aria-pressed="true"] { border-color: var(--st); background: color-mix(in srgb, var(--st) 14%, transparent); }
+.kv-pills button:is([data-st="125"], [data-st="110"], [data-st="111"], [data-st="120"], [data-st="115"])[aria-pressed="true"] small { color: var(--st); }
 /* every table reads like the Kingdom table: same heights, no box of its own, names and kingdoms alike */
 .dv-wrap { border: 0; border-radius: 0; background: none; }
 .dv-wrap .tbl th { height: var(--hh); padding: 0 10px; }
@@ -782,7 +790,7 @@ body[data-compare="1"] .k-row.has-art .kbtn { color: #fff; border-color: rgb(255
 .k-row.has-art .x-tag, .k-row.has-art .x-tag:disabled { background: rgb(8 10 14 / .62); color: #fff; border-color: rgb(255 255 255 / .35); }
 .k-row.has-art .k-status { color: #fff; border-color: rgb(255 255 255 / .35); }
 .k-row.has-art .k-status[data-st="125"] { color: #ff8a8f; border-color: #ff8a8f; }
-.k-row.has-art .k-status[data-st="110"] { color: #ffc94d; border-color: #ffc94d; }
+.k-row.has-art .k-status[data-st="110"], .k-row.has-art .k-status[data-st="111"] { color: #ffc94d; border-color: #ffc94d; }
 .k-row.has-art .k-meta .mut, .k-row.has-art .k-meta-l span { color: #fff; }
 /* light theme: the cards */
 :root[data-theme="light"] .kpi { background: linear-gradient(135deg, var(--panel) 45%, color-mix(in srgb, var(--t, var(--acc)) 12%, var(--panel)) 100%); }

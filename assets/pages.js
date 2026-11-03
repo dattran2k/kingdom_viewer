@@ -14,7 +14,7 @@ Object.assign(KS.T.vi, {
   noDerived: "Chưa có dữ liệu tổng hợp (data/derived/).", dvLoadErr: "Không tải được dữ liệu.",
   rKingdoms: "kingdom", 
   rSearch: "#kingdom, tag…", rSearchK: "SoS8-10045, #kingdom…", rHint: "Tính theo người có lực chiến max trên 15M, trong top lực chiến mỗi kingdom. Bấm một dòng để mở.",
-  cKingdom: "Kingdom", cTopAlliance: "LM mạnh nhất", cPlayers: "Người chơi",
+  cKingdom: "Kingdom", cGen: "Gen", cAllGens: "Mọi gen", cTopAlliance: "LM mạnh nhất", cPlayers: "Người chơi",
   cPower: "Lực chiến", cPowerMax: "LC max", cMerits: "Công trạng", cKills: "Tiêu diệt", cDeaths: "Tử trận", cHeals: "Chữa trị", cHelps: "Giúp đỡ", cGathered: "Thu thập",
   cMigration: "Điểm di cư", cDecor: "Decor max", cInf: "CT bộ", cCav: "CT kỵ", cArc: "CT cung", cMag: "CT phép",
   gFrom: "Từ", gTo: "Đến", gName: "Người chơi",
@@ -32,7 +32,7 @@ Object.assign(KS.T.en, {
   noDerived: "No summary data yet (data/derived/).", dvLoadErr: "Could not load the data.",
   rKingdoms: "kingdoms", 
   rSearch: "#kingdom, tag…", rSearchK: "SoS8-10045, #kingdom…", rHint: "Counts players whose max power is above 15M, within each kingdom's power ranking. Click a line to open it.",
-  cKingdom: "Kingdom", cTopAlliance: "Top alliance", cPlayers: "Players",
+  cKingdom: "Kingdom", cGen: "Gen", cAllGens: "All gens", cTopAlliance: "Top alliance", cPlayers: "Players",
   cPower: "Power", cPowerMax: "Max power", cMerits: "Merits", cKills: "Kills", cDeaths: "Dead", cHeals: "Healed", cHelps: "Helps", cGathered: "Gathered",
   cMigration: "Migration score", cDecor: "Max decor", cInf: "Infantry", cCav: "Cavalry", cArc: "Archers", cMag: "Magic",
   gFrom: "From", gTo: "To", gName: "Player",
@@ -131,7 +131,7 @@ function pager(total, page, go, { size = pageSize(), sizes = PAGE_SIZES, key = "
 const HEAD_ICONS = new Set(["power", "merits", "kills", "deaths", "heals"]);
 // the cells shared by the tables: a name with its ID under it, a kingdom chip, a figure with its bar
 const whoCell = (name, id) => { const d = el("span", "who"); d.append(el("b", "", name ?? "–"), el("small", "", String(id ?? ""))); return d; };
-const kdCell = (k, top) => el("span", top ? "kd top" : "kd", String(k));
+const kdCell = (k, top) => el("span", top ? "kd top" : "kd", "#" + k);
 const barCol = (key, label, rows) => ({ key, label: tr(label), get: (r) => r[key], max: rows.reduce((m, r) => Math.max(m, r[key] ?? 0), 0) });
 // Widths come from every row of the list (cols.all), not the ones on this page: sorting or paging never moves a column
 const NODE_W = { name: 190, kingdom: 76, from: 76, to: 76, kvk: 190, st: 156, alliance: 96, allianceFrom: 96, allianceTo: 96, topAlliance: 96, trades: 84 };
@@ -302,7 +302,7 @@ const RANK_METRICS = [
 ];
 const tradesCol = () => ({ key: "trades", label: "Trades", get: (r) => r.trades, tip: () => tr("tradesTip"), node: (r) => el("span", "tr-b", r.trades == null ? "–" : numFmt(0).format(r.trades) + "%") });
 const RANK_DEFAULT = { server: "migrationScore", member: "power", kvk: "powerMax" }; // what each ranking is sorted by when it opens
-const rank = { q: "", page: 1, sort: { key: RANK_DEFAULT.server, dir: -1 }, mode: "server", st: "" };
+const rank = { q: "", page: 1, sort: { key: RANK_DEFAULT.server, dir: -1 }, mode: "server", st: "", gen: "" };
 
 async function showRank() {
   const { ctl, out } = frame();
@@ -345,6 +345,10 @@ const kvkCell = (b) => {
   a.append(el("b", "", b.name), el("small", "mut", KS.season.title(b.season)));
   return a;
 };
+const NO_PILL = new Set([1, 103, 120]); // Season 1, settling soon, matched: few kingdoms, no filter of their own
+// the status column as wide as its longest chip: padding 8 + border 1 a side, the cell's padding 10 a side, and 6 to
+// spare: the canvas measures the text a pixel or so short of the page, and the cell's ellipsis shows for any overflow
+const statusW = (rows) => Math.ceil(Math.max(0, ...rows.map((r) => textW(KS.season.status(r.st), "600 12px"))) + 18 + 20 + 6);
 const statusCell = (st) => { const c = el("span", "k-status", KS.season.status(st) || "–"); c.dataset.st = st ?? ""; return c; };
 async function drawMembers(out, me) {
   const cur = await load("derived/top_players.json");
@@ -394,7 +398,7 @@ async function drawKvks(out, me) {
       for (const [camp, list] of KS.season.camps(r.kvk)) {
         const box = d.appendChild(el("span", "rk-camp"));
         box.title = camp ? `${tr("kCamp")} ${camp}` : "";
-        box.append(...list.map((k) => kdCell(k.k, false)));
+        box.append(...list.map((k) => el("span", "kd", String(k.k)))); // no "#": chipW sizes the camps for the bare number
         box.style.gridTemplateColumns = `repeat(${Math.ceil(list.length / Math.ceil(list.length / 3))}, auto)`; // a big camp in even lines: 6 is 3 + 3
       }
       if (r.have < r.kvk.kingdoms.length) d.append(el("small", "mut", `${r.have}/${r.kvk.kingdoms.length}`));
@@ -424,22 +428,34 @@ async function drawRank(out) {
   out.innerHTML = "";
   if (!cur) { out.appendChild(el("p", "hint", tr("noDerived"))); return; }
   let rows = objects(cur.kingdomCols, cur.kingdoms);
-  rows.forEach((r) => { r.kvk = KS.season.of(kvk, r.kingdom); r.st = kvk?.servers?.[r.kingdom]?.[1]; });
+  rows.forEach((r) => { r.kvk = KS.season.of(kvk, r.kingdom); r.st = kvk?.servers?.[r.kingdom]?.[1]; r.gen = kvk?.genOf?.[r.kingdom]; });
+  const all = rows; // before any filter: the columns keep their width
   const counts = new Map();
-  rows.forEach((r) => { if (KS.season.status(r.st)) counts.set(r.st, (counts.get(r.st) || 0) + 1); });
+  rows.forEach((r) => { if (KS.season.status(r.st) && !NO_PILL.has(r.st)) counts.set(r.st, (counts.get(r.st) || 0) + 1); });
   if (rank.st && !counts.has(Number(rank.st))) rank.st = "";
-  const pills = el("nav", "kv-pills");
-  const pill = (st, name, n) => {
+  const pills = el("nav", "kv-pills"), genPills = el("nav", "kv-pills");
+  // a filter button: `prop` of `rank` set to `v`
+  const pill = (box, prop, v, name, n) => {
     const b = el("button");
     b.type = "button";
     b.append(name + " ", el("small", "", numFmt().format(n)));
-    b.setAttribute("aria-pressed", String(String(rank.st) === String(st)));
-    b.onclick = () => { rank.st = st; rank.page = 1; drawRank(out); };
-    pills.appendChild(b);
+    b.setAttribute("aria-pressed", String(String(rank[prop]) === String(v)));
+    if (prop === "st") b.dataset.st = v; // coloured as the status chips of the table
+    b.onclick = () => { rank[prop] = v; rank.page = 1; drawRank(out); };
+    box.appendChild(b);
   };
-  pill("", tr("kAll"), rows.length);
-  [...counts.entries()].sort((a, b) => b[1] - a[1]).forEach(([st, n]) => pill(st, KS.season.status(st), n));
+  pill(pills, "st", "", tr("kAll"), rows.length);
+  [...counts.entries()].sort((a, b) => b[1] - a[1]).forEach(([st, n]) => pill(pills, "st", st, KS.season.status(st), n));
   if (rank.st !== "") rows = rows.filter((r) => String(r.st) === String(rank.st));
+  // the SoS generation, counted within the status picked
+  const gens = new Map();
+  rows.forEach((r) => { if (r.gen) gens.set(r.gen, (gens.get(r.gen) || 0) + 1); });
+  if (rank.gen && !gens.has(Number(rank.gen))) rank.gen = "";
+  if (gens.size) {
+    pill(genPills, "gen", "", tr("cAllGens"), rows.length);
+    [...gens.entries()].sort((a, b) => a[0] - b[0]).forEach(([g, n]) => pill(genPills, "gen", g, `${tr("cGen")} ${g}`, n));
+  }
+  if (rank.gen !== "") rows = rows.filter((r) => String(r.gen) === String(rank.gen));
   const q = rank.q.toLowerCase(), kq = /^#?(\d+)$/.exec(q)?.[1];
   if (q) rows = rows.filter((r) => (kq && String(r.kingdom).startsWith(kq)) || String(r.topAlliance).toLowerCase().includes(q));
   const metricCol = ([key, label]) => ({ key, label: tr(label), get: (r) => r[key], max: rows.reduce((m, r) => Math.max(m, r[key] ?? 0), 0) });
@@ -447,7 +463,8 @@ async function drawRank(out) {
     { key: "#", label: "#", nosort: true, text: (r) => String(r._i), cls: () => "mut" },
     { key: "kingdom", label: tr("cKingdom"), get: (r) => r.kingdom, node: (r) => kdCell(r.kingdom, r._i <= 8) },
     { key: "kvk", label: "KvK", get: (r) => r.kvk?.name ?? "", node: (r) => kvkCell(r.kvk) },
-    { key: "st", label: tr("rStatus"), get: (r) => r.st ?? -1, node: (r) => statusCell(r.st) },
+    { key: "st", label: tr("rStatus"), w: statusW(all), get: (r) => r.st ?? -1, node: (r) => statusCell(r.st) },
+    { key: "gen", label: tr("cGen"), get: (r) => r.gen ?? 0, text: (r) => (r.gen ? String(r.gen) : "–"), cls: (r) => (r.gen ? "" : "mut") },
     metricCol(RANK_METRICS.find((m) => m[0] === RANK_DEFAULT.server)),
     { key: "topAlliance", label: tr("cTopAlliance"), get: (r) => r.topAlliance, node: (r) => allianceChip(r.topAlliance) },
     { key: "players", label: tr("cPlayers"), get: (r) => r.players, text: (r) => numFmt().format(r.players) },
@@ -459,6 +476,7 @@ async function drawRank(out) {
   rows.forEach((r, i) => { r._i = i + 1; });
   const shown = onPage(rows, rank.page);
   out.appendChild(pills);
+  if (gens.size) out.appendChild(genPills);
   const view = tableBar(out, { id: "servers", title: tr("rServers"), meta: `${numFmt().format(rows.length)} kingdom`, cols, holder: rank, prop: "sort", redraw: () => KS.keepScroll($("dv"), () => drawRank(out)) });
   view.all = rows;
   out.appendChild(table(view, shown, { key: col.key, dir: rank.sort.dir }, (k) => { rank.sort = nextSort(rank.sort, k); rank.page = 1; KS.keepScroll($("dv"), () => drawRank(out)); },
