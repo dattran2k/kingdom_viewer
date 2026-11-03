@@ -3,7 +3,7 @@
 // Links: #p=rank · #p=migration&a=<scan>&b=<scan>&v=servers&k=<kingdom>&q=<id or name>
 (() => {
 "use strict";
-const KS = window.KS, { state, tr, $, numFmt } = KS;
+const KS = window.KS, { state, tr, $, numFmt, fitPop } = KS;
 
 Object.assign(KS.T.vi, {
   descKingdom: "Người chơi của từng kingdom theo ngày. Bật So sánh để xem mỗi người tăng giảm bao nhiêu giữa 2 ngày.",
@@ -172,7 +172,8 @@ function tableBar(out, { id, title, meta, cols, holder, prop, redraw, hideFirst 
   const menu = (name, button, pop) => {
     const wrap = el("div", "vpick");
     pop.hidden = barPop !== id + name;
-    button.onclick = () => { const on = pop.hidden; barPop = on ? id + name : ""; document.querySelectorAll(".dv-tbar .pop").forEach((x) => { x.hidden = true; }); pop.hidden = !on; };
+    if (!pop.hidden) requestAnimationFrame(() => fitPop(pop)); // kept open across a redraw: placed once it is on the page
+    button.onclick = () => { const on = pop.hidden; barPop = on ? id + name : ""; document.querySelectorAll(".dv-tbar .pop").forEach((x) => { x.hidden = true; }); pop.hidden = !on; if (on) fitPop(pop); };
     wrap.append(button, pop);
     return wrap;
   };
@@ -195,7 +196,7 @@ function tableBar(out, { id, title, meta, cols, holder, prop, redraw, hideFirst 
   viewBtn.type = "button";
   viewBtn.innerHTML = $("viewBtn").querySelector("svg").outerHTML;
   viewBtn.append(" View");
-  const view = el("div", "pop view-pop flip");
+  const view = el("div", "pop view-pop");
   view.append(el("h3", "", tr("viewTitle")), fmtBtn(redraw));
   tools.append(colsBtn, menu("view", viewBtn, view));
   const sortBox = el("div", "sort-box"), label = el("label"), select = el("select"), dir = el("button");
@@ -326,6 +327,13 @@ async function showRank() {
 }
 
 // the KvK of each kingdom, a chip like the sample's: its code and season
+// the Kingdom column of the KvK ranking: two camps a line (a map is mostly 4 camps of 2 kingdoms), as wide as twice
+// the widest camp, up to 3 kingdoms a camp: a bigger camp's kingdoms wrap inside its frame. A chip is 40px (47 with
+// 4 digits) and 3 apart, a frame 8 around them
+const chipW = (k) => (k.k > 999 ? 47 : 40) + 3;
+const CAMPS_MAX_W = 2 * (3 * 50 + 5) + 8 + 20;
+const campsW = (rows) => Math.min(CAMPS_MAX_W, Math.max(0, ...rows.map((r) =>
+  2 * Math.max(...KS.season.camps(r.kvk).map(([, list]) => list.slice(0, 3).reduce((x, k) => x + chipW(k), 5))) + 8 + 20)));
 const kvkCell = (b) => {
   if (!b) return el("span", "mut", "–");
   const a = el("a", "rk-kvk");
@@ -376,10 +384,16 @@ async function drawKvks(out, me) {
   if (q) rows = rows.filter((r) => r.kvk.name.toLowerCase().includes(q) || r.kvk.kingdoms.some((k) => String(k.k).startsWith(q)));
   const cols = [
     { key: "#", label: "#", nosort: true, text: (r) => String(r.rank), cls: () => "mut" },
-    { key: "kvk", label: "KvK", left: true, get: (r) => r.kvk.name, node: (r) => kvkCell(r.kvk) },
-    { key: "kingdoms", label: tr("cKingdom"), left: true, w: 240, get: (r) => r.kvk.kingdoms.length, node: (r) => {
+    { key: "kvk", label: "KvK", get: (r) => r.kvk.name, node: (r) => kvkCell(r.kvk) }, // centred like the other columns: the spare width spreads evenly
+    { key: "kingdoms", label: tr("cKingdom"), w: campsW(rows), get: (r) => r.kvk.kingdoms.length, node: (r) => {
+      // a box per camp, so the camps read apart (kingdoms not given a camp yet: one box of their own)
       const d = el("span", "rk-kds");
-      d.append(...r.kvk.kingdoms.map((k) => kdCell(k.k, false)));
+      for (const [camp, list] of KS.season.camps(r.kvk)) {
+        const box = d.appendChild(el("span", "rk-camp"));
+        box.title = camp ? `${tr("kCamp")} ${camp}` : "";
+        box.append(...list.map((k) => kdCell(k.k, false)));
+        box.style.gridTemplateColumns = `repeat(${Math.ceil(list.length / Math.ceil(list.length / 3))}, auto)`; // a big camp in even lines: 6 is 3 + 3
+      }
       if (r.have < r.kvk.kingdoms.length) d.append(el("small", "mut", `${r.have}/${r.kvk.kingdoms.length}`));
       return d;
     } },

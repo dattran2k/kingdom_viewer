@@ -1,5 +1,6 @@
-// The compare page: two sides, each of several kingdoms, side by side. A classic script loaded after views.js; what it
-// needs from the page comes through window.KS. Each kingdom counts with its newest scan. Link: #p=compare&a=1,2&b=3
+// The compare page: pairs of sides, each side of several kingdoms, side by side; once a pair has both sides an empty one
+// opens under it. A classic script loaded after views.js; what it needs from the page comes through window.KS. Each
+// kingdom counts with its newest scan. Link: #p=compare&a=1,2&b=3&a2=4&b2=5 (a2/b2 the second pair, and on)
 (() => {
 "use strict";
 const KS = window.KS, { state, tr, $, numFmt } = KS;
@@ -27,16 +28,18 @@ Object.assign(KS.T.en, {
   xCount: "Players", xLoadErr: "Could not load:",
 });
 
-const MAX_PER_SIDE = 10;
+const MAX_PER_SIDE = 10, MAX_PAIRS = 5;
 const TOPS = [0, 100, 200, 300, 500];
 const POWER_BANDS = [[100e6, 200e6, "100–200M"], [200e6, 300e6, "200–300M"], [300e6, Infinity, "300M+"]];
 const { MIGRATION_BANDS, DECOR_MAX } = KS;
 
-const cfg = Object.assign({ a: [], b: [], minStep: KS.DEFAULT_POWER, top: 0, avg: false }, KS.store.get("cmp", {}));
-const MAX_FILES = 2 * MAX_PER_SIDE + 20; // the two sides, and some to go back to: a long visit must not keep every kingdom opened
+const cfg = Object.assign({ pairs: [], minStep: KS.DEFAULT_POWER, top: 0, avg: false }, KS.store.get("cmp", {}));
+const MAX_FILES = 4 * MAX_PER_SIDE + 20; // a couple of full pairs, and some to go back to: a long visit must not keep every kingdom opened
 const cache = new Map();   // "<scan>/<kingdom>" -> file (a promise while it loads)
+if (cfg.a || cfg.b) { cfg.pairs = [{ a: cfg.a || [], b: cfg.b || [] }]; delete cfg.a; delete cfg.b; } // saved before the pairs
+tidy();
 let token = 0;             // a newer draw makes an older, still loading one give up
-let openSide = null;       // the side whose picker is open
+let openSide = null;       // the side whose picker is open: "<pair><a|b>"
 
 function iconOf(key, cls) { const i = el("img", cls); i.src = `assets/icons/${key}.png`; i.alt = ""; return i; }
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
@@ -79,15 +82,22 @@ function group(icon, title, desc, ...kids) {
   return g;
 }
 
-// ---- the two sides ----
+// ---- the pairs of sides ----
+// a pair left with no kingdom on either side goes, but the first stays
+function tidy() {
+  cfg.pairs = cfg.pairs.filter((p, i) => i === 0 || p.a.length || p.b.length);
+  if (!cfg.pairs.length) cfg.pairs = [{ a: [], b: [] }];
+}
+const ready = (p) => p.a.length && p.b.length;
 function save() {
+  tidy();
   KS.store.set("cmp", cfg);
   if (state.page === "compare") history.replaceState(null, "", linkHash());
 }
-const linkHash = () => `#p=compare&a=${cfg.a.join(",")}&b=${cfg.b.join(",")}`;
+const linkHash = () => "#p=compare" + cfg.pairs.map((p, i) => `&a${i ? i + 1 : ""}=${p.a.join(",")}&b${i ? i + 1 : ""}=${p.b.join(",")}`).join("");
 
-function pickerList(ul, q) {
-  const used = new Set([...cfg.a, ...cfg.b]);
+function pickerList(ul, q, pair) {
+  const used = new Set([...pair.a, ...pair.b]); // one pair's sides never share a kingdom; another pair may have it again
   ul.innerHTML = "";
   const items = (q ? KS.kingdomMatches(q) : state.list).filter((k) => !used.has(k.kingdom));
   if (!items.length) { ul.appendChild(el("li", "none", tr("kNone"))); return; }
@@ -101,20 +111,25 @@ function pickerList(ul, q) {
   ul.querySelector("li[data-k]").classList.add("act");
 }
 
-function picker(side) {
-  const wrap = el("div", "x-add");
+function picker(n, side) {
+  const wrap = el("div", "x-add"), pair = cfg.pairs[n] ?? { a: [], b: [] }, me = n + side;
   const add = el("button", "x-add-btn", tr("xAdd"));
   add.type = "button";
-  add.disabled = cfg[side].length >= MAX_PER_SIDE;
-  add.onclick = () => { openSide = openSide === side ? null : side; draw(); };
+  add.disabled = pair[side].length >= MAX_PER_SIDE;
+  add.onclick = () => { openSide = openSide === me ? null : me; draw(); };
   wrap.appendChild(add);
-  if (openSide !== side) return wrap;
+  if (openSide !== me) return wrap;
   const pop = el("div", "pop x-pop"), q = el("input"), ul = el("ul", "klist");
   q.type = "search"; q.autocomplete = "off"; q.inputMode = "numeric"; q.placeholder = tr("kSearchPh");
   ul.setAttribute("role", "listbox");
-  pickerList(ul, "");
-  const pick = (k) => { cfg[side] = [...cfg[side], k]; if (cfg[side].length >= MAX_PER_SIDE) openSide = null; save(); draw(); };
-  q.addEventListener("input", () => pickerList(ul, q.value));
+  pickerList(ul, "", pair);
+  const pick = (k) => {
+    cfg.pairs[n] = pair; // the empty pair under the others is kept from its first kingdom on
+    pair[side] = [...pair[side], k];
+    if (pair[side].length >= MAX_PER_SIDE) openSide = null;
+    save(); draw();
+  };
+  q.addEventListener("input", () => pickerList(ul, q.value, pair));
   q.addEventListener("keydown", (e) => {
     if (e.key === "Escape") { openSide = null; draw(); }
     else if (KS.listKeys(e, ul, pick)) e.preventDefault();
@@ -122,12 +137,18 @@ function picker(side) {
   ul.onclick = (e) => { const li = e.target.closest("li[data-k]"); if (li) pick(Number(li.dataset.k)); };
   pop.append(q, ul);
   wrap.appendChild(pop);
-  setTimeout(() => q.focus()); // once it is in the page
+  // run by draw once the page is built, before it is painted: it opens upwards when the page has no room under it,
+  // so the page never grows or jumps and the menu is never seen on the wrong side first
+  pop.place = () => {
+    const page = $("cmp").getBoundingClientRect(), at = wrap.getBoundingClientRect();
+    if (pop.offsetHeight + 8 > page.bottom - at.bottom && at.top - page.top > page.bottom - at.bottom) pop.classList.add("up");
+    q.focus({ preventScroll: true });
+  };
   return wrap;
 }
 
-function sidePanel(side, titleKey, ps) {
-  const box = el("div", "x-side " + side), ids = cfg[side];
+function sidePanel(n, side, titleKey, ps) {
+  const box = el("div", "x-side " + side), pair = cfg.pairs[n] ?? { a: [], b: [] }, ids = pair[side];
   const head = el("div", "x-side-head");
   head.appendChild(el("h3", "", tr(titleKey)));
   if (ids.length) head.appendChild(el("span", "x-side-n", `${numFmt().format(ps.length)} ${tr("xPlayers")}`));
@@ -136,10 +157,10 @@ function sidePanel(side, titleKey, ps) {
     const tag = el("button", "x-tag", "#" + id);
     tag.type = "button";
     tag.title = `${tr("xRemove")} #${id}`;
-    tag.onclick = () => { cfg[side] = cfg[side].filter((k) => k !== id); save(); draw(); };
+    tag.onclick = () => { pair[side] = pair[side].filter((k) => k !== id); save(); draw(); };
     tags.appendChild(tag);
   }
-  tags.appendChild(picker(side));
+  tags.appendChild(picker(n, side));
   box.append(head, tags);
   return box;
 }
@@ -171,7 +192,7 @@ function controls() {
   avg.onclick = () => { cfg.avg = !cfg.avg; save(); draw(); };
   const reset = el("button", "btn x-reset", tr("xReset"));
   reset.type = "button";
-  reset.onclick = () => { cfg.a = []; cfg.b = []; openSide = null; save(); draw(); };
+  reset.onclick = () => { cfg.pairs = []; openSide = null; save(); draw(); };
   bar.append(
     sel(KS.POWER_STEPS.map((v) => [v, `${tr("minPower")} > ${v / 1e6}M`]), cfg.minStep, (v) => (cfg.minStep = v)),
     sel(TOPS.map((v) => [v, v ? `${tr("xTop")} ${v}` : tr("xTopAll")]), cfg.top, (v) => (cfg.top = v)),
@@ -204,8 +225,9 @@ function eachKingdom(fa, fb) {
   return wrap;
 }
 
-// the two sides as six cards: each figure's value and its share of the two, with what belongs to it underneath.
-// Three columns of two cards, each card as tall as what it holds
+// the two sides as six cards, two abreast: each a small table, a line per side and a column per figure (its value and
+// a bar under it, on the larger side's scale); the columns that do not fit the card's width go on in another block
+const SIDE_W = 56, COL_W = { compact: 128, full: 176 };
 function duels(pa, pb) {
   const box = el("div", "x-duels"), int = (v) => numFmt().format(v);
   const short = (c) => (v) => (c.type === "num" && state.compact ? KS.compact(v) : show(c, v)); // follows the 1.2M switch
@@ -217,47 +239,60 @@ function duels(pa, pb) {
   const peak = [[cfg.minStep, POWER_BANDS[0][0], `${cfg.minStep / 1e6}–100M`], ...POWER_BANDS];
   const items = [
     ["players", tr("xCount"), (ps) => ps.length, int, []],
+    ["migrationScore", ...main("migrationScore", tr("xMigrationSum")), MIGRATION_BANDS.map(([lo, hi, t]) => counted("migrationScore", lo, hi, `${tr("xMigrationBand")} ${t}`))],
     ["power", ...main("power"), [col("powerMax"), ...peak.map(([lo, hi, t]) => counted("powerMax", lo, hi, `${tr("xBand")} ${t}`))]],
-    ["merits", ...main("merits"), [col("meritsMax"), col("meritRatio"), col("meritInfantry", tr("xInfantry")), col("meritCavalry", tr("xCavalry")), col("meritArcher", tr("xArcher")), col("meritMagic", tr("xMagic"))]],
     ["maxDecor", KS.label(KS.BY_KEY.maxDecor), (ps) => ps.filter((p) => (p.maxDecor ?? 0) >= DECOR_MAX).length, int,
       [owners("pets8Skills3Star"), owners("redArtifact"), owners("cityTheme"), ...["awakenedHeroes", "artifactSkillsLv5", "gemsSpent", "exchangeCoinsSpent"].map(spelled)]],
+    ["merits", ...main("merits"), [col("meritsMax"), col("meritRatio"), col("meritInfantry", tr("xInfantry")), col("meritCavalry", tr("xCavalry")), col("meritArcher", tr("xArcher")), col("meritMagic", tr("xMagic"))]],
     ["kills", ...main("kills"), [col("deaths", null, "deaths"), col("heals", null, "heals")]],
-    ["migrationScore", ...main("migrationScore", tr("xMigrationSum")), MIGRATION_BANDS.map(([lo, hi, t]) => counted("migrationScore", lo, hi, `${tr("xMigrationBand")} ${t}`))],
   ];
-  // the larger side also says how far ahead; the bar is the share of the two, with a mark at half
-  const ahead = (va, vb) => {
-    const high = Math.max(va || 0, vb || 0), low = Math.min(va || 0, vb || 0);
-    return low > 0 && high > low ? el("small", "", `+${numFmt(1).format((100 * (high - low)) / high)}%`) : null;
-  };
   const value = (side, v, other, text) => {
     const lead = v != null && other != null && v > other, b = el("b", side + (lead ? " lead" : ""), v == null ? "–" : text(v));
-    const more = lead && ahead(v, other);
-    if (more) b.appendChild(more);
+    if (lead) b.appendChild(el("small", "", "+" + text(v - other))); // how far ahead, small, after the value
     return b;
   };
-  const share = (va, vb, cls) => {
-    const bar = el("div", cls), fill = el("i"), all = (va || 0) + (vb || 0);
-    fill.style.width = (all > 0 ? (100 * (va || 0)) / all : 50).toFixed(2) + "%";
-    bar.appendChild(fill);
-    return bar;
+  const cell = (side, v, other, text) => {
+    const c = el("div", "x-c"), high = Math.max(v || 0, other || 0);
+    c.appendChild(value(side, v, other, text));
+    c.appendChild(el("span", "x-d-bar " + side)).appendChild(el("i")).style.width = (high > 0 ? (100 * Math.max(0, v || 0)) / high : 0).toFixed(2) + "%";
+    return c;
   };
-  const cols = [0, 1, 2].map(() => box.appendChild(el("div", "x-col")));
-  items.forEach(([key, label, get, text, subs], i) => {
-    const va = get(pa), vb = get(pb);
-    const d = el("div", "x-duel"), top = el("div", "x-d-top"), vals = el("div", "x-d-vals");
-    d.dataset.k = key;
-    d.style.order = i; // one column on a phone: the cards read row by row
-    top.append(el("span", "x-d-l", label), iconOf(key, "x-d-i"));
-    vals.append(value("a", va, vb, text), value("b", vb, va, text));
-    d.append(top, vals, share(va, vb, "x-d-bar"));
-    for (const [name, of, fmt, icon] of subs || []) {
-      const x = of(pa), y = of(pb), r = el("div", "x-d-sub"), lab = el("span", "x-d-n");
-      if (icon) lab.appendChild(iconOf(icon, "x-d-si"));
-      lab.appendChild(document.createTextNode(name));
-      r.append(lab, value("a", x, y, fmt), value("b", y, x, fmt), share(x, y, "x-d-bar mini"));
-      d.appendChild(r);
+  // the figures in blocks of n columns: a head of names, then side 1's line and side 2's
+  const blocks = (body, figs, n) => {
+    body.innerHTML = "";
+    for (let at = 0; at < figs.length; at += n) {
+      const part = figs.slice(at, at + n), g = body.appendChild(el("div", "x-blk"));
+      g.style.gridTemplateColumns = `${SIDE_W}px repeat(${part.length}, minmax(0, 1fr))`; // each block fills the width
+      g.appendChild(el("span"));
+      for (const [name, , , , icon] of part) {
+        const h = g.appendChild(el("span", "x-h"));
+        if (icon) h.appendChild(iconOf(icon, "x-d-si"));
+        h.appendChild(el("span", "", name)).title = name;
+      }
+      for (const [side, label] of [["a", "xSideA"], ["b", "xSideB"]]) {
+        g.appendChild(el("span", "x-sd " + side, tr(label)));
+        for (const [, va, vb, text] of part) g.appendChild(side === "a" ? cell("a", va, vb, text) : cell("b", vb, va, text));
+      }
     }
-    cols[i % 3].appendChild(d);
+  };
+  const colW = COL_W[state.compact ? "compact" : "full"];
+  const cols = [0, 1].map(() => box.appendChild(el("div", "x-col")));
+  items.forEach(([key, label, get, text, subs], i) => {
+    const d = el("div", "x-duel"), top = el("div", "x-d-top"), body = el("div", "x-d-body");
+    d.dataset.k = key;
+    d.style.order = i; // one column on a phone: the cards read in order
+    top.append(iconOf(key, "x-d-i"), el("span", "x-d-l", label));
+    const figs = [[label, get(pa), get(pb), text], ...(subs || []).map(([name, of, fmt, icon]) => [name, of(pa), of(pb), fmt, icon])];
+    let n = 0;
+    // as many columns as fit, then shared out evenly between the blocks: 7 in 4 is 4 + 3, not 4 + 4 empty slots.
+    // Run at once when the card is put in the page (a page drawn again keeps its height, so its scroll stays), and on resize
+    body.fit = () => {
+      const most = Math.max(1, Math.floor((body.clientWidth - SIDE_W) / colW)), fit = Math.ceil(figs.length / Math.ceil(figs.length / most));
+      if (body.clientWidth && fit !== n) blocks(body, figs, (n = fit));
+    };
+    new ResizeObserver(body.fit).observe(body);
+    d.append(top, body);
+    cols[i % 2].appendChild(d);
   });
   return box;
 }
@@ -265,25 +300,36 @@ function duels(pa, pb) {
 async function draw() {
   const me = ++token, box = $("cmp");
   // kingdoms that left the index (a link from another time)
-  cfg.a = cfg.a.filter(itemOf); cfg.b = cfg.b.filter(itemOf);
-  const [fa, fb] = await Promise.all([Promise.all(cfg.a.map(load)), Promise.all(cfg.b.map(load))]);
+  for (const p of cfg.pairs) { p.a = p.a.filter(itemOf); p.b = p.b.filter(itemOf); }
+  tidy();
+  const files = await Promise.all(cfg.pairs.map((p) => Promise.all([Promise.all(p.a.map(load)), Promise.all(p.b.map(load))])));
   if (me !== token) return;
-  const pa = sidePlayers(fa), pb = sidePlayers(fb), ready = cfg.a.length && cfg.b.length;
 
   const keepY = box.scrollTop;
   box.innerHTML = "";
   box.appendChild(controls());
-
-  const head = el("div", "x-head");
-  head.append(sidePanel("a", "xSideA", pa), el("div", "x-vs", "VS"), sidePanel("b", "xSideB", pb));
-  box.appendChild(head);
-
-  const bad = [...cfg.a.filter((_, i) => !fa[i]), ...cfg.b.filter((_, i) => !fb[i])];
-  if (bad.length) box.appendChild(el("p", "hint x-err", `${tr("xLoadErr")} ${bad.map((k) => "#" + k).join(", ")}`));
-  if (ready) {
-    box.append(el("p", "x-gd x-note", tr("xdDuels").replace("{agg}", tr(cfg.avg ? "xAggAvg" : "xAggSum"))), duels(pa, pb), group("players", tr("xEach"), tr("xdEach"), eachKingdom(fa, fb)));
-  } else box.appendChild(el("p", "hint mut x-hint", tr("xEmpty")));
+  const pairHead = (n, pa, pb) => {
+    const head = el("div", "x-head");
+    head.append(sidePanel(n, "a", "xSideA", pa), el("div", "x-vs", "VS"), sidePanel(n, "b", "xSideB", pb));
+    return head;
+  };
+  let noted = false;
+  cfg.pairs.forEach((p, n) => {
+    const [fa, fb] = files[n], pa = sidePlayers(fa), pb = sidePlayers(fb), sec = box.appendChild(el("section", "x-pair"));
+    sec.appendChild(pairHead(n, pa, pb));
+    const bad = [...p.a.filter((_, i) => !fa[i]), ...p.b.filter((_, i) => !fb[i])];
+    if (bad.length) sec.appendChild(el("p", "hint x-err", `${tr("xLoadErr")} ${bad.map((k) => "#" + k).join(", ")}`));
+    if (!ready(p)) { sec.appendChild(el("p", "hint mut x-hint", tr("xEmpty"))); return; }
+    if (!noted) sec.appendChild(el("p", "x-gd x-note", tr("xdDuels").replace("{agg}", tr(cfg.avg ? "xAggAvg" : "xAggSum"))));
+    noted = true;
+    sec.append(duels(pa, pb), group("players", tr("xEach"), tr("xdEach"), eachKingdom(fa, fb)));
+    sec.querySelectorAll(".x-d-body").forEach((b) => b.fit());
+  });
+  // the last pair has both sides: an empty one under it for the next, kept once a kingdom is picked in it
+  const n = cfg.pairs.length;
+  if (n < MAX_PAIRS && ready(cfg.pairs[n - 1])) box.appendChild(el("section", "x-pair")).appendChild(pairHead(n, [], []));
   box.scrollTop = keepY;
+  box.querySelector(".x-pop")?.place();
 }
 
 // a click outside closes the picker
@@ -295,8 +341,13 @@ function fromHash() {
   const hp = new URLSearchParams(location.hash.slice(1));
   if (hp.get("p") !== "compare" || (!hp.has("a") && !hp.has("b"))) return;
   const ids = (s) => [...new Set((s || "").split(",").map(Number).filter(Boolean))].slice(0, MAX_PER_SIDE);
-  cfg.a = ids(hp.get("a"));
-  cfg.b = ids(hp.get("b")).filter((k) => !cfg.a.includes(k));
+  cfg.pairs = [];
+  for (let n = 1; n <= MAX_PAIRS; n++) {
+    const tail = n === 1 ? "" : String(n), a = ids(hp.get("a" + tail));
+    if (n > 1 && !hp.has("a" + tail) && !hp.has("b" + tail)) break;
+    cfg.pairs.push({ a, b: ids(hp.get("b" + tail)).filter((k) => !a.includes(k)) });
+  }
+  tidy();
   KS.store.set("cmp", cfg);
 }
 

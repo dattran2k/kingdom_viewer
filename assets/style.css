@@ -359,6 +359,8 @@ body:not([data-compare="1"]) .cmp-only { display: none; }
 .cmp { flex: 1; overflow: auto; padding: 12px 16px 24px; }
 .x-ctl { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
 .x-reset { margin-left: auto; }
+/* each pair of sides with its figures; the next pair under a dashed line */
+.x-pair + .x-pair { margin-top: 18px; padding-top: 18px; border-top: 1px dashed var(--edge); }
 .x-head { display: grid; grid-template-columns: 1fr 44px 1fr; gap: 8px; margin-bottom: 10px; }
 .x-side { --t: var(--ta); min-width: 0; padding: 12px 14px; border: 1px solid var(--edge); border-top: 2px solid var(--t); border-radius: 8px; background: var(--panel); }
 .x-side.b { --t: var(--tb); }
@@ -377,6 +379,7 @@ body:not([data-compare="1"]) .cmp-only { display: none; }
 .x-add-btn:hover { color: var(--t); border-color: var(--t); }
 .x-add-btn:disabled { opacity: .5; cursor: default; }
 .x-pop { width: 240px; max-width: calc(100vw - 72px); display: flex; flex-direction: column; gap: 6px; }
+.x-pop.up { top: auto; bottom: calc(100% + 4px); }
 .x-vs { align-self: center; text-align: center; font-size: 14px; font-weight: 600; color: var(--mut); }
 .x-hint { text-align: center; padding: 24px 0; }
 .x-err { color: var(--down); }
@@ -395,31 +398,30 @@ body:not([data-compare="1"]) .cmp-only { display: none; }
 .x-gt { min-width: 0; }
 .x-gd { margin: 1px 0 0; font-size: 12px; line-height: 1.35; color: var(--mut); }
 /* the headline figures of the two sides */
-.x-duels { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; align-items: start; margin-bottom: 10px; }
-.x-col { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
-.x-duel { display: flex; flex-direction: column; gap: 8px; min-width: 0; padding: 12px 14px; border: 1px solid var(--edge); border-radius: 8px; background: var(--panel); }
-.x-d-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 32px; }
-.x-d-l { font-size: 14px; font-weight: 600; }
-.x-d-i { width: 32px; height: 32px; flex: none; }
-.x-d-vals { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-variant-numeric: tabular-nums; font-size: 15px; }
-.x-d-vals b { min-width: 0; font-weight: 400; overflow-wrap: anywhere; }
-.x-d-vals b.b { text-align: right; color: var(--tb); }
-.x-d-vals b.a { color: var(--ta); }
-.x-d-vals b.lead { font-size: 20px; font-weight: 600; }
-.x-d-vals small, .x-d-sub small { margin-inline: 5px; font-size: 12px; color: var(--mut); white-space: nowrap; }
-.x-d-bar { position: relative; flex: none; height: 6px; border-radius: 3px; overflow: hidden; background: var(--tb); }
-/* the half mark: the bar itself is cut in two there */
-.x-d-bar { -webkit-mask: linear-gradient(90deg, #000 calc(50% - 1px), transparent 0 calc(50% + 1px), #000 0); mask: linear-gradient(90deg, #000 calc(50% - 1px), transparent 0 calc(50% + 1px), #000 0); }
-.x-d-bar i { display: block; height: 100%; background: var(--ta); }
-.x-d-bar.mini { grid-column: 1 / -1; height: 4px; border-radius: 2px; }
-/* a card's smaller figures: rows split by a hairline, no box in a box */
-.x-d-sub { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 8px; padding-top: 8px; font-size: 13px; font-variant-numeric: tabular-nums; border-top: 1px solid var(--line); }
-.x-d-n { grid-column: 1 / -1; display: flex; align-items: center; gap: 6px; color: var(--fg2); font-size: 12px; }
-.x-d-si { width: 16px; height: 16px; flex: none; }
-.x-d-sub b { min-width: 0; font-weight: 400; }
-.x-d-sub b.a { color: var(--ta); }
-.x-d-sub b.b { color: var(--tb); text-align: right; }
-.x-d-sub b.lead { font-weight: 600; }
+.x-duels { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; align-items: start; margin-bottom: 10px; }
+.x-col { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.x-duel { display: flex; flex-direction: column; gap: 10px; min-width: 0; padding: 12px 16px; border: 1px solid var(--edge); border-radius: 8px; background: var(--panel); }
+.x-d-top { display: flex; align-items: center; gap: 8px; }
+.x-d-l { font-size: 15px; font-weight: 600; }
+.x-d-i { width: 28px; height: 28px; flex: none; }
+.x-d-si { width: 14px; height: 14px; flex: none; }
+/* a block of the card's table: a head of figure names, then a line per side, each figure its value over a bar */
+.x-d-body { min-width: 0; }
+.x-blk { display: grid; align-items: end; gap: 10px 14px; padding: 10px 0; font-variant-numeric: tabular-nums; }
+.x-blk + .x-blk { border-top: 1px solid var(--line); }
+.x-h { display: flex; align-items: center; gap: 5px; min-width: 0; color: var(--fg2); font-size: 12px; }
+.x-h span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.x-sd { align-self: center; font-size: 12px; font-weight: 600; white-space: nowrap; }
+.x-sd.a, .x-c b.a { color: var(--ta); }
+.x-sd.b, .x-c b.b { color: var(--tb); }
+.x-c { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.x-c b { font-size: 15px; font-weight: 400; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.x-c b.lead { font-weight: 700; }
+.x-c small { margin-left: 5px; font-size: 11px; font-weight: 400; color: var(--mut); }
+.x-d-bar { display: block; height: 8px; border-radius: 4px; overflow: hidden; background: color-mix(in srgb, var(--c) 16%, transparent); }
+.x-d-bar i { display: block; height: 100%; border-radius: inherit; background: var(--c); }
+.x-d-bar.a { --c: var(--ta); }
+.x-d-bar.b { --c: var(--tb); }
 
 /* rankings, growth, migration */
 .dv-ctl { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; margin-bottom: 10px; }
@@ -458,10 +460,6 @@ body:not([data-compare="1"]) .cmp-only { display: none; }
 .dd-pop li.on { background: var(--acc-bg); color: var(--acc); font-weight: 600; }
 
 /* a narrow window: the menu slides in over the page */
-@media (max-width: 1100px) {
-  .x-duels { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .x-col:last-child { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
-}
 @media (max-width: 900px) {
   .side { position: fixed; inset: 0 auto 0 0; z-index: 31; width: 220px; box-shadow: var(--shadow); transform: translateX(-100%); visibility: hidden; transition: transform .18s, visibility .18s; }
   .side.open { transform: none; visibility: visible; }
@@ -478,7 +476,8 @@ body:not([data-compare="1"]) .cmp-only { display: none; }
   .sort-box label { min-width: 0; padding-left: 4px; }
   .sort-box label > span { display: none; }
   .x-duels { display: flex; flex-direction: column; align-items: stretch; }
-  .x-col, .x-col:last-child { display: contents; }
+  .x-col { display: contents; }
+  .x-duel { padding: 10px 12px; }
   .x-side .x-tag, .x-side .x-add-btn { height: 36px; }
   .x-side .x-tag { font-size: 16px; padding: 0 10px; }
 }
@@ -871,8 +870,12 @@ body[data-compare="1"] .k-row .kbtn { height: 52px; }
 .kr-place { display: inline-flex; align-items: baseline; gap: 6px 10px; }
 .kr-end { display: flex; align-items: center; gap: 10px; margin-left: auto; }
 .kr-end .kr-link { margin-left: 0; }
-.rk-kds { display: inline-grid; grid-template-columns: repeat(4, auto); gap: 4px; align-items: center; justify-items: start; }
+.rk-kds { display: inline-grid; grid-template-columns: repeat(2, minmax(0, max-content)); justify-content: center; gap: 6px 8px; max-width: 100%; padding: 3px 0; }
+/* a camp: its kingdoms in a blue frame, two frames a line, so the camps of a map read apart */
+.rk-camp { display: grid; justify-content: center; gap: 3px; padding: 3px; border: 1px solid var(--acc); border-radius: 7px; background: color-mix(in srgb, var(--acc) 8%, transparent); }
+.rk-camp .kd { min-width: 40px; padding: 2px 6px; color: var(--fg); font-size: 13px; font-weight: 700; }
 .rk-kds .kd { margin: 0; }
+.dv-wrap .tbl td:has(.rk-kds) { max-width: none; } /* its width comes from campsW */
 /* until the data is in: the same boxes, each line a soft moving bar, so nothing moves when it arrives */
 .sk { display: inline-block; height: .8em; max-width: 100%; border-radius: 4px; vertical-align: middle; background: linear-gradient(90deg, var(--panel2) 25%, color-mix(in srgb, var(--panel2) 60%, var(--fg2)) 50%, var(--panel2) 75%) 0 0 / 300% 100%; animation: sk-move 1.4s linear infinite; }
 @keyframes sk-move { from { background-position: 100% 0; } to { background-position: -50% 0; } }

@@ -66,6 +66,14 @@ COLUMNS.filter((c) => c.fixed).forEach((c) => state.shown.add(c.key));
 if (!store.get("tradesAdded")) { state.shown.add("trades"); store.set("cols", [...state.shown]); store.set("tradesAdded", true); } // a list saved before this column existed
 
 const tr = (k) => T[state.lang][k] ?? k;
+// A menu under its button opens towards the side with room, and is pushed back inside the window when neither side has it
+function fitPop(pop) {
+  pop.style.left = pop.style.right = "";
+  pop.classList.remove("flip");
+  if (pop.getBoundingClientRect().right > innerWidth - 8) pop.classList.add("flip");
+  const r = pop.getBoundingClientRect();
+  if (r.left < 8) { pop.style.right = "auto"; pop.style.left = 8 - pop.parentElement.getBoundingClientRect().left + "px"; }
+}
 const label = (o) => o[state.lang] ?? o.vi;
 
 // ---- formatting ----
@@ -1268,9 +1276,7 @@ function init() {
     const pop = $("viewPop");
     pop.hidden = !on;
     $("viewBtn").setAttribute("aria-expanded", String(on));
-    // open towards the side with room: to the right of the button unless that runs off the window
-    pop.classList.remove("flip");
-    if (on && pop.getBoundingClientRect().right > innerWidth - 8) pop.classList.add("flip");
+    if (on) fitPop(pop);
   };
   $("viewBtn").onclick = () => showView($("viewPop").hidden);
   document.addEventListener("pointerdown", (e) => { if (!$("viewPop").hidden && !e.target.closest(".vpick")) showView(false); });
@@ -1353,7 +1359,7 @@ function keepScroll(root, draw) {
 // what views.js uses
 const KS = (window.KS = {
   state, T, tr, label, $, store, fmt, compact, numFmt, getJSON, BY_KEY, NUMERIC, value, idle, POWER_STEPS, DEFAULT_POWER,
-  openPicker, toggleKingdom,
+  openPicker, toggleKingdom, fitPop,
   repick: () => { pickRows(); refresh(); },
   refresh, setHash, kingdomMatches, listKeys, checkVersion, deltaOf, keepScroll, allianceChip, rankColour, dayDrop,
 });
