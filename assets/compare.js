@@ -58,7 +58,7 @@ function load(id) {
 // the players of a side: every kingdom's over the power step, then the side's strongest N
 function sidePlayers(files) {
   let ps = [];
-  for (const f of files) if (f) for (const p of f.players) if ((p.power ?? 0) > cfg.minStep) ps.push(p);
+  for (const f of files) if (f) for (const p of f.players) if (KS.filterPower(p) > cfg.minStep) ps.push(p);
   if (cfg.top) ps = ps.sort((x, y) => (y.power ?? 0) - (x.power ?? 0)).slice(0, cfg.top);
   return ps;
 }
@@ -209,7 +209,7 @@ function eachKingdom(fa, fb) {
   t.appendChild(el("thead")).appendChild(hr);
   const tb = t.appendChild(el("tbody"));
   for (const [side, files] of [["a", fa], ["b", fb]]) {
-    const rows = files.filter(Boolean).map((f) => ({ f, ps: f.players.filter((p) => (p.power ?? 0) > cfg.minStep) }));
+    const rows = files.filter(Boolean).map((f) => ({ f, ps: f.players.filter((p) => KS.filterPower(p) > cfg.minStep) }));
     rows.sort((x, y) => (measure(KS.BY_KEY.power, y.ps) ?? 0) - (measure(KS.BY_KEY.power, x.ps) ?? 0));
     for (const { f, ps } of rows) {
       const r = el("tr");

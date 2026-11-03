@@ -1,6 +1,6 @@
 // The pages over all kingdoms: ranking and migration. A classic script loaded after compare.js; what it needs from the
 // page comes through window.KS. They read the tables in data/derived/, worked out ahead when the data is exported.
-// Links: #p=rank · #p=migration&a=<scan>&b=<scan>&v=servers&k=<kingdom>&q=<id or name>
+// Links: #p=rank (&st=<status>&gen=<generation>: the filters picked, kept in the link as they change; &at=<kingdom>: opens on its line) · #p=migration&a=<scan>&b=<scan>&v=servers&k=<kingdom>&q=<id or name>
 (() => {
 "use strict";
 const KS = window.KS, { state, tr, $, numFmt, fitPop } = KS;
@@ -8,17 +8,17 @@ const KS = window.KS, { state, tr, $, numFmt, fitPop } = KS;
 Object.assign(KS.T.vi, {
   descKingdom: "Người chơi của từng kingdom theo ngày. Bật So sánh để xem mỗi người tăng giảm bao nhiêu giữa 2 ngày.",
   descCompare: "Đối chiếu hai phe, mỗi phe gồm một hoặc nhiều kingdom, ở ngày mới nhất.",
-  descRank: "Xếp hạng các kingdom ở ngày mới nhất, tính người có lực chiến max trên 15M.",
+  descRank: "Xếp hạng các kingdom ở ngày mới nhất, tính người có lực chiến hiện tại trên 15M.",
   descMigration: "Ai đã chuyển từ kingdom nào sang kingdom nào giữa 2 ngày.",
   navRank: "Xếp hạng", navMigration: "Di cư", cmpDays: "So sánh", modeLabel: "Chế độ", modeNormal: "Thường", cmpRemove: "Bỏ", cmpDaysTip: "So sánh 2 ngày của một hoặc nhiều kingdom: mỗi người tăng bao nhiêu",
   noDerived: "Chưa có dữ liệu tổng hợp (data/derived/).", dvLoadErr: "Không tải được dữ liệu.",
   rKingdoms: "kingdom", 
-  rSearch: "#kingdom, tag…", rSearchK: "SoS8-10045, #kingdom…", rHint: "Tính theo người có lực chiến max trên 15M, trong top lực chiến mỗi kingdom. Bấm một dòng để mở.",
-  cKingdom: "Kingdom", cGen: "Gen", cAllGens: "Mọi gen", cTopAlliance: "LM mạnh nhất", cPlayers: "Người chơi",
+  rSearch: "#kingdom, tag…", rSearchK: "SoS8-10045, #kingdom…", rHint: "Tính theo người có lực chiến hiện tại trên 15M, trong top lực chiến mỗi kingdom. Bấm một dòng để mở.",
+  cKingdom: "Kingdom", cGen: "Gen", cTopAlliance: "Liên Minh", cPlayers: "Người chơi",
   cPower: "Lực chiến", cPowerMax: "LC max", cMerits: "Công trạng", cKills: "Tiêu diệt", cDeaths: "Tử trận", cHeals: "Chữa trị", cHelps: "Giúp đỡ", cGathered: "Thu thập",
   cMigration: "Điểm di cư", cDecor: "Decor max", cInf: "CT bộ", cCav: "CT kỵ", cArc: "CT cung", cMag: "CT phép",
   gFrom: "Từ", gTo: "Đến", gName: "Người chơi",
-  mStart: "Từ ngày", mEnd: "Đến ngày", mLords: "Người chơi", mServers: "Kingdom", mKingdom: "Kingdom", mLord: "ID / tên", mMin: "Lực chiến ≥ (M)",
+  mStart: "Từ ngày", mEnd: "Đến ngày", mLords: "Người chơi", mServers: "Kingdom", mKingdom: "Kingdom", mLord: "ID / tên", mMin: "Lực chiến > (M)",
   mFrom: "Từ", mTo: "Đến", mAllianceFrom: "LM cũ", mAllianceTo: "LM mới", mDate: "Thời điểm",
   mTotal: "lượt di cư", mPeople: "người", mPage: "Trang", mPrev: "◀ Trước", mNext: "Sau ▶", mNone: "Không có lượt di cư nào khớp.", mWindow: "Còn ở kingdom cũ lúc {a}, đã ở kingdom mới lúc {b}",
   mIn: "vào", mOut: "ra", mNet: "ròng", mHint: "Lực chiến và các số khác là số mới nhất. Ngày di cư thật nằm trong khoảng hiện ở cột Thời điểm. Chỉ thấy người có trong top lực chiến ≥ 5M ở cả hai đầu.",
@@ -26,17 +26,17 @@ Object.assign(KS.T.vi, {
 Object.assign(KS.T.en, {
   descKingdom: "Each kingdom's players by day. Turn on Compare to see how much each one changed between two days.",
   descCompare: "Two sides face to face, each of one or more kingdoms, on the newest day.",
-  descRank: "Kingdoms ranked on the newest day, counting players above 15M max power.",
+  descRank: "Kingdoms ranked on the newest day, counting players above 15M power now.",
   descMigration: "Who moved from which kingdom to which between two days.",
   navRank: "Rankings", navMigration: "Migration", cmpDays: "Compare", modeLabel: "Mode", modeNormal: "Normal", cmpRemove: "Remove", cmpDaysTip: "Compare two days of one or more kingdoms: how much each player gained",
   noDerived: "No summary data yet (data/derived/).", dvLoadErr: "Could not load the data.",
   rKingdoms: "kingdoms", 
-  rSearch: "#kingdom, tag…", rSearchK: "SoS8-10045, #kingdom…", rHint: "Counts players whose max power is above 15M, within each kingdom's power ranking. Click a line to open it.",
-  cKingdom: "Kingdom", cGen: "Gen", cAllGens: "All gens", cTopAlliance: "Top alliance", cPlayers: "Players",
+  rSearch: "#kingdom, tag…", rSearchK: "SoS8-10045, #kingdom…", rHint: "Counts players whose power now is above 15M, within each kingdom's power ranking. Click a line to open it.",
+  cKingdom: "Kingdom", cGen: "Gen", cTopAlliance: "Alliance", cPlayers: "Players",
   cPower: "Power", cPowerMax: "Max power", cMerits: "Merits", cKills: "Kills", cDeaths: "Dead", cHeals: "Healed", cHelps: "Helps", cGathered: "Gathered",
   cMigration: "Migration score", cDecor: "Max decor", cInf: "Infantry", cCav: "Cavalry", cArc: "Archers", cMag: "Magic",
   gFrom: "From", gTo: "To", gName: "Player",
-  mStart: "From", mEnd: "To", mLords: "Players", mServers: "Kingdoms", mKingdom: "Kingdom", mLord: "ID / name", mMin: "Power ≥ (M)",
+  mStart: "From", mEnd: "To", mLords: "Players", mServers: "Kingdoms", mKingdom: "Kingdom", mLord: "ID / name", mMin: "Power > (M)",
   mFrom: "From", mTo: "To", mAllianceFrom: "Past alliance", mAllianceTo: "New alliance", mDate: "When",
   mTotal: "moves", mPeople: "players", mPage: "Page", mPrev: "◀ Prev", mNext: "Next ▶", mNone: "No move matches.", mWindow: "Still in the old kingdom at {a}, in the new one at {b}",
   mIn: "in", mOut: "out", mNet: "net", mHint: "Power and the other numbers are the newest known. The real moment lies within the range in the When column. Only players on the power ranking at 5M or more at both ends can be seen.",
@@ -295,19 +295,27 @@ function frame() {
 }
 
 // ---- ranking: the kingdoms of one scan, optionally against an older one ----
+// in the order of the server ranking's columns: the migration score with its bands, then power with max decor after max power;
+// helps and gathered last; those two and the merits by troop type hidden until asked for (RANK_HIDDEN)
 const RANK_METRICS = [
-  ["power", "cPower"], ["powerMax", "cPowerMax"], ["merits", "cMerits"], ["kills", "cKills"], ["deaths", "cDeaths"], ["heals", "cHeals"],
-  ["helps", "cHelps"], ["gathered", "cGathered"], ["migrationScore", "cMigration"], ["migration24", "24–27"], ["migration28", "28–30"], ["migration31", "31+"],
-  ["decorMax", "cDecor"], ["meritInfantry", "cInf"], ["meritCavalry", "cCav"], ["meritArcher", "cArc"], ["meritMagic", "cMag"],
+  ["migrationScore", "cMigration"], ["migration24", "24–27"], ["migration28", "28–30"], ["migration31", "31+"],
+  ["power", "cPower"], ["powerMax", "cPowerMax"], ["decorMax", "cDecor"], ["merits", "cMerits"], ["kills", "cKills"], ["deaths", "cDeaths"], ["heals", "cHeals"],
+  ["meritInfantry", "cInf"], ["meritCavalry", "cCav"], ["meritArcher", "cArc"], ["meritMagic", "cMag"],
 ];
+const RANK_LAST = [["helps", "cHelps"], ["gathered", "cGathered"]];
+const RANK_HIDDEN = [...RANK_LAST.map(([k]) => k), "meritInfantry", "meritCavalry", "meritArcher", "meritMagic"];
 const tradesCol = () => ({ key: "trades", label: "Trades", get: (r) => r.trades, tip: () => tr("tradesTip"), node: (r) => el("span", "tr-b", r.trades == null ? "–" : numFmt(0).format(r.trades) + "%") });
 const RANK_DEFAULT = { server: "migrationScore", member: "power", kvk: "powerMax" }; // what each ranking is sorted by when it opens
-const rank = { q: "", page: 1, sort: { key: RANK_DEFAULT.server, dir: -1 }, mode: "server", st: "", gen: "" };
+const rank = { q: "", page: 1, sort: { key: RANK_DEFAULT.server, dir: -1 }, mode: "server", st: "", gen: "", at: 0 }; // at: the kingdom to open on
 
 async function showRank() {
   const { ctl, out } = frame();
-  const asked = { players: "member", kvk: "kvk" }[new URLSearchParams(location.hash.slice(1)).get("m")] || "server";
+  const hp = new URLSearchParams(location.hash.slice(1));
+  const asked = { players: "member", kvk: "kvk" }[hp.get("m")] || "server";
   if (rank.mode !== asked) { rank.mode = asked; rank.sort = { key: RANK_DEFAULT[asked], dir: -1 }; rank.page = 1; }
+  // a shared link, or from a Kingdom page: the server ranking as it opens with the link's filters, on that kingdom's line
+  if (asked === "server" && ["at", "st", "gen"].some((x) => hp.has(x)))
+    Object.assign(rank, { at: Number(hp.get("at")) || 0, q: "", st: hp.get("st") || "", gen: hp.get("gen") || "", page: 1, sort: { key: RANK_DEFAULT.server, dir: -1 } });
   const redraw = () => drawRank(out);
   const restart = () => { rank.page = 1; redraw(); };
   const seg = el("nav", "rk-seg");
@@ -345,7 +353,6 @@ const kvkCell = (b) => {
   a.append(el("b", "", b.name), el("small", "mut", KS.season.title(b.season)));
   return a;
 };
-const NO_PILL = new Set([1, 103, 120]); // Season 1, settling soon, matched: few kingdoms, no filter of their own
 // the status column as wide as its longest chip: padding 8 + border 1 a side, the cell's padding 10 a side, and 6 to
 // spare: the canvas measures the text a pixel or so short of the page, and the cell's ellipsis shows for any overflow
 const statusW = (rows) => Math.ceil(Math.max(0, ...rows.map((r) => textW(KS.season.status(r.st), "600 12px"))) + 18 + 20 + 6);
@@ -424,35 +431,37 @@ async function drawRank(out) {
   if (rank.mode === "kvk") return drawKvks(out, me);
   const [cur, kvk] = await Promise.all([load("derived/rollup.json"), KS.season.list()]);
   if (me !== rankToken) return;
-  setLink("rank", {});
+  setLink("rank", { st: rank.st, gen: rank.gen }); // the filters picked: the link shares them
   out.innerHTML = "";
   if (!cur) { out.appendChild(el("p", "hint", tr("noDerived"))); return; }
   let rows = objects(cur.kingdomCols, cur.kingdoms);
-  rows.forEach((r) => { r.kvk = KS.season.of(kvk, r.kingdom); r.st = kvk?.servers?.[r.kingdom]?.[1]; r.gen = kvk?.genOf?.[r.kingdom]; });
+  rows.forEach((r) => { r.kvk = KS.season.of(kvk, r.kingdom); r.st = kvk?.servers?.[r.kingdom]?.[1]; r.stf = KS.season.filterOf(r.st); r.gen = kvk?.genOf?.[r.kingdom]; });
   const all = rows; // before any filter: the columns keep their width
   const counts = new Map();
-  rows.forEach((r) => { if (KS.season.status(r.st) && !NO_PILL.has(r.st)) counts.set(r.st, (counts.get(r.st) || 0) + 1); });
+  rows.forEach((r) => { if (r.stf != null) counts.set(r.stf, (counts.get(r.stf) || 0) + 1); }); // a filter per status that has one
   if (rank.st && !counts.has(Number(rank.st))) rank.st = "";
-  const pills = el("nav", "kv-pills"), genPills = el("nav", "kv-pills");
-  // a filter button: `prop` of `rank` set to `v`
-  const pill = (box, prop, v, name, n) => {
+  // the two filters, a line each: a name, then its buttons (All, then each value with its colour dot and count)
+  const filterLine = (name) => { const line = el("div", "rk-filter"), nav = el("nav", "rk-pills"); line.append(el("span", "rk-filter-l", name), nav); return line; };
+  const pills = filterLine(tr("rStatus")), genPills = filterLine(tr("cGen"));
+  // a filter button: `prop` of `rank` set to `v`; data-st / data-gen give the dot its colour
+  const pill = (line, prop, v, name, n) => {
     const b = el("button");
     b.type = "button";
-    b.append(name + " ", el("small", "", numFmt().format(n)));
+    if (v !== "") { b.dataset[prop] = v; b.appendChild(el("i", "rk-dot")); }
+    b.append(name, el("small", "", numFmt().format(n)));
     b.setAttribute("aria-pressed", String(String(rank[prop]) === String(v)));
-    if (prop === "st") b.dataset.st = v; // coloured as the status chips of the table
     b.onclick = () => { rank[prop] = v; rank.page = 1; drawRank(out); };
-    box.appendChild(b);
+    line.lastChild.appendChild(b);
   };
   pill(pills, "st", "", tr("kAll"), rows.length);
   [...counts.entries()].sort((a, b) => b[1] - a[1]).forEach(([st, n]) => pill(pills, "st", st, KS.season.status(st), n));
-  if (rank.st !== "") rows = rows.filter((r) => String(r.st) === String(rank.st));
+  if (rank.st !== "") rows = rows.filter((r) => String(r.stf) === String(rank.st));
   // the SoS generation, counted within the status picked
   const gens = new Map();
   rows.forEach((r) => { if (r.gen) gens.set(r.gen, (gens.get(r.gen) || 0) + 1); });
   if (rank.gen && !gens.has(Number(rank.gen))) rank.gen = "";
   if (gens.size) {
-    pill(genPills, "gen", "", tr("cAllGens"), rows.length);
+    pill(genPills, "gen", "", tr("kAll"), rows.length);
     [...gens.entries()].sort((a, b) => a[0] - b[0]).forEach(([g, n]) => pill(genPills, "gen", g, `${tr("cGen")} ${g}`, n));
   }
   if (rank.gen !== "") rows = rows.filter((r) => String(r.gen) === String(rank.gen));
@@ -462,26 +471,33 @@ async function drawRank(out) {
   const cols = [
     { key: "#", label: "#", nosort: true, text: (r) => String(r._i), cls: () => "mut" },
     { key: "kingdom", label: tr("cKingdom"), get: (r) => r.kingdom, node: (r) => kdCell(r.kingdom, r._i <= 8) },
-    { key: "kvk", label: "KvK", get: (r) => r.kvk?.name ?? "", node: (r) => kvkCell(r.kvk) },
+    { key: "topAlliance", label: tr("cTopAlliance"), get: (r) => r.topAlliance, node: (r) => allianceChip(r.topAlliance) }, // its top alliance
+    // no KvK column when none of the kingdoms listed is in one (a filter on the ones being paired, say)
+    ...(rows.some((r) => r.kvk) ? [{ key: "kvk", label: "KvK", get: (r) => r.kvk?.name ?? "", node: (r) => kvkCell(r.kvk) }] : []),
     { key: "st", label: tr("rStatus"), w: statusW(all), get: (r) => r.st ?? -1, node: (r) => statusCell(r.st) },
-    { key: "gen", label: tr("cGen"), get: (r) => r.gen ?? 0, text: (r) => (r.gen ? String(r.gen) : "–"), cls: (r) => (r.gen ? "" : "mut") },
-    metricCol(RANK_METRICS.find((m) => m[0] === RANK_DEFAULT.server)),
-    { key: "topAlliance", label: tr("cTopAlliance"), get: (r) => r.topAlliance, node: (r) => allianceChip(r.topAlliance) },
+    { key: "gen", label: tr("cGen"), w: 60, get: (r) => r.gen ?? 0, node: (r) => { if (!r.gen) return el("span", "mut", "–"); const g = el("span", "rk-gen", String(r.gen)); g.dataset.gen = r.gen; return g; } },
+    ...RANK_METRICS.slice(0, 4).map(metricCol), // the migration score and its bands
     { key: "players", label: tr("cPlayers"), get: (r) => r.players, text: (r) => numFmt().format(r.players) },
-    ...RANK_METRICS.filter((m) => m[0] !== RANK_DEFAULT.server).map(metricCol),
+    ...RANK_METRICS.slice(4).map(metricCol),
     tradesCol(),
+    ...RANK_LAST.map(metricCol),
   ];
   const col = cols.find((c) => c.key === rank.sort.key) || cols.find((c) => c.key === RANK_DEFAULT.server);
   rows = sortRows(rows, col.get, rank.sort.dir);
-  rows.forEach((r, i) => { r._i = i + 1; });
+  rows.forEach((r, i) => { r._i = i + 1; r._cls = r.kingdom === rank.at ? "rk-focus" : ""; });
+  const at = rows.findIndex((r) => r.kingdom === rank.at), size = pageSize();
+  if (at >= 0 && size) rank.page = Math.floor(at / size) + 1;
   const shown = onPage(rows, rank.page);
   out.appendChild(pills);
   if (gens.size) out.appendChild(genPills);
-  const view = tableBar(out, { id: "servers", title: tr("rServers"), meta: `${numFmt().format(rows.length)} kingdom`, cols, holder: rank, prop: "sort", redraw: () => KS.keepScroll($("dv"), () => drawRank(out)) });
+  // a new id: the hidden columns kept under "servers" were saved before helps and gathered were hidden at first
+  const view = tableBar(out, { id: "rankServers", title: tr("rServers"), meta: `${numFmt().format(rows.length)} kingdom`, cols, holder: rank, prop: "sort", hideFirst: RANK_HIDDEN, redraw: () => KS.keepScroll($("dv"), () => drawRank(out)) });
   view.all = rows;
   out.appendChild(table(view, shown, { key: col.key, dir: rank.sort.dir }, (k) => { rank.sort = nextSort(rank.sort, k); rank.page = 1; KS.keepScroll($("dv"), () => drawRank(out)); },
     (r) => { location.hash = "k=" + r.kingdom; }));
   out.appendChild(pager(rows.length, rank.page, (p) => { rank.page = p; drawRank(out); }));
+  if (at >= 0) requestAnimationFrame(() => out.querySelector("tr.rk-focus")?.scrollIntoView({ block: "center" }));
+  rank.at = 0; // once: the next redraw (a sort, a filter) keeps the user's place
 }
 
 // ---- migration: who went from where to where in a span of scans, by player or by kingdom ----
@@ -542,7 +558,7 @@ function movesInSpan(moves) {
 function drawMigration(out, moves) {
   setLink("migration", { a: mig.a, b: mig.b, v: mig.view === "lords" ? "" : "servers", k: mig.k || "", q: mig.q });
   const minP = mig.min * 1e6, q = mig.q.toLowerCase();
-  let list = movesInSpan(moves).filter((m) => (m.power ?? 0) >= minP);
+  let list = movesInSpan(moves).filter((m) => KS.filterPower(m) > minP);
   if (q) list = list.filter((m) => String(m.id) === q || String(m.name).toLowerCase().includes(q));
   out.innerHTML = "";
   if (mig.view === "servers") return drawFlows(out, list, moves);

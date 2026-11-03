@@ -122,7 +122,11 @@ function drawKpis() {
   if (!state.data) return;
   box.innerHTML = "";
   box.classList.remove("holding");
-  if (state.data._vs) { drawGrowthKpis(box, list); return; }
+  if (state.data._vs) drawGrowthKpis(box, list);
+  else drawPlainKpis(box, list);
+  KS.onKpisDrawn?.(); // the Kingdom page puts each card's server rank on it
+}
+function drawPlainKpis(box, list) {
   box.appendChild(kpiCard("players", tr("kPlayers"), el("b", "k-v", numFmt().format(list.length)), el("span", "k-a", " "))); // an empty line: the same height as its neighbours
   for (const k of KPIS) {
     const a = agg(list, k.get);

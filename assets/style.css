@@ -676,16 +676,35 @@ body:not([data-compare="1"]) .cmp-only { display: none; }
 .k-status { display: inline-block; padding: 2px 8px; border: 1px solid var(--edge); border-radius: 999px; color: var(--fg2); font-size: 12px; font-weight: 600; white-space: nowrap; }
 .k-status[hidden] { display: none; }
 .k-status[data-st="125"] { border-color: color-mix(in srgb, var(--down) 45%, transparent); color: var(--down); }
-.k-status[data-st="110"], .k-status[data-st="111"] { border-color: color-mix(in srgb, #e0a100 55%, transparent); color: #e0a100; }
+.k-status[data-st="110"] { border-color: color-mix(in srgb, #e0a100 55%, transparent); color: #e0a100; }
+.k-status[data-st="111"] { border-color: color-mix(in srgb, var(--acc) 55%, transparent); color: var(--acc); }
 .k-status[data-st="120"], .k-status[data-st="115"] { border-color: color-mix(in srgb, var(--up) 45%, transparent); color: var(--up); }
-/* the status filters of the ranking, in the colours of the chips */
-.kv-pills button[data-st="125"] { --st: var(--down); }
-.kv-pills button:is([data-st="110"], [data-st="111"]) { --st: #e0a100; }
-.kv-pills button:is([data-st="120"], [data-st="115"]) { --st: var(--up); }
-.kv-pills button:is([data-st="125"], [data-st="110"], [data-st="111"], [data-st="120"], [data-st="115"]) { border-color: color-mix(in srgb, var(--st) 45%, transparent); color: var(--st); }
-.kv-pills button:is([data-st="125"], [data-st="110"], [data-st="111"], [data-st="120"], [data-st="115"]):hover { border-color: var(--st); }
-.kv-pills button:is([data-st="125"], [data-st="110"], [data-st="111"], [data-st="120"], [data-st="115"])[aria-pressed="true"] { border-color: var(--st); background: color-mix(in srgb, var(--st) 14%, transparent); }
-.kv-pills button:is([data-st="125"], [data-st="110"], [data-st="111"], [data-st="120"], [data-st="115"])[aria-pressed="true"] small { color: var(--st); }
+/* the filters of the ranking: a line each, its name then its buttons. A value has its colour (--c: statuses as the table's chips,
+   the generations their own) on its dot and name, and on the frame when picked; All is in the page's blue */
+.rk-filter { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 8px; }
+.rk-filter-l { flex: none; min-width: 72px; color: var(--mut); font-size: 13px; line-height: 30px; } /* on the first line of buttons when they wrap */
+.rk-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.rk-pills button { --c: var(--acc); display: inline-flex; align-items: center; gap: 7px; height: 30px; padding: 0 6px 0 12px; border: 1px solid var(--edge); border-radius: 999px; background: none; color: var(--fg2); font-size: 13px; font-weight: 600; cursor: pointer; }
+.rk-pills button:is([data-st], [data-gen]) { color: var(--c); }
+.rk-pills button small { padding: 1px 7px; border-radius: 999px; background: var(--panel2); color: var(--mut); font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.rk-pills button:hover { border-color: color-mix(in srgb, var(--c) 60%, var(--edge)); }
+.rk-pills button[aria-pressed="true"] { border-color: var(--c); background: color-mix(in srgb, var(--c) 15%, transparent); color: var(--c); }
+.rk-pills button[aria-pressed="true"] small { background: color-mix(in srgb, var(--c) 25%, transparent); color: var(--c); }
+.rk-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+.rk-pills [data-st] { --c: var(--fg2); }
+.rk-pills [data-st="125"] { --c: var(--down); }
+.rk-pills [data-st="110"] { --c: #e0a100; }
+.rk-pills [data-st="111"] { --c: var(--acc); }
+.rk-pills :is([data-st="120"], [data-st="115"]) { --c: var(--up); }
+/* a generation's colour, in the filter and the Gen column */
+:is(.rk-pills button, .rk-gen)[data-gen="1"] { --c: #ff8a3d; }
+:is(.rk-pills button, .rk-gen)[data-gen="2"] { --c: #22c3d6; }
+:is(.rk-pills button, .rk-gen)[data-gen="3"] { --c: #9ccc3c; }
+:is(.rk-pills button, .rk-gen)[data-gen="4"] { --c: #c084fc; }
+.rk-gen { color: var(--c); font-weight: 700; }
+/* the line of the kingdom the ranking was opened from */
+.tbl tr.rk-focus > td { background: color-mix(in srgb, var(--acc) 16%, var(--panel)); }
+.tbl tr.rk-focus > td:first-child { box-shadow: inset 3px 0 0 var(--acc); }
 /* every table reads like the Kingdom table: same heights, no box of its own, names and kingdoms alike */
 .dv-wrap { border: 0; border-radius: 0; background: none; }
 .dv-wrap .tbl th { height: var(--hh); padding: 0 10px; }
@@ -756,6 +775,11 @@ body:not([data-compare="1"]) .k-row .kbtn::after { display: none; }
 .kr-head h2 { margin: 0 6px 0 0; color: var(--fg); font-size: 18px; font-weight: 700; }
 .kr-main { color: var(--acc); font-size: 26px; font-weight: 800; line-height: 1; }
 .kr-pill { align-self: center; padding: 1px 9px; border-radius: 999px; background: var(--acc-bg); color: var(--acc); font-size: 12px; font-weight: 600; }
+/* the server rank over the cards: its line ends right above them; each card has its metric's place, the metrics without a card are on the line */
+#kRank > .kr-head:last-child { margin-bottom: 0; }
+.kr-x { align-self: center; color: var(--fg2); font-size: 13px; }
+.kr-x b, .k-rank { color: var(--acc); font-weight: 700; }
+.k-rank { margin-left: 6px; font-size: 13px; }
 .kr-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; } /* 9 metrics: never one left alone on a line */
 @media (min-width: 1500px) { .kr-grid { grid-template-columns: repeat(9, minmax(0, 1fr)); } }
 .kr-tile { display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; border: 1px solid var(--edge); border-radius: 8px; background: var(--panel); }
@@ -790,7 +814,12 @@ body[data-compare="1"] .k-row.has-art .kbtn { color: #fff; border-color: rgb(255
 .k-row.has-art .x-tag, .k-row.has-art .x-tag:disabled { background: rgb(8 10 14 / .62); color: #fff; border-color: rgb(255 255 255 / .35); }
 .k-row.has-art .k-status { color: #fff; border-color: rgb(255 255 255 / .35); }
 .k-row.has-art .k-status[data-st="125"] { color: #ff8a8f; border-color: #ff8a8f; }
-.k-row.has-art .k-status[data-st="110"], .k-row.has-art .k-status[data-st="111"] { color: #ffc94d; border-color: #ffc94d; }
+.k-row.has-art .k-status[data-st="110"] { color: #ffc94d; border-color: #ffc94d; }
+.k-row.has-art .k-status[data-st="111"] { color: #8ab4ff; border-color: #8ab4ff; }
+/* right of the status chip: every kingdom under the same filter */
+.k-status-all { color: var(--acc); font-size: 13px; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; white-space: nowrap; }
+.k-status-all[hidden] { display: none; }
+.k-row.has-art .k-status-all { color: #fff; text-shadow: 0 1px 3px rgb(0 0 0 / .85); }
 .k-row.has-art .k-meta .mut, .k-row.has-art .k-meta-l span { color: #fff; }
 /* light theme: the cards */
 :root[data-theme="light"] .kpi { background: linear-gradient(135deg, var(--panel) 45%, color-mix(in srgb, var(--t, var(--acc)) 12%, var(--panel)) 100%); }
@@ -1029,6 +1058,7 @@ body[data-compare="1"] .k-row .kbtn { height: 52px; }
 .kv-info .kr-head h2 { font-size: 15px; }
 .kv-info-link { color: var(--acc-solid); font-size: 13px; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
 .kv-info-link:hover { color: var(--acc); }
+.kv-info-end { margin-left: auto; }
 /* the frame gives its whole width to the tables: no side padding, the frame's border instead of theirs (the camps
    table is ~1660 px at the least; the padding scrolled it on a 1920 screen) */
 .kv-info { padding: 0 0 4px; overflow: hidden; }

@@ -5,11 +5,12 @@
 const KS = window.KS, { state, tr, $, numFmt } = KS;
 const { el, load, objects } = KS.ui;
 
-Object.assign(KS.T.vi, { iSeeRank: "Xem bảng xếp hạng", iRankTitle: "Hạng server", iOf: "/ {n} kingdom", iTop: "Top {p}%", iNoKvk: "Chưa ở trong KvK nào" });
-Object.assign(KS.T.en, { iSeeRank: "See the ranking", iRankTitle: "Kingdom rank", iOf: "/ {n} kingdoms", iTop: "Top {p}%", iNoKvk: "In no KvK yet" });
+Object.assign(KS.T.vi, { iSeeRank: "Bảng xếp hạng", iRankTitle: "Hạng server", iOf: "/ {n} kingdom", iTop: "Top {p}%", iNoKvk: "Chưa ở trong KvK nào" });
+Object.assign(KS.T.en, { iSeeRank: "Ranking", iRankTitle: "Kingdom rank", iOf: "/ {n} kingdoms", iTop: "Top {p}%", iNoKvk: "In no KvK yet" });
 
 const RANKED = [["migrationScore", "cMigration"], ["powerMax", "cPowerMax"], ["power", "cPower"], ["merits", "cMerits"], ["kills", "cKills"], ["deaths", "cDeaths"], ["heals", "cHeals"], ["gathered", "cGathered"], ["decorMax", "cDecor"]];
-const rankLink = () => { const a = el("a", "btn kr-link", tr("iSeeRank")); a.href = "#p=rank"; return a; };
+// underlined text at the end of the line, as the links of the KvK frame
+const rankLink = (k) => { const a = el("a", "kv-info-link kv-info-end", tr("iSeeRank")); a.href = "#p=rank&at=" + k; return a; }; // opens on the kingdom's line
 const battleOf = (idx, k) => KS.season.of(idx, k);
 
 // ---- the rank: one line for the kingdom, one tile for each metric ----
@@ -19,28 +20,43 @@ async function drawRank(k) {
   box.innerHTML = "";
   const rows = roll ? objects(roll.kingdomCols, roll.kingdoms) : [], me = rows.find((r) => r.kingdom === k);
   const ks = state.comparing ? [state.mainK, ...state.also] : [k];
+  rankOf = null;
+  markCards();
   box.hidden = !me;
   if (box.hidden) return;
   if (ks.length > 1) { drawRanks(box, rows, ks); return; }
   const n = rows.length, main = me.migrationScoreRank; // the place the ranking opens with
   const head = el("div", "kr-head");
   head.append(el("h2", "", tr("iRankTitle")), el("b", "kr-main", "#" + main), el("span", "mut", tr("iOf").replace("{n}", numFmt().format(n))),
-    el("span", "kr-pill", tr("iTop").replace("{p}", numFmt(1).format((100 * main) / n))), rankLink());
-  const grid = el("div", "kr-grid");
+    el("span", "kr-pill", tr("iTop").replace("{p}", numFmt(1).format((100 * main) / n))));
+  // one block with the cards: each card has the place of its metric, the metrics without a card are on this line
+  rankOf = { me, n };
   for (const [key, label] of RANKED) {
-    const place = me[key + "Rank"];
-    if (!place) continue;
-    const tile = el("div", "kr-tile"), top = el("div", "kr-top");
-    top.append(el("span", "", tr(label)), el("b", "", "#" + place));
-    const low = el("div", "kr-low");
-    low.append(el("b", "", KS.compact(me[key])));
-    const meter = el("div", "kr-meter");
-    meter.appendChild(el("i")).style.width = `${Math.max(2, 100 * (1 - (place - 1) / n))}%`;
-    tile.append(top, low, meter);
-    grid.appendChild(tile);
+    if (CARD_OF[key] || !me[key + "Rank"]) continue;
+    const x = el("span", "kr-x");
+    x.title = KS.compact(me[key]);
+    x.append(tr(label) + " ", el("b", "", "#" + me[key + "Rank"]));
+    head.appendChild(x);
   }
-  box.append(head, grid);
+  head.appendChild(rankLink(k));
+  box.appendChild(head);
+  markCards();
 }
+
+// the card of a ranked metric (its data-k), and each card's place among all kingdoms; none while comparing kingdoms
+const CARD_OF = { migrationScore: "migrationScore", power: "power", merits: "merits", kills: "kills", deaths: "deaths", heals: "heals", decorMax: "maxDecor" };
+let rankOf = null;
+function markCards() {
+  for (const card of document.querySelectorAll("#kpis .kpi")) {
+    card.querySelector(".k-rank")?.remove();
+    const key = Object.keys(CARD_OF).find((x) => CARD_OF[x] === card.dataset.k), place = key && rankOf?.me[key + "Rank"];
+    if (!place) continue;
+    const b = el("b", "k-rank", "#" + place);
+    b.title = `${tr("iRankTitle")} #${place} ${tr("iOf").replace("{n}", numFmt().format(rankOf.n))} · ${KS.compact(rankOf.me[key])}`;
+    card.querySelector(".k-l").appendChild(b);
+  }
+}
+KS.onKpisDrawn = markCards;
 
 // several kingdoms side by side: a line each, the rank and the figure of each metric
 function drawRanks(box, rows, ks) {
@@ -55,7 +71,7 @@ function drawRanks(box, rows, ks) {
   ];
   const list = ks.map((x) => rows.find((r) => r.kingdom === x)).filter(Boolean);
   const head = el("div", "kr-head");
-  head.append(el("h2", "", tr("iRankTitle")), rankLink());
+  head.append(el("h2", "", tr("iRankTitle")), rankLink(ks[0]));
   box.append(head, KS.ui.table(cols, list, { key: "" }, () => {}));
 }
 

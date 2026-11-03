@@ -39,7 +39,9 @@ const store = {
 
 // only players whose power now is above the chosen step are listed: the rest of a ranking is mostly small
 // accounts, and what "small" is depends on the kingdom (a weak one has few players above 20M)
-const POWER_STEPS = [20e6, 15e6, 10e6, 5e6], DEFAULT_POWER = 15e6, KINGDOM_POWER = 20e6; // the Kingdom page opens on > 20M
+const POWER_STEPS = [20e6, 15e6, 10e6, 5e6], DEFAULT_POWER = 15e6; // every page opens on > 15M: the players the ranking and the kingdom search count
+// what the power filters go by, everywhere: the power now, as the ranking counts
+const filterPower = (p) => p.power ?? 0;
 const BY_KEY = Object.fromEntries(COLUMNS.map((c) => [c.key, c]));
 const DEFAULT_COLS = COLUMNS.filter((c) => c.def).map((c) => c.key);
 const NUMERIC = new Set(["int", "num", "pct", "date", "grade", "yesno", "kingdom"]);
@@ -57,7 +59,7 @@ const state = {
   comparing: false, diff: false, vs: "", also: [], mainK: 0, // also = the other kingdoms compared with mainK
   sortDelta: false, // sort by the value or the change: the change when comparing opens, then the user's choice, kept across columns
   data: null, rows: [], view: [], cols: [], q: "",
-  minPower: POWER_STEPS.includes(store.get("powerStep")) ? store.get("powerStep") : KINGDOM_POWER,
+  minPower: POWER_STEPS.includes(store.get("minPower")) ? store.get("minPower") : DEFAULT_POWER, // a new key: the 20M kept under the old one opened on 20M
   list: [], heat: store.get("heat", false), avg: {}, avgVer: 0,
   // a phone: the totals strip starts hidden, the name column is narrower
   narrow: matchMedia("(max-width: 640px)").matches,
@@ -488,7 +490,7 @@ function setHash() {
   if (state.page !== "kingdom") return; // the compare view keeps its own link
   const d = state.data, item = d && state.list.find((k) => k.kingdom === d.kingdom);
   if (d) KS.onKingdomShown?.(d.kingdom);
-  if (state.kvk) { history.replaceState(null, "", "#kvk=" + state.kvk); return; }
+  if (state.kvk) { history.replaceState(null, "", "#kvk=" + state.kvk + (KS.kvkTab?.() ?? "")); return; }
   history.replaceState(null, "", "#" + (d ? "k=" + d.kingdom : "") + (item && d.scan !== item.scan ? "&s=" + d.scan : "") + (d?._a ? "&a=" + d._a : "") + (d?._ks?.length > 1 ? "&also=" + d._ks.slice(1).join() : "") + (state.kvk ? "&kvk=" + state.kvk : ""));
 }
 
@@ -563,7 +565,7 @@ function warmFonts(players) {
 }
 
 function pickRows() {
-  state.rows = state.data ? state.data.players.filter((p) => (p.power ?? 0) > state.minPower && (!state.kOnly || state.kOnly.has(p._k))) : [];
+  state.rows = state.data ? state.data.players.filter((p) => filterPower(p) > state.minPower && (!state.kOnly || state.kOnly.has(p._k))) : [];
 }
 
 function fillPower() {
@@ -1247,7 +1249,7 @@ function init() {
   $("pq").addEventListener("input", (e) => { clearTimeout(qt); qt = setTimeout(() => { state.q = e.target.value; toTable(); refresh(); }, 120); });
   $("minPower").onchange = (e) => {
     state.minPower = Number(e.target.value);
-    store.set("powerStep", state.minPower);
+    store.set("minPower", state.minPower);
     toTable();
     pickRows();
     if (state.data) refresh();
@@ -1373,7 +1375,7 @@ function keepScroll(root, draw) {
 
 // what views.js uses
 const KS = (window.KS = {
-  state, T, tr, label, $, store, fmt, compact, numFmt, getJSON, BY_KEY, NUMERIC, value, idle, POWER_STEPS, DEFAULT_POWER,
+  state, T, tr, label, $, store, fmt, compact, numFmt, getJSON, BY_KEY, NUMERIC, value, idle, POWER_STEPS, DEFAULT_POWER, filterPower,
   openPicker, toggleKingdom, fitPop,
   repick: () => { pickRows(); refresh(); },
   refresh, setHash, kingdomMatches, listKeys, checkVersion, deltaOf, keepScroll, allianceChip, rankColour, dayDrop,
