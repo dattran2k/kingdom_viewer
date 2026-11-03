@@ -609,7 +609,8 @@ function refresh() {
   }
   const c = BY_KEY[state.sort.key] || BY_KEY.rank, dir = state.sort.dir, num = NUMERIC.has(c.type);
   const byDelta = state.diff && state.sortDelta && hasDelta(c);
-  const keyed = v.map((p) => [byDelta ? deltaOf(c, p) : value(c, p), p]);
+  // by the size of the change, rise or fall alike, as the bars are: -300M before +150M
+  const keyed = v.map((p) => { const d = byDelta ? deltaOf(c, p) : undefined; return [byDelta ? (typeof d === "number" ? Math.abs(d) : d) : value(c, p), p]; });
   keyed.sort((a, b) => {
     const x = a[0], y = b[0];
     if (x == null || x === "") return y == null || y === "" ? a[1].rank - b[1].rank : 1; // blanks last either way
