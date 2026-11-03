@@ -1220,6 +1220,7 @@ function init() {
     const top = Math.max(0, box.scrollTop), dy = top - (lastTop.get(box) ?? 0);
     if (!dy) return; // a sideways scroll
     lastTop.set(box, top);
+    if (headHeld.has(box)) return; // a redraw putting the page back where it was
     const page = box.closest(".page"), off = Math.max(0, Math.min((headOff.get(box) ?? 0) + dy, top, page.querySelector(":scope > header").offsetHeight));
     headOff.set(box, off);
     page.style.setProperty("--head-off", off + "px");
@@ -1363,13 +1364,23 @@ document.addEventListener("visibilitychange", () => {
 
 // A redraw that rebuilds a table loses where it was scrolled to: back to the same place (once the new table is in,
 // which may be after a file load)
+// While it redraws, the page keeps its height (an emptied page would scroll up, a phone showing it) and the narrow
+// window's header stays where it is (headHeld): a redraw is no scroll of the user's
+const headHeld = new WeakSet();
 function keepScroll(root, draw) {
   const w = root.querySelector(".tbl-wrap"), top = root.scrollTop, y = w?.scrollTop, x = w?.scrollLeft;
+  const out = root.querySelector(".dv-out");
+  if (out) out.style.minHeight = out.offsetHeight + "px";
+  headHeld.add(root);
   draw();
   requestAnimationFrame(() => {
     root.scrollTop = top;
     const n = root.querySelector(".tbl-wrap");
     if (n && w) { n.scrollTop = y; n.scrollLeft = x; }
+    requestAnimationFrame(() => { // after the scroll event of the line above
+      if (out) out.style.minHeight = "";
+      headHeld.delete(root);
+    });
   });
 }
 
