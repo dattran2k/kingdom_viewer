@@ -43,7 +43,9 @@ Object.assign(KS.T.en, {
 });
 
 const PAGE_SIZES = [20, 50, 100, 200, 0]; // 0 = all
-const pageSize = () => KS.store.get("pageSize", 20);
+// rows a page: 20 each time the site opens; a pick lasts while it stays open, not saved (a page of "All" is heavy to draw)
+const sessionSize = {};
+const pageSize = () => sessionSize.pageSize ?? 20;
 const onPage = (rows, page) => { const size = pageSize(); return size ? rows.slice((page - 1) * size, page * size) : rows; };
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
 const num = (v) => (v == null ? "–" : state.compact ? KS.compact(v) : numFmt().format(Math.round(v)));
@@ -86,17 +88,24 @@ function searchBox(ph, val, on) {
   q.addEventListener("input", () => on(q.value.trim()));
   return q;
 }
+// numbers short (1.2M) or in full (1,234,567): a two-way choice, both written out so neither reads as a figure
 function fmtBtn(redraw) {
-  const b = el("button", "btn", "1.2M");
-  b.type = "button"; b.title = tr("fmtTip");
-  b.setAttribute("aria-pressed", String(state.compact));
-  b.onclick = () => {
-    state.compact = !state.compact;
-    KS.store.set("compact", state.compact);
-    $("fmtBtn").setAttribute("aria-pressed", String(state.compact));
-    b.setAttribute("aria-pressed", String(state.compact));
-    redraw();
-  };
+  const b = el("div", "rk-seg fmt-seg");
+  b.setAttribute("role", "group"); b.title = tr("fmtTip");
+  const press = () => b.querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String((x.dataset.c === "1") === state.compact)));
+  for (const [c, label] of [["1", "1.2M"], ["0", "1,234,567"]]) {
+    const x = el("button", "", label);
+    x.type = "button"; x.dataset.c = c;
+    x.onclick = () => {
+      if ((c === "1") === state.compact) return;
+      state.compact = c === "1";
+      KS.store.set("compact", state.compact);
+      $("fmtBtn").setAttribute("aria-pressed", String(state.compact));
+      press(); redraw();
+    };
+    b.appendChild(x);
+  }
+  press();
   return b;
 }
 // "Show [20] per page", then the page buttons: 1 2 3 ... 373
@@ -104,7 +113,7 @@ function pager(total, page, go, { size = pageSize(), sizes = PAGE_SIZES, key = "
   const pages = size ? Math.max(1, Math.ceil(total / size)) : 1, box = el("div", "dv-pager"), left = el("label", "dv-psize"), pick = el("select"), nums = el("nav", "dv-pnums");
   for (const n of sizes) { const o = el("option", "", n ? String(n) : tr("all")); o.value = n; pick.appendChild(o); }
   pick.value = size;
-  pick.onchange = () => { KS.store.set(key, Number(pick.value)); go(1); };
+  pick.onchange = () => { if (key === "pageSize") sessionSize[key] = Number(pick.value); else KS.store.set(key, Number(pick.value)); go(1); };
   left.append(el("span", "", tr("kShow")), pick, el("span", "", tr("kPerPage")));
   box.appendChild(left);
   if (pages < 2) return box;
@@ -173,7 +182,14 @@ function tableBar(out, { id, title, meta, cols, holder, prop, redraw, hideFirst 
     const wrap = el("div", "vpick");
     pop.hidden = barPop !== id + name;
     if (!pop.hidden) requestAnimationFrame(() => fitPop(pop)); // kept open across a redraw: placed once it is on the page
-    button.onclick = () => { const on = pop.hidden; barPop = on ? id + name : ""; document.querySelectorAll(".dv-tbar .pop").forEach((x) => { x.hidden = true; }); pop.hidden = !on; if (on) fitPop(pop); };
+    button.setAttribute("aria-haspopup", "true");
+    button.setAttribute("aria-expanded", String(!pop.hidden));
+    button.onclick = () => {
+      const on = pop.hidden; barPop = on ? id + name : "";
+      document.querySelectorAll(".dv-tbar .pop").forEach((x) => { x.hidden = true; x.previousElementSibling?.setAttribute("aria-expanded", "false"); });
+      pop.hidden = !on; button.setAttribute("aria-expanded", String(on));
+      if (on) fitPop(pop);
+    };
     wrap.append(button, pop);
     return wrap;
   };
@@ -192,12 +208,23 @@ function tableBar(out, { id, title, meta, cols, holder, prop, redraw, hideFirst 
       count: () => `${can.filter((c) => !get().has(c.key)).length}/${can.length}`,
     });
   };
-  const viewBtn = el("button", "btn primary");
+  const viewBtn = el("button", "btn");
   viewBtn.type = "button";
-  viewBtn.innerHTML = $("viewBtn").querySelector("svg").outerHTML;
-  viewBtn.append(" View");
+  viewBtn.innerHTML = $("viewBtn").innerHTML; // the Kingdom table's View button as it is: icon, its translated word, the arrow
   const view = el("div", "pop view-pop");
-  view.append(el("h3", "", tr("viewTitle")), fmtBtn(redraw));
+  // and its menu's row for the number format: the same switch line as there
+  const fmtRow = el("button", "vopt");
+  fmtRow.type = "button"; fmtRow.setAttribute("role", "switch");
+  fmtRow.innerHTML = $("fmtBtn").innerHTML;
+  fmtRow.setAttribute("aria-pressed", String(state.compact));
+  fmtRow.onclick = () => {
+    state.compact = !state.compact;
+    KS.store.set("compact", state.compact);
+    $("fmtBtn").setAttribute("aria-pressed", String(state.compact));
+    fmtRow.setAttribute("aria-pressed", String(state.compact));
+    redraw();
+  };
+  view.append(el("h3", "", tr("viewTitle")), fmtRow);
   tools.append(colsBtn, menu("view", viewBtn, view));
   const sortBox = el("div", "sort-box"), label = el("label"), select = el("select"), dir = el("button");
   for (const c of shown) if (!c.nosort) { const o = el("option", "", c.label); o.value = c.key; select.appendChild(o); }
@@ -214,7 +241,7 @@ function tableBar(out, { id, title, meta, cols, holder, prop, redraw, hideFirst 
 document.addEventListener("pointerdown", (e) => {
   if (e.target.closest(".dv-tbar .vpick")) return;
   barPop = "";
-  document.querySelectorAll(".dv-tbar .pop").forEach((x) => { x.hidden = true; });
+  document.querySelectorAll(".dv-tbar .pop").forEach((x) => { x.hidden = true; x.previousElementSibling?.setAttribute("aria-expanded", "false"); });
 });
 const PIN = new Set(["#", "name", "kingdom"]); // the first of these stay on screen when the page scrolls sideways
 function table(cols, rows, sort, onSort, onRow) {
@@ -624,7 +651,7 @@ function drawFlows(out, list, moves) {
   out.appendChild(pager(rows.length, mig.page, (p) => { mig.page = p; go(); }));
 }
 
-KS.ui = { el, num, load, objects, table, tableBar, sortRows, nextSort, searchBox, fmtBtn, pager, frame, setLink };
+KS.ui = { el, num, load, objects, table, tableBar, sortRows, nextSort, searchBox, fmtBtn, pager, pageSize, frame, setLink };
 KS.pages = {
   rank: { title: "navRank", desc: "descRank", show: showRank },
   migration: { title: "navMigration", desc: "descMigration", show: showMigration },

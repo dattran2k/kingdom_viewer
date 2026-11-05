@@ -9,7 +9,7 @@
 <!-- ?v=N: bump it when assets/ change, so a cached old file (GitHub Pages: 10 min) is not mixed with new ones -->
 <link rel="preload" as="image" href="assets/kvk/cod_background.jpg">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/inter-latin.woff2">
-<link rel="stylesheet" href="assets/style.css?v=314">
+<link rel="stylesheet" href="assets/style.css?v=333">
 <script data-goatcounter="https://machudat.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
 </head>
@@ -32,7 +32,7 @@
 <div id="scrim" class="scrim" hidden></div>
 <div id="kingdomPage" class="page wait">
 <header class="bar page-head">
-  <button class="btn icon menu-btn" type="button" aria-label="Menu" aria-controls="side">☰</button>
+  <button class="btn icon menu-btn" type="button" aria-label="Menu" aria-controls="side"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 2h11A1.5 1.5 0 0 1 15 3.5v9a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 1 12.5v-9A1.5 1.5 0 0 1 2.5 2zM6 3.5v9h7.5v-9zM2.5 3.5v9H5v-9z"/></svg></button>
   <h2 class="page-title" data-i18n="navKingdom">Kingdom</h2>
   <button id="vsBtn" class="mode-sw" type="button" role="switch" aria-checked="false" hidden data-i18n-title="cmpDaysTip">
     <span class="mode-l" data-i18n="modeLabel">Chế độ</span>
@@ -62,7 +62,12 @@
     </div>
   </div>
   </div>
-  <div id="kMeta" class="k-meta"><div class="k-meta-l"><i class="sk" style="width:220px"></i></div><div class="k-meta-c"><i class="sk" style="width:320px"></i></div></div>
+  <!-- while loading: the KvK block's shapes (kinfo.js draws the block itself), same frame and height -->
+  <div id="kMeta" class="k-meta k-kvk sk-kvk">
+    <div class="k-meta-l"><i class="sk" style="width:min(320px,60%);height:18px"></i><i class="sk sk-btn"></i></div>
+    <div class="k-prog"><i class="sk" style="width:150px;height:12px"></i><i class="sk" style="width:100%;height:6px"></i><i class="sk" style="width:100%;height:10px;opacity:.5"></i></div>
+    <div class="k-meta-c"><i class="sk" style="width:120px;height:12px"></i><i class="sk sk-chip"></i><i class="sk sk-chip"></i><i class="sk sk-chip"></i><i class="sk sk-chip"></i><i class="sk sk-chip"></i><i class="sk sk-chip"></i><i class="sk sk-chip"></i><i class="sk sk-chip"></i></div>
+  </div>
 </div>
 <div id="kRank" class="k-block"><div class="kr-head sk-block"><h2><i class="sk" style="width:110px"></i></h2><span class="kr-link-sk"></span></div></div>
 <div id="kpis" class="kpis"></div>
@@ -77,7 +82,7 @@
   <div class="tools">
     <button id="colsBtn" class="btn" type="button"><svg class="bi" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 4h7M13 4h1M2 12h1M7 12h7"/><circle cx="11" cy="4" r="1.8"/><circle cx="5" cy="12" r="1.8"/></svg><span data-i18n="columns">Chỉ số</span> <b id="colsCount" class="pill"></b></button>
     <div class="vpick">
-      <button id="viewBtn" class="btn primary" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="viewPop"><svg class="bi" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 8s2.6-5 7-5 7 5 7 5-2.6 5-7 5-7-5-7-5z"/><circle cx="8" cy="8" r="2.2"/></svg><span data-i18n="view">View</span><svg class="bi chev" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg></button>
+      <button id="viewBtn" class="btn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="viewPop"><svg class="bi" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 8s2.6-5 7-5 7 5 7 5-2.6 5-7 5-7-5-7-5z"/><circle cx="8" cy="8" r="2.2"/></svg><span data-i18n="view">View</span><svg class="bi chev" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg></button>
       <div id="viewPop" class="pop view-pop" hidden>
         <h3 data-i18n="viewTitle">Tuỳ chọn hiển thị</h3>
         <button id="fmtBtn" class="vopt" type="button" role="switch" aria-pressed="true">
@@ -111,8 +116,9 @@
 <!-- one KvK: its own top; the table and its bar (the same ones as the Kingdom page) move here while it is open -->
 <div id="kvkPage" class="page" hidden>
 <header class="bar page-head">
-  <button class="btn icon menu-btn" type="button" aria-label="Menu" aria-controls="side">☰</button>
+  <button class="btn icon menu-btn" type="button" aria-label="Menu" aria-controls="side"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 2h11A1.5 1.5 0 0 1 15 3.5v9a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 1 12.5v-9A1.5 1.5 0 0 1 2.5 2zM6 3.5v9h7.5v-9zM2.5 3.5v9H5v-9z"/></svg></button>
   <h2 class="page-title" data-i18n="navKvk">KvK</h2>
+  <div id="kvkBack" class="head-slot"></div>
 </header>
 <div id="kvkTop" class="page-top">
 <div id="kvkSlot"></div>
@@ -121,7 +127,7 @@
 
 <div id="comparePage" class="page" hidden>
 <header class="bar page-head">
-  <button class="btn icon menu-btn" type="button" aria-label="Menu" aria-controls="side">☰</button>
+  <button class="btn icon menu-btn" type="button" aria-label="Menu" aria-controls="side"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 2h11A1.5 1.5 0 0 1 15 3.5v9a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 1 12.5v-9A1.5 1.5 0 0 1 2.5 2zM6 3.5v9h7.5v-9zM2.5 3.5v9H5v-9z"/></svg></button>
   <h2 class="page-title" data-i18n="navCompare">So sánh</h2>
   <p class="page-desc" data-i18n="descCompare"></p>
 </header>
@@ -130,7 +136,7 @@
 
 <div id="dvPage" class="page" hidden>
 <header class="bar page-head">
-  <button class="btn icon menu-btn" type="button" aria-label="Menu" aria-controls="side">☰</button>
+  <button class="btn icon menu-btn" type="button" aria-label="Menu" aria-controls="side"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 2h11A1.5 1.5 0 0 1 15 3.5v9a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 1 12.5v-9A1.5 1.5 0 0 1 2.5 2zM6 3.5v9h7.5v-9zM2.5 3.5v9H5v-9z"/></svg></button>
   <h2 id="dvTitle" class="page-title"></h2>
   <div id="dvSlot" class="head-slot"></div>
   <p id="dvDesc" class="page-desc"></p>
@@ -155,11 +161,11 @@
 </dialog>
 
 <script defer src="assets/columns.js?v=291"></script>
-<script defer src="assets/app.js?v=295"></script>
+<script defer src="assets/app.js?v=332"></script>
 <script defer src="assets/views.js?v=291"></script>
-<script defer src="assets/compare.js?v=315"></script>
-<script defer src="assets/pages.js?v=294"></script>
-<script defer src="assets/kvk.js?v=312"></script>
-<script defer src="assets/kinfo.js?v=291"></script>
+<script defer src="assets/compare.js?v=319"></script>
+<script defer src="assets/pages.js?v=327"></script>
+<script defer src="assets/kvk.js?v=328"></script>
+<script defer src="assets/kinfo.js?v=331"></script>
 </body>
 </html>

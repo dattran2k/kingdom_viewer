@@ -5,8 +5,8 @@
 const KS = window.KS, { state, tr, $, numFmt } = KS;
 const { el, load, objects } = KS.ui;
 
-Object.assign(KS.T.vi, { iSeeRank: "Bảng xếp hạng", iRankTitle: "Hạng server", iOf: "/ {n} kingdom", iTop: "Top {p}%", iNoKvk: "Chưa ở trong KvK nào" });
-Object.assign(KS.T.en, { iSeeRank: "Ranking", iRankTitle: "Kingdom rank", iOf: "/ {n} kingdoms", iTop: "Top {p}%", iNoKvk: "In no KvK yet" });
+Object.assign(KS.T.vi, { iSeeRank: "Bảng xếp hạng", iRankTitle: "Hạng server", iOf: "/ {n} kingdom", iTop: "Top {p}%", iNoKvk: "Chưa ở trong KvK nào", iKds: "{n} kingdom trong KvK" });
+Object.assign(KS.T.en, { iSeeRank: "Ranking", iRankTitle: "Kingdom rank", iOf: "/ {n} kingdoms", iTop: "Top {p}%", iNoKvk: "In no KvK yet", iKds: "{n} kingdoms in this KvK" });
 
 const RANKED = [["migrationScore", "cMigration"], ["powerMax", "cPowerMax"], ["power", "cPower"], ["merits", "cMerits"], ["kills", "cKills"], ["deaths", "cDeaths"], ["heals", "cHeals"], ["gathered", "cGathered"], ["decorMax", "cDecor"]];
 // underlined text at the end of the line, as the links of the KvK frame
@@ -92,9 +92,15 @@ async function drawTop(k) {
   top.style.setProperty("--row-top", row.offsetTop + "px");
   top.style.setProperty("--row-h", row.offsetHeight + "px");
   if (apart) return;
+  meta.classList.remove("sk-kvk"); // the loading shapes are gone
+  meta.classList.toggle("k-kvk", !!b);
   if (!b) { meta.appendChild(el("span", "mut", tr("iNoKvk"))); return; }
-  const line = el("div", "k-meta-l"), chips = el("div", "k-meta-c"), open = el("a", "btn k-dash", tr("kOpen"));
-  line.append(el("b", "", KS.season.title(b.season)), el("span", "", `${b.name} · ${KS.season.dates(b)}`));
+  // the KvK the kingdom is in, as one block: its name and the way to its page on top, how far it is, then its kingdoms
+  // (links to them, the one shown filled), under a label that says what the numbers are
+  const line = el("div", "k-meta-l"), name = el("div", "k-meta-n"), chips = el("div", "k-meta-c"), open = el("a", "btn k-dash", tr("kOpen"));
+  name.append(el("b", "", KS.season.title(b.season)), el("span", "", `${b.name} · ${KS.season.dates(b)}`));
+  line.append(name, open);
+  chips.appendChild(el("span", "k-meta-lbl", tr("iKds").replace("{n}", b.kingdoms.length)));
   for (const y of b.kingdoms) {
     const c = el("a", ks.includes(y.k) ? "kd on" : "kd", String(y.k));
     if (state.list.some((x) => x.kingdom === y.k)) {
@@ -105,7 +111,6 @@ async function drawTop(k) {
     chips.appendChild(c);
   }
   open.href = "#kvk=" + b.id;
-  chips.appendChild(open);
   const prog = el("div", "k-prog");
   prog.append(...KS.season.progress(b));
   meta.append(line, prog, chips);

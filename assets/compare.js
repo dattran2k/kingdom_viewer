@@ -175,21 +175,16 @@ function controls() {
     s.onchange = () => { on(Number(s.value)); save(); draw(); };
     return s;
   };
-  const fmt = el("button", "btn", "1.2M");
-  fmt.type = "button";
-  fmt.title = tr("fmtTip");
-  fmt.setAttribute("aria-pressed", String(state.compact));
-  fmt.onclick = () => {
-    state.compact = !state.compact;
-    KS.store.set("compact", state.compact);
-    $("fmtBtn").setAttribute("aria-pressed", String(state.compact));
-    if (state.data) KS.refresh();
-    draw();
-  };
-  const avg = el("button", "btn", tr(cfg.avg ? "xAvg" : "xSum"));
-  avg.type = "button";
-  avg.title = tr("xAggTip");
-  avg.onclick = () => { cfg.avg = !cfg.avg; save(); draw(); };
+  const fmt = KS.ui.fmtBtn(() => { if (state.data) KS.refresh(); draw(); });
+  // total or average per player: a two-way choice, the chosen one pressed
+  const avg = el("div", "rk-seg");
+  avg.setAttribute("role", "group"); avg.title = tr("xAggTip");
+  for (const [a, label] of [[false, tr("xSum")], [true, tr("xAvg")]]) {
+    const x = el("button", "", label);
+    x.type = "button"; x.setAttribute("aria-pressed", String(!!cfg.avg === a));
+    x.onclick = () => { if (!!cfg.avg === a) return; cfg.avg = a; save(); draw(); };
+    avg.appendChild(x);
+  }
   const reset = el("button", "btn x-reset", tr("xReset"));
   reset.type = "button";
   reset.onclick = () => { cfg.pairs = []; openSide = null; save(); draw(); };

@@ -109,12 +109,25 @@ function fmt(c, v) {
 }
 
 // ---- data ----
-// no-cache = ask the server whether the file changed (GitHub Pages caches 10 min otherwise)
+// Each file is fetched once per visit and kept as text: a second ask (Normal <-> Compare, back to a kingdom, another page)
+// answers at once, and parsing the text anew hands out a fresh object, so a caller adding to it (a comparison) spoils nothing.
+// The lists that say what is new (kingdoms.json, kvk/, derived/) are asked with no-cache: the server says whether they
+// changed (GitHub Pages caches 10 min otherwise). A day's scan is a new file under its date, so the browser's own copy will do.
+const texts = new Map();
 async function getJSON(url) {
-  const r = await fetch(url, { cache: "no-cache" });
-  if (!r.ok) throw new Error(r.status + " " + url);
-  return r.json();
+  let t = texts.get(url);
+  if (!t) {
+    t = fetch(url, { cache: url.includes("/scans/") ? "default" : "no-cache" }).then((r) => {
+      if (!r.ok) throw new Error(r.status + " " + url);
+      return r.text();
+    });
+    texts.set(url, t);
+    t.catch(() => texts.delete(url)); // a failed load is tried again next time
+  }
+  return JSON.parse(await t);
 }
+// what the next click most likely needs, fetched while the page is idle: the day before (Compare) and the rankings
+function prefetch(urls) { idle(() => urls.forEach((u) => getJSON(u).catch(() => {}))); }
 
 // #kvk=<id>: its kingdoms and the day it opened come from the KvK list
 let kvkIndex = null;
@@ -432,7 +445,6 @@ async function loadKingdom(id, scan) {
   $("kingdomPage").classList.remove("wait");
   if ($("kCamps").querySelector(".sk-block")) { // room for the camps and the KvK's lines only if it is in one
     $("kCamps").hidden = !item.kvk;
-    if (!item.kvk) $("kMeta").innerHTML = `<span class="mut">${tr("iNoKvk")}</span>`;
   }
   KS.onKingdomShown?.(id); // what comes from the small files does not wait for the players
   showLoading();
@@ -456,6 +468,8 @@ async function loadKingdom(id, scan) {
   KS.onKingdom?.();
   KS.onKvk?.();
   idle(() => warmFonts(state.data.players));
+  const before = item.scans.find((s) => s < state.data.scan);
+  prefetch([...(before ? [`data/scans/${before}/${id}.json`] : []), "data/derived/index.json", "data/derived/rollup.json"]);
 }
 
 // Comparing: each player of the newer scan gets the same player of the older one (p._was); who is in the older one
@@ -1264,9 +1278,12 @@ function init() {
   $("sortDir").onclick = () => { state.sort = { ...state.sort, dir: -state.sort.dir }; if (state.data) refresh(); };
   $("scan").onchange = (e) => loadKingdom(state.data.kingdom, e.target.value);
   $("vs").onchange = (e) => { state.vs = e.target.value; loadKingdom(state.data.kingdom, state.data.scan); };
-  $("vsBtn").onclick = () => {
+  $("vsBtn").onclick = (e) => {
     const d = state.data;
     if (!d) return;
+    // it reads as two halves: a click on the half already chosen changes nothing (a key press still flips it)
+    const half = e.target.closest?.(".mode-a, .mode-b");
+    if (half && half.classList.contains("mode-b") === !!state.comparing) return;
     setCompare(!state.comparing);
     if (state.comparing) loadKingdom(d.kingdom); // the newest day against the one before
     else loadKingdom(d.kingdom, d.scan);

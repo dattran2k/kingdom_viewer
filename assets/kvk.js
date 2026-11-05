@@ -9,8 +9,8 @@ Object.assign(KS.T.vi, {
   navKvk: "KvK", descKvk: "Các KvK đang diễn ra theo mùa. Bấm Chi tiết KvK để xem phe, kingdom và người chơi từ lúc mở.",
   kNotOpen: "KvK này chưa mở nên chưa có số liệu. Dưới đây là các phe và lực chiến hiện tại của người chơi.", cName: "Tên", cAlliance: "Liên minh", rServers: "Xếp hạng server", rMembers: "Xếp hạng người chơi", rKvks: "Xếp hạng KvK", kSeeAll: "Xếp hạng KvK", kRankOf: "/ {n} KvK", kRankTip: "Xếp theo tổng lực chiến max của người chơi có lực chiến hiện tại trên 15M trong KvK", rStatus: "Trạng thái", rSearchP: "Tên, ID, liên minh, #kingdom...", rMembersHint: "{n} người chơi (top {top} mỗi chỉ số, trong {all} người) ", kAll: "Tất cả", kS2: "Mùa Giải 2", kS3: "Mùa Giải 3", kSos: "Mùa Giải Xung Đột", kSearch: "Kingdom hoặc mã KvK...", kTime: "Thời gian", kNone: "Không có KvK nào khớp.", kNoData: "Chưa có dữ liệu KvK.",
   kLive: "Đang diễn ra", kSoon: "Sắp mở", kDayLeft: "còn {n} ngày", kOpenIn: "mở sau {n} ngày", kCamp: "Phe", kOpen: "Chi tiết KvK", kRunning: "Đang diễn ra", kKds: "KD", kBack: "← Danh sách KvK",
-  kCamps: "Xếp hạng KvK", kRankPlayers: "Xếp hạng người chơi", kUngroup: "Bỏ nhóm", kShowCols: "Chỉ số", kView: "Hiển thị", kExport: "Xuất CSV", kShow: "Hiện", kPerPage: "mỗi trang", kGo: "Trang", kShowing: "Hiện {a}–{b} / {n}", kOtherNote: "{n}/{m} kingdom ở khu vực khác: chỉ có lực chiến và công trạng của người chơi lọt top {top} toàn map.", kOther: "khu vực khác", kOtherTip: "Kingdom ở khu vực khác: chỉ có số của người chơi lọt top toàn map.",
-  kPending: "Chưa có số liệu.", kSeeSame: "Xem toàn bộ",  kAllCamps: "Mọi phe", kAllKingdoms: "Mọi kingdom",
+  kCamps: "Xếp hạng KvK", kRankPlayers: "Xếp hạng người chơi", kByCamp: "Theo phe", kByKingdom: "Theo kingdom", kGroupBy: "Gộp theo", kNotFound: "Không tìm thấy KvK này. Có thể link đã cũ.", kShowCols: "Chỉ số", kView: "Hiển thị", kExport: "Xuất CSV", kShow: "Hiện", kPerPage: "mỗi trang", kGo: "Trang", kShowing: "Hiện {a}–{b} / {n}", kOtherNote: "{n}/{m} kingdom ở khu vực khác: chỉ có lực chiến và công trạng của người chơi lọt top {top} toàn map.", kOther: "khu vực khác", kOtherTip: "Kingdom ở khu vực khác: chỉ có số của người chơi lọt top toàn map.",
+  kPending: "Chưa có số liệu.", kSeeSame: "Kingdom cùng trạng thái →",  kAllCamps: "Mọi phe", kAllKingdoms: "Mọi kingdom",
   kProgress: "Tiến độ KvK", kInfo: "Thông tin KvK", kTopPlayers: "Top người chơi", kTopHint: "{n} người chơi của #{k} có công trạng cao nhất từ lúc KvK mở", kMore: "Chi tiết KvK",
   kTabOverview: "Tổng quan", kTabWar: "Lịch sử chiến sự", kWarSearch: "Liên minh, người chơi, kingdom, #trận...", kWarFight: "Trận", kWarStart: "Bắt đầu (UTC)", kWarDur: "Từ đầu tới giao tranh cuối",
   kWarPeople: "Người tham gia", kWarTop: "Hạng 1", kWarLive: "Đang diễn ra", kWarMeta: "{n} trận · lấy lúc {t} UTC", kWarArea: "Khu {a} · số {t}",
@@ -25,8 +25,8 @@ Object.assign(KS.T.en, {
   navKvk: "KvK", descKvk: "The running KvKs by season. Open KvK details for its camps, kingdoms and players since it opened.",
   kNotOpen: "This KvK has not opened yet, so it has no numbers. These are its camps, and the players as they are now.", cName: "Name", cAlliance: "Alliance", rServers: "Server ranking", rMembers: "Players ranking", rKvks: "KvK ranking", kSeeAll: "See all KvKs", kRankOf: "/ {n} KvKs", kRankTip: "By the total max power of the KvK's players above 15M power now", rStatus: "Status", rSearchP: "Name, ID, alliance, #kingdom...", rMembersHint: "{n} players (top {top} of each metric, out of {all}) ", kAll: "All", kS2: "Season 2", kS3: "Season 3", kSos: "Season of Strife", kSearch: "Kingdom or KvK code...", kTime: "Time", kNone: "No KvK matches.", kNoData: "No KvK data yet.",
   kLive: "Running", kSoon: "Upcoming", kDayLeft: "{n} days left", kOpenIn: "opens in {n} days", kCamp: "Camp", kOpen: "KvK details", kRunning: "Running", kKds: "KD", kBack: "← All KvKs",
-  kCamps: "KvK ranking", kRankPlayers: "Players ranking", kUngroup: "Ungroup", kShowCols: "Show", kView: "View", kExport: "Export CSV", kShow: "Show", kPerPage: "per page", kGo: "Page", kShowing: "Showing {a}–{b} of {n}", kOtherNote: "{n} of {m} kingdoms are in another region: only the power and merits of players in the map's top {top}.", kOther: "other region", kOtherTip: "A kingdom of another region: numbers of the players in the map's top only.",
-  kPending: "No numbers yet.", kSeeSame: "See all",  kAllCamps: "All camps", kAllKingdoms: "All kingdoms",
+  kCamps: "KvK ranking", kRankPlayers: "Players ranking", kByCamp: "By camp", kByKingdom: "By kingdom", kGroupBy: "Group by", kNotFound: "This KvK was not found. The link may be old.", kShowCols: "Metrics", kView: "View", kExport: "Export CSV", kShow: "Show", kPerPage: "per page", kGo: "Page", kShowing: "Showing {a}–{b} of {n}", kOtherNote: "{n} of {m} kingdoms are in another region: only the power and merits of players in the map's top {top}.", kOther: "other region", kOtherTip: "A kingdom of another region: numbers of the players in the map's top only.",
+  kPending: "No numbers yet.", kSeeSame: "Same status →",  kAllCamps: "All camps", kAllKingdoms: "All kingdoms",
   kProgress: "KvK progress", kInfo: "KvK info", kTopPlayers: "Top players", kTopHint: "The {n} players of #{k} with the most merits since the KvK opened", kMore: "See the KvK details",
   kTabOverview: "Overview", kTabWar: "War history", kWarSearch: "Alliance, player, kingdom, #fight...", kWarFight: "Fight", kWarStart: "Start (UTC)", kWarDur: "First to last clash",
   kWarPeople: "Participants", kWarTop: "Top 1", kWarLive: "In progress", kWarMeta: "{n} fights · crawled {t} UTC", kWarArea: "Area {a} · no. {t}",
@@ -273,7 +273,7 @@ function drawCamps(box, b) {
   const kingdoms = b.kingdoms.map((k) => kingdomRow(b, k));
   const scale = grouped ? groups : kingdoms;
   const cols = [
-    { key: "name", label: grouped && !state.narrow ? `${tr("kCamp")} / ${tr("cKingdom")}` : grouped ? tr("kCamp") : tr("cKingdom"), left: true, tip: () => "", w: state.narrow ? 108 : 190, get: (r) => (r.list ? r.camp : r.k), node: (r) => {
+    { key: "name", label: grouped && !state.narrow ? `${tr("kCamp")} / ${tr("cKingdom")}` : grouped ? tr("kCamp") : tr("cKingdom"), left: true, tip: () => "", w: state.narrow ? 128 : 190, get: (r) => (r.list ? r.camp : r.k), node: (r) => {
       if (!r.list) { const d = el("span", "kv-kname"); d.append(kingdomChip(r)); if (r.camp) d.append(el("small", "mut", `${tr("kCamp")} ${r.camp}`)); return d; }
       const d = el("span", "kv-camp-n");
       const top = el("span", "kv-camp-t"), chips = el("span", "kv-chips");
@@ -384,7 +384,7 @@ KS.onKingdomShown = async (k) => {
 // On the Kingdom page (info = the kingdom shown) it sits in one frame titled KvK info, with that kingdom's top players under the camps and a
 // way to the KvK page; both tables are the camps table's (same cells, same bars)
 function campsPanel(b, info) {
-  const head = el("div", "kr-head"), place = el("span", "kr-place"), end = el("div", "kr-end"), all = el("a", "btn kr-link", tr("kSeeAll")), box = el("section", "kv-panel");
+  const head = el("div", "kr-head"), place = el("span", "kr-place"), end = el("div", "kr-end"), all = el("a", "kv-info-link", tr("kSeeAll")), box = el("section", "kv-panel");
   all.href = "#p=rank&m=kvk";
   head.append(el("h2", "", tr("kCamps")), place);
   if (b.from) head.append(el("span", "mut", `${b.from} → ${b.to}`));
@@ -394,13 +394,21 @@ function campsPanel(b, info) {
     place.append(el("b", "kr-main", "#" + b.rank), el("span", "mut", tr("kRankOf").replace("{n}", numFmt().format(b.ranked))),
       el("span", "kr-pill", tr("iTop").replace("{p}", numFmt(1).format((100 * b.rank) / b.ranked))));
   }
-  const tog = el("button", "mode-sw kv-sw");
-  tog.type = "button";
-  tog.setAttribute("role", "switch");
-  tog.setAttribute("aria-checked", String(!page.grouped));
-  tog.append(el("i", "mode-t"), el("span", "mode-b", tr("kUngroup")));
-  const body = el("div");
-  tog.onclick = () => { page.grouped = !page.grouped; tog.setAttribute("aria-checked", String(!page.grouped)); drawCamps(body, b); };
+  // one table, two ways to read it: by camp (the kingdoms of a camp under it) or one line per kingdom
+  const tog = el("div", "rk-seg kv-group-seg"), body = el("div");
+  tog.setAttribute("role", "group"); tog.setAttribute("aria-label", tr("kGroupBy"));
+  for (const [grouped, label] of [[true, tr("kByCamp")], [false, tr("kByKingdom")]]) {
+    const btn = el("button", "", label);
+    btn.type = "button";
+    btn.onclick = () => {
+      if (!!page.grouped === grouped) return;
+      page.grouped = grouped; press(); drawCamps(body, b);
+    };
+    btn.dataset.g = String(grouped);
+    tog.appendChild(btn);
+  }
+  const press = () => tog.querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x.dataset.g === String(!!page.grouped))));
+  press();
   if (b.kingdoms.some((k) => k.camp)) end.appendChild(tog);
   end.appendChild(all);
   if (!b.sums) box.appendChild(note(tr("kNotOpen")));
@@ -570,8 +578,8 @@ function warControls(out, b, { filters, current, count, onFilter, kingdom, onKin
   out.appendChild(ctl);
 }
 const crawlMeta = (data, n, key) => { const t = data.crawled.slice(0, 16); return tr(key).replace("{n}", numFmt().format(n)).replace("{t}", `${t.slice(8, 10)}/${t.slice(5, 7)} ${t.slice(11, 16)}`); };
-const pageRows = (rows, p) => { const size = KS.store.get("pageSize", 20); return size ? rows.slice((p - 1) * size, p * size) : rows; };
-const lastPage = (rows) => { const size = KS.store.get("pageSize", 20); return size ? Math.max(1, Math.ceil(rows.length / size)) : 1; };
+const pageRows = (rows, p) => { const size = KS.ui.pageSize(); return size ? rows.slice((p - 1) * size, p * size) : rows; };
+const lastPage = (rows) => { const size = KS.ui.pageSize(); return size ? Math.max(1, Math.ceil(rows.length / size)) : 1; };
 
 function drawWarTable(out, data, b) {
   out.innerHTML = "";
@@ -700,7 +708,7 @@ async function drawWar(wrap, b) {
 const TABS = ["ov", "war", "trade"];
 KS.kvkTab = () => (page.tab !== "ov" ? "&tab=" + page.tab : ""); // the link of a KvK: its tab
 function tabs(b, ov, war) {
-  const nav = el("nav", "kv-pills kv-tabs");
+  const nav = el("nav", "rk-seg kv-tabs"); // one of three views: the tabs look (ink pill), not the filter pills
   const press = () => nav.querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x.dataset.t === page.tab)));
   for (const [t, label, n] of [["ov", tr("kTabOverview")], ["war", tr("kTabWar"), b.wars], ["trade", tr("kTabTrade")]]) {
     const btn = el("button");
@@ -728,6 +736,7 @@ async function drawSlot() {
   const slot = $("kvkSlot");
   if (!state.kvk) {
     slot.innerHTML = ""; slotOf = "";
+    $("kvkBack").replaceChildren();
     $("kvkPage").classList.remove("kv-war-on");
     $("kvkWar")?.remove();
     $("kvkFilter")?.remove();
@@ -737,13 +746,20 @@ async function drawSlot() {
   if (slotOf === state.kvk + state.lang) return;
   const idx = await load("kvk/index.json");
   const b = idx?.battles.find((x) => x.id === state.kvk);
-  if (!b) return;
+  if (!b) { // an old or mistyped link: say so, and the way back to the list
+    slotOf = state.kvk + state.lang;
+    const back = el("a", "btn kv-back", tr("kBack")); back.href = "#p=kvk";
+    $("kvkBack").replaceChildren(back); // the way back to the list sits in the header, beside the page's title
+    slot.replaceChildren(el("p", "kv-note", tr("kNotFound")));
+    return;
+  }
   if (slotOf && state.kOnly) { state.kOnly = null; KS.repick(); } // the filter menu is drawn anew, on "all"
   slotOf = b.id + state.lang;
   slot.innerHTML = "";
   const back = el("a", "btn kv-back", tr("kBack"));
   back.href = page.group ? `#p=kvk&g=${page.group}` : "#p=kvk";
-  slot.append(back, hero(b));
+  $("kvkBack").replaceChildren(back); // the way back to the list sits in the header, beside the page's title
+  slot.append(hero(b));
   const ov = campsPanel(b), war = el("div", "dv-out kv-war-out");
   war.id = "kvkWar";
   // the tab of the link (#kvk=<id>&tab=war|trade), else the Overview
