@@ -46,7 +46,11 @@ const PAGE_SIZES = [20, 50, 100, 200, 0]; // 0 = all
 // rows a page: 20 each time the site opens; a pick lasts while it stays open, not saved (a page of "All" is heavy to draw)
 const sessionSize = {};
 const pageSize = () => sessionSize.pageSize ?? 20;
-const onPage = (rows, page) => { const size = pageSize(); return size ? rows.slice((page - 1) * size, page * size) : rows; };
+const onPage = (rows, page, size = pageSize()) => (size ? rows.slice((page - 1) * size, page * size) : rows);
+// Rankings and Migration: 200 rows a page at most, no "All" (the user, 05/11: ~80k players); a bigger pick made on
+// another page counts as 200
+const BIG_SIZES = [20, 50, 100, 200];
+const bigSize = () => Math.min(pageSize() || 200, 200);
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
 const num = (v) => (v == null ? "–" : state.compact ? KS.compact(v) : numFmt().format(Math.round(v)));
 const fullNum = (v) => (v == null ? "" : numFmt().format(Math.round(v)));
@@ -166,9 +170,46 @@ function textW(text, font) {
 function colWidth(c, all) {
   const head = textW(c.label, "600 12px") + (HEAD_ICONS.has(c.key) ? 20 : 0) + (c.nosort ? 0 : 13) + 20;
   if (c.node) return Math.ceil(Math.max(head, c.w ?? NODE_W[c.key] ?? 110));
+  const key = all.length > SAMPLE_FROM ? `${listPrint(all)}|${c.key}|${state.compact}|${state.lang}|${c.label}` : null;
+  if (key && widthsOf.has(key)) return widthsOf.get(key);
   let long = "";
-  for (const r of all) { const t = String(c.text ? c.text(r) : num(c.get(r))); if (t.length > long.length || (t.length === long.length && t > long)) long = t; } // the same pick in any order
-  return Math.ceil(Math.max(head, textW(long, "600 13px") * 1.06 + 24));
+  for (const r of c.text ? all : widthSample(all, c.get)) { const t = String(c.text ? c.text(r) : num(c.get(r))); if (t.length > long.length || (t.length === long.length && t > long)) long = t; } // the same pick in any order
+  const w = Math.ceil(Math.max(head, textW(long, "600 13px") * 1.06 + 24));
+  if (key) widthsOf.set(key, w);
+  return w;
+}
+// A long list's widths, kept for the visit: the same rows in another order or on another page keep their widths, so a
+// sort or a page change does not measure ~80k rows again. A list is known by its length and the sum of its ids.
+const widthsOf = new Map();
+let printOf = { all: null, print: "" };
+function listPrint(all) {
+  if (printOf.all !== all) {
+    let sum = 0;
+    for (const r of all) sum += Number(r.id ?? r.kingdom ?? 0) || 0;
+    printOf = { all, print: all.length + ":" + sum };
+  }
+  return printOf.print;
+}
+// The rows whose number may be a column's longest text. A formatted number's length follows its sign and power of ten
+// (1.32B, 17.3M, 2,512,345), so a long list formats a few of each instead of all: ~80k players formatted every column
+// in full froze the Players ranking for most of a second on each draw (05/11)
+// The biggest of each power is always in: rounding takes it up a power (999,995 -> "1.000K"), the longest text there.
+const SAMPLE_FROM = 2000, PER_BUCKET = 24;
+function widthSample(all, get) {
+  if (all.length <= SAMPLE_FROM) return all;
+  const count = new Array(80).fill(0), top = new Array(80), topV = new Array(80).fill(-1), out = [];
+  for (const r of all) {
+    const v = get(r);
+    let b = 0, a = 0; // 0: no number or 0; 1-79: (fraction ? 40 : 0) + (negative ? 20 : 0) + digits before the point, 1-19
+    if (typeof v === "number" && v) {
+      a = Math.abs(v);
+      b = (Number.isInteger(v) ? 0 : 40) + (v < 0 ? 20 : 0) + Math.max(1, Math.min(19, Math.floor(Math.log10(a)) + 1));
+    }
+    if (count[b] < PER_BUCKET) { count[b]++; out.push(r); }
+    if (a > topV[b]) { topV[b] = a; top[b] = r; }
+  }
+  for (const r of top) if (r) out.push(r);
+  return out;
 }
 // The bar above a table, the Kingdom table's: its title, Show, View, sort by. Returns the columns to show.
 let barPop = ""; // the menu left open across a redraw
@@ -299,6 +340,17 @@ function table(cols, rows, sort, onSort, onRow) {
 }
 function sortRows(rows, get, dir) {
   // no value goes last in either direction
+  if (rows.length > SAMPLE_FROM && rows.every((r) => { const v = get(r); return v == null || typeof v === "number"; })) {
+    // a long list of numbers: compared in a typed array, not through get() on each comparison (~80k players)
+    const v = new Float64Array(rows.length), order = new Uint32Array(rows.length);
+    rows.forEach((r, i) => { const x = get(r); v[i] = x == null ? NaN : x; order[i] = i; });
+    order.sort((a, b) => {
+      const x = v[a], y = v[b];
+      if (x !== x || y !== y) return x !== x ? (y !== y ? a - b : 1) : -1;
+      return (x - y) * dir || a - b;
+    });
+    return Array.from(order, (i) => rows[i]);
+  }
   return rows.slice().sort((x, y) => {
     const a = get(x), b = get(y);
     if (a == null || b == null) return a == null ? (b == null ? 0 : 1) : -1;
@@ -384,16 +436,43 @@ const kvkCell = (b) => {
 // spare: the canvas measures the text a pixel or so short of the page, and the cell's ellipsis shows for any overflow
 const statusW = (rows) => Math.ceil(Math.max(0, ...rows.map((r) => textW(KS.season.status(r.st), "600 12px"))) + 18 + 20 + 6);
 const statusCell = (st) => { const c = el("span", "k-status", KS.season.status(st) || "–"); c.dataset.st = st ?? ""; return c; };
+// top_players.json is one list per column (kingdom_derive.top_players); trades = kills per 100 heals, as trades_of.
+// ~80k players: each step is kept for the next draw (user 05/11: switching to this tab froze). Rows are built once; the
+// search's rows and each bar's top once per search; the order once per search + column + way; a page then only slices
+// it, and its columns are as wide as the rows it shows (the whole list is never measured).
+let membersOf = null;
+function members(cur) {
+  if (membersOf?.cur !== cur) {
+    const names = Object.keys(cur.cols), rows = new Array(cur.count);
+    for (let i = 0; i < cur.count; i++) {
+      const o = {};
+      for (const c of names) o[c] = cur.cols[c][i];
+      o.trades = o.heals ? Math.round(1000 * (o.kills || 0) / o.heals) / 10 : null;
+      rows[i] = o;
+    }
+    membersOf = { cur, rows, q: null, found: rows, maxOf: new Map(), sorted: new Map() };
+  }
+  return membersOf;
+}
+function membersFound(m, q) {
+  if (m.q !== q) {
+    const k = q.replace("#", "");
+    m.found = q ? m.rows.filter((r) => String(r.kingdom) === k || String(r.id).startsWith(q) || String(r.name).toLowerCase().includes(q) || String(r.alliance).toLowerCase().includes(q)) : m.rows;
+    m.q = q; m.maxOf.clear(); m.sorted.clear();
+  }
+  return m.found;
+}
 async function drawMembers(out, me) {
   const cur = await load("derived/top_players.json");
   if (me !== rankToken) return;
   setLink("rank", { m: "players" });
   out.innerHTML = "";
   if (!cur) { out.appendChild(el("p", "hint", tr("noDerived"))); return; }
-  let rows = objects(cur.cols, cur.rows);
-  const q = rank.q.toLowerCase();
-  if (q) rows = rows.filter((r) => String(r.kingdom) === q.replace("#", "") || String(r.id).startsWith(q) || String(r.name).toLowerCase().includes(q) || String(r.alliance).toLowerCase().includes(q));
-  const metric = (key, label) => barCol(key, label, rows);
+  const m = members(cur), found = membersFound(m, rank.q.toLowerCase());
+  const metric = (key, label) => {
+    if (!m.maxOf.has(key)) m.maxOf.set(key, found.reduce((x, r) => Math.max(x, r[key] ?? 0), 0));
+    return { key, label: tr(label), get: (r) => r[key], max: m.maxOf.get(key) };
+  };
   const cols = [
     { key: "#", label: "#", nosort: true, text: (r) => String(r._i), cls: () => "mut" },
     { key: "name", label: tr("cName"), left: true, w: state.narrow ? 120 : undefined, get: (r) => r.name, node: (r) => whoCell(r.name, r.id) },
@@ -404,14 +483,16 @@ async function drawMembers(out, me) {
     tradesCol(),
   ];
   const col = cols.find((c) => c.key === rank.sort.key) || cols.find((c) => c.key === "power");
-  rows = sortRows(rows, col.get, rank.sort.dir);
-  rows.forEach((r, i) => { r._i = i + 1; });
-  const shown = onPage(rows, rank.page);
+  const how = col.key + "|" + rank.sort.dir;
+  if (!m.sorted.has(how)) m.sorted.set(how, sortRows(found, col.get, rank.sort.dir));
+  const rows = m.sorted.get(how), size = bigSize();
+  const shown = onPage(rows, rank.page, size);
+  shown.forEach((r, i) => { r._i = (rank.page - 1) * size + i + 1; });
   const view = tableBar(out, { id: "members", title: tr("rMembers"), meta: `${numFmt().format(rows.length)} ${tr("cPlayers").toLowerCase()}`, cols, holder: rank, prop: "sort", redraw: () => KS.keepScroll($("dv"), () => drawRank(out)) });
-  view.all = rows;
+  view.all = shown;
   out.appendChild(table(view, shown, { key: col.key, dir: rank.sort.dir }, (k) => { rank.sort = nextSort(rank.sort, k); rank.page = 1; KS.keepScroll($("dv"), () => drawRank(out)); },
     (r) => { location.hash = "k=" + r.kingdom; }));
-  out.appendChild(pager(rows.length, rank.page, (p) => { rank.page = p; drawRank(out); }));
+  out.appendChild(pager(rows.length, rank.page, (p) => { rank.page = p; drawRank(out); }, { size, sizes: BIG_SIZES }));
 }
 
 async function drawKvks(out, me) {
@@ -443,12 +524,12 @@ async function drawKvks(out, me) {
   ];
   const col = cols.find((c) => c.key === rank.sort.key) || cols.find((c) => c.key === "powerMax");
   rows = sortRows(rows, col.get, rank.sort.dir);
-  const shown = onPage(rows, rank.page);
+  const shown = onPage(rows, rank.page, bigSize());
   const view = tableBar(out, { id: "kvks", title: tr("rKvks"), meta: `${numFmt().format(rows.length)} KvK`, cols, holder: rank, prop: "sort", redraw: () => KS.keepScroll($("dv"), () => drawRank(out)) });
   view.all = rows;
   out.appendChild(table(view, shown, { key: col.key, dir: rank.sort.dir }, (k) => { rank.sort = nextSort(rank.sort, k); rank.page = 1; KS.keepScroll($("dv"), () => drawRank(out)); },
     (r) => { location.hash = "kvk=" + r.id; }));
-  out.appendChild(pager(rows.length, rank.page, (p) => { rank.page = p; drawRank(out); }));
+  out.appendChild(pager(rows.length, rank.page, (p) => { rank.page = p; drawRank(out); }, { size: bigSize(), sizes: BIG_SIZES }));
 }
 
 let rankToken = 0;
@@ -514,7 +595,7 @@ async function drawRank(out) {
   rows.forEach((r, i) => { r._i = i + 1; r._cls = r.kingdom === rank.at ? "rk-focus" : ""; });
   const at = rows.findIndex((r) => r.kingdom === rank.at), size = pageSize();
   if (at >= 0 && size) rank.page = Math.floor(at / size) + 1;
-  const shown = onPage(rows, rank.page);
+  const shown = onPage(rows, rank.page, bigSize());
   out.appendChild(pills);
   if (gens.size) out.appendChild(genPills);
   // a new id: the hidden columns kept under "servers" were saved before helps and gathered were hidden at first
@@ -522,7 +603,7 @@ async function drawRank(out) {
   view.all = rows;
   out.appendChild(table(view, shown, { key: col.key, dir: rank.sort.dir }, (k) => { rank.sort = nextSort(rank.sort, k); rank.page = 1; KS.keepScroll($("dv"), () => drawRank(out)); },
     (r) => { location.hash = "k=" + r.kingdom; }));
-  out.appendChild(pager(rows.length, rank.page, (p) => { rank.page = p; drawRank(out); }));
+  out.appendChild(pager(rows.length, rank.page, (p) => { rank.page = p; drawRank(out); }, { size: bigSize(), sizes: BIG_SIZES }));
   if (at >= 0) requestAnimationFrame(() => out.querySelector("tr.rk-focus")?.scrollIntoView({ block: "center" }));
   rank.at = 0; // once: the next redraw (a sort, a filter) keeps the user's place
 }
@@ -609,9 +690,9 @@ function drawMigration(out, moves) {
   const go = () => drawMigration(out, moves);
   const view = tableBar(out, { id: "moves", title: tr("cPlayers"), meta: `${numFmt().format(list.length)} ${tr("cPlayers").toLowerCase()}`, cols, holder: mig, prop: "sort", redraw: () => KS.keepScroll($("dv"), go) });
   view.all = list;
-  out.appendChild(table(view, onPage(list, mig.page), { key: col.key, dir: mig.sort.dir },
+  out.appendChild(table(view, onPage(list, mig.page, bigSize()), { key: col.key, dir: mig.sort.dir },
     (k) => { mig.sort = nextSort(mig.sort, k); mig.page = 1; KS.keepScroll($("dv"), go); }));
-  out.appendChild(pager(list.length, mig.page, (p) => { mig.page = p; go(); }));
+  out.appendChild(pager(list.length, mig.page, (p) => { mig.page = p; go(); }, { size: bigSize(), sizes: BIG_SIZES }));
 }
 
 // a kingdom's line: how many came in and went out, and how much power that is (at each player's newest numbers)
@@ -641,14 +722,14 @@ function drawFlows(out, list, moves) {
   const go = () => drawMigration(out, moves);
   const view = tableBar(out, { id: "flows", title: tr("cKingdom"), meta: `${numFmt().format(rows.length)} kingdom`, cols, holder: mig, prop: "flowSort", redraw: () => KS.keepScroll($("dv"), go) });
   view.all = rows;
-  out.appendChild(table(view, onPage(rows, mig.page), { key: col.key, dir: mig.flowSort.dir },
+  out.appendChild(table(view, onPage(rows, mig.page, bigSize()), { key: col.key, dir: mig.flowSort.dir },
     (k) => { mig.flowSort = nextSort(mig.flowSort, k); mig.page = 1; KS.keepScroll($("dv"), go); },
     (r) => {
       mig.k = r.kingdom; mig.page = 1; mig.view = "lords"; mig.q = "";
       setLink("migration", { a: mig.a, b: mig.b, k: mig.k });
       showMigration();
     }));
-  out.appendChild(pager(rows.length, mig.page, (p) => { mig.page = p; go(); }));
+  out.appendChild(pager(rows.length, mig.page, (p) => { mig.page = p; go(); }, { size: bigSize(), sizes: BIG_SIZES }));
 }
 
 KS.ui = { el, num, load, objects, table, tableBar, sortRows, nextSort, searchBox, fmtBtn, pager, pageSize, frame, setLink };

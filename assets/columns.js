@@ -17,7 +17,6 @@ const GROUPS = [
   { id: "alliance", vi: "Hoạt động liên minh", en: "Alliance activity",
     note: { vi: "trừ Giúp đỡ: chỉ người có liên minh", en: "except Helps: alliance members only" } },
   { id: "gather", vi: "Thu thập", en: "Gathering" },
-  { id: "glory", vi: "Vinh quang", en: "Glory" },
 ];
 
 const sumOf = (...keys) => (p) => { const v = keys.filter((k) => p[k] != null); return v.length ? v.reduce((s, k) => s + p[k], 0) : undefined; };
@@ -64,8 +63,6 @@ const COLUMNS = [
   { key: "defeats", vi: "Thua", en: "Losses", group: "combat", type: "num", width: 84,
     tip: { vi: "Trận PvP thua", en: "PvP battles lost" } },
 
-  { key: "achievementsDone", vi: "Thành tựu", en: "Achieved", group: "trophy", type: "int", width: 96,
-    tip: { vi: "Số thành tựu đã đạt", en: "Achievements done" } },
   { key: "cityTheme", vi: "Nhà Thiên Đỉnh", en: "Legendary city themes", group: "trophy", type: "int", width: 100, def: true,
     tip: { vi: "Giao diện thành Huyền thoại vĩnh viễn", en: "Permanent legendary city themes" } },
   { key: "redArtifact", vi: "Bảo vật đỏ", en: "Red artifact", group: "trophy", type: "yesno", width: 88, def: true,
@@ -100,12 +97,8 @@ const COLUMNS = [
     tip: { vi: "Lượt giúp đỡ liên minh", en: "Alliance helps" } },
   { key: "builds", vi: "Xây dựng", en: "Builds", group: "alliance", type: "num", width: 84,
     tip: { vi: "Lượt xây dựng liên minh", en: "Alliance builds" } },
-  { key: "donations", vi: "Quyên góp", en: "Donations", group: "alliance", type: "num", width: 88,
-    tip: { vi: "Lượt quyên góp liên minh", en: "Alliance donations" } },
   { key: "dismantles", vi: "Tháo dỡ", en: "Dismantles", group: "alliance", type: "num", width: 80,
     tip: { vi: "Lượt tháo dỡ liên minh", en: "Alliance dismantles" } },
-  { key: "lastLogin", vi: "Online", en: "Last seen", group: "alliance", type: "date", width: 104,
-    tip: { vi: "Đăng nhập lần cuối", en: "Last login" } },
 
   { key: "gathered", vi: "Thu thập", en: "Gathered", group: "gather", type: "num", width: 88, def: true, get: gatheredOf,
     tip: { vi: "Tổng vàng + gỗ + đá + mana đã thu", en: "Gold + wood + ore + mana gathered" } },
@@ -121,13 +114,4 @@ const COLUMNS = [
     tip: { vi: "Mana đã thu thập", en: "Mana gathered" } },
   { key: "gems", vi: "Gem thu", en: "Gems gathered", group: "gather", type: "num", width: 80,
     tip: { vi: "Gem đã thu thập", en: "Gems gathered" } },
-
-  { key: "kvkJoined", vi: "KvK", en: "KvK", group: "glory", type: "int", width: 88,
-    tip: { vi: "Mùa KvK đã tham gia", en: "KvK seasons joined" } },
-  { key: "kvkWon", vi: "KvK thắng", en: "KvK won", group: "glory", type: "int", width: 80,
-    tip: { vi: "Mùa KvK đã thắng", en: "KvK seasons won" } },
-  { key: "rootsJoined", vi: "RoW", en: "RoW", group: "glory", type: "int", width: 112,
-    tip: { vi: "Roots of War đã tham gia", en: "Roots of War joined" } },
-  { key: "rootsWon", vi: "RoW thắng", en: "RoW won", group: "glory", type: "int", width: 104,
-    tip: { vi: "Roots of War đã thắng", en: "Roots of War won" } },
 ];

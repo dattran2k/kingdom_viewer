@@ -1128,7 +1128,7 @@ body[data-compare="1"] .k-row .kbtn { height: 52px; }
 @media (min-width: 1280px) {
   .page-head { gap: 12px; min-height: 64px; padding: 10px 20px; }
   .page-head > .page-title { margin-right: 4px; }
-  .page-head .page-desc { flex: none; width: clamp(320px, 25vw, 400px); margin-left: auto; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+  .page-head .page-desc { flex: 0 1 clamp(320px, 25vw, 400px); min-width: 0; margin-left: auto; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
   .page-head .page-desc:empty { display: none; }
   .head-slot .rk-seg button { padding: 7px 16px; }
   .head-slot .kv-find { max-width: 640px; }
@@ -1212,3 +1212,39 @@ body[data-compare="1"] .k-row .kbtn { height: 52px; }
 .k-meta-c { padding-block: 3px; }
 .k-meta-c .kd, .k-meta-c .kd:hover, .k-meta-c .kd:active { transform: none !important; }
 .k-meta-c a.kd[href]:not(.on):hover { border-color: #fff; background: rgb(8 10 14 / .8); color: #fff; }
+
+/* A page's tabs in the header (Rankings: three long Vietnamese tabs) never shrink: the note beside them gives way, in two
+   lines at most, and goes when the header is too narrow for it (901-1279 px with the side menu: the tabs were cut, user 05/11).
+   At 900 px and less the note is above the table and the tabs take a line of their own under 640 px. */
+@media (min-width: 901px) {
+  .head-slot:has(.rk-seg) { flex: none; }
+  #dvPage > .page-head { container-type: inline-size; }
+  #dvPage > .page-head .page-desc { flex: 0 1 400px; min-width: 0; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+  @container (max-width: 880px) { #dvPage .head-slot:has(.rk-seg) ~ .page-desc { display: none; } }
+}
+
+/* The kingdom switcher (user 05/11: the search sank into the header, a first visit did not see how to change kingdom).
+   The header's main control: a lit field with a search mark, a placeholder that says what it does, and the "/" key;
+   the big kingdom number carries a chevron, since a click on it lands in this box. */
+.q-wrap { position: relative; display: block; flex: 1 1 auto; min-width: 0; }
+@media (min-width: 1280px) { #kingdomPage .cmp-bar .field.grow.qbox { max-width: 640px; } }
+.q-icon { position: absolute; left: 14px; top: 50%; width: 16px; height: 16px; transform: translateY(-50%); fill: none; stroke: var(--fg2); stroke-width: 1.6; stroke-linecap: round; pointer-events: none; }
+#kingdomPage .cmp-bar .qbox #q { width: 100%; padding: 0 40px 0 40px; border: 1px solid color-mix(in srgb, var(--acc) 35%, var(--edge)); background: var(--panel2); color: var(--fg); font-weight: 500;
+  transition: border-color var(--m-in) var(--m-ease), box-shadow var(--m-in) var(--m-ease); }
+#kingdomPage .cmp-bar .qbox #q::placeholder { color: var(--fg2); }
+#kingdomPage .cmp-bar .qbox #q:hover { border-color: color-mix(in srgb, var(--acc) 65%, var(--edge)); }
+#kingdomPage .cmp-bar .qbox #q:focus { border-color: var(--acc); outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--acc) 28%, transparent); }
+#q:focus ~ .q-icon, .q-wrap:focus-within .q-icon { stroke: var(--acc); }
+.q-key { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); display: grid; place-items: center; min-width: 22px; height: 22px; padding: 0 6px; box-sizing: border-box;
+  border: 1px solid var(--edge); border-bottom-width: 2px; border-radius: var(--r-sm); background: var(--panel); color: var(--fg2); font: 600 12px/1 inherit; pointer-events: none; }
+#q:focus ~ .q-key, #q:not(:placeholder-shown) ~ .q-key { display: none; }
+@media (hover: none) { .q-key { display: none; } #kingdomPage .cmp-bar .qbox #q { padding-right: 12px; } }
+@media (max-width: 680px) {
+  .q-icon { left: 11px; width: 15px; height: 15px; }
+  #kingdomPage .cmp-bar .qbox #q { padding-left: 34px; }
+}
+body:not([data-compare="1"]) .k-row .kbtn { cursor: pointer; }
+body:not([data-compare="1"]) .k-row .kbtn::after { display: block; flex: none; width: 12px; height: 12px; border-width: 0 3px 3px 0; opacity: .55; transform: translateY(-6px) rotate(45deg);
+  transition: opacity var(--m-out) var(--m-ease), transform var(--m-out) var(--m-ease); }
+body:not([data-compare="1"]) .k-row .kbtn:hover::after, body:not([data-compare="1"]) .k-row .kbtn:focus-visible::after { opacity: 1; transform: translateY(-3px) rotate(45deg); }
+@media (max-width: 900px) { body:not([data-compare="1"]) .k-row .kbtn::after { width: 9px; height: 9px; border-width: 0 2.5px 2.5px 0; transform: translateY(-4px) rotate(45deg); } }

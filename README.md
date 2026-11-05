@@ -38,13 +38,17 @@ picked from the Scan menu. `schema` is the file format version.
 ```
 `data/scans/<date>/<kingdom>.json`
 ```json
-{"schema": 2, "kingdom": 357, "scan": "2026-10-28", "crawledAt": "...", "players": [{"rank": 1, "id": 1645863, "name": "...", "power": 406226165}]}
+{"schema": 3, "kingdom": 357, "scan": "2026-10-28", "crawledAt": "...",
+ "cols": ["rank", "id", "name", "alliance", ...], "players": [[1, 1645863, "...", "YSS", ...]]}
 ```
-A player is a flat object. A missing field means "unknown", and `0` means zero.
+Field names are written once, in `cols`; a player is a list of values in that order. A list stops after its last known
+value, `null` or a missing end means "unknown", and `0` means zero. The viewer turns each list back into an object
+(`unpackScan` in `app.js`, `kingdom_derive.scan_players` in Python). Schema 2 files (one object per player) still read.
 
 `data/derived/` holds tables worked out from the scans when the data is exported, for the Rankings and Migration pages:
 `index.json` (scans), `migrations.json` (one row per move of a player between kingdoms, with the player's newest
-numbers), `rollup.json` (the newest scan, one row per kingdom, players above 15M max power). Tables name their columns in a `cols` list.
+numbers), `rollup.json` (the newest scan, one row per kingdom, players above 15M power now), `top_players.json` (the
+newest scan, every player above 15M power now, one list per column in `cols`). Tables name their columns in a `cols` list.
 A move is only known to lie between two scans.
 
 `data/kvk/index.json` lists the running KvKs: their camps and kingdoms, the numbers since each opened, each kingdom's
@@ -56,16 +60,15 @@ players). The game gives no more than the top 10 of a fight. Times are UTC.
 | Field | Meaning |
 |---|---|
 | `rank`, `id`, `name` | power ranking place, player id, name |
-| `alliance`, `allianceId`, `faction`, `cityLevel` | alliance tag / id, faction, city level |
+| `alliance`, `allianceId` | alliance tag / id |
 | `power`, `powerMax`, `troopPower`, `buildingPower`, `techPower`, `heroPower` | power now, highest, by source |
 | `merits`, `meritsMax` | merits now, best of one season |
-| `kills`, `deaths`, `heals`, `victories`, `defeats`, `cityAttacks`, `scouts` | combat |
+| `kills`, `deaths`, `heals`, `victories`, `defeats` | combat |
 | `meritInfantry`, `meritCavalry`, `meritArcher`, `meritMagic`, `meritOther` | merits by unit type ¹ |
-| `allianceRank`, `builds`, `donations`, `dismantles`, `lastLogin` | alliance rank R1–R5, activity, last login (ms) ¹ |
+| `allianceRank`, `builds`, `dismantles` | alliance rank R1–R5, activity ¹ |
 | `helps`, `gold`, `wood`, `ore`, `mana`, `gems` | helps given, resources gathered |
-| `kvkJoined`, `kvkWon`, `rootsJoined`, `rootsWon` | KvK / Roots of War joined, won |
 | `migrationScore` | realm migration score |
-| `achievementsDone`, `cityTheme`, `legendaryArtifacts`, `pets8Skills3Star`, `maxDecor`, `exchangeCoinsSpent`, `gemsSpent`, `awakenedHeroes`, `artifactSkillsLv5` | achievements ² |
+| `cityTheme`, `legendaryArtifacts`, `pets8Skills3Star`, `maxDecor`, `exchangeCoinsSpent`, `gemsSpent`, `awakenedHeroes`, `artifactSkillsLv5` | achievements ² |
 | `redArtifact` | 1 / 0: the last tier of the Universal Key achievement (2,000 artifact draws) is done |
 | `missing` | parts that could not be read |
 

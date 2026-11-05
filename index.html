@@ -9,7 +9,7 @@
 <!-- ?v=N: bump it when assets/ change, so a cached old file (GitHub Pages: 10 min) is not mixed with new ones -->
 <link rel="preload" as="image" href="assets/kvk/cod_background.jpg">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="assets/fonts/inter-latin.woff2">
-<link rel="stylesheet" href="assets/style.css?v=333">
+<link rel="stylesheet" href="assets/style.css?v=341">
 <script data-goatcounter="https://machudat.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
 </head>
@@ -40,13 +40,14 @@
     <i class="mode-t" aria-hidden="true"></i>
     <span class="mode-b" data-i18n="cmpDays">So sánh</span>
   </button>
-  <p class="page-desc" data-i18n="descKingdom"></p>
 <div id="cmpBar" class="cmp-bar">
   <div class="field cmp-only"><select id="vs" aria-label="Scan"></select></div>
   <span class="mut cmp-only" aria-hidden="true">→</span>
   <div id="scanField" class="field" hidden><select id="scan" aria-label="Scan"></select></div>
-  <label class="field grow qbox"><span class="sr" data-i18n="search">Search</span>
-    <input id="q" type="search" autocomplete="off" inputmode="numeric" data-i18n-ph="kSearchPh">
+  <label class="field grow qbox"><span class="sr" data-i18n="kJumpPh">Search</span>
+    <span class="q-wrap"><svg class="q-icon" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.75"/><path d="m10.5 10.5 3.5 3.5"/></svg>
+    <input id="q" type="search" autocomplete="off" inputmode="numeric" data-i18n-ph="kJumpPh" aria-keyshortcuts="/">
+    <kbd class="q-key" aria-hidden="true">/</kbd></span>
     <ul id="qsug" class="klist pop" role="listbox" hidden></ul></label>
 </div>
 </header>
@@ -55,7 +56,7 @@
 <div class="k-row has-art art-wide">
   <div id="cmpTags" class="x-tags"><span id="cmpChips" class="dv-slot"></span>
     <div class="field kpick">
-    <button id="kingdom" class="kbtn" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="kpop" aria-label="Kingdom"><span id="kingdomLbl">Kingdom</span></button>
+    <button id="kingdom" class="kbtn" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="kpop" aria-label="Kingdom" data-i18n-title="kJumpTip"><span id="kingdomLbl">Kingdom</span></button>
     <div id="kpop" class="pop" hidden>
       <input id="kq" type="search" autocomplete="off" inputmode="numeric" data-i18n-ph="kSearchPh">
       <ul id="klist" class="klist" role="listbox"></ul>
@@ -160,11 +161,11 @@
   </form>
 </dialog>
 
-<script defer src="assets/columns.js?v=291"></script>
-<script defer src="assets/app.js?v=332"></script>
+<script defer src="assets/columns.js?v=335"></script>
+<script defer src="assets/app.js?v=342"></script>
 <script defer src="assets/views.js?v=291"></script>
 <script defer src="assets/compare.js?v=319"></script>
-<script defer src="assets/pages.js?v=327"></script>
+<script defer src="assets/pages.js?v=345"></script>
 <script defer src="assets/kvk.js?v=328"></script>
 <script defer src="assets/kinfo.js?v=331"></script>
 </body>

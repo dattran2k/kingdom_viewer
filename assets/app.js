@@ -10,7 +10,7 @@ const T = {
   vi: {
     sortBy: "Sắp theo", sortDirTip: "Đổi chiều sắp xếp",
     sortValue: "Giá trị", sortDeltaName: "Sự thay đổi", sortValueTip: "Sắp theo giá trị của chỉ số", sortDeltaTip: "Sắp theo mức tăng / giảm giữa 2 ngày", sortDeltaOff: "Chỉ có khi so sánh 2 ngày khác nhau",
-    tradesTip: "Tiêu diệt / Chữa trị", tblPlayers: "Người chơi", yes: "Có", no: "Không", title: "Kingdom Stats", kingdom: "Kingdom", scan: "Ngày", latest: "mới nhất", search: "Tìm", searchPh: "Tên, ID, liên minh…", kSearchPh: "Tìm kingdom…", kNone: "Không có kingdom nào", alliance: "Liên minh",
+    tradesTip: "Tiêu diệt / Chữa trị", tblPlayers: "Người chơi", yes: "Có", no: "Không", title: "Kingdom Stats", kingdom: "Kingdom", scan: "Ngày", latest: "mới nhất", search: "Tìm", searchPh: "Tên, ID, liên minh…", kSearchPh: "Tìm kingdom…", kJumpPh: "Đổi kingdom: nhập số, vd. 357", kJumpTip: "Đổi kingdom", kNone: "Không có kingdom nào", alliance: "Liên minh",
     allAlliances: "Mọi liên minh", columns: "Chỉ số", theme: "Đổi giao diện sáng/tối",
     view: "View", viewTitle: "Tuỳ chọn hiển thị", fmtName: "Số gọn (1.2M)", fmtTip: "Bật: 1.2M, tắt: số đầy đủ", pickCols: "Chọn chỉ số hiển thị", filterCols: "Lọc chỉ số…", all: "Tất cả",
     none: "Bỏ hết", defaults: "Mặc định", players: "người", of: "/", crawled: "Thu thập", loading: "Đang tải…",
@@ -21,7 +21,7 @@ const T = {
   en: {
     sortBy: "Sort by", sortDirTip: "Reverse the order",
     sortValue: "Value", sortDeltaName: "Change", sortValueTip: "Sort by the metric's value", sortDeltaTip: "Sort by the change between the two days", sortDeltaOff: "Only while comparing two different days",
-    tradesTip: "Kills / Healed", tblPlayers: "Players", yes: "Yes", no: "No", title: "Kingdom Stats", kingdom: "Kingdom", scan: "Day", latest: "latest", search: "Search", searchPh: "Name, ID, alliance…", kSearchPh: "Find a kingdom…", kNone: "No such kingdom", alliance: "Alliance",
+    tradesTip: "Kills / Healed", tblPlayers: "Players", yes: "Yes", no: "No", title: "Kingdom Stats", kingdom: "Kingdom", scan: "Day", latest: "latest", search: "Search", searchPh: "Name, ID, alliance…", kSearchPh: "Find a kingdom…", kJumpPh: "Go to a kingdom: type its number, e.g. 357", kJumpTip: "Change kingdom", kNone: "No such kingdom", alliance: "Alliance",
     allAlliances: "All alliances", columns: "Metrics", theme: "Light / dark",
     view: "View", viewTitle: "Display options", fmtName: "Compact numbers (1.2M)", fmtTip: "On: 1.2M, off: full numbers", pickCols: "Metrics", filterCols: "Filter metrics…", all: "All",
     none: "None", defaults: "Defaults", players: "players", of: "/", crawled: "Collected", loading: "Loading…",
@@ -124,7 +124,29 @@ async function getJSON(url) {
     texts.set(url, t);
     t.catch(() => texts.delete(url)); // a failed load is tried again next time
   }
-  return JSON.parse(await t);
+  const text = await t;
+  try {
+    return unpackScan(JSON.parse(text));
+  } catch (e) { // a file caught while it was written: forget it, so the next ask loads it again
+    texts.delete(url);
+    throw e;
+  }
+}
+// A scan file (schema 3) names its fields once, in cols, and each player is a list in that order, cut after its last
+// known value (kingdom_derive.pack_players): back to one object per player, no key for an unknown value
+// atLeast there is a bitmask over AT_LEAST (= kingdom_derive.AT_LEAST); files written before 05/11 evening hold the list
+const AT_LEAST = ["cityTheme", "legendaryArtifacts", "pets8Skills3Star", "maxDecor", "exchangeCoinsSpent", "gemsSpent", "awakenedHeroes", "artifactSkillsLv5"];
+function unpackScan(d) {
+  if (!d || !d.cols || !Array.isArray(d.players)) return d;
+  const cols = d.cols;
+  d.players = d.players.map((r) => {
+    const o = {};
+    for (let i = 0; i < r.length; i++) if (r[i] != null) o[cols[i]] = r[i];
+    if (typeof o.atLeast === "number") o.atLeast = AT_LEAST.filter((_, i) => o.atLeast >> i & 1);
+    return o;
+  });
+  delete d.cols;
+  return d;
 }
 // what the next click most likely needs, fetched while the page is idle: the day before (Compare) and the rankings
 function prefetch(urls) { idle(() => urls.forEach((u) => getJSON(u).catch(() => {}))); }
@@ -261,6 +283,12 @@ function wireKingdomPicker() {
     $("qsug").hidden = true;
     openKingdom(k);
   };
+  // "/" anywhere on the Kingdom page (not while typing) goes to the kingdom search, as the hint in the box says
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "/" || e.ctrlKey || e.metaKey || e.altKey || $("kingdomPage").hidden || e.target.closest("input, textarea, select, [contenteditable]")) return;
+    e.preventDefault();
+    $("q").focus();
+  });
   $("q").addEventListener("input", showSuggest);
   $("q").addEventListener("focus", showSuggest);
   $("q").addEventListener("blur", () => { $("qsug").hidden = true; });
@@ -1240,7 +1268,7 @@ function init() {
     page.style.setProperty("--head-off", off + "px");
   }, { passive: true, capture: true });
   // the header has no room for the page's description there: its scroller shows a copy (see the stylesheet), kept up with the language and the page
-  for (const [desc, box] of [["#kingdomPage .page-desc", "kingdomPage"], ["#comparePage .page-desc", "cmp"], ["#dvDesc", "dv"]]) {
+  for (const [desc, box] of [["#comparePage .page-desc", "cmp"], ["#dvDesc", "dv"]]) {
     const d = document.querySelector(desc), copy = () => { $(box).dataset.desc = d.textContent; };
     new MutationObserver(copy).observe(d, { childList: true, characterData: true, subtree: true });
     copy();
