@@ -23,6 +23,23 @@ const sumOf = (...keys) => (p) => { const v = keys.filter((k) => p[k] != null); 
 const gatheredOf = sumOf("gold", "wood", "ore", "mana");
 const ratio = (a, b) => (p) => (p[a] != null && p[b] ? (100 * p[a]) / p[b] : undefined);
 
+// The four unit types, by the merits the player took with each this season (alliance members only): what the
+// player mostly fights with. Colours = .b-<key> in the stylesheet, pictures = assets/icons/<key>.png
+const UNITS = [
+  { key: "meritInfantry", vi: "Bộ binh", en: "Infantry", s: { vi: "Bộ", en: "Inf" } },
+  { key: "meritCavalry", vi: "Kỵ binh", en: "Cavalry", s: { vi: "Kỵ", en: "Cav" } },
+  { key: "meritArcher", vi: "Cung thủ", en: "Archers", s: { vi: "Cung", en: "Arch" } },
+  { key: "meritMagic", vi: "Pháp sư", en: "Magic", s: { vi: "Phép", en: "Magic" } },
+];
+// each unit's share of the four (other merits left out), and the biggest; none without merits by unit
+function unitSplit(p) {
+  const parts = UNITS.map((u) => ({ ...u, v: p[u.key] ?? 0 }));
+  const sum = parts.reduce((a, x) => a + x.v, 0);
+  if (!sum) return null;
+  for (const x of parts) x.share = x.v / sum;
+  return { parts, top: parts.reduce((a, x) => (x.v > a.v ? x : a)), sum };
+}
+
 const COLUMNS = [
   { key: "rank", vi: "#", en: "#", group: "basic", type: "int", width: 52, pin: true, def: true, fixed: true },
   { key: "name", vi: "Tên", en: "Name", group: "basic", type: "text", width: 170, pin: true, def: true, fixed: true },
@@ -80,6 +97,9 @@ const COLUMNS = [
   { key: "artifactSkillsLv5", vi: "Bảo vật 5", en: "Artifact 5", group: "trophy", type: "int", width: 112, def: true,
     tip: { vi: "Kỹ năng bảo vật cấp 5", en: "Artifact skills at level 5" } },
 
+  { key: "unitFocus", vi: "Thiên hướng", en: "Unit focus", group: "merit", type: "split", width: 120, def: true,
+    get: (p) => { const s = unitSplit(p); return s ? 100 * s.top.share : undefined; }, // sorted by how one-sided
+    tip: { vi: "Phân bổ công trạng theo binh chủng: loại lính người chơi dùng nhiều nhất", en: "Merits split by unit type: what the player fights with most" } },
   { key: "meritInfantry", vi: "CT bộ", en: "Infantry", group: "merit", type: "num", width: 92, def: true,
     tip: { vi: "Công trạng bộ binh (cả mùa)", en: "Infantry merits (season)" } },
   { key: "meritCavalry", vi: "CT kỵ", en: "Cavalry", group: "merit", type: "num", width: 92, def: true,

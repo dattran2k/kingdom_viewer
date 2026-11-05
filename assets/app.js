@@ -44,7 +44,7 @@ const POWER_STEPS = [20e6, 15e6, 10e6, 5e6], DEFAULT_POWER = 15e6; // every page
 const filterPower = (p) => p.power ?? 0;
 const BY_KEY = Object.fromEntries(COLUMNS.map((c) => [c.key, c]));
 const DEFAULT_COLS = COLUMNS.filter((c) => c.def).map((c) => c.key);
-const NUMERIC = new Set(["int", "num", "pct", "date", "grade", "yesno", "kingdom"]);
+const NUMERIC = new Set(["int", "num", "pct", "date", "grade", "yesno", "kingdom", "split"]);
 const COMPARED = new Set(["int", "num", "pct"]); // shown as before / change / after while comparing
 const MAX_COMPARED = 32; // a KvK map has up to 24 kingdoms
 const value = (c, p) => (c.get ? c.get(p) : p[c.key]);
@@ -66,6 +66,7 @@ const state = {
 };
 COLUMNS.filter((c) => c.fixed).forEach((c) => state.shown.add(c.key));
 if (!store.get("tradesAdded")) { state.shown.add("trades"); store.set("cols", [...state.shown]); store.set("tradesAdded", true); } // a list saved before this column existed
+if (!store.get("unitFocusAdded")) { state.shown.add("unitFocus"); store.set("cols", [...state.shown]); store.set("unitFocusAdded", true); } // the same for Unit focus
 
 const tr = (k) => T[state.lang][k] ?? k;
 // A menu under its button opens towards the side with room, and is pushed back inside the window when neither side has it
@@ -99,6 +100,7 @@ function fmt(c, v) {
     case "kingdom": return "#" + v;
     case "pct": return numFmt(c.dec ?? 2).format(v) + "%";
     case "grade": return "R" + v;
+    case "split": return numFmt(0).format(v) + "% " + (state.lang === "vi" ? "Cung" : "Magic"); // its widest text: the cell draws its own
     case "yesno": return tr(v ? "yes" : "no");
     case "date": {
       const d = new Date(v);
@@ -784,6 +786,7 @@ function fitWidths() {
       }
       w = Math.ceil(w) + (state.narrow ? 10 + 2 : 20 + 4); // + the cell's padding + a little air (just rounding on a phone)
       if (state.data?._vs && COMPARED.has(c.type)) w += 22; // the change's box and arrow
+      if (c.type === "split") w += 22; // Unit focus: the picture before its share
       fitted.set(c.key, w);
     }
     c.w = w;
@@ -974,6 +977,12 @@ function cellsOf(p) {
       continue;
     }
     if (s === "") { out[i] = { text: "–", cls: c._cls + " blank", title: "", plus: false }; continue; }
+    if (c.type === "split") { // a bar of the four unit types, the biggest under it
+      const sp = unitSplit(p);
+      out[i] = { text: `${numFmt(0).format(100 * sp.top.share)}% ${label(sp.top.s)}`, cls: c._cls + " us-cell", plus: false, split: sp,
+        title: sp.parts.map((x) => `${label(x)} ${numFmt(0).format(100 * x.share)}%`).join(" · ") };
+      continue;
+    }
     let title = "";
     if (c.type === "num" && state.compact) title = numFmt().format(v);
     else if (c.type === "text" && s.length > 16) title = s;
@@ -1019,6 +1028,7 @@ function fill(r, p, lo, hi) {
   if (state.nameI >= 0) {
     const d = kids[state.nameI], n = state.pageStart + r._idx + 1;
     if (d._rn !== n) { d._rn = n; d.style.color = rankColour(n); }
+    if (d._pid !== p.id) { d._pid = p.id; KS.playerLink?.(d, p.id, p._k ?? state.data?.kingdom, p.name ?? ""); } // a click opens the player's card (player.js)
   }
   for (let i = 0; i < cells.length; i++) {
     if (i === state.rankI) continue;
@@ -1041,6 +1051,15 @@ function fill(r, p, lo, hi) {
       box.className = "d3";
       for (const [t, cl] of x.parts) { const s = document.createElement("span"); s.className = cl; s.textContent = t; box.appendChild(s); }
       d.replaceChildren(box);
+    } else if (x.split) {
+      const box = document.createElement("div"), bar = document.createElement("span"), t = document.createElement("small"), ic = document.createElement("img");
+      box.className = "us";
+      bar.className = "us-bar";
+      for (const u of x.split.parts) { if (!u.v) continue; const s = document.createElement("i"); s.className = "b-" + u.key; s.style.flexGrow = u.share; bar.appendChild(s); }
+      ic.src = `assets/icons/${x.split.top.key}.png`; ic.alt = "";
+      t.append(ic, x.text);
+      box.append(bar, t);
+      d.replaceChildren(box);
     } else if (x.badge) {
       const b = document.createElement("span");
       b.className = "tr-b";
@@ -1059,7 +1078,7 @@ function fill(r, p, lo, hi) {
       b.className = "plus";
       b.textContent = "+";
       d.appendChild(b);
-    } else if (!was || was.text !== x.text || was.plus || was.parts || was.chips || was.badge) d.textContent = x.text;
+    } else if (!was || was.text !== x.text || was.plus || was.parts || was.chips || was.badge || was.split) d.textContent = x.text;
     if (!was || was.cls !== x.cls) d.className = x.cls;
     if (x.bar != null && (!was || was.bar !== x.bar)) d.style.setProperty("--p", x.bar);
     if (!was || was.title !== x.title) x.title ? (d.title = x.title) : d.removeAttribute("title");

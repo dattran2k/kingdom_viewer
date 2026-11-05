@@ -143,7 +143,7 @@ function pager(total, page, go, { size = pageSize(), sizes = PAGE_SIZES, key = "
 // a ranked column takes its colour from the row's place in the whole list, r._i
 const HEAD_ICONS = new Set(["power", "merits", "kills", "deaths", "heals"]);
 // the cells shared by the tables: a name with its ID under it, a kingdom chip, a figure with its bar
-const whoCell = (name, id) => { const d = el("span", "who"); d.append(el("b", "", name ?? "–"), el("small", "", String(id ?? ""))); return d; };
+const whoCell = (name, id, k) => { const d = el("span", "who"); d.append(el("b", "", name ?? "–"), el("small", "", String(id ?? ""))); if (id && k) KS.playerLink(d, id, k, name ?? ""); return d; };
 const kdCell = (k, top) => el("span", top ? "kd top" : "kd", "#" + k);
 const barCol = (key, label, rows) => ({ key, label: tr(label), get: (r) => r[key], max: rows.reduce((m, r) => Math.max(m, r[key] ?? 0), 0) });
 // Widths come from every row of the list (cols.all), not the ones on this page: sorting or paging never moves a column
@@ -429,7 +429,11 @@ const kvkCell = (b) => {
   const a = el("a", "rk-kvk");
   a.href = "#kvk=" + b.id;
   a.onclick = (e) => e.stopPropagation();
-  a.append(el("b", "", b.name), el("small", "mut", KS.season.title(b.season)));
+  const t = el("span", "rk-kvk-t");
+  t.append(el("b", "", b.name));
+  const tag = KS.season.battleTag(b);
+  if (tag) t.appendChild(tag);
+  a.append(t, el("small", "mut", KS.season.title(b.season)));
   return a;
 };
 // the status column as wide as its longest chip: padding 8 + border 1 a side, the cell's padding 10 a side, and 6 to
@@ -475,7 +479,7 @@ async function drawMembers(out, me) {
   };
   const cols = [
     { key: "#", label: "#", nosort: true, text: (r) => String(r._i), cls: () => "mut" },
-    { key: "name", label: tr("cName"), left: true, w: state.narrow ? 120 : undefined, get: (r) => r.name, node: (r) => whoCell(r.name, r.id) },
+    { key: "name", label: tr("cName"), left: true, w: state.narrow ? 120 : undefined, get: (r) => r.name, node: (r) => whoCell(r.name, r.id, r.kingdom) },
     { key: "kingdom", label: tr("cKingdom"), nopin: true, get: (r) => r.kingdom, node: (r) => kdCell(r.kingdom, r._i <= 8) },
     { key: "alliance", label: tr("cAlliance"), get: (r) => r.alliance, node: (r) => allianceChip(r.alliance) },
     metric("powerMax", "cPowerMax"), metric("power", "cPower"), metric("merits", "cMerits"), metric("kills", "cKills"), metric("deaths", "cDeaths"), metric("heals", "cHeals"),
@@ -674,7 +678,7 @@ function drawMigration(out, moves) {
   const stat = (key, label) => barCol(key, label, list);
   const kCell = (key, label) => ({ key, label: tr(label), get: (m) => m[key], node: (m) => kdCell(m[key]) });
   const cols = [
-    { key: "name", label: tr("gName"), get: (m) => m.name, node: (m) => whoCell(m.name, m.id), left: true },
+    { key: "name", label: tr("gName"), get: (m) => m.name, node: (m) => whoCell(m.name, m.id, m.to), left: true },
     kCell("from", "mFrom"), kCell("to", "mTo"),
     { key: "allianceFrom", label: tr("mAllianceFrom"), get: (m) => m.allianceFrom, node: (m) => allianceChip(m.allianceFrom) },
     { key: "allianceTo", label: tr("mAllianceTo"), get: (m) => m.allianceTo, node: (m) => allianceChip(m.allianceTo) },

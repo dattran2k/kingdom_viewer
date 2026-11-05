@@ -98,7 +98,12 @@ async function drawTop(k) {
   // the KvK the kingdom is in, as one block: its name and the way to its page on top, how far it is, then its kingdoms
   // (links to them, the one shown filled), under a label that says what the numbers are
   const line = el("div", "k-meta-l"), name = el("div", "k-meta-n"), chips = el("div", "k-meta-c"), open = el("a", "btn k-dash", tr("kOpen"));
-  name.append(el("b", "", KS.season.title(b.season)), el("span", "", `${b.name} · ${KS.season.dates(b)}`));
+  // under the title, one line: the KvK's code, Battle, the fights going on (they wrap together on a phone)
+  const tags = el("span", "k-meta-tags");
+  tags.append(el("span", "", b.name));
+  const bt = KS.season.battleTag(b);
+  if (bt) tags.appendChild(bt);
+  name.append(el("b", "", KS.season.title(b.season)), tags);
   line.append(name, open);
   chips.appendChild(el("span", "k-meta-lbl", tr("iKds").replace("{n}", b.kingdoms.length)));
   for (const y of b.kingdoms) {

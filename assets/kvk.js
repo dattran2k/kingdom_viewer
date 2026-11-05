@@ -7,7 +7,7 @@ const KS = window.KS, { state, tr, $, numFmt } = KS;
 const { el, num, load, objects, table, sortRows, nextSort, searchBox, fmtBtn, pager, frame, setLink } = KS.ui;
 Object.assign(KS.T.vi, {
   navKvk: "KvK", descKvk: "Các KvK đang diễn ra theo mùa. Bấm Chi tiết KvK để xem phe, kingdom và người chơi từ lúc mở.",
-  kNotOpen: "KvK này chưa mở nên chưa có số liệu. Dưới đây là các phe và lực chiến hiện tại của người chơi.", cName: "Tên", cAlliance: "Liên minh", rServers: "Xếp hạng server", rMembers: "Xếp hạng người chơi", rKvks: "Xếp hạng KvK", kSeeAll: "Xếp hạng KvK", kRankOf: "/ {n} KvK", kRankTip: "Xếp theo tổng lực chiến max của người chơi có lực chiến hiện tại trên 15M trong KvK", rStatus: "Trạng thái", rSearchP: "Tên, ID, liên minh, #kingdom...", rMembersHint: "{n} người chơi (top {top} mỗi chỉ số, trong {all} người) ", kAll: "Tất cả", kS2: "Mùa Giải 2", kS3: "Mùa Giải 3", kSos: "Mùa Giải Xung Đột", kSearch: "Kingdom hoặc mã KvK...", kTime: "Thời gian", kvkNone: "Không có KvK nào khớp.", kNoData: "Chưa có dữ liệu KvK.",
+  kNotOpen: "KvK này chưa mở nên chưa có số liệu. Dưới đây là các phe và lực chiến hiện tại của người chơi.", cName: "Tên", cAlliance: "Liên minh", rServers: "Xếp hạng server", rMembers: "Xếp hạng người chơi", rKvks: "Xếp hạng KvK", kSeeAll: "Xếp hạng KvK", kRankOf: "/ {n} KvK", kRankTip: "Xếp theo tổng lực chiến max của người chơi có lực chiến hiện tại trên 15M trong KvK", rStatus: "Trạng thái", rSearchP: "Tên, ID, liên minh, #kingdom...", rMembersHint: "{n} người chơi (top {top} mỗi chỉ số, trong {all} người) ", kAll: "Tất cả", kS2: "Mùa Giải 2", kS3: "Mùa Giải 3", kSos: "Mùa Giải Xung Đột", kSearch: "Kingdom hoặc mã KvK...", kTime: "Thời gian", kHit: "khớp tìm kiếm", kFightsTip: "{n} trận đang diễn ra", kOpenWar: "Mở Lịch sử chiến sự", kvkNone: "Không có KvK nào khớp.", kNoData: "Chưa có dữ liệu KvK.",
   kLive: "Đang diễn ra", kSoon: "Sắp mở", kDayLeft: "còn {n} ngày", kOpenIn: "mở sau {n} ngày", kCamp: "Phe", kOpen: "Chi tiết KvK", kRunning: "Đang diễn ra", kKds: "KD", kBack: "← Danh sách KvK",
   kCamps: "Xếp hạng KvK", kRankPlayers: "Xếp hạng người chơi", kByCamp: "Theo phe", kByKingdom: "Theo kingdom", kGroupBy: "Gộp theo", kNotFound: "Không tìm thấy KvK này. Có thể link đã cũ.", kShowCols: "Chỉ số", kView: "Hiển thị", kExport: "Xuất CSV", kShow: "Hiện", kPerPage: "mỗi trang", kGo: "Trang", kShowing: "Hiện {a}–{b} / {n}", kOtherNote: "{n}/{m} kingdom ở khu vực khác: chỉ có lực chiến và công trạng của người chơi lọt top {top} toàn map.", kOther: "khu vực khác", kOtherTip: "Kingdom ở khu vực khác: chỉ có số của người chơi lọt top toàn map.",
   kPending: "Chưa có số liệu.", kSeeSame: "Kingdom cùng trạng thái →",  kAllCamps: "Mọi phe", kAllKingdoms: "Mọi kingdom",
@@ -16,14 +16,15 @@ Object.assign(KS.T.vi, {
   kWarPeople: "Người tham gia", kWarTop: "Hạng 1", kWarLive: "Đang diễn ra", kWarMeta: "{n} trận · lấy lúc {t} UTC", kWarArea: "Khu {a} · số {t}",
   kWarTop10: "Xếp hạng công trạng (top 10)", kWarAlliances: "Liên minh tham gia", kWarNone: "Không có trận nào khớp.",
   kWarNote: "Game chỉ trả top 10 người mỗi trận. \"Người tham gia\" là số game hiện. Đang diễn ra: trận trong danh sách đang diễn ra của game lúc lấy dữ liệu, chưa có giờ kết thúc (trận đã xong mới vào lịch sử). Một vị trí bị đánh lại nhiều lần vẫn là một trận, nên trận có thể kéo dài nhiều ngày; \"Giao tranh cuối\" là lần cập nhật cuối của server. Merits trade: mọi liên minh và người chơi biết được kingdom đều cùng một kingdom.",
-  kMin: "{n} phút", kHour: "{h} giờ {m} phút", kDay: "{d} ngày {h} giờ",
+  kMin: "{n} phút", kHour: "{h} giờ {m} phút", kHourOnly: "{h} giờ", kDay: "{d} ngày {h} giờ",
+  kPhLeft: "còn {t}", kPhFrom: "từ {d}", kMkPast: "Đã qua", kMkNow: "Đang mở · còn {t}", kMkNext: "Mở sau {t}", kMkEst: "ước tính", kMkReached: "Hoàn thành {t} UTC · mốc sau bắt đầu ngay", kMkOpens: "Mở trên bản đồ {t} UTC", kMkChapter: "Chương: {t}", kMkOpensDay: "Mở trên bản đồ {t} (12 giờ sau khi chương trước kết thúc)", kMkOpened: "Đã mở", kMkQuest: "Nhiệm vụ {a} – {b} UTC", kMkQuestDay: "Nhiệm vụ {a} – {b}", kMkOn: "Đang diễn ra", kMkSoon: "Sắp tới", kMkEarly: "Không có dữ liệu mốc 40000 Đội Tuần Tra Hắc Ám của KvK này: coi như xong trong vòng 12 giờ; không xong thì các mốc sau muộn hơn 18 giờ.", kMkFrom: "Ước tính: lịch mốc của mùa này (thời lượng của game), dời theo ngày mở của KvK này. Chỉ đúng ngày.", kMkFromOther: "Tạm lấy mốc của {k} (mùa khác): mùa này chưa đọc được mốc, nhiệm vụ và behemoth có thể khác.", kMkRead: "Đọc từ game lúc {t} UTC. Mốc chưa mở tính theo thời lượng của game.",
   kWarReal: "Trận thật", kTabTrade: "Phát hiện Merits trade", kTradeMerits: "Công trạng trade", kTradeFights: "Trận trade", kRealMerits: "Công trạng trận thật", kRealFights: "Trận thật", kTradeShare: "% trade", kTradeShareTip: "Phần công trạng từ merits trade trong tổng công trạng của người chơi ở các top 10", kTradeBest: "Trận trade lớn nhất", kTradeMeta: "{n} người chơi · lấy lúc {t} UTC", kTradeNote: "Người chơi có mặt trong top 10 của ít nhất một trận merits trade (chỉ một kingdom tham gia), xếp theo công trạng lấy được ở các trận đó. Game chỉ trả top 10 mỗi trận nên đây là phần thấy được, không phải toàn bộ. Bấm một người để xem các trận trade của họ.", kWarNoLive: "Lần lấy này không có danh sách đang diễn ra của game.", kWarTrade: "Merits trade", kWarTradeTip: "Chỉ một kingdom tham gia: đánh nhau trong cùng kingdom để lấy công trạng", kWarKd: "Kingdom", kWarEnd: "Giao tranh cuối (UTC)",
   kWarShare: "Top 10 chiếm {p}% công trạng trận", kWarOfFight: "{p}% trận", kWarLegion: "Quân đoàn {n}", kWarNoLegion: "Không quân đoàn",
   kWarNowAs: "Tag liên minh của người chơi là liên minh hiện tại (lúc lấy dữ liệu), có thể khác lúc đánh.", kWarUnknownK: "Không rõ kingdom (ngoài bảng xếp hạng đã quét)",
 });
 Object.assign(KS.T.en, {
   navKvk: "KvK", descKvk: "The running KvKs by season. Open KvK details for its camps, kingdoms and players since it opened.",
-  kNotOpen: "This KvK has not opened yet, so it has no numbers. These are its camps, and the players as they are now.", cName: "Name", cAlliance: "Alliance", rServers: "Server ranking", rMembers: "Players ranking", rKvks: "KvK ranking", kSeeAll: "See all KvKs", kRankOf: "/ {n} KvKs", kRankTip: "By the total max power of the KvK's players above 15M power now", rStatus: "Status", rSearchP: "Name, ID, alliance, #kingdom...", rMembersHint: "{n} players (top {top} of each metric, out of {all}) ", kAll: "All", kS2: "Season 2", kS3: "Season 3", kSos: "Season of Strife", kSearch: "Kingdom or KvK code...", kTime: "Time", kvkNone: "No KvK matches.", kNoData: "No KvK data yet.",
+  kNotOpen: "This KvK has not opened yet, so it has no numbers. These are its camps, and the players as they are now.", cName: "Name", cAlliance: "Alliance", rServers: "Server ranking", rMembers: "Players ranking", rKvks: "KvK ranking", kSeeAll: "See all KvKs", kRankOf: "/ {n} KvKs", kRankTip: "By the total max power of the KvK's players above 15M power now", rStatus: "Status", rSearchP: "Name, ID, alliance, #kingdom...", rMembersHint: "{n} players (top {top} of each metric, out of {all}) ", kAll: "All", kS2: "Season 2", kS3: "Season 3", kSos: "Season of Strife", kSearch: "Kingdom or KvK code...", kTime: "Time", kHit: "matches the search", kFightsTip: "{n} fights going on", kOpenWar: "Open the War history", kvkNone: "No KvK matches.", kNoData: "No KvK data yet.",
   kLive: "Running", kSoon: "Upcoming", kDayLeft: "{n} days left", kOpenIn: "opens in {n} days", kCamp: "Camp", kOpen: "KvK details", kRunning: "Running", kKds: "KD", kBack: "← All KvKs",
   kCamps: "KvK ranking", kRankPlayers: "Players ranking", kByCamp: "By camp", kByKingdom: "By kingdom", kGroupBy: "Group by", kNotFound: "This KvK was not found. The link may be old.", kShowCols: "Metrics", kView: "View", kExport: "Export CSV", kShow: "Show", kPerPage: "per page", kGo: "Page", kShowing: "Showing {a}–{b} of {n}", kOtherNote: "{n} of {m} kingdoms are in another region: only the power and merits of players in the map's top {top}.", kOther: "other region", kOtherTip: "A kingdom of another region: numbers of the players in the map's top only.",
   kPending: "No numbers yet.", kSeeSame: "Same status →",  kAllCamps: "All camps", kAllKingdoms: "All kingdoms",
@@ -32,7 +33,8 @@ Object.assign(KS.T.en, {
   kWarPeople: "Participants", kWarTop: "Top 1", kWarLive: "In progress", kWarMeta: "{n} fights · crawled {t} UTC", kWarArea: "Area {a} · no. {t}",
   kWarTop10: "Merit ranking (top 10)", kWarAlliances: "Alliances in it", kWarNone: "No fight matches.",
   kWarNote: "The game gives the top 10 players of a fight only. \"Participants\" is the game's number. In progress: a fight on the game's in-progress list at the crawl, no end yet (a fight joins the history when it is over). A place fought over again and again stays one fight, so a fight can last days; \"Last clash\" is the server's last update of it. Merits trade: every alliance and player whose kingdom is known is of one kingdom.",
-  kMin: "{n} min", kHour: "{h} h {m} min", kDay: "{d} d {h} h",
+  kMin: "{n} min", kHour: "{h} h {m} min", kHourOnly: "{h} h", kDay: "{d} d {h} h",
+  kPhLeft: "{t} left", kPhFrom: "from {d}", kMkPast: "Over", kMkNow: "Open · {t} left", kMkNext: "Opens in {t}", kMkEst: "estimated", kMkReached: "Reached {t} UTC · the next starts then", kMkOpens: "Opens on the map {t} UTC", kMkChapter: "Chapter: {t}", kMkOpensDay: "Opens on the map {t} (12 h after the chapter before ends)", kMkOpened: "Open", kMkQuest: "Quest {a} – {b} UTC", kMkQuestDay: "Quest {a} – {b}", kMkOn: "Running", kMkSoon: "Upcoming", kMkEarly: "No data on this KvK's 40000 Darkling Patrols milestone: taken as done within 12 h; not done, the milestones after it come 18 h later.", kMkFrom: "Estimated: this season's milestones (the game's durations), moved to this KvK's open day. The day only.", kMkFromOther: "For now the milestones of {k} (another season): none read for this season yet, its quests and behemoths may differ.", kMkRead: "Read from the game {t} UTC. Milestones not open yet are timed by the game's durations.",
   kWarReal: "Real fights", kTabTrade: "Merits trade detection", kTradeMerits: "Trade merits", kTradeFights: "Trade fights", kRealMerits: "Real fight merits", kRealFights: "Real fights", kTradeShare: "% trade", kTradeShareTip: "The share of the player's merits in the top 10s that came from merits trades", kTradeBest: "Biggest trade", kTradeMeta: "{n} players · crawled {t} UTC", kTradeNote: "Players in the top 10 of at least one merits trade (one kingdom only), by the merits they took in those fights. The game gives the top 10 of a fight only: this is what can be seen, not all. Click a player for their trade fights.", kWarNoLive: "This crawl has no in-progress list from the game.", kWarTrade: "Merits trade", kWarTradeTip: "One kingdom only: a fight inside one kingdom for merits", kWarKd: "Kingdom", kWarEnd: "Last clash (UTC)",
   kWarShare: "The top 10 have {p}% of the fight's merits", kWarOfFight: "{p}% of fight", kWarLegion: "Legion {n}", kWarNoLegion: "No legion",
   kWarNowAs: "A player's alliance tag is their alliance now (at the crawl), maybe not the one they fought in.", kWarUnknownK: "Kingdom unknown (not in the crawled rankings)",
@@ -80,26 +82,229 @@ function hero(b) {
   setArt(box, b.season);
   const name = el("div", "kv-name");
   name.append(el("h2", "", b.name), el("span", "mut", [seasonTitle(b.season), groupLabel(b.group)].filter(Boolean).join(" · ")));
-  box.appendChild(name);
-  box.append(...progress(b));
+  const tag = battleTag(b);
+  if (tag) { const top = el("div", "kv-hero-t"); top.append(name, tag); box.appendChild(top); } else box.appendChild(name);
+  // under its name, the KvK's schedule (2 rows, big: a calendar to keep)
+  const sched = progress(b, true);
+  if (sched.length) box.appendChild(el("div", "kv-sched")).append(...sched);
   return box;
 }
-// how far along a KvK is: its lines, none if its end is not known; here and on the Kingdom page
-function progress(b) {
+// how far along a KvK is: its lines, none if its end is not known; here and on the Kingdom page. A KvK whose progress
+// was read from the game (kvk_progress_export.py: b.progress) also gets the game's phases on the bar, a dot per
+// milestone (behemoth lair, pass, quest) that shows it on hover, focus or tap, and a line naming the phases. That line's
+// room is kept from the start, so the file coming in moves nothing. A KvK with none of its own read takes those of one
+// of its season that has (b.progressFrom: the same quests and durations), moved to its own open day: an estimate, so
+// days only, and no time a lair or pass opens on the map
+// big (the KvK page): the time split in 2 rows at the middle day, each with its own first and last day
+function progress(b, big = false) {
   if (!b.end) return [];
   const now = nowSec(), pct = Math.max(0, Math.min(100, (100 * (now - b.open)) / (b.end - b.open)));
   const top = el("div", "kv-prog-h"), t = el("span", "");
   t.append(el("b", "", tr("kProgress")), el("span", "mut", ` ${numFmt(0).format(pct)}%`));
   const left = Math.ceil((b.end - now) / DAY);
   top.append(t, el("span", "mut", tr("kDayLeft").replace("{n}", left)));
-  const bar = el("div", "kv-prog");
-  bar.appendChild(el("i")).style.width = pct + "%";
-  const ends = el("div", "kv-prog-h mut");
-  ends.append(el("span", "", when(b.open)), el("span", "", when(b.end)));
-  return [top, bar, ends];
+  const mid = b.open + Math.round((b.end - b.open) / 2 / DAY) * DAY;
+  const rows = (big ? [[b.open, mid], [mid, b.end]] : [[b.open, b.end]]).map(([from, to]) => {
+    const track = el("div", "kv-track"), bar = track.appendChild(el("div", "kv-prog"));
+    bar.appendChild(el("i")).style.width = Math.max(0, Math.min(100, (100 * (now - from)) / (to - from))) + "%";
+    const ends = el("div", "kv-prog-h mut");
+    ends.append(el("span", "", when(from)), el("span", "", when(to)));
+    return { track, ends, from, to };
+  });
+  const lines = rows.flatMap((r) => [r.track, r.ends]);
+  const [src, read, srcName, same] = b.progress ? [b.id, b.progress] : b.progressFrom ?? [];
+  if (!src) return [top, ...lines];
+  // the milestones' numerals and days share the open and end days' line, the phases' names go before the progress (left,
+  // where the milestones gone by are small): the box is as high as a KvK's without them
+  rows.forEach((r) => r.ends.classList.add("kv-ends"));
+  // with the phases' names there, no "KvK progress" label: its percentage goes before the days left
+  const legend = el("span", "kv-phases");
+  const pctText = t.lastChild.textContent.trim();
+  t.replaceChildren(legend);
+  top.lastChild.textContent = `${pctText} · ${top.lastChild.textContent}`;
+  t.style.visibility = "hidden"; // shown once with its phase: the progress text does not move when the file comes
+  load(`kvk/progress/${src}.json?v=${read}.6`).then((d) => { if (d) marks(b, b.progress ? d : moved(d, b, srcName, same), rows, legend); })
+    .finally(() => { t.style.visibility = ""; });
+  return [top, ...lines];
 }
+
+// the game's Season screen (LC_SEASON_MAINPAGE_PROGRESS1..4) and what its milestones open
+const PHASES = [{ vi: "Bắt Đầu", en: "Start" }, { vi: "Chiến Đấu", en: "Battle" }, { vi: "Tổng Kết", en: "Summary" }, { vi: "Kết Thúc", en: "End" }];
+const KINDS = { boss: { vi: "Behemoth", en: "Behemoth" }, pass: { vi: "Ải", en: "Pass" }, quest: { vi: "Nhiệm vụ", en: "Quest" } };
+const MK_ICON = { // a lair, a pass, a quest: told apart by shape as well as colour
+  boss: '<svg viewBox="0 0 10 10" aria-hidden="true"><path d="M5 .6 9.4 5 5 9.4.6 5z"/></svg>',
+  pass: '<svg viewBox="0 0 10 10" aria-hidden="true"><path d="M1 9.4V3.2L5 .6l4 2.6v6.2H6.4V6.2H3.6v3.2z"/></svg>',
+  quest: '<svg viewBox="0 0 10 10" aria-hidden="true"><circle cx="5" cy="5" r="3.4"/></svg>' };
+// another KvK's milestones on this one's open day; what only that one's own read can tell is left out. Of another
+// season (none of its own read yet): its own open and end days (Summary 48 h before the end, as in every season read),
+// Battle as far in as the other's, the milestones past its end dropped
+function moved(d, b, name, same = true) {
+  const by = b.open - (d.phases?.[0] ?? d.steps[0].start);
+  // the 40000 Darkling milestone (s.early) closes when reached and the next starts then: a KvK usually reaches it
+  // early (user 06/11: within its first 12 h), so read where it was not, it is taken as reached 6 h in (not at 12 h: its
+  // lair would open on the next day's 00:00), all after it 18 h sooner
+  const e = d.steps.find((s) => s.early && !s.reached), cut = e ? Math.max(0, e.end - e.start - 6 * 3600) : 0;
+  const sh = (t) => t + by - (e && t > e.start ? cut : 0);
+  let phases = d.phases?.map((x, i) => (i === 1 ? sh(x) : x + by));
+  if (!same && b.end && phases) phases = [b.open, Math.min(phases[1], b.end - 2 * DAY - DAY), b.end - 2 * DAY, b.end];
+  // a lair or a pass still opens 12 h after its quest starts (the chapter before it ends): its opens moves with it
+  const steps = d.steps.map(({ opens, reached, ...s }) => ({ ...s, start: sh(s.start), end: sh(s.end), est: true, ...(opens ? { opens: sh(opens) } : {}) }))
+    .filter((s) => same || !b.end || s.start < b.end);
+  return { ...d, estFrom: name, other: !same, early: !!cut, phases, steps };
+}
+const ROMAN = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII"];
+function marks(b, d, rows, legend) {
+  const exact = !d.estFrom, at2 = (s) => (exact ? utcTime(s) + " UTC" : when(s)); // a time when read, a day when estimated
+  const now = nowSec(), ph = d.phases || [b.open, 0, 0, b.end];
+  rows.at(-1).to = ph[3] || b.end;
+  if (ph[1]) {
+    const at = ph.findIndex((s, i) => i < 3 && now >= s && now < ph[i + 1]);
+    legend.replaceChildren(...[0, 1, 2].map((i) => {
+      const item = el("span", `kv-phase p${i}` + (i === at ? " on" : ""));
+      item.append(el("i"), el("b", "", label(PHASES[i])));
+      const left = exact ? lasted(ph[i + 1] - now) : tr("kDayLeft").replace("{n}", Math.ceil((ph[i + 1] - now) / DAY)).replace(/^còn /, "~");
+      const note = i === at ? (exact ? tr("kPhLeft").replace("{t}", left) : left) : now < ph[i] ? tr("kPhFrom").replace("{d}", when(ph[i])) : "";
+      if (note) item.append(el("span", "", "· " + note));
+      item.title = `${label(PHASES[i])}: ${at2(ph[i])} – ${at2(ph[i + 1])}` + (exact ? "" : ` · ${tr("kMkEst")}`);
+      return item;
+    }));
+  }
+  rows.forEach((r, i) => row(r, i === rows.length - 1));
+  // one row of the bar, from..to: its stretch of each phase, the milestones in it (the last row keeps the end's own)
+  function row({ track, from, to }, last) {
+  const pos = (s) => Math.max(0, Math.min(100, (100 * (s - from)) / (to - from)));
+  // the bar: one stretch per phase, the part gone by in full colour
+  const bar = track.querySelector(".kv-prog");
+  bar.replaceChildren();
+  if (ph[1]) {
+    for (let i = 0; i < 3; i++) {
+      if (ph[i + 1] <= from || ph[i] >= to) continue;
+      const seg = bar.appendChild(el("span", `kv-ph p${i}`));
+      seg.style.left = pos(ph[i]) + "%";
+      seg.style.width = pos(ph[i + 1]) - pos(ph[i]) + "%";
+      const a = Math.max(ph[i], from), z = Math.min(ph[i + 1], to);
+      seg.appendChild(el("i")).style.width = Math.max(0, Math.min(100, (100 * (now - a)) / (z - a))) + "%";
+      seg.title = `${label(PHASES[i])}: ${at2(ph[i])} – ${at2(ph[i + 1])}` + (exact ? "" : ` · ${tr("kMkEst")}`);
+    }
+  } else bar.appendChild(el("i")).style.width = pos(now) + "%";
+  track.querySelector(".kv-now")?.remove();
+  if (now >= from && now <= to) 
+  track.appendChild(el("u", "kv-now")).style.left = pos(now) + "%";
+  // the milestones: one dot per place; ones too close to tell apart (2 opening an hour apart) share a dot
+  track.querySelectorAll(".kv-mk").forEach((x) => x.remove());
+  // a lair or a pass sits where it opens on the map (its quest + 12 h: s.opens), a quest where it starts
+  // closer than a gate's width (24 px, so more of them on a phone) also share one
+  const groups = [], at = (s) => s.opens ?? s.start, near = Math.max(1.2, (100 * 24) / (track.offsetWidth || 600));
+  for (const s of [...d.steps].filter((x) => at(x) >= from && (at(x) < to || last)).sort((x, y) => at(x) - at(y))) {
+    const last = groups.at(-1);
+    if (last && pos(at(s)) - pos(at(last[0])) < near) last.push(s); else groups.push([s]);
+  }
+  for (const g of groups) {
+    const main = g.find((s) => s.kind === "pass") ?? g.find((s) => s.kind !== "quest") ?? g[0];
+    const st = now >= main.end ? "past" : now >= at(main) ? "now" : "next";
+    const mk = el("button", `kv-mk ${main.kind} ${st}`);
+    mk.type = "button";
+    mk.style.left = pos(at(g[0])) + "%";
+    // the open and end days sit at the bar's ends, on the milestones' line: a milestone that close keeps its day for the card
+    const px = (pos(at(g[0])) / 100) * (track.offsetWidth || 600);
+    if (px < 52 || px > (track.offsetWidth || 600) - 52) mk.classList.add("edge");
+    // a pass: the game's gate, under it its level in Roman numerals (from its name when the file has no level) and the
+    // day it opens on the map, on one line
+    if (main.kind === "pass") {
+      const lv = g.filter((s) => s.kind === "pass").map((s) => s.level ?? +(s.en?.name.match(/\d+/)?.[0] ?? 0));
+      mk.innerHTML = `<img src="assets/icons/pass.png?v=1" alt=""><span class="kv-mkd"><b>${lv.map((n) => ROMAN[n] ?? n).join("·")}</b><i>${when(at(main))}</i></span>`;
+    } else if (main.kind === "boss" && main.boss) {
+      // a behemoth: the game's avatar of it (kvk_behemoth_export.py), the day its lair opens under it (the hour is on the card)
+      mk.innerHTML = `<img src="assets/behemoths/${main.boss}.png?v=1" alt=""><span class="kv-mkd"><i>${when(at(main))}</i></span>`;
+    } else mk.innerHTML = MK_ICON[main.kind];
+    mk.setAttribute("aria-label", g.map((s) => `${label(KINDS[s.kind])} ${s[state.lang]?.name ?? s.vi.name}${(s[state.lang] ?? s.vi).title ? ` (${(s[state.lang] ?? s.vi).title})` : ""}, ${at2(at(s))}`).join("; "));
+    const show = () => mkPop(mk, g, d);
+    mk.onmouseenter = show; mk.onfocus = show;
+    mk.onclick = (e) => { e.preventDefault(); e.stopPropagation(); show(); };
+    mk.onmouseleave = mkHide; mk.onblur = mkHide;
+    track.appendChild(mk);
+  }
+  // the KvK page's schedule: a label that would run into the one before goes above its milestone (above and below each
+  // keep their own line); the Kingdom page's bar has no room above
+  // (and one that would run into the row's first or last day, which the Kingdom page's bar hides instead)
+  const box = track.getBoundingClientRect(), ends = { down: box.left + 44, up: -1e9 };
+  if (track.closest(".kv-sched")) for (const lab of track.querySelectorAll(".kv-mkd")) {
+    lab.parentNode.classList.remove("edge");
+    const r = lab.getBoundingClientRect(), side = r.left < ends.down + 6 || r.right > box.right - 50 ? "up" : "down";
+    if (side === "up" && r.left < ends.up + 6) continue;
+    if (side === "up") lab.parentNode.classList.add("up");
+    ends[side] = r.right;
+  }
+  }
+}
+// the card of a dot: fixed to the page, so no panel's edge cuts it; above the dot, inside the window
+let popBox = null;
+function mkHide() { if (popBox) popBox.hidden = true; }
+function mkPop(mk, g, d) {
+  if (!popBox) {
+    popBox = document.body.appendChild(el("div", "kv-mkpop"));
+    popBox.setAttribute("role", "tooltip");
+    addEventListener("scroll", mkHide, true);
+    addEventListener("click", mkHide);
+  }
+  const now = nowSec(), exact = !d.estFrom, at2 = (t) => (exact ? utcTime(t) : when(t));
+  popBox.replaceChildren(...g.map((s) => {
+    const row = el("div", `kv-mkrow ${s.kind}`), head = el("div", "kv-mkh");
+    // a lair or a pass: open on the map or not yet; a quest: over, running or to come
+    // estimated: no countdown, only where it stands
+    const st = !exact ? (now >= s.end ? tr("kMkPast") : now >= s.start ? tr("kMkOn") : tr("kMkSoon"))
+      : s.opens ? (now >= s.opens ? tr("kMkOpened") : tr("kMkNext").replace("{t}", lasted(s.opens - now)))
+      : now >= s.end ? tr("kMkPast") : now >= s.start ? tr("kMkNow").replace("{t}", lasted(s.end - now)) : tr("kMkNext").replace("{t}", lasted(s.start - now));
+    const on = s.opens ? now >= s.opens && now < s.end : now >= s.start && now < s.end;
+    head.append(el("span", "kv-mkk", label(KINDS[s.kind])), el("span", on ? "kv-mks on" : "kv-mks", st));
+    const txt = s[state.lang] ?? s.vi, est = s.est ? ` · ${tr("kMkEst")}` : "";
+    const name = el("b", "", txt.name);
+    if (s.boss) { const av = el("img", "kv-mkav"); av.src = `assets/behemoths/${s.boss}.png?v=1`; av.alt = ""; name.prepend(av); }
+    row.append(head, name);
+    // a lair or a pass: the chapter's own title in the game ("Kỷ Nguyên Mới"), its name here being what it opens
+    if (txt.title) row.appendChild(el("span", "kv-mkti", tr("kMkChapter").replace("{t}", txt.title)));
+    if (s.opens) row.appendChild(el("span", "kv-mko", (exact ? tr("kMkOpens").replace("{t}", utcTime(s.opens)) : tr("kMkOpensDay").replace("{t}", when(s.opens))) + est));
+    row.appendChild(el("span", "kv-mkt", tr(exact ? "kMkQuest" : "kMkQuestDay").replace("{a}", at2(s.start)).replace("{b}", at2(s.end)) + (s.opens ? "" : est)));
+    // a milestone that closes when reached: when it was, the next one starting then
+    if (s.reached) row.appendChild(el("span", "kv-mkt", tr("kMkReached").replace("{t}", utcTime(s.reached))));
+    if (txt.task) row.appendChild(el("small", "", txt.task));
+    return row;
+  }), el("div", "kv-mkf", exact ? tr("kMkRead").replace("{t}", utcTime(d.read)) : tr(d.other ? "kMkFromOther" : "kMkFrom").replace("{k}", d.estFrom) + (d.early ? " " + tr("kMkEarly") : "")));
+  popBox.hidden = false;
+  const r = mk.getBoundingClientRect(), w = popBox.offsetWidth, h = popBox.offsetHeight;
+  const x = Math.max(8, Math.min(innerWidth - w - 8, r.left + r.width / 2 - w / 2));
+  const above = r.top - h - 10 >= 8;
+  popBox.style.left = x + "px";
+  popBox.style.top = (above ? r.top - h - 10 : r.bottom + 10) + "px";
+}
+// a KvK at war: "Battle" in red after its name (Rankings, the Kingdom top, the KvK's own page and cards). With a War
+// history it opens it. Only while a fight is going on (kvk/index.json liveWars, as of the last War history crawl): a
+// KvK that is running but quiet has none. Not an <a>: on the Rankings page it sits inside the KvK's own link
+function battleTag(b) {
+  if (!b?.live || !b.liveWars) return null;
+  const t = el("span", "battle-tag go", "Battle");
+  t.setAttribute("role", "link");
+  t.tabIndex = 0;
+  t.title = tr("kFightsTip").replace("{n}", b.liveWars) + " · " + tr("kOpenWar");
+  const go = (e) => {
+    e.preventDefault(); e.stopPropagation();
+    // already on this KvK's page: the link would not change, so switch the tab here
+    if (state.kvk === b.id && state.page === "kingdom" && KS.onKvkTab) { page.tab = "war"; KS.onKvkTab(); return; }
+    location.hash = `kvk=${b.id}&tab=war`;
+  };
+  t.onclick = go;
+  t.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") go(e); };
+  return t;
+}
+// what the KvK list is searched for: a kingdom that starts with it is framed gold with a star, so it is found at a glance
+const STAR = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 .8l1.6 3.3 3.6.5-2.6 2.5.6 3.6L6 9l-3.2 1.7.6-3.6L.8 4.6l3.6-.5z"/></svg>';
+let hitQ = "";
+const hitK = (k) => !!hitQ && String(k).startsWith(hitQ);
+const hitName = (b) => !!hitQ && b.name.toLowerCase().includes(hitQ);
 function kingdomChip(k) {
-  const c = el("span", k.other ? "kd kv-other" : "kd", "#" + k.k);
+  const c = el("span", (k.other ? "kd kv-other" : "kd") + (hitK(k.k) ? " hit" : ""));
+  if (hitK(k.k)) { c.insertAdjacentHTML("beforeend", STAR); c.setAttribute("aria-label", `#${k.k} (${tr("kHit")})`); }
+  c.append("#" + k.k);
   if (k.other) c.title = tr("kOtherTip");
   return c;
 }
@@ -123,12 +328,14 @@ function kvkLink(b) {
 // ---- the list: one line per KvK, like the Rankings page ----
 const dates = (b) => `${when(b.open)}${b.end ? " – " + when(b.end) : ""}`;
 function card(b) {
-  const a = el("article", "kv-card");
+  const a = el("article", hitName(b) ? "kv-card hit" : "kv-card");
   a.id = "kv-" + b.id;
   const head = el("div", "kv-card-h"), icon = el("span", b.live ? "kv-ico" : "kv-ico soon"), name = el("div", "kv-card-n");
   icon.innerHTML = SWORDS;
   name.append(el("b", "", b.name), el("small", "mut", dates(b)));
   head.append(icon, name);
+  const bt = battleTag(b); // a fight going on: on the right of the card's top
+  if (bt) head.appendChild(bt);
   a.appendChild(head);
   const now = nowSec(), left = Math.ceil(((b.live ? b.end : b.open) - now) / DAY);
   if (b.live && b.end) {
@@ -205,7 +412,8 @@ function centerCard(c) {
 function drawList(out, data) {
   setLink("kvk", { g: page.group });
   out.innerHTML = "";
-  const kq = page.q.replace("#", "").toLowerCase();
+  const kq = page.q.replace("#", "").trim().toLowerCase();
+  hitQ = kq;
   const rows = data.battles.filter((b) => (!page.group || b.group === page.group)
     && (!kq || b.kingdoms.some((k) => String(k.k).startsWith(kq)) || b.name.toLowerCase().includes(kq)));
   if (!rows.length) { out.appendChild(el("p", "hint mut", tr("kvkNone"))); return; }
@@ -246,7 +454,7 @@ function drawList(out, data) {
     head.onkeydown = (e) => { if (e.target === head && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); toggle(); } };
     const jump = el("div", "kv-jump");
     for (const b of list) {
-      const j = el("button", b.live ? "" : "soon", b.name);
+      const j = el("button", (b.live ? "" : "soon") + (kq && (hitName(b) || b.kingdoms.some((k) => hitK(k.k))) ? " hit" : ""), b.name);
       j.type = "button";
       j.onclick = (e) => {
         e.stopPropagation();
@@ -352,21 +560,19 @@ function drawFilter(b) {
 
 const clearArt = (node) => { node.classList.remove("has-art", "art-wide"); node.style.removeProperty("--art"); node.style.removeProperty("--art-blur"); };
 const battleOf = (idx, k) => idx?.battles.find((x) => x.id === idx.kvkOf[k]);
-KS.season = { of: battleOf, filterOf, camps: campsOf, title: seasonTitle, status: statusName, dates, progress, list: () => load("kvk/index.json"), art: (node, season) => { clearArt(node); setArt(node, season); } };
+KS.season = { battleTag, of: battleOf, filterOf, camps: campsOf, title: seasonTitle, status: statusName, dates, progress, list: () => load("kvk/index.json"), art: (node, season) => { clearArt(node); setArt(node, season); } };
 KS.onKingdomShown = async (k) => {
+  // the kingdom's status; a click on it opens the ranking of every kingdom with the same status, on this one's line
+  // (a status the ranking has no filter for is only text)
   let chip = $("kStatus");
-  if (!chip) { chip = el("span", "k-status"); chip.id = "kStatus"; chip.hidden = true; $("cmpTags").appendChild(chip); }
+  if (!chip) { chip = el("a", "k-status"); chip.id = "kStatus"; chip.hidden = true; $("cmpTags").appendChild(chip); }
   const seen = await load("kvk/index.json"), st = seen?.servers?.[k]?.[1];
   const all = state.comparing ? [state.mainK, ...state.also] : [k];
   chip.hidden = !statusName(st) || all.some((x) => seen?.kvkOf[x] !== seen?.kvkOf[k]); // kingdoms apart: no one status for them
   chip.textContent = statusName(st);
   chip.dataset.st = st ?? "";
-  // right of it: the ranking of every kingdom under the same filter, on this one's line
-  let more = $("kStatusAll");
-  if (!more) { more = el("a", "k-status-all", tr("kSeeSame")); more.id = "kStatusAll"; chip.after(more); }
-  more.hidden = chip.hidden || filterOf(st) == null;
-  more.textContent = tr("kSeeSame");
-  more.href = `#p=rank&st=${filterOf(st)}&at=${k}`;
+  if (filterOf(st) == null) { chip.removeAttribute("href"); chip.removeAttribute("title"); }
+  else { chip.href = `#p=rank&st=${filterOf(st)}&at=${k}`; chip.title = tr("kSeeSame").replace(/\s*→$/, ""); }
   const box = $("kCamps"), idx = await load("kvk/index.json");
   const ks = state.comparing ? [state.mainK, ...state.also] : [k];
   // kingdoms apart have no camps to share: shown only when all of them are in the one KvK
@@ -461,6 +667,7 @@ function drawTop(box, list) {
       d.append(el("b", r._i === 1 ? "kv-rk top" : "kv-rk", "#" + r._i));
       const who = el("span", "who");
       who.append(el("b", "", r.name), el("small", "", String(r.id))); // all of one kingdom: its number is in the line above the table
+      KS.playerLink(who, r.id, r.k, r.name);
       d.append(who);
       return d;
     } },
@@ -479,6 +686,7 @@ const utcTime = (s) => { const t = new Date(s * 1000).toISOString(); return `${t
 function lasted(s) {
   const m = Math.max(0, Math.round(s / 60));
   if (m < 60) return tr("kMin").replace("{n}", m);
+  if (m < 48 * 60 && m % 60 === 0) return tr("kHourOnly").replace("{h}", m / 60);
   if (m < 48 * 60) return tr("kHour").replace("{h}", Math.floor(m / 60)).replace("{m}", m % 60);
   return tr("kDay").replace("{d}", Math.floor(m / 1440)).replace("{h}", Math.floor((m % 1440) / 60));
 }
@@ -511,7 +719,7 @@ function warDetail(r, crawled) {
   r.top.forEach((p, i) => {
     const li = el("li", i < 3 ? "p" + (i + 1) : ""), who = el("div", "kv-war-who"), line = el("div", "kv-war-line"), fill = el("div", "kv-war-bar");
     li.title = `ID ${p.id}`;
-    line.append(el("b", "kv-war-pn", p.name));
+    line.append(KS.playerLink(el("b", "kv-war-pn", p.name), p.id, p.k, p.name));
     if (p.abbr) line.append(el("span", "kv-war-tag", `[${p.abbr}]`));
     line.append(kdOf(p.k));
     fill.appendChild(el("i")).style.width = (best ? (100 * p.merits) / best : 0) + "%";
@@ -610,7 +818,7 @@ function drawWarTable(out, data, b) {
       const p = r.top[0];
       if (!p) return el("span", "mut", "–");
       const d = el("span", "who");
-      d.append(el("b", "", p.name), el("small", "", `${p.abbr ? "[" + p.abbr + "] " : ""}${p.k ? "#" + p.k + " · " : ""}${num(p.merits)}`));
+      d.append(KS.playerLink(el("b", "", p.name), p.id, p.k, p.name), el("small", "", `${p.abbr ? "[" + p.abbr + "] " : ""}${p.k ? "#" + p.k + " · " : ""}${num(p.merits)}`));
       return d;
     } },
   ];
@@ -672,7 +880,7 @@ function drawTradeTable(out, data, b) {
   const rows0 = all.filter((r) => (!page.tk || page.tk.ks.includes(r.k)) && (!q || r.name.toLowerCase().includes(q) || String(r.id) === q || (r.abbr || "").toLowerCase().includes(q)));
   const cols = [
     { key: "#", label: "#", nosort: true, text: (r) => String(r._i), cls: () => "mut" },
-    { key: "name", label: tr("cName"), left: true, w: state.narrow ? 130 : 190, get: (r) => r.name, node: (r) => { const d = el("span", "who"); d.append(el("b", "", r.name), el("small", "", String(r.id))); return d; } },
+    { key: "name", label: tr("cName"), left: true, w: state.narrow ? 130 : 190, get: (r) => r.name, node: (r) => { const d = el("span", "who"); d.append(el("b", "", r.name), el("small", "", String(r.id))); return KS.playerLink(d, r.id, r.k, r.name); } },
     { key: "kingdom", label: tr("cKingdom"), nopin: true, get: (r) => r.k, node: (r) => kdOf(r.k) },
     { key: "alliance", label: tr("cAlliance"), get: (r) => r.abbr, node: (r) => (r.abbr ? KS.allianceChip(r.abbr) : el("span", "mut", "–")) },
     { key: "trade", label: tr("kTradeMerits"), get: (r) => r.trade, max: all.reduce((m, r) => Math.max(m, r.trade), 0) },

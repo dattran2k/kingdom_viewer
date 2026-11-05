@@ -18,6 +18,7 @@ Questions, bugs, ideas, or want a kingdom crawled: message me on Discord, **`tra
 - ⚔️ **Compare**: two sides of up to 10 kingdoms each, head to head.
 - 🏆 **Rankings**: kingdoms ranked by power, merits and kills.
 - 🔁 **Migration**: who moved between kingdoms, and when.
+- 👤 **Player card**: click any player name for their numbers now, every metric, and their history over the scans (moves included).
 
 ## 🚀 Run
 - **Locally:** run `python -m http.server 8000 --bind 127.0.0.1` in this folder, then open http://localhost:8000/.
@@ -52,10 +53,18 @@ newest scan, every player above 15M power now, one list per column in `cols`). T
 A move is only known to lie between two scans.
 
 `data/kvk/index.json` lists the running KvKs: their camps and kingdoms, the numbers since each opened, each kingdom's
-top 5 players by merits since then (`top`), and how many fights its War history has (`wars`).
+top 5 players by merits since then (`top`), how many fights its War history has (`wars`) and how many of them are going on (`liveWars`, none when 0).
 `data/kvk/battles/<map>.json` is a KvK map's War history: every fight since it opened (place, start, last clash,
 alliances, participants, merits, the top 10 players, whether it is in progress or a merits trade between one kingdom's
 players). The game gives no more than the top 10 of a fight. Times are UTC.
+`data/kvk/progress/<map>.json` (`tools/kvk_progress_export.py`, only the map an emulator's account is in) is the game's
+Season screen: `phases` (Start, Battle, Summary, End) and `steps`, the milestones (`kind` boss / pass / quest, `start`,
+`end`, `est` when not open yet, names and tasks in Vietnamese and English from the game's strings). The KvK's
+`progress` in `index.json` is when it was read; with it the KvK's progress bar (KvK page, Kingdom top) shows the phases
+and a dot per milestone that shows it on hover, focus or tap.
+`data/kvk/behemoths.json` (`tools/kvk_behemoth_export.py`) lists the game's behemoths (Creatures screen, the 4 Magma ones as one)
+with their names and pictures in `assets/behemoths/`: `<kind>.png` the avatar, `<kind>_pic.webp` a larger picture. `kind` is the
+number a lair milestone's `boss` names; the bar shows that avatar with the day the lair opens under it.
 
 | Field | Meaning |
 |---|---|

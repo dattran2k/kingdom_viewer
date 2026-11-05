@@ -151,7 +151,7 @@ body[data-compare="1"] .klist li.cur { background: var(--acc-bg); }
 .g-alliance { --t: #4a8cf7; }
 .g-gather { --t: #00a261; }
 .g-glory { --t: #d74e00; }
-.b-merits, .b-meritMagic, .b-meritsMax { --t: #e0459b; }
+.b-merits, .b-meritsMax { --t: #e0459b; }
 .b-meritInfantry { --t: #e42855; }
 .b-meritCavalry { --t: #c59a00; }
 .b-meritArcher { --t: #00a261; }
@@ -823,9 +823,6 @@ body[data-compare="1"] .k-row.has-art .kbtn { color: #fff; border-color: rgb(255
 .k-row.has-art .k-status[data-st="110"] { color: #ffc94d; border-color: #ffc94d; }
 .k-row.has-art .k-status[data-st="111"] { color: #8ab4ff; border-color: #8ab4ff; }
 /* right of the status chip: every kingdom under the same filter */
-.k-status-all { color: var(--acc); font-size: 13px; font-weight: 600; white-space: nowrap; }
-.k-status-all[hidden] { display: none; }
-.k-row.has-art .k-status-all { color: #fff; text-shadow: 0 1px 3px rgb(0 0 0 / .85); }
 .k-row.has-art .k-meta .mut, .k-row.has-art .k-meta-l span { color: #fff; }
 /* light theme: the cards */
 :root[data-theme="light"] .kpi { background: linear-gradient(135deg, var(--panel) 45%, color-mix(in srgb, var(--t, var(--acc)) 12%, var(--panel)) 100%); }
@@ -967,7 +964,7 @@ body[data-compare="1"] .k-row .kbtn { height: 52px; }
 .k-prog { display: flex; flex-direction: column; gap: 6px; max-width: 640px; color: #fff; text-shadow: 0 1px 3px rgb(0 0 0 / .85); }
 .k-prog:empty { display: none; }
 .k-prog .kv-prog-h b { color: #fff; }
-.k-prog .kv-prog { background: rgb(255 255 255 / .22); }
+.k-prog .kv-prog { background: #3b404b; } /* solid, as the rest of the bar */
 /* a small window: the table's tools fill the line from both sides, and share a line whenever they fit */
 @media (max-width: 680px) {
   .tbl-bar { justify-content: space-between; }
@@ -1070,8 +1067,8 @@ body[data-compare="1"] .k-row .kbtn { height: 52px; }
 #kCamps .kv-info > .kv-panel { margin: 0; border: 0; border-top: 1px solid var(--line); border-radius: 0; background: none; }
 
 /* One link look: a faint 1px underline at rest that turns solid on hover (same colour, same weight everywhere) */
-.k-status-all, .kv-info-link { text-decoration: underline 1px; text-underline-offset: 3px; text-decoration-color: color-mix(in srgb, currentColor 45%, transparent); transition: text-decoration-color var(--m-out) var(--m-ease); }
-.k-status-all:hover, .kv-info-link:hover { text-decoration-color: currentColor; transition-duration: var(--m-in); }
+.kv-info-link { text-decoration: underline 1px; text-underline-offset: 3px; text-decoration-color: color-mix(in srgb, currentColor 45%, transparent); transition: text-decoration-color var(--m-out) var(--m-ease); }
+.kv-info-link:hover { text-decoration-color: currentColor; transition-duration: var(--m-in); }
 
 /* A KvK season card sits on the page's side lines (16px / 12px), like the pills above it, not flush to the menu */
 #dv .dv-out > .kv-sec { width: auto; margin-inline: 16px; padding-inline: 0; }
@@ -1185,7 +1182,7 @@ body[data-compare="1"] .k-row .kbtn { height: 52px; }
 
 /* The hero's KvK: one block on a dark backing (name + way to its page / progress / its kingdoms), so what belongs
    together reads together and the kingdom's own number above stays the title */
-#kMeta.k-kvk { gap: 10px; max-width: 720px; height: auto; min-height: 163px; padding: 12px 14px; border: 1px solid rgb(255 255 255 / .14); border-radius: var(--r-lg); background: rgb(8 10 14 / .55); }
+#kMeta.k-kvk { gap: 10px; height: auto; min-height: 163px; padding: 12px 14px; border: 1px solid rgb(255 255 255 / .14); border-radius: var(--r-lg); background: rgb(8 10 14 / .55); }
 #kMeta.k-kvk .k-meta-l { display: flex; flex-direction: row; align-items: flex-start; justify-content: space-between; gap: 12px; white-space: normal; }
 .k-meta-n { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; min-width: 0; }
 .k-meta-n b { font-size: 18px; font-weight: 700; }
@@ -1248,3 +1245,334 @@ body:not([data-compare="1"]) .k-row .kbtn::after { display: block; flex: none; w
   transition: opacity var(--m-out) var(--m-ease), transform var(--m-out) var(--m-ease); }
 body:not([data-compare="1"]) .k-row .kbtn:hover::after, body:not([data-compare="1"]) .k-row .kbtn:focus-visible::after { opacity: 1; transform: translateY(-3px) rotate(45deg); }
 @media (max-width: 900px) { body:not([data-compare="1"]) .k-row .kbtn::after { width: 9px; height: 9px; border-width: 0 2.5px 2.5px 0; transform: translateY(-4px) rotate(45deg); } }
+
+/* A KvK at war: "Battle" after its name (Rankings, the Kingdom top, the KvK cards' state) */
+.battle-tag { display: inline-flex; align-items: center; gap: 5px; height: 18px; padding: 0 6px; border: 1px solid color-mix(in srgb, var(--down) 45%, transparent); border-radius: var(--r-sm); background: color-mix(in srgb, var(--down) 14%, transparent); color: var(--down); font-size: 11px; font-weight: 700; line-height: 1; letter-spacing: .01em; white-space: nowrap; }
+.rk-kvk-t { display: inline-flex; align-items: center; gap: 6px; }
+.has-art .battle-tag { border-color: rgb(255 92 120 / .6); background: rgb(20 4 8 / .55); color: #ff5c78; text-shadow: none; }
+
+/* The KvK list's search: what matches is framed gold, a kingdom with a star before its number */
+.kd.hit { display: inline-flex; align-items: center; gap: 3px; border-color: #d8a920; background: var(--tag-bg); color: var(--tag-fg); }
+.kv-sec.has-art .kv-card .kd.hit { border-color: #d8a920; background: rgb(216 169 32 / .16); color: #f3cf62; }
+.kd.hit svg { width: 10px; height: 10px; flex: none; fill: currentColor; }
+.kv-jump button.hit { border-color: #d8a920; color: var(--tag-fg); }
+.kv-sec.has-art .kv-jump button.hit { border-color: #d8a920; color: #f3cf62; }
+.kv-card.hit, .kv-sec.has-art .kv-card.hit { border-color: #d8a920; box-shadow: 0 0 0 1px #d8a920, 0 8px 24px rgb(0 0 0 / .25); }
+
+/* A player's card (player.js): a name anywhere opens it. Header on the season's picture, then the power and the
+   three KvK numbers, then two tabs: every metric now, and one metric over the scans */
+/* a player's name: plain white (the page's text colour), blue under the pointer; the ID under it stays grey */
+[data-pid] { cursor: pointer; }
+.who[data-pid] b, b[data-pid], .nm[data-pid] .nm2 span { color: var(--fg); transition: color var(--m-in) var(--m-ease); }
+.who[data-pid]:hover b, b[data-pid]:hover, .nm[data-pid]:hover .nm2 span, .who[data-pid]:focus-visible b, b[data-pid]:focus-visible, .nm[data-pid]:focus-visible .nm2 span { color: var(--acc); }
+[data-pid]:focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; border-radius: var(--r-sm); }
+.dlg.pl { width: min(760px, calc(100vw - 32px)); max-height: min(820px, calc(100dvh - 32px)); overflow: hidden auto; overscroll-behavior: contain; }
+.dlg.pl[open] { animation: pl-in var(--m-out) var(--m-ease); }
+@keyframes pl-in { from { opacity: 0; transform: translateY(8px) scale(.99); } }
+@media (prefers-reduced-motion: reduce) { .dlg.pl[open] { animation: none; } }
+.pl-head { position: sticky; top: 0; z-index: 2; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; min-height: 96px; padding: 18px 18px 16px; background: var(--panel2); }
+.pl-head.has-art { overflow: clip; background: linear-gradient(rgb(8 10 14 / .55), rgb(8 10 14 / .55)), var(--art-blur) center / cover no-repeat; color: #fff; }
+.pl-head.has-art::before { content: ""; position: absolute; inset: 0 0 0 auto; width: min(100%, 520px); background: linear-gradient(to right, rgb(8 10 14 / .55), transparent 60%), var(--art) center / cover no-repeat; -webkit-mask: linear-gradient(to right, transparent, #000 30%); mask: linear-gradient(to right, transparent, #000 30%); }
+.pl-head > * { position: relative; }
+.pl-who { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.pl-who h2 { margin: 0; overflow: hidden; font-size: 24px; font-weight: 800; line-height: 1.15; text-overflow: ellipsis; white-space: nowrap; }
+.pl-head.has-art h2 { text-shadow: 0 1px 3px rgb(0 0 0 / .7); }
+.pl-sub { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 12px; }
+.pl-sub .kd { text-decoration: none; }
+.pl-head.has-art .pl-sub .kd { border-color: rgb(255 255 255 / .35); background: rgb(8 10 14 / .55); color: #fff; }
+.pl-id { height: 22px; padding: 0 8px; border: 1px solid var(--edge); border-radius: var(--r-sm); background: var(--panel); color: var(--fg2); font: inherit; font-variant-numeric: tabular-nums; cursor: pointer; }
+.pl-head.has-art .pl-id { border-color: rgb(255 255 255 / .3); background: rgb(8 10 14 / .55); color: #fff; }
+.pl-id:hover { border-color: var(--acc); }
+.pl-rank { font-weight: 600; color: var(--fg2); }
+.pl-head.has-art .pl-rank { color: #fff; text-shadow: 0 1px 3px rgb(0 0 0 / .85); }
+.pl-x { display: grid; place-items: center; flex: none; width: 32px; height: 32px; border: 1px solid var(--edge); border-radius: 50%; background: var(--panel); color: var(--fg); cursor: pointer; }
+.pl-head.has-art .pl-x { border-color: rgb(255 255 255 / .35); background: rgb(8 10 14 / .5); color: #fff; }
+.pl-x:hover { border-color: var(--acc); }
+.pl-x svg { width: 14px; height: 14px; }
+.pl-wait { margin: 0; padding: 32px 18px; }
+.pl-body { display: flex; flex-direction: column; gap: 14px; padding: 16px 18px 6px; }
+
+.pl-lead { display: grid; grid-template-columns: 1.4fr repeat(3, 1fr); gap: 1px; overflow: hidden; border: 1px solid var(--edge); border-radius: var(--r-lg); background: var(--edge); }
+.pl-lead > div:not(.pl-minor) { display: flex; flex-direction: column; gap: 2px; min-width: 0; padding: 12px 14px; background: var(--panel); }
+.pl-lead small { color: var(--mut); font-size: 12px; font-weight: 500; }
+.pl-lead b { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.2; }
+.pl-big b { font-size: 30px; font-weight: 800; letter-spacing: -.01em; }
+.pl-minor { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 6px 20px; padding: 9px 14px; background: var(--panel2); color: var(--mut); font-size: 12px; }
+.pl-minor b { color: var(--fg); font-size: 12px; font-weight: 700; }
+.pl-d { color: var(--mut); font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.pl-d.up { color: var(--up); }
+.pl-d.down { color: var(--down); }
+
+.pl-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--edge); }
+.pl-tabs button { position: relative; height: 36px; padding: 0 12px; border: 0; background: none; color: var(--mut); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+.pl-tabs button:hover, .pl-tabs button[aria-selected="true"] { color: var(--fg); }
+.pl-tabs button[aria-selected="true"]::after { content: ""; position: absolute; inset: auto 8px -1px; height: 2px; border-radius: 2px; background: var(--acc-solid); }
+.pl-tabs button:focus-visible { outline: 2px solid var(--acc); outline-offset: -2px; border-radius: var(--r-sm); }
+.pl-pane { display: flex; flex-direction: column; gap: 12px; padding-bottom: 6px; }
+.pl-pane[hidden] { display: none; }
+.pl-groups { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 16px 24px; }
+.pl-grp h3, .pl-moves h3 { margin: 0 0 6px; color: var(--mut); font-size: 12px; font-weight: 600; }
+.pl-grp dl { display: grid; grid-template-columns: minmax(0, 1fr) auto; margin: 0; }
+.pl-grp dt, .pl-grp dd { padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
+.pl-grp dt { overflow: hidden; color: var(--fg2); text-overflow: ellipsis; white-space: nowrap; }
+.pl-grp dd { display: flex; align-items: baseline; justify-content: flex-end; gap: 8px; margin: 0; text-align: right; }
+.pl-grp dd b { font-weight: 600; font-variant-numeric: tabular-nums; }
+.pl-meta { margin: 0; font-size: 12px; }
+.pl-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.pl-pills button { height: 28px; padding: 0 10px; border: 1px solid var(--edge); border-radius: var(--r-md); background: var(--panel); color: var(--fg2); font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; }
+.pl-pills button:hover { border-color: var(--acc); color: var(--fg); }
+.pl-pills button[aria-pressed="true"] { border-color: var(--acc-solid); background: var(--acc-bg); color: var(--acc); }
+.pl-chart { padding: 10px 6px 4px; border: 1px solid var(--edge); border-radius: var(--r-lg); background: var(--panel2); }
+.pl-chart p { margin: 0; padding: 24px 8px; font-size: 13px; text-align: center; }
+.pl-chart svg { display: block; width: 100%; height: auto; }
+.pl-chart text { fill: var(--mut); font-size: 11px; font-variant-numeric: tabular-nums; }
+.pl-chart .g { stroke: var(--edge); stroke-width: 1; }
+.pl-chart .l { fill: none; stroke: var(--acc); stroke-width: 2.25; stroke-linejoin: round; stroke-linecap: round; }
+.pl-chart .a { fill: color-mix(in srgb, var(--acc) 14%, transparent); }
+.pl-chart .d { fill: var(--panel); stroke: var(--acc); stroke-width: 2; }
+.pl-chart .d:hover { fill: var(--acc); }
+.pl-tbl { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
+.pl-tbl th { padding: 6px 8px; border-bottom: 1px solid var(--edge); color: var(--mut); font-size: 12px; font-weight: 600; text-align: left; }
+.pl-tbl th:nth-child(n+3), .pl-tbl td.num { text-align: right; }
+.pl-tbl td { padding: 6px 8px; border-bottom: 1px solid var(--line); }
+.pl-tbl td.up { color: var(--up); }
+.pl-tbl td.down { color: var(--down); }
+.pl-tbl td.mut { color: var(--mut); }
+.pl-moves { display: flex; flex-direction: column; gap: 4px; }
+.pl-move { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; font-size: 13px; }
+.pl-foot { position: sticky; bottom: 0; display: flex; justify-content: flex-end; gap: 8px; padding: 12px 18px; border-top: 1px solid var(--edge); background: var(--panel); }
+.pl-foot a.btn { color: var(--fg); text-decoration: none; }
+@media (max-width: 680px) {
+  .dlg.pl { width: 100vw; max-width: 100vw; height: 100dvh; max-height: 100dvh; margin: 0; border: 0; border-radius: 0; }
+  .pl-head { padding: 14px 14px 12px; }
+  .pl-who h2 { font-size: 20px; }
+  .pl-body { padding: 12px 14px 4px; }
+  .pl-lead { grid-template-columns: repeat(3, 1fr); }
+  .pl-big { grid-column: 1 / -1; }
+  .pl-lead > div:not(.pl-minor) b { font-size: 16px; }
+  .pl-big b { font-size: 26px; }
+  .pl-foot { padding: 10px 14px; }
+}
+.pl-since { margin-left: auto; }
+
+/* A KvK at war: a beating red dot before "Battle", the card's state and the Fights count */
+.battle-tag::before, .kv-state i.war { content: ""; flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--down); box-shadow: 0 0 0 0 color-mix(in srgb, var(--down) 60%, transparent); animation: war-beat 1.8s var(--m-ease) infinite; }
+.kv-state i.war { width: 8px; height: 8px; }
+@keyframes war-beat { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--down) 55%, transparent); } 70%, 100% { box-shadow: 0 0 0 5px transparent; } }
+@media (prefers-reduced-motion: reduce) { .battle-tag::before, .kv-state i.war { animation: none; } }
+.k-row.has-art .battle-tag::before { background: #ff6b88; }
+.kv-card-h { min-width: 0; }
+.kv-card-n { flex: 1 1 auto; }
+.kv-hero-t { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.k-meta-e { display: flex; flex: none; align-items: center; gap: 8px; }
+/* the player card's line: drawn in once, from the left */
+.pl-chart .l { stroke-dasharray: 1; stroke-dashoffset: 0; animation: pl-draw 700ms var(--m-ease) both; }
+@keyframes pl-draw { from { stroke-dashoffset: 1; } }
+.pl-chart .a { animation: pl-fade 700ms var(--m-ease) both; }
+@keyframes pl-fade { from { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .pl-chart .l, .pl-chart .a { animation: none; } }
+
+/* The player card's History: each metric in its own colour (--t, as the Kingdom page's cards) with its picture */
+.pl-ic { flex: none; width: 16px; height: 16px; object-fit: contain; }
+.pl-pills button { display: inline-flex; align-items: center; gap: 6px; border-color: color-mix(in srgb, var(--t) 40%, transparent); background: color-mix(in srgb, var(--t) 10%, transparent); color: color-mix(in srgb, var(--t) 70%, var(--fg)); }
+.pl-pills button:hover { border-color: var(--t); background: color-mix(in srgb, var(--t) 18%, transparent); color: var(--fg); }
+.pl-pills button[aria-pressed="true"] { border-color: var(--t); background: var(--t); color: #fff; }
+.pl-pills button:focus-visible, .pl-pc:focus-visible, .pl-fold:focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; }
+.pl-period { display: flex; flex-direction: column; gap: 10px; }
+.pl-period-h { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.pl-period-h h3 { margin: 0; font-size: 14px; font-weight: 700; }
+.pl-period-h small { font-size: 12px; font-variant-numeric: tabular-nums; }
+.pl-fold { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 4px; border: 0; background: none; color: var(--acc); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+.pl-fold:hover { text-decoration: underline; text-underline-offset: 3px; }
+.pl-chev { width: 7px; height: 7px; margin-top: -3px; border: solid currentColor; border-width: 0 1.6px 1.6px 0; transform: rotate(45deg); transition: transform var(--m-out) var(--m-ease); }
+.pl-chev.up { margin-top: 3px; transform: rotate(-135deg); }
+.pl-pcs { display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 8px; }
+.pl-pcs[hidden], .pl-rows[hidden] { display: none; }
+.pl-pc { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-width: 0; padding: 10px 12px; border: 1px dashed var(--edge); border-radius: var(--r-lg); background: none; color: var(--fg); font: inherit; text-align: left; cursor: pointer; transition: border-color var(--m-in) var(--m-ease), background var(--m-in) var(--m-ease); }
+.pl-pc:hover { border-color: color-mix(in srgb, var(--t) 60%, transparent); }
+.pl-pc.on { border-style: solid; border-color: var(--t); background: color-mix(in srgb, var(--t) 9%, transparent); }
+.pl-pc-v { display: inline-flex; align-items: center; gap: 6px; }
+.pl-pc b { font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.pl-pc b.up { color: var(--up); }
+.pl-pc b.down { color: var(--down); }
+.pl-pc small { color: var(--mut); font-size: 12px; }
+.pl-chart .l { stroke: var(--t, var(--acc)); }
+.pl-chart .a { fill: color-mix(in srgb, var(--t, var(--acc)) 14%, transparent); }
+.pl-chart .d { stroke: var(--t, var(--acc)); }
+.pl-chart .d:hover { fill: var(--t, var(--acc)); }
+.pl-chart .kv { stroke: var(--down); stroke-width: 1; stroke-dasharray: 4 4; opacity: .7; }
+.pl-chart text.kvt { fill: var(--down); font-size: 11px; font-weight: 700; }
+
+/* Overview's KvK performance: a card a KvK number, its change in the metric's colour, the place in the kingdom
+   (badge, gold for the top 3) and a bar that is full for #1 */
+.pl-perf { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 10px; }
+.pl-perf .pl-pcs { grid-template-columns: repeat(auto-fill, minmax(124px, 1fr)); gap: 10px; }
+.pl-perf .pl-pc { position: relative; gap: 2px; padding: 12px 12px 14px; border: 1px solid var(--edge); background: var(--panel2); cursor: default; }
+.pl-perf .pl-pc:hover { border-color: var(--edge); }
+.pl-perf .pl-pc b { color: color-mix(in srgb, var(--t) 80%, var(--fg)); font-size: 16px; }
+.pl-rk { position: absolute; top: -8px; right: -6px; display: grid; place-items: center; min-width: 24px; height: 22px; padding: 0 6px; border-radius: 11px; font-size: 11px; font-weight: 800; font-variant-numeric: tabular-nums; opacity: 0; transform: scale(.8); transition: opacity var(--m-out) var(--m-ease), transform var(--m-out) var(--m-ease); }
+.pl-rk.on, .pl-rk.top { opacity: 1; transform: none; }
+.pl-rk.on { background: var(--acc-solid); color: #fff; }
+.pl-rk.top { background: #e8b923; color: #1a1400; }
+.pl-bar { display: block; height: 4px; margin-top: 8px; overflow: hidden; border-radius: 2px; background: color-mix(in srgb, var(--t) 18%, transparent); }
+.pl-bar u { display: block; width: 0; height: 100%; border-radius: 2px; background: var(--t); transition: width 600ms var(--m-ease); }
+@media (prefers-reduced-motion: reduce) { .pl-rk, .pl-bar u { transition: none; } }
+/* the metric lists: three narrower columns, so a value sits near its name */
+.pl-groups { grid-template-columns: repeat(auto-fill, minmax(min(100%, 210px), 1fr)); gap: 18px 28px; }
+/* the header's chips: one height, their text centred */
+.pl-sub > .pl-id, .pl-sub > .al-tag, .pl-sub > .kd, .pl-sub > .battle-tag { display: inline-flex; align-items: center; height: 24px; padding-top: 0; padding-bottom: 0; line-height: 1; box-sizing: border-box; }
+.pl-sub > .pl-rank { line-height: 24px; }
+.pl-who { gap: 10px; padding-top: 2px; }
+
+/* Unit focus: the season's merits by unit type as one bar of four colours (infantry red, cavalry gold, archers
+   green, magic purple, as each type's column), the biggest type's picture and share under it */
+.b-meritMagic { --t: #9b5cf6; }
+.us-bar { display: flex; gap: 2px; width: 100%; height: 6px; overflow: hidden; border-radius: 3px; background: var(--edge); }
+.us-bar i { min-width: 2px; height: 100%; background: var(--t); }
+.us-bar.big { height: 10px; border-radius: 5px; }
+.us { display: flex; flex-direction: column; justify-content: center; gap: 4px; height: 100%; }
+.us small { display: inline-flex; align-items: center; justify-content: flex-end; gap: 4px; color: var(--fg2); font-size: 12px; font-weight: 600; line-height: 1; white-space: nowrap; }
+.us small img { width: 16px; height: 16px; object-fit: contain; }
+.pl-units { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 10px; }
+.pl-ulist { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.pl-u { display: flex; align-items: center; gap: 10px; min-width: 0; padding: 8px 10px; border: 1px solid var(--edge); border-radius: var(--r-lg); background: var(--panel2); }
+.pl-u.top { border-color: color-mix(in srgb, var(--t) 70%, transparent); background: color-mix(in srgb, var(--t) 10%, var(--panel2)); }
+.pl-uic { flex: none; width: 34px; height: 34px; object-fit: contain; }
+.pl-un { display: flex; flex-direction: column; min-width: 0; line-height: 1.25; }
+.pl-un b { overflow: hidden; font-size: 13px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.pl-un small { color: var(--mut); font-size: 12px; font-variant-numeric: tabular-nums; }
+.pl-up { margin-left: auto; color: color-mix(in srgb, var(--t) 80%, var(--fg)); font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* the Kingdom top's KvK: code, Battle and Fights on one line under the title, all one height */
+.k-meta-tags { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
+.k-meta-tags .battle-tag { height: 22px; }
+
+/* Battle that opens the War history: a link, a little brighter under the pointer */
+.battle-tag.go { cursor: pointer; transition: background var(--m-in) var(--m-ease), border-color var(--m-in) var(--m-ease); }
+.battle-tag.go:hover { border-color: var(--down); background: color-mix(in srgb, var(--down) 26%, transparent); }
+.has-art .battle-tag.go:hover { border-color: #ff5c78; background: rgb(216 26 72 / .35); }
+.battle-tag.go:focus-visible { outline: 2px solid var(--down); outline-offset: 2px; }
+#kMeta .battle-tag, .kv-hero .battle-tag { color: #ff5c78; } /* over the white text rules of the picture tops */
+/* Battle on the right of a KvK card's top and of the KvK page's name */
+.kv-card-h .battle-tag, .kv-hero-t .battle-tag { flex: none; height: 24px; margin-left: auto; padding: 0 9px; font-size: 12px; }
+/* the Kingdom top's status: a link to the kingdoms with the same status */
+a.k-status[href] { text-decoration: none; cursor: pointer; transition: background var(--m-in) var(--m-ease); }
+a.k-status[href]:hover { background: color-mix(in srgb, currentColor 16%, transparent); }
+a.k-status[href]:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+/* KvK progress from the game: the phases on the bar (Start blue, Battle red as the Battle tag, Summary purple), now as
+   a white line, a dot per milestone (behemoth lair gold diamond, pass teal gate, quest grey dot), the phases' line */
+.kv-track { position: relative; }
+.kv-track .kv-prog { overflow: hidden; }
+.kv-ph { position: absolute; top: 0; bottom: 0; background: color-mix(in srgb, var(--ph) 45%, #16181d); }
+.kv-ph + .kv-ph { border-left: 2px solid #14171d; }
+.kv-ph i { position: absolute; inset: 0 auto 0 0; background: var(--ph); }
+.p0 { --ph: #4f8cff; } .p1 { --ph: #ff5c78; } .p2 { --ph: #9b5cf6; }
+.kv-now { position: absolute; top: -4px; width: 2px; height: 16px; margin-left: -1px; border-radius: 1px; background: var(--fg); text-decoration: none; pointer-events: none; }
+.kv-mk { position: absolute; top: 50%; display: grid; place-items: center; width: 22px; height: 22px; margin: -11px 0 0 -11px; padding: 0; border: 0; background: none; color: var(--mk); cursor: pointer; z-index: 1; }
+.kv-mk svg { width: 11px; height: 11px; fill: currentColor; transition: transform var(--m-in) var(--m-ease); }
+.kv-mk:hover svg, .kv-mk:focus-visible svg { transform: scale(1.35); }
+.kv-mk:focus-visible { outline: 2px solid var(--fg); outline-offset: -3px; border-radius: 50%; }
+.kv-mk.boss { --mk: #f5b942; } .kv-mk.pass { --mk: #3cc8c0; } .kv-mk.quest { --mk: #c9ced8; }
+.kv-mk.quest svg { width: 8px; height: 8px; }
+.kv-mk.past svg { fill: color-mix(in srgb, var(--mk) 55%, #1c2029); } /* gone by: a darker solid colour, no alpha */
+.kv-mk.now svg { transform: scale(1.3); }
+.kv-phases { display: flex; flex-wrap: wrap; gap: 4px 16px; min-height: 18px; font-size: 12px; color: var(--fg2); }
+.kv-phase { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+.kv-phase i { width: 8px; height: 8px; border-radius: 50%; background: var(--ph); }
+.kv-phase b { font-weight: 500; }
+.kv-phase.on b { color: var(--fg); font-weight: 700; }
+.kv-mkpop { position: fixed; z-index: 1000; display: flex; flex-direction: column; gap: 10px; width: max-content; max-width: min(320px, calc(100vw - 16px)); padding: 10px 12px; border: 1px solid var(--edge); border-radius: var(--r-lg); background: var(--panel); color: var(--fg); box-shadow: 0 8px 28px rgb(0 0 0 / .45); text-shadow: none; pointer-events: none; }
+.kv-mkpop[hidden] { display: none; }
+.kv-mkrow { display: flex; flex-direction: column; gap: 3px; }
+.kv-mkrow + .kv-mkrow { padding-top: 10px; border-top: 1px solid var(--edge); }
+.kv-mkh { display: flex; justify-content: space-between; gap: 12px; font-size: 11px; font-weight: 600; letter-spacing: .02em; }
+.kv-mkk { color: var(--mk); text-transform: uppercase; }
+.kv-mkrow.boss { --mk: #f5b942; } .kv-mkrow.pass { --mk: #3cc8c0; } .kv-mkrow.quest { --mk: var(--fg2); }
+.kv-mks { color: var(--mut); }
+.kv-mks.on { color: var(--up, #3ccf7a); }
+.kv-mkrow b { font-size: 14px; font-weight: 700; }
+.kv-mkt { font-size: 12px; color: var(--fg2); font-variant-numeric: tabular-nums; }
+.kv-mkrow small { font-size: 12px; line-height: 1.4; color: var(--mut); }
+.kv-mkf { font-size: 11px; color: var(--mut); }
+.has-art .kv-ph + .kv-ph { border-left-color: #14171d; }
+.has-art .kv-now { background: #fff; }
+.has-art .kv-phases { color: rgb(255 255 255 / .85); }
+.has-art .kv-phase.on b { color: #fff; }
+.kv-mko { font-size: 13px; font-weight: 600; color: var(--fg); font-variant-numeric: tabular-nums; } /* when a lair or pass opens on the map */
+#kMeta.k-kvk .k-prog { text-shadow: none; } /* the KvK frame has its own dark ground */
+/* a pass: the game's stone gate, bigger than the other dots, its level in Roman numerals under it */
+.kv-mk.pass { width: 30px; height: 30px; margin: -15px 0 0 -15px; z-index: 2; }
+.kv-mk.pass img { width: 26px; height: 26px; object-fit: contain; transition: transform var(--m-in) var(--m-ease); }
+.kv-mk.pass:hover img, .kv-mk.pass:focus-visible img, .kv-mk.pass.now img { transform: scale(1.2); }
+.kv-mk.pass.past img { filter: brightness(.7) saturate(.7); }
+/* milestones gone by: smaller, the gates most */
+.kv-mk.past svg { width: 7px; height: 7px; }
+.kv-mk.quest.past svg { width: 5px; height: 5px; }
+.kv-mk.pass.past img { width: 15px; height: 15px; }
+
+/* a behemoth: the game's avatar of it on the bar, when its lair opens under it; smaller once gone by, like a pass */
+.kv-mk.boss:has(img) { width: 36px; height: 36px; margin: -18px 0 0 -18px; z-index: 2; }
+.kv-mk.boss img { width: 34px; height: 34px; object-fit: contain; transition: transform var(--m-in) var(--m-ease); }
+.kv-mk.boss:hover img, .kv-mk.boss:focus-visible img, .kv-mk.boss.now img { transform: scale(1.2); }
+.kv-mk.boss.past img { width: 22px; height: 22px; filter: brightness(.7) saturate(.7); }
+.kv-mkti { display: block; font-size: 11px; color: #e8c877; font-style: italic; margin-top: 1px; }
+.kv-mkav { width: 22px; height: 22px; object-fit: contain; vertical-align: -6px; margin-right: 6px; }
+/* under a gate or a behemoth, on the open / end days' line: the gate's level, the day it opens */
+.kv-mkd { position: absolute; top: 100%; left: 50%; transform: translateX(-50%); margin-top: -3px; display: flex; align-items: baseline; gap: 3px; line-height: 1; white-space: nowrap; pointer-events: none; }
+.kv-mkd b { font-size: 11px; font-weight: 800; letter-spacing: .02em; color: #f2d58a; font-family: Georgia, "Times New Roman", serif; }
+.kv-mkd i { font-style: normal; font-size: 9px; font-weight: 600; color: #e8c877; font-variant-numeric: tabular-nums; }
+.kv-mk.past .kv-mkd { margin-top: -7px; }
+.kv-mk.past .kv-mkd b { font-size: 9px; color: #b9a46c; }
+.kv-mk.past .kv-mkd i { font-size: 8px; color: #a8955f; }
+.kv-mk.edge .kv-mkd i { display: none; }
+.kv-ends span { color: #e8c877; font-weight: 600; } /* the open and end days, the colour of the milestones' */
+.kv-prog-h .kv-phases { display: inline-flex; flex-wrap: nowrap; gap: 14px; min-height: 0; vertical-align: top; position: relative; z-index: 3; }
+.kv-prog-h .kv-phases:not(:empty) { margin-right: 12px; }
+
+/* the KvK page: the schedule in 2 rows above the name, bigger than the Kingdom page's one-line bar (a calendar to keep) */
+.kv-sched { display: flex; flex-direction: column; padding: 12px 18px 10px; border-radius: var(--r-md, 10px); background: rgb(8 10 14 / .62); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+.kv-sched > .kv-prog-h:first-child { font-size: 15px; margin-bottom: 4px; }
+.kv-sched .kv-prog-h .kv-phases { gap: 22px; font-size: 14px; }
+.kv-sched .kv-phase i { width: 10px; height: 10px; }
+.kv-sched .kv-track { margin-top: 44px; }
+.kv-sched .kv-prog { height: 12px; }
+.kv-sched .kv-now { top: -6px; width: 3px; height: 24px; margin-left: -1.5px; }
+.kv-sched .kv-ends { font-size: 14px; margin-top: 16px; }
+.kv-sched .kv-ends + .kv-track { margin-top: 46px; }
+.kv-sched .kv-mk { width: 28px; height: 28px; margin: -14px 0 0 -14px; }
+.kv-sched .kv-mk svg { width: 15px; height: 15px; }
+.kv-sched .kv-mk.quest svg { width: 11px; height: 11px; }
+.kv-sched .kv-mk.past svg { width: 15px; height: 15px; }
+.kv-sched .kv-mk.quest.past svg { width: 11px; height: 11px; }
+.kv-sched .kv-mk.pass { width: 46px; height: 46px; margin: -23px 0 0 -23px; }
+.kv-sched .kv-mk.pass img { width: 42px; height: 42px; }
+.kv-sched .kv-mk.pass.past img { width: 42px; height: 42px; }
+.kv-sched .kv-mk.boss:has(img) { width: 54px; height: 54px; margin: -27px 0 0 -27px; }
+.kv-sched .kv-mk.boss img { width: 52px; height: 52px; }
+.kv-sched .kv-mk.boss.past img { width: 52px; height: 52px; }
+.kv-sched .kv-mkd { margin-top: -6px; gap: 4px; }
+.kv-sched .kv-mk.past .kv-mkd { margin-top: -6px; }
+.kv-sched .kv-mkd b { font-size: 15px; }
+.kv-sched .kv-mkd i { font-size: 13px; }
+.kv-sched .kv-mk.past .kv-mkd b { font-size: 15px; }
+.kv-sched .kv-mk.past .kv-mkd i { font-size: 13px; }
+.kv-hero .kv-name { margin-bottom: 6px; }
+.kv-hero .kv-name h2 { font-size: 34px; }
+.kv-hero .kv-name .mut { font-size: 16px; }
+.kv-mk.up .kv-mkd { top: auto; bottom: 100%; margin: 0 0 -6px; }
+.kv-sched .kv-mk.past.up .kv-mkd { margin: 0 0 -6px; }
+.kv-sched > .kv-prog-h:first-child { flex-wrap: wrap; row-gap: 4px; }
+.kv-sched .kv-prog-h .kv-phases { flex-wrap: wrap; row-gap: 4px; }
+@media (max-width: 600px) { /* a phone: the phases on their own lines, smaller milestones */
+  .kv-sched { padding: 10px 10px 8px; }
+  .kv-sched .kv-prog-h .kv-phases { gap: 4px 14px; font-size: 13px; }
+  .kv-sched .kv-mk.pass, .kv-sched .kv-mk.boss:has(img) { width: 34px; height: 34px; margin: -17px 0 0 -17px; }
+  .kv-sched .kv-mk.pass img, .kv-sched .kv-mk.pass.past img, .kv-sched .kv-mk.boss img, .kv-sched .kv-mk.boss.past img { width: 32px; height: 32px; }
+  .kv-sched .kv-mkd b, .kv-sched .kv-mk.past .kv-mkd b { font-size: 12px; }
+  .kv-sched .kv-mkd i, .kv-sched .kv-mk.past .kv-mkd i { font-size: 11px; }
+  .kv-sched .kv-ends { font-size: 12px; margin-top: 12px; }
+  .kv-sched .kv-track { margin-top: 36px; }
+  .kv-sched .kv-ends + .kv-track { margin-top: 38px; }
+  .kv-hero .kv-name h2 { font-size: 28px; }
+  .kv-hero .kv-name .mut { font-size: 14px; }
+}
