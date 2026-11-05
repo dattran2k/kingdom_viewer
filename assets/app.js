@@ -258,10 +258,14 @@ function showPicker(on) {
   if (cur) { $("klist").querySelector(".act")?.classList.remove("act"); cur.classList.add("act"); cur.scrollIntoView({ block: "center" }); }
   $("kq").focus();
 }
+// the box always shows a list while it has the focus: these kingdoms while it is empty (user 05/11), then the matches,
+// or "no such kingdom"
+const SUGGESTED = [583, 357, 375, 1, 2, 3, 4, 5, 6, 7];
 function showSuggest() {
-  const m = /^#?\s*(\d{1,4})$/.exec($("q").value.trim()), items = m ? kingdomMatches(m[1], 6) : [];
-  $("qsug").hidden = !items.length;
-  if (items.length) fillKList($("qsug"), items);
+  const v = $("q").value.trim(), m = /^#?\s*(\d{1,4})$/.exec(v);
+  const items = !v ? SUGGESTED.map((k) => state.list.find((x) => x.kingdom === k)).filter(Boolean) : m ? kingdomMatches(m[1], 6) : [];
+  fillKList($("qsug"), items);
+  $("qsug").hidden = false;
 }
 function wireKingdomPicker() {
   $("kingdom").onclick = () => { // the number is only text: a click goes to the search box; comparing, it adds a kingdom
