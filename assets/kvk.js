@@ -62,7 +62,7 @@ const seasonTitle = (id) => (SEASON_TITLE[id] ? label(SEASON_TITLE[id]) : "");
 // what a kingdom is doing: SeasonData.SeasonStatusType of the game
 const STATUS = { 1: { vi: "Mùa 1", en: "Season 1" }, 103: { vi: "Sắp tổng kết", en: "Settling soon" }, 110: { vi: "Chuẩn bị chiến tranh", en: "War prep" },
   111: { vi: "Đang ghép cặp", en: "Pairing" }, 113: { vi: "Đăng ký mùa mới", en: "Registering" }, 115: { vi: "Đang ghép trận", en: "Matching" }, 120: { vi: "Đã ghép trận", en: "Matched" },
-  125: { vi: "Đang trong KvK", en: "In KvK" }, 130: { vi: "KvK đã kết thúc", en: "KvK ended" } };
+  125: { vi: "Đang trong mùa giải", en: "In season" }, 130: { vi: "KvK đã kết thúc", en: "KvK ended" } };
 const statusName = (st) => (STATUS[st] ? label(STATUS[st]) : "");
 // the ranking's status filter of a status: In KvK is Season 2 on (Season 1 is no KvK, the user 03/11); Season 1, settling
 // soon and matched have no filter of their own

@@ -5,8 +5,8 @@
 const KS = window.KS, { state, tr, $, numFmt } = KS;
 const { el, load, objects } = KS.ui;
 
-Object.assign(KS.T.vi, { iSeeRank: "Bảng xếp hạng", iRankTitle: "Hạng server", iOf: "/ {n} kingdom", iTop: "Top {p}%", iNoKvk: "Chưa ở trong KvK nào", iKds: "{n} kingdom trong KvK" });
-Object.assign(KS.T.en, { iSeeRank: "Ranking", iRankTitle: "Kingdom rank", iOf: "/ {n} kingdoms", iTop: "Top {p}%", iNoKvk: "In no KvK yet", iKds: "{n} kingdoms in this KvK" });
+Object.assign(KS.T.vi, { iSeeRank: "Bảng xếp hạng", iRankTitle: "Hạng server", iOf: "/ {n} kingdom", iTop: "Top {p}%", iKds: "{n} kingdom trong KvK", iTopAl: "Liên minh mạnh nhất (tổng lực chiến)", iSameGen: "Kingdom cùng Gen" });
+Object.assign(KS.T.en, { iSeeRank: "Ranking", iRankTitle: "Kingdom rank", iOf: "/ {n} kingdoms", iTop: "Top {p}%", iKds: "{n} kingdoms in this KvK", iTopAl: "Strongest alliance (total power)", iSameGen: "Kingdoms of the same Gen" });
 
 const RANKED = [["migrationScore", "cMigration"], ["powerMax", "cPowerMax"], ["power", "cPower"], ["merits", "cMerits"], ["kills", "cKills"], ["deaths", "cDeaths"], ["heals", "cHeals"], ["gathered", "cGathered"], ["decorMax", "cDecor"]];
 // underlined text at the end of the line, as the links of the KvK frame
@@ -75,6 +75,31 @@ function drawRanks(box, rows, ks) {
   box.append(head, KS.ui.table(cols, list, { key: "" }, () => {}));
 }
 
+// ---- under the kingdom number: its generation and its strongest alliance (most power in all) ----
+async function drawSub(k) {
+  const box = $("kSub"), [roll, idx] = await Promise.all([load("derived/rollup.json"), load("kvk/index.json")]);
+  if (!box || state.mainK !== k) return;
+  box.innerHTML = "";
+  // several kingdoms compared: no one generation or alliance to say, but the line keeps its room (nothing below moves
+  // when kingdoms are added or taken out, or the mode changes)
+  box.style.visibility = state.comparing && state.also.length ? "hidden" : "";
+  const me = roll ? objects(roll.kingdomCols, roll.kingdoms).find((r) => r.kingdom === k) : null, gen = idx?.genOf?.[k];
+  if (gen) {
+    // as the ranking's Gen filter, and a click opens the ranking filtered on it, on this kingdom's line (as the status)
+    const g = el("a", "rk-gen k-sub-gen");
+    g.dataset.gen = gen;
+    g.href = `#p=rank&gen=${gen}&at=${k}`;
+    g.title = tr("iSameGen");
+    g.append(el("i", "rk-dot"), `${tr("cGen")} ${gen}`);
+    box.appendChild(g);
+  }
+  if (me?.topAlliance) {
+    const a = KS.allianceChip(me.topAlliance);
+    a.title = tr("iTopAl");
+    box.appendChild(a);
+  }
+}
+
 // ---- the top of the page: the season's picture, its name and the KvK ----
 async function drawTop(k) {
   const row = document.querySelector("#kingdomTop .k-row"), idx = await load("kvk/index.json");
@@ -85,6 +110,7 @@ async function drawTop(k) {
   let meta = $("kMeta");
   if (!meta) { meta = el("div", "k-meta"); meta.id = "kMeta"; row.appendChild(meta); }
   meta.innerHTML = "";
+  meta.hidden = false;
   KS.season.art(row, b?.season);
   // the same picture goes on below the top, more and more blurred, down to the table
   const top = $("kingdomTop");
@@ -96,7 +122,9 @@ async function drawTop(k) {
   if (apart) return;
   meta.classList.remove("sk-kvk"); // the loading shapes are gone
   meta.classList.toggle("k-kvk", !!b);
-  if (!b) { meta.appendChild(el("span", "mut", tr("iNoKvk"))); return; }
+  // in no KvK: nothing here, the status beside the number already says it (pairing, registering...) (user 06/11)
+  meta.hidden = !b;
+  if (!b) return;
   // the KvK the kingdom is in, as one block: its name and the way to its page on top, how far it is, then its kingdoms
   // (links to them, the one shown filled), under a label that says what the numbers are
   const line = el("div", "k-meta-l"), name = el("div", "k-meta-n"), chips = el("div", "k-meta-c"), open = el("a", "btn k-dash", tr("kOpen"));
@@ -109,7 +137,7 @@ async function drawTop(k) {
   line.append(name, open);
   chips.appendChild(el("span", "k-meta-lbl", tr("iKds").replace("{n}", b.kingdoms.length)));
   for (const y of b.kingdoms) {
-    const c = el("a", ks.includes(y.k) ? "kd on" : "kd", String(y.k));
+    const c = el("a", ks.includes(y.k) ? "kd on" : "kd", "#" + y.k);
     if (state.list.some((x) => x.kingdom === y.k)) {
       c.href = "#k=" + y.k;
       // comparing, a kingdom of the KvK goes in or out of the comparison
@@ -125,5 +153,5 @@ async function drawTop(k) {
 }
 
 const shown = KS.onKingdomShown;
-KS.onKingdomShown = (k) => { shown?.(k); drawRank(k); drawTop(k); };
+KS.onKingdomShown = (k) => { shown?.(k); drawRank(k); drawSub(k); drawTop(k); };
 })();

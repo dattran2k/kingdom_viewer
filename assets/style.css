@@ -757,6 +757,20 @@ body:not([data-compare="1"]) .cmp-only { display: none; }
 .k-row.has-art > * { position: relative; z-index: 1; }
 .k-row.has-art > .x-tags { z-index: 3; pointer-events: none; } /* its menu opens over what is below; the empty rest of its line leaves the mode switch clickable */
 .k-row.has-art > .x-tags > * { pointer-events: auto; }
+/* under the kingdom number: Gen N · its strongest alliance; one line of fixed height, so the loading shape takes its room */
+.k-sub { display: flex; align-items: center; gap: 8px; min-height: 28px; margin-top: -6px; }
+.k-sub[hidden] { display: none; }
+#kMeta[hidden] { display: none; }
+/* comparing: the kingdoms' line stays at the top, with or without the KvK block under it (one in no KvK: 583);
+   the plain page keeps a kingdom in no KvK in the middle of its picture, which has nothing else to fill it */
+body[data-compare="1"] #kingdomTop .k-row.has-art { justify-content: flex-start; }
+/* Gen: the ranking's Gen pill (its dot, a border of its colour), the alliance: a chip like the KvK block's kingdoms */
+.k-sub-gen, .k-sub .al-tag { display: inline-flex; align-items: center; height: 28px; border-radius: 999px; background: rgb(8 10 14 / .55); font-size: 13px; font-weight: 600; line-height: 1; }
+.k-sub-gen { gap: 7px; padding: 0 12px 0 10px; border: 1px solid color-mix(in srgb, var(--c) 55%, transparent); }
+a.k-sub-gen { text-decoration: none; cursor: pointer; transition: background var(--m-in) var(--m-ease); }
+a.k-sub-gen:hover { background: color-mix(in srgb, var(--c) 18%, rgb(8 10 14 / .55)); }
+a.k-sub-gen:focus-visible { outline: 2px solid var(--c); outline-offset: 2px; }
+.k-sub .al-tag { padding: 0 10px; border: 1px solid color-mix(in srgb, var(--tag-fg) 45%, transparent); border-radius: var(--r-sm); color: #f1c95a; }
 .k-block { padding: 14px 16px 0; }
 .k-block[hidden] { display: none; }
 /* whatever is being typed in lights up, in the page's blue */
@@ -818,10 +832,10 @@ body[data-compare="1"] .k-row.has-art .kbtn { color: #fff; border-color: rgb(255
 #kingdomTop > #tblBar { background: var(--bg); }
 /* what stands on a picture is light in either theme */
 .k-row.has-art .x-tag, .k-row.has-art .x-tag:disabled { background: rgb(8 10 14 / .62); color: #fff; border-color: rgb(255 255 255 / .35); }
-.k-row.has-art .k-status { color: #fff; border-color: rgb(255 255 255 / .35); }
-.k-row.has-art .k-status[data-st="125"] { color: #ff8a8f; border-color: #ff8a8f; }
-.k-row.has-art .k-status[data-st="110"] { color: #ffc94d; border-color: #ffc94d; }
-.k-row.has-art .k-status[data-st="111"] { color: #8ab4ff; border-color: #8ab4ff; }
+/* the status on the picture: the same colours as everywhere else (the ranking, the KvK lists), on a dark ground */
+#kStatus:not([hidden]) { display: inline-flex; align-items: center; gap: 6px; }
+#kStatus::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; } /* the dot of the ranking's status filter */
+.k-row.has-art .k-status:not([data-st="125"], [data-st="110"], [data-st="111"], [data-st="120"], [data-st="115"]) { color: #fff; border-color: rgb(255 255 255 / .35); }
 /* right of the status chip: every kingdom under the same filter */
 .k-row.has-art .k-meta .mut, .k-row.has-art .k-meta-l span { color: #fff; }
 /* light theme: the cards */
