@@ -512,6 +512,7 @@ function drawCamps(box, b) {
     { key: "players", label: tr("cPlayers"), get: (r) => r.players, text: (r) => fullNum(r.players), tip: () => "" },
     ...metricCols([["power", "cPower"], ["powerMax", "cPowerMax"], ...METRICS], scale), tradesCol(),
   ];
+  KS.ui.addFocus(cols, [...kingdoms, ...groups]); // the kingdoms' and camps' merits by unit type, from the KvK file
   const col = cols.find((c) => c.key === page.kSort.key) || cols[3];
   const sorted = (rows) => sortRows(rows, col.get, page.kSort.dir);
   let rows;
@@ -687,6 +688,7 @@ function drawTop(box, list) {
     { key: "alliance", label: tr("cAlliance"), tip: () => "", w: 88, get: (r) => r.alliance, node: (r) => (r.alliance ? KS.allianceChip(r.alliance) : el("span", "mut", "–")) },
     ...bars, tradesCol(),
   ];
+  KS.ui.addFocus(cols, list);
   const col = cols.find((c) => c.key === page.topSort.key) || cols.find((c) => c.key === "merits");
   const rows = sortRows(list.map((r) => ({ ...r })), col.get, page.topSort.dir);
   rows.forEach((r, i) => { r._i = i + 1; });

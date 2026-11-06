@@ -1056,7 +1056,7 @@ function fill(r, p, lo, hi) {
       box.className = "us";
       bar.className = "us-bar";
       for (const u of x.split.parts) { if (!u.v) continue; const s = document.createElement("i"); s.className = "b-" + u.key; s.style.flexGrow = u.share; bar.appendChild(s); }
-      ic.src = `assets/icons/${x.split.top.key}.png`; ic.alt = "";
+      ic.src = `assets/icons/${x.split.top.key}.png?v=3`; ic.alt = "";
       t.append(ic, x.text);
       box.append(bar, t);
       d.replaceChildren(box);

@@ -266,7 +266,7 @@ function unitSection(now) {
   const list = el("div", "pl-ulist");
   for (const u of [...sp.parts].sort((a, b) => b.v - a.v)) {
     const r = el("div", "pl-u b-" + u.key + (u === sp.top ? " top" : "")), ic = el("img", "pl-uic");
-    ic.src = `assets/icons/${u.key}.png`; ic.alt = "";
+    ic.src = `assets/icons/${u.key}.png?v=3`; ic.alt = "";
     const n = el("span", "pl-un");
     n.append(el("b", "", KS.label(u)), el("small", "", KS.compact(u.v)));
     const pc = el("b", "pl-up", numFmt(0).format(100 * u.share) + "%");

@@ -41,7 +41,7 @@ function kSub(...bits) {
 function kpiCard(key, label, value, sub) {
   const d = el("div", "kpi"), head = el("div", "k-top"), icon = el("img", "k-i");
   d.dataset.k = key;
-  icon.src = `assets/icons/${key}.png`;
+  icon.src = `assets/icons/${key}.png?v=3`;
   icon.alt = "";
   head.append(icon, el("span", "k-l", label));
   d.append(head, value, sub);

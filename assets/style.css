@@ -119,7 +119,7 @@ body[data-compare="1"] .klist li.cur { background: var(--acc-bg); }
 /* a metric's own colour: the bars of its chart */
 [data-k="players"], .b-powerMax { --t: #4a8cf7; }
 [data-k="power"], .b-power { --t: #c59a00; }
-[data-k="merits"], .b-merits { --t: #e0459b; }
+[data-k="merits"], .b-merits { --t: #e5484d; }
 [data-k="kills"], .b-kills { --t: #e42855; }
 [data-k="deaths"], .b-deaths { --t: #d74e00; }
 [data-k="heals"], .b-heals { --t: #00a261; }
@@ -151,7 +151,7 @@ body[data-compare="1"] .klist li.cur { background: var(--acc-bg); }
 .g-alliance { --t: #4a8cf7; }
 .g-gather { --t: #00a261; }
 .g-glory { --t: #d74e00; }
-.b-merits, .b-meritsMax { --t: #e0459b; }
+.b-merits, .b-meritsMax { --t: #e5484d; }
 .b-meritInfantry { --t: #e42855; }
 .b-meritCavalry { --t: #c59a00; }
 .b-meritArcher { --t: #00a261; }
@@ -416,6 +416,9 @@ body:not([data-compare="1"]) .cmp-only { display: none; }
 .x-h { display: flex; align-items: center; gap: 5px; min-width: 0; color: var(--fg2); font-size: 12px; }
 .x-h span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .x-sd { align-self: center; font-size: 12px; font-weight: 600; white-space: nowrap; }
+/* the Players card: each side's unit focus beside the count, as the Kingdom table shows it */
+.x-focus .us { height: auto; gap: 6px; }
+.x-focus .us small { justify-content: flex-start; }
 .x-sd.a, .x-c b.a { color: var(--ta); }
 .x-sd.b, .x-c b.b { color: var(--tb); }
 .x-c { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
@@ -745,10 +748,8 @@ body:not([data-compare="1"]) .cmp-only { display: none; }
 .dv-pnums button:disabled { opacity: .4; cursor: default; }
 #kPager { position: sticky; left: 0; padding: 0 16px 12px; }
 /* CT / LC stands out: pink (the merits colour), larger, bold */
-.b-meritRatio { --t: #e0459b; }
-.row .c.b-meritRatio { color: #f472b6; font-size: 15px; font-weight: 700; }
-:root[data-theme="light"] .row .c.b-meritRatio { color: #be185d; }
-@media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) .row .c.b-meritRatio { color: #be185d; } }
+.b-meritRatio { --t: #e5484d; }
+.row .c.b-meritRatio { font-size: 15px; font-weight: 700; } /* its bar is red, its figure the plain text colour */
 /* each total card wears its metric's colour, fading from the top right where its icon sits */
 .kpi { background: linear-gradient(135deg, var(--panel) 35%, color-mix(in srgb, var(--t, var(--acc)) 20%, var(--panel)) 100%); border-color: color-mix(in srgb, var(--t, var(--acc)) 22%, var(--edge)); }
 /* ---- the Kingdom page: its top, its rank, how its players are spread ---- */
@@ -1456,7 +1457,7 @@ body:not([data-compare="1"]) .k-row .kbtn:hover::after, body:not([data-compare="
 .us-bar i { min-width: 2px; height: 100%; background: var(--t); }
 .us-bar.big { height: 10px; border-radius: 5px; }
 .us { display: flex; flex-direction: column; justify-content: center; gap: 4px; height: 100%; }
-.us small { display: inline-flex; align-items: center; justify-content: flex-end; gap: 4px; color: var(--fg2); font-size: 12px; font-weight: 600; line-height: 1; white-space: nowrap; }
+.us small { order: -1; display: inline-flex; align-items: center; justify-content: center; gap: 4px; color: var(--fg2); font-size: 12px; font-weight: 600; line-height: 1; white-space: nowrap; }
 .us small img { width: 16px; height: 16px; object-fit: contain; }
 .pl-units { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 10px; }
 .pl-ulist { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }

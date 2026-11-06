@@ -285,6 +285,29 @@ document.addEventListener("pointerdown", (e) => {
   document.querySelectorAll(".dv-tbar .pop").forEach((x) => { x.hidden = true; x.previousElementSibling?.setAttribute("aria-expanded", "false"); });
 });
 const PIN = new Set(["#", "name", "kingdom"]); // the first of these stay on screen when the page scrolls sideways
+// ---- Unit focus, as the Kingdom table's column: the biggest unit type's share and picture over the bar of the four.
+// From the row's own merits by unit type (a player's, or a kingdom's / camp's from its data file), never added up here
+function focusCell(r) {
+  const sp = unitSplit(r);
+  if (!sp) return el("span", "mut", "–");
+  const box = el("div", "us"), bar = el("span", "us-bar"), t = el("small"), ic = el("img");
+  for (const u of sp.parts) if (u.v) { const s = el("i", "b-" + u.key); s.style.flexGrow = u.share; bar.appendChild(s); }
+  ic.src = `assets/icons/${sp.top.key}.png?v=3`; ic.alt = "";
+  t.append(ic, `${numFmt(0).format(100 * sp.top.share)}% ${KS.label(sp.top.s)}`);
+  box.append(bar, t);
+  return box;
+}
+const focusCol = () => ({ key: "unitFocus", label: KS.label(KS.BY_KEY.unitFocus), w: 124, tip: () => KS.label(KS.BY_KEY.unitFocus.tip),
+  get: (r) => { const s = unitSplit(r); return s ? s.top.share : -1; }, node: focusCell });
+// puts the column before the merits by unit type, else before Trades, else last; none when no row has merits by unit
+function addFocus(cols, rows) {
+  if (!rows.some((r) => unitSplit(r))) return cols;
+  let i = cols.findIndex((c) => c.key === "meritInfantry");
+  if (i < 0) i = cols.findIndex((c) => c.key === "trades");
+  cols.splice(i < 0 ? cols.length : i, 0, focusCol());
+  return cols;
+}
+
 function table(cols, rows, sort, onSort, onRow) {
   const wrap = el("div", "tbl-wrap dv-wrap"), t = el("table", "tbl"), hr = el("tr");
   const all = cols.all || rows, group = t.appendChild(el("colgroup"));
@@ -486,6 +509,7 @@ async function drawMembers(out, me) {
     metric("meritInfantry", "cInf"), metric("meritCavalry", "cCav"), metric("meritArcher", "cArc"), metric("meritMagic", "cMag"), metric("helps", "cHelps"), metric("migrationScore", "cMigration"),
     tradesCol(),
   ];
+  addFocus(cols, found);
   const col = cols.find((c) => c.key === rank.sort.key) || cols.find((c) => c.key === "power");
   const how = col.key + "|" + rank.sort.dir;
   if (!m.sorted.has(how)) m.sorted.set(how, sortRows(found, col.get, rank.sort.dir));
@@ -594,6 +618,7 @@ async function drawRank(out) {
     tradesCol(),
     ...RANK_LAST.map(metricCol),
   ];
+  addFocus(cols, rows); // the kingdom's merits by unit type, from rollup.json
   const col = cols.find((c) => c.key === rank.sort.key) || cols.find((c) => c.key === RANK_DEFAULT.server);
   rows = sortRows(rows, col.get, rank.sort.dir);
   rows.forEach((r, i) => { r._i = i + 1; r._cls = r.kingdom === rank.at ? "rk-focus" : ""; });
@@ -736,7 +761,7 @@ function drawFlows(out, list, moves) {
   out.appendChild(pager(rows.length, mig.page, (p) => { mig.page = p; go(); }, { size: bigSize(), sizes: BIG_SIZES }));
 }
 
-KS.ui = { el, num, load, objects, table, tableBar, sortRows, nextSort, searchBox, fmtBtn, pager, pageSize, frame, setLink };
+KS.ui = { el, num, load, objects, table, focusCell, addFocus, tableBar, sortRows, nextSort, searchBox, fmtBtn, pager, pageSize, frame, setLink };
 KS.pages = {
   rank: { title: "navRank", desc: "descRank", show: showRank },
   migration: { title: "navMigration", desc: "descMigration", show: showMigration },

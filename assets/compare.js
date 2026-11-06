@@ -38,10 +38,11 @@ const MAX_FILES = 4 * MAX_PER_SIDE + 20; // a couple of full pairs, and some to 
 const cache = new Map();   // "<scan>/<kingdom>" -> file (a promise while it loads)
 if (cfg.a || cfg.b) { cfg.pairs = [{ a: cfg.a || [], b: cfg.b || [] }]; delete cfg.a; delete cfg.b; } // saved before the pairs
 tidy();
+let kdRows = null; // rollup.json by kingdom: the kingdoms' own merits by unit type, for the unit focus
 let token = 0;             // a newer draw makes an older, still loading one give up
 let openSide = null;       // the side whose picker is open: "<pair><a|b>"
 
-function iconOf(key, cls) { const i = el("img", cls); i.src = `assets/icons/${key}.png`; i.alt = ""; return i; }
+function iconOf(key, cls) { const i = el("img", cls); i.src = `assets/icons/${key}.png?v=3`; i.alt = ""; return i; }
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
 const num = (v) => (state.compact ? KS.compact(v) : numFmt().format(Math.round(v)));
 const itemOf = (id) => state.list.find((k) => k.kingdom === id);
@@ -223,7 +224,23 @@ function eachKingdom(fa, fb) {
 // the two sides as six cards, two abreast: each a small table, a line per side and a column per figure (its value and
 // a bar under it, on the larger side's scale); the columns that do not fit the card's width go on in another block
 const SIDE_W = 56, COL_W = { compact: 128, full: 176 };
-function duels(pa, pb) {
+// a side's unit focus, from its kingdoms' own figures (rollup.json), not from their players added up here: a side of
+// several kingdoms is those kingdoms' figures together. Drawn as the Kingdom table's column, in the Players card
+function focusOf(ks) {
+  const r = {};
+  let any = false;
+  for (const k of ks) {
+    const x = kdRows?.get(k);
+    if (!x) continue;
+    any = true;
+    for (const u of ["meritInfantry", "meritCavalry", "meritArcher", "meritMagic"]) r[u] = (r[u] || 0) + (x[u] || 0);
+  }
+  const c = el("div", "x-c x-focus");
+  c.appendChild(any ? KS.ui.focusCell(r) : el("span", "mut", "–"));
+  return c;
+}
+
+function duels(pa, pb, pair) {
   const box = el("div", "x-duels"), int = (v) => numFmt().format(v);
   const short = (c) => (v) => (c.type === "num" && state.compact ? KS.compact(v) : show(c, v)); // follows the 1.2M switch
   const col = (k, name, icon) => { const c = KS.BY_KEY[k]; return [name || KS.label(c), (ps) => measure(c, ps), short(c), icon]; };
@@ -266,7 +283,7 @@ function duels(pa, pb) {
       }
       for (const [side, label] of [["a", "xSideA"], ["b", "xSideB"]]) {
         g.appendChild(el("span", "x-sd " + side, tr(label)));
-        for (const [, va, vb, text] of part) g.appendChild(side === "a" ? cell("a", va, vb, text) : cell("b", vb, va, text));
+        for (const [, va, vb, text, , own] of part) g.appendChild(own ? own(side) : side === "a" ? cell("a", va, vb, text) : cell("b", vb, va, text));
       }
     }
   };
@@ -275,9 +292,9 @@ function duels(pa, pb) {
   items.forEach(([key, label, get, text, subs], i) => {
     const d = el("div", "x-duel"), top = el("div", "x-d-top"), body = el("div", "x-d-body");
     d.dataset.k = key;
-    d.style.order = i; // one column on a phone: the cards read in order
     top.append(iconOf(key, "x-d-i"), el("span", "x-d-l", label));
     const figs = [[label, get(pa), get(pb), text], ...(subs || []).map(([name, of, fmt, icon]) => [name, of(pa), of(pb), fmt, icon])];
+    if (key === "players") figs.push([KS.label(KS.BY_KEY.unitFocus), null, null, null, null, (side) => focusOf(pair[side])]); // beside the count, half each
     let n = 0;
     // as many columns as fit, then shared out evenly between the blocks: 7 in 4 is 4 + 3, not 4 + 4 empty slots.
     // Run at once when the card is put in the page (a page drawn again keeps its height, so its scroll stays), and on resize
@@ -287,6 +304,7 @@ function duels(pa, pb) {
     };
     new ResizeObserver(body.fit).observe(body);
     d.append(top, body);
+    d.style.order = i; // one column on a phone: the cards read in order
     cols[i % 2].appendChild(d);
   });
   return box;
@@ -301,7 +319,8 @@ async function draw() {
   const loads = cfg.pairs.map((p) => [p.a.map(load), p.b.map(load)]);
   const waiting = loads.flat(2).some((f) => f.value === undefined);
   if (waiting) paint(loads.map((sides) => sides.map((fs) => fs.map((f) => f.value))));
-  const files = await Promise.all(loads.map((sides) => Promise.all(sides.map((fs) => Promise.all(fs)))));
+  const [files, roll] = await Promise.all([Promise.all(loads.map((sides) => Promise.all(sides.map((fs) => Promise.all(fs))))), KS.ui.load("derived/rollup.json")]);
+  kdRows ||= new Map(roll ? KS.ui.objects(roll.kingdomCols, roll.kingdoms).map((x) => [x.kingdom, x]) : []);
   if (me !== token) return;
   paint(files);
 }
@@ -337,7 +356,7 @@ function paint(files) {
     }
     if (!noted) sec.appendChild(el("p", "x-gd x-note", tr("xdDuels").replace("{agg}", tr(cfg.avg ? "xAggAvg" : "xAggSum"))));
     noted = true;
-    sec.append(duels(pa, pb), group("players", tr("xEach"), tr("xdEach"), eachKingdom(fa, fb)));
+    sec.append(duels(pa, pb, p), group("players", tr("xEach"), tr("xdEach"), eachKingdom(fa, fb)));
     sec.querySelectorAll(".x-d-body").forEach((b) => b.fit());
   });
   // the last pair has both sides: an empty one under it for the next, kept once a kingdom is picked in it
