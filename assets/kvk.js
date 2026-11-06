@@ -51,7 +51,7 @@ const tradesCell = (r) => el("span", "tr-b", r.trades == null ? "–" : numFmt(0
 
 const SWORDS = `<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 2l3.2.4 5.3 5.3-1.8 1.8-5.3-5.3zM14 2l-3.2.4-2.3 2.3 1.8 1.8 2.3-2.3zM3.6 10.6l1.8 1.8-1.5 1.5-1.8-1.8zM12.4 10.6l1.5 1.5-1.8 1.8-1.5-1.5zM5 9.2l1.8 1.8-1 1-1.8-1.8zM11 9.2l.9.9-1.8 1.8-.9-.9z"/></svg>`;
 // A season's picture and name, from the game: the banner of its intro screen, the name in the game's language files
-const ART = { 190: "s2", 301: "tree", 1001: "sos1", 1002: "sos2", 1003: "sos3", 1004: "tree", 1007: "sos7", 1008: "tree" };
+const ART = { 190: "s2", 301: "tree", 1001: "sos1", 1002: "sos2", 1003: "sos3", 1004: "shadow", 1007: "sos7", 1008: "shadow" };
 const SEASON_TITLE = {
   100: { vi: "Sao Rực Lửa và Tiếng Gọi Của Rồng", en: "Burning Stars and Dragon Calls" }, 190: { vi: "Lời Thề Đóng Băng", en: "The Icebound Oath" },
   301: { vi: "Rồng Trỗi Dậy", en: "Rise of the Dragon" }, 1001: { vi: "Kêu Gọi Dũng Khí", en: "Calling of Courage" }, 1002: { vi: "Đường Đến Bình Minh", en: "The Road to Dawn" },
@@ -70,10 +70,12 @@ const filterOf = (st) => ([125, 111, 113, 110].includes(st) ? st : null);
 function setArt(node, season) {
   const url = (path) => `url("${new URL(path, document.baseURI).href}")`; // absolute: a var() in the stylesheet would resolve against assets/
   node.classList.add("has-art");
-  node.classList.toggle("art-wide", !ART[season]); // no season of its own: the game's wide picture, filling the frame
-  node.style.setProperty("--art", url(ART[season] ? `assets/kvk/${ART[season]}.jpg?v=4` : "assets/kvk/cod_background.jpg"));
-  node.style.setProperty("--art-blur", url(`assets/kvk/blur/${ART[season] || "cod_background"}.jpg?v=4`));
-  node.style.setProperty("--art-mid", url(`assets/kvk/mid/${ART[season] || "cod_background"}.jpg?v=1`));
+  // every picture is wide enough now (the season banners upscaled to 1792 px): all fill the frame, centred
+  node.classList.add("art-wide");
+  node.style.setProperty("--ar", ART[season] ? "2.435" : "1.778"); // the picture's shape (896:368, 16:9): the Kingdom page's fade is as tall as it
+  node.style.setProperty("--art", url(ART[season] ? `assets/kvk/${ART[season]}.jpg?v=7` : "assets/kvk/cod_background.jpg"));
+  node.style.setProperty("--art-blur", url(`assets/kvk/blur/${ART[season] || "cod_background"}.jpg?v=7`));
+  node.style.setProperty("--art-mid", url(`assets/kvk/mid/${ART[season] || "cod_background"}.jpg?v=4`));
 }
 
 // ---- the top of a KvK: its name, how far along it is, what opened when ----
@@ -96,7 +98,8 @@ function hero(b) {
 // of its season that has (b.progressFrom: the same quests and durations), moved to its own open day: an estimate, so
 // days only, and no time a lair or pass opens on the map
 // big (the KvK page): the time split in 2 rows at the middle day, each with its own first and last day
-function progress(b, big = false) {
+// milestones false: the phases only (the Kingdom page: its KvK's schedule is on the KvK page)
+function progress(b, big = false, rows = big ? 2 : 1, milestones = true) {
   if (!b.end) return [];
   const now = nowSec(), pct = Math.max(0, Math.min(100, (100 * (now - b.open)) / (b.end - b.open)));
   const top = el("div", "kv-prog-h"), t = el("span", "");
@@ -104,28 +107,30 @@ function progress(b, big = false) {
   const left = Math.ceil((b.end - now) / DAY);
   top.append(t, el("span", "mut", tr("kDayLeft").replace("{n}", left)));
   const mid = b.open + Math.round((b.end - b.open) / 2 / DAY) * DAY;
-  const rows = (big ? [[b.open, mid], [mid, b.end]] : [[b.open, b.end]]).map(([from, to]) => {
+  const lines2 = (rows === 2 ? [[b.open, mid], [mid, b.end]] : [[b.open, b.end]]).map(([from, to]) => {
     const track = el("div", "kv-track"), bar = track.appendChild(el("div", "kv-prog"));
     bar.appendChild(el("i")).style.width = Math.max(0, Math.min(100, (100 * (now - from)) / (to - from))) + "%";
     const ends = el("div", "kv-prog-h mut");
     ends.append(el("span", "", when(from)), el("span", "", when(to)));
     return { track, ends, from, to };
   });
-  const lines = rows.flatMap((r) => [r.track, r.ends]);
+  const lines = lines2.flatMap((r) => [r.track, r.ends]);
   const [src, read, srcName, same] = b.progress ? [b.id, b.progress] : b.progressFrom ?? [];
   if (!src) return [top, ...lines];
   // the milestones' numerals and days share the open and end days' line, the phases' names go before the progress (left,
   // where the milestones gone by are small): the box is as high as a KvK's without them
-  rows.forEach((r) => r.ends.classList.add("kv-ends"));
+  lines2.forEach((r) => r.ends.classList.add("kv-ends"));
   // with the phases' names there, no "KvK progress" label: its percentage goes before the days left
   const legend = el("span", "kv-phases");
   const pctText = t.lastChild.textContent.trim();
   t.replaceChildren(legend);
-  top.lastChild.textContent = `${pctText} · ${top.lastChild.textContent}`;
+  // the Kingdom page (no milestones): the phases' colours only, no days nor percentage (user 06/11)
+  if (milestones) top.lastChild.textContent = `${pctText} · ${top.lastChild.textContent}`;
+  else top.lastChild.remove();
   t.style.visibility = "hidden"; // shown once with its phase: the progress text does not move when the file comes
-  load(`kvk/progress/${src}.json?v=${read}.6`).then((d) => { if (d) marks(b, b.progress ? d : moved(d, b, srcName, same), rows, legend); })
+  load(`kvk/progress/${src}.json?v=${read}.6`).then((d) => { if (d) marks(b, b.progress ? d : moved(d, b, srcName, same), lines2, legend, milestones); })
     .finally(() => { t.style.visibility = ""; });
-  return [top, ...lines];
+  return milestones ? [top, ...lines] : [top, ...lines2.map((r) => r.track)];
 }
 
 // the game's Season screen (LC_SEASON_MAINPAGE_PROGRESS1..4) and what its milestones open
@@ -153,7 +158,7 @@ function moved(d, b, name, same = true) {
   return { ...d, estFrom: name, other: !same, early: !!cut, phases, steps };
 }
 const ROMAN = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII"];
-function marks(b, d, rows, legend) {
+function marks(b, d, rows, legend, milestones = true) {
   const exact = !d.estFrom, at2 = (s) => (exact ? utcTime(s) + " UTC" : when(s)); // a time when read, a day when estimated
   const now = nowSec(), ph = d.phases || [b.open, 0, 0, b.end];
   rows.at(-1).to = ph[3] || b.end;
@@ -164,7 +169,7 @@ function marks(b, d, rows, legend) {
       item.append(el("i"), el("b", "", label(PHASES[i])));
       const left = exact ? lasted(ph[i + 1] - now) : tr("kDayLeft").replace("{n}", Math.ceil((ph[i + 1] - now) / DAY)).replace(/^còn /, "~");
       const note = i === at ? (exact ? tr("kPhLeft").replace("{t}", left) : left) : now < ph[i] ? tr("kPhFrom").replace("{d}", when(ph[i])) : "";
-      if (note) item.append(el("span", "", "· " + note));
+      if (note && milestones) item.append(el("span", "", "· " + note));
       item.title = `${label(PHASES[i])}: ${at2(ph[i])} – ${at2(ph[i + 1])}` + (exact ? "" : ` · ${tr("kMkEst")}`);
       return item;
     }));
@@ -192,6 +197,7 @@ function marks(b, d, rows, legend) {
   track.appendChild(el("u", "kv-now")).style.left = pos(now) + "%";
   // the milestones: one dot per place; ones too close to tell apart (2 opening an hour apart) share a dot
   track.querySelectorAll(".kv-mk").forEach((x) => x.remove());
+  if (!milestones) return;
   // a lair or a pass sits where it opens on the map (its quest + 12 h: s.opens), a quest where it starts
   // closer than a gate's width (24 px, so more of them on a phone) also share one
   const groups = [], at = (s) => s.opens ?? s.start, near = Math.max(1.2, (100 * 24) / (track.offsetWidth || 600));
@@ -228,10 +234,17 @@ function marks(b, d, rows, legend) {
   // keep their own line); the Kingdom page's bar has no room above
   // (and one that would run into the row's first or last day, which the Kingdom page's bar hides instead)
   const box = track.getBoundingClientRect(), ends = { down: box.left + 44, up: -1e9 };
-  if (track.closest(".kv-sched")) for (const lab of track.querySelectorAll(".kv-mkd")) {
+  if (track.closest(".kv-sched, .k-prog.two")) for (const lab of track.querySelectorAll(".kv-mkd")) {
     lab.parentNode.classList.remove("edge");
     const r = lab.getBoundingClientRect(), side = r.left < ends.down + 6 || r.right > box.right - 50 ? "up" : "down";
-    if (side === "up" && r.left < ends.up + 6) continue;
+    if (side === "up" && r.left < ends.up + 6) {
+      // no room above either (a narrow phone): the day goes to the card, a gate keeps its numeral where it fits
+      lab.parentNode.classList.add("nodate");
+      const r2 = lab.getBoundingClientRect();
+      if (!lab.querySelector("b") || r2.left < ends.down + 4) { lab.style.visibility = "hidden"; continue; }
+      ends.down = r2.right;
+      continue;
+    }
     if (side === "up") lab.parentNode.classList.add("up");
     ends[side] = r.right;
   }
@@ -558,7 +571,7 @@ function drawFilter(b) {
   state.kOnly = null;
 }
 
-const clearArt = (node) => { node.classList.remove("has-art", "art-wide"); node.style.removeProperty("--art"); node.style.removeProperty("--art-blur"); };
+const clearArt = (node) => { node.classList.remove("has-art", "art-wide"); node.style.removeProperty("--art"); node.style.removeProperty("--art-blur"); node.style.removeProperty("--art-mid"); node.style.removeProperty("--ar"); };
 const battleOf = (idx, k) => idx?.battles.find((x) => x.id === idx.kvkOf[k]);
 KS.season = { battleTag, of: battleOf, filterOf, camps: campsOf, title: seasonTitle, status: statusName, dates, progress, list: () => load("kvk/index.json"), art: (node, season) => { clearArt(node); setArt(node, season); } };
 KS.onKingdomShown = async (k) => {

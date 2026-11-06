@@ -89,8 +89,10 @@ async function drawTop(k) {
   // the same picture goes on below the top, more and more blurred, down to the table
   const top = $("kingdomTop");
   KS.season.art(top, b?.season);
-  top.style.setProperty("--row-top", row.offsetTop + "px");
-  top.style.setProperty("--row-h", row.offsetHeight + "px");
+  // the picture's room follows the top's height, which the KvK block below sets (and a phone's 2-row bar)
+  const fit = () => { top.style.setProperty("--row-top", row.offsetTop + "px"); top.style.setProperty("--row-h", row.offsetHeight + "px"); };
+  fit();
+  if (!row._fit) { row._fit = new ResizeObserver(fit); row._fit.observe(row); }
   if (apart) return;
   meta.classList.remove("sk-kvk"); // the loading shapes are gone
   meta.classList.toggle("k-kvk", !!b);
@@ -116,8 +118,9 @@ async function drawTop(k) {
     chips.appendChild(c);
   }
   open.href = "#kvk=" + b.id;
+  // the phases only: the milestones are the KvK page's (user 06/11)
   const prog = el("div", "k-prog");
-  prog.append(...KS.season.progress(b));
+  prog.append(...KS.season.progress(b, false, 1, false));
   meta.append(line, prog, chips);
 }
 

@@ -810,7 +810,7 @@ body:not([data-compare="1"]) .k-row .kbtn::after { display: none; }
 .k-row.has-art .x-tag { background: rgb(8 10 14 / .62); }
 body[data-compare="1"] .k-row.has-art .kbtn { color: #fff; border-color: rgb(255 255 255 / .4); text-shadow: none; }
 /* the wide picture fills its frame: it has 1920px to give, and is cropped, not stretched */
-.art-wide.k-row, .art-wide.kv-hero, .art-wide .kv-sec-h { background: rgb(8 10 14 / .4); }
+.art-wide.k-row, .art-wide.kv-hero, .art-wide .kv-sec-h { background: linear-gradient(to right, rgb(8 10 14 / .62), rgb(8 10 14 / .3) 60%), var(--art-blur) center / cover no-repeat; }
 .art-wide.k-row::before, .art-wide.kv-hero::before, .art-wide .kv-sec-h::before { width: 100%; background: linear-gradient(to right, rgb(8 10 14 / .65), rgb(8 10 14 / .1) 60%), var(--art) center / cover no-repeat; -webkit-mask: none; mask: none; }
 .art-wide .k-meta-l span, .k-row.art-wide .k-meta .mut { color: #fff; text-shadow: 0 1px 3px rgb(0 0 0 / .85); }
 /* everything above the player table stands on the blurred picture of the season; a ready-blurred file, so nothing to work out while scrolling */
@@ -829,17 +829,25 @@ body[data-compare="1"] .k-row.has-art .kbtn { color: #fff; border-color: rgb(255
 :root[data-theme="light"] #kingdomTop > #tblBar { background: var(--bg); }
 /* The Kingdom page's picture: sharp at the top, then the same picture, placed the same, more and more blurred down to the table.
    Three ready-made files faded into each other: nothing to work out while scrolling. */
-#kingdomTop { --w: 896px; --art-at: right top / 896px auto; --mid-h: 368px; --dim: rgb(8 10 14 / .5); background: linear-gradient(var(--dim), var(--dim)), var(--art-blur, none) center top / cover no-repeat; }
+#kingdomTop { --w: 896px; --art-at: right top / 896px auto; --mid-h: 368px; --dim: rgb(8 10 14 / .3); background: linear-gradient(var(--dim), var(--dim)), var(--art-blur, none) center top / cover no-repeat; }
 :root[data-theme="light"] #kingdomTop { --dim: rgb(8 10 14 / .28); }
-#kingdomTop.art-wide { --w: 100%; --art-at: center top / 100% auto; --mid-h: 56vw; }
+#kingdomTop.art-wide { --w: 100%; --art-at: center top / 100% auto; }
 #kingdomTop.has-art::before, #kingdomTop.has-art::after { content: ""; position: absolute; left: 0; right: 0; pointer-events: none; }
-#kingdomTop.has-art::before { top: var(--row-top, 0px); left: auto; width: min(100%, var(--w)); height: min(var(--mid-h), 620px); background: linear-gradient(var(--dim), var(--dim)), var(--art-mid) var(--art-at) no-repeat; -webkit-mask: linear-gradient(to bottom, #000 calc(var(--row-h, 210px) - 10px), transparent 100%); mask: linear-gradient(to bottom, #000 calc(var(--row-h, 210px) - 10px), transparent 100%); }
+#kingdomTop.has-art::before { top: var(--row-top, 0px); left: auto; width: min(100%, var(--w)); aspect-ratio: var(--ar, 2.435); max-height: 620px; background: linear-gradient(var(--dim), var(--dim)), var(--art-mid) var(--art-at) no-repeat; -webkit-mask: linear-gradient(to bottom, #000 calc(var(--row-h, 210px) - 10px), transparent 100%); mask: linear-gradient(to bottom, #000 calc(var(--row-h, 210px) - 10px), transparent 100%); }
 #kingdomTop.has-art::after { top: calc(var(--row-top, 0px) + var(--row-h, 210px)); bottom: 0; background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 18%, transparent), color-mix(in srgb, var(--bg) 62%, transparent) 260px, color-mix(in srgb, var(--bg) 82%, transparent) 620px); }
 #kingdomTop > * { position: relative; z-index: 1; }
 #kingdomTop .k-row.has-art, #kingdomTop .k-row.art-wide { background: none; border-bottom: 0; }
-#kingdomTop .k-row.has-art::before { width: min(100%, var(--w)); background: linear-gradient(var(--dim), var(--dim)), linear-gradient(to right, rgb(8 10 14 / .5), transparent 60%), var(--art) var(--art-at) no-repeat; -webkit-mask: linear-gradient(to bottom, transparent, #000 90px, #000 calc(100% - 44px), transparent), linear-gradient(to right, transparent, #000 30%); -webkit-mask-composite: source-in; mask: linear-gradient(to bottom, transparent, #000 90px, #000 calc(100% - 44px), transparent), linear-gradient(to right, transparent, #000 30%); mask-composite: intersect; }
-#kingdomTop .k-row.art-wide::before { background: linear-gradient(var(--dim), var(--dim)), linear-gradient(to right, rgb(8 10 14 / .6), transparent 60%), var(--art) var(--art-at) no-repeat; -webkit-mask: linear-gradient(to bottom, transparent, #000 90px, #000 calc(100% - 44px), transparent); mask: linear-gradient(to bottom, transparent, #000 90px, #000 calc(100% - 44px), transparent); }
+#kingdomTop .k-row.has-art::before { width: min(100%, var(--w)); background: linear-gradient(var(--dim), var(--dim)), linear-gradient(to right, rgb(8 10 14 / .5), transparent 60%), var(--art) var(--art-at) no-repeat; -webkit-mask: linear-gradient(to bottom, transparent, #000 24px, #000 calc(100% - 44px), transparent), linear-gradient(to right, transparent, #000 30%); -webkit-mask-composite: source-in; mask: linear-gradient(to bottom, transparent, #000 24px, #000 calc(100% - 44px), transparent), linear-gradient(to right, transparent, #000 30%); mask-composite: intersect; }
+#kingdomTop .k-row.art-wide::before { background: linear-gradient(var(--dim), var(--dim)), linear-gradient(to right, rgb(8 10 14 / .6), transparent 60%), var(--art) var(--art-at) no-repeat; -webkit-mask: linear-gradient(to bottom, transparent, #000 24px, #000 calc(100% - 44px), transparent); mask: linear-gradient(to bottom, transparent, #000 24px, #000 calc(100% - 44px), transparent); }
 #kingdomTop:not(.art-wide)::before { -webkit-mask: linear-gradient(to bottom, #000 calc(var(--row-h, 210px) - 10px), transparent 100%), linear-gradient(to right, transparent, #000 30%); -webkit-mask-composite: source-in; mask: linear-gradient(to bottom, #000 calc(var(--row-h, 210px) - 10px), transparent 100%), linear-gradient(to right, transparent, #000 30%); mask-composite: intersect; }
+/* a wide screen: the picture at half the width (896px at least), centred, fading into the blurred picture on both sides;
+   at full width it would be cropped to a thin strip */
+@media (min-width: 1200px) {
+  .art-wide.k-row::before, .art-wide.kv-hero::before, .art-wide .kv-sec-h::before { left: 0; right: 0; margin-inline: auto; width: max(50%, 896px); background: linear-gradient(to right, rgb(8 10 14 / .35), rgb(8 10 14 / .05) 60%), var(--art) center / cover no-repeat; -webkit-mask: linear-gradient(to right, transparent, #000 18%, #000 82%, transparent); mask: linear-gradient(to right, transparent, #000 18%, #000 82%, transparent); }
+  #kingdomTop.art-wide { --w: max(50%, 896px); }
+  #kingdomTop.has-art::before { left: 0; right: 0; margin-inline: auto; -webkit-mask: linear-gradient(to bottom, #000 calc(var(--row-h, 210px) - 10px), transparent 100%), linear-gradient(to right, transparent, #000 18%, #000 82%, transparent); -webkit-mask-composite: source-in; mask: linear-gradient(to bottom, #000 calc(var(--row-h, 210px) - 10px), transparent 100%), linear-gradient(to right, transparent, #000 18%, #000 82%, transparent); mask-composite: intersect; }
+  #kingdomTop .k-row.art-wide::before { left: 0; right: 0; margin-inline: auto; background: linear-gradient(var(--dim), var(--dim)), var(--art) var(--art-at) no-repeat; -webkit-mask: linear-gradient(to bottom, transparent, #000 24px, #000 calc(100% - 44px), transparent), linear-gradient(to right, transparent, #000 18%, #000 82%, transparent); -webkit-mask-composite: source-in; mask: linear-gradient(to bottom, transparent, #000 24px, #000 calc(100% - 44px), transparent), linear-gradient(to right, transparent, #000 18%, #000 82%, transparent); mask-composite: intersect; }
+}
 /* the bar's menus open over the cards below */
 #kingdomTop > .k-row { z-index: 7; }
 /* the kingdom search: the page's main control */
@@ -909,6 +917,8 @@ body[data-compare="1"] .k-row .kbtn { height: 52px; }
 /* the head above the camps table, like the rank's */
 .kr-place { display: inline-flex; align-items: baseline; gap: 6px 10px; }
 .kr-end { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+/* the camps / kingdoms switch: next to what it sorts (after the dates), only the link to all KvKs at the far right */
+.kr-head .kr-end:has(.kv-group-seg) { flex: 1 1 auto; justify-content: space-between; margin-left: 0; }
 .kr-end .kr-link { margin-left: 0; }
 .rk-kds { display: inline-grid; grid-template-columns: repeat(2, minmax(0, max-content)); justify-content: center; gap: 6px 8px; max-width: 100%; padding: 3px 0; }
 /* a camp: its kingdoms in a blue frame, two frames a line, so the camps of a map read apart */
@@ -929,7 +939,7 @@ body[data-compare="1"] .k-row .kbtn { height: 52px; }
 .k-meta-c > * { flex: none; }
 .k-dash { position: sticky; right: 0; }
 @media (max-width: 680px) {
-  #kMeta { height: 202px; }
+  #kMeta { height: 160px; }
   #cmpTags { min-height: 42px; }
   .k-meta-l { flex-direction: column; gap: 2px; }
 }
@@ -979,7 +989,7 @@ body[data-compare="1"] .k-row .kbtn { height: 52px; }
   #dv .dv-ctl, #dv .dv-out > :not(.dv-wrap) { padding-inline: 12px; }
   body[data-compare="1"] .k-row .kbtn { height: 32px; padding: 0 10px; font-size: 13px; }
   .k-row .x-tag { height: 32px; padding: 0 10px; font-size: 16px; }
-  .k-block { padding: 12px 8px 0; }
+  .k-block { padding: 12px 12px 0; } /* the 12 px gutter of the cards above and the bars below */
   .kv-panel { padding: 10px 0; }
   .kv-panel .kv-note { padding-inline: 10px; }
   .kv-panel .tbl th, .kv-panel .tbl td { padding-inline: 6px; }
@@ -1142,8 +1152,9 @@ body[data-compare="1"] .k-row .kbtn { height: 52px; }
 .kv-info-link.kv-info-end { align-self: center; }
 .kr-end .kv-info-link { white-space: nowrap; }
 
-/* The Kingdom rank line sits where the art fades: give it a calmer ground so its grey figures read (3.4:1 before) */
-#kingdomTop.has-art::after { background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 72%, transparent), color-mix(in srgb, var(--bg) 80%, transparent) 260px, color-mix(in srgb, var(--bg) 88%, transparent) 620px); }
+/* Under the KvK block the picture goes out by degrees: from a little above the block's bottom, a blur and a darker ground
+   that both grow over 120px (no step where the block ends); the rank line below still reads on the calmer ground */
+#kingdomTop.has-art::after { top: calc(var(--row-top, 0px) + var(--row-h, 210px) - 48px); background: linear-gradient(to bottom, transparent, color-mix(in srgb, var(--bg) 80%, transparent) 110px, color-mix(in srgb, var(--bg) 84%, transparent) 260px, color-mix(in srgb, var(--bg) 88%, transparent) 620px); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); -webkit-mask: linear-gradient(to bottom, transparent, #000 120px); mask: linear-gradient(to bottom, transparent, #000 120px); }
 
 /* Notes: no lone word on their last line */
 .page-desc, .kv-note, .hint { text-wrap: pretty; }
@@ -1182,7 +1193,7 @@ body[data-compare="1"] .k-row .kbtn { height: 52px; }
 
 /* The hero's KvK: one block on a dark backing (name + way to its page / progress / its kingdoms), so what belongs
    together reads together and the kingdom's own number above stays the title */
-#kMeta.k-kvk { gap: 10px; height: auto; min-height: 163px; padding: 12px 14px; border: 1px solid rgb(255 255 255 / .14); border-radius: var(--r-lg); background: rgb(8 10 14 / .55); }
+#kMeta.k-kvk { justify-content: space-between; gap: 10px; height: auto; min-height: 163px; padding: 12px 14px; border: 1px solid rgb(255 255 255 / .14); border-radius: var(--r-lg); background: rgb(8 10 14 / .55); }
 #kMeta.k-kvk .k-meta-l { display: flex; flex-direction: row; align-items: flex-start; justify-content: space-between; gap: 12px; white-space: normal; }
 .k-meta-n { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; min-width: 0; }
 .k-meta-n b { font-size: 18px; font-weight: 700; }
@@ -1192,7 +1203,7 @@ body[data-compare="1"] .k-row .kbtn { height: 52px; }
 /* the kingdom shown: filled, the same on hover (it is where you are); no outer ring, which the scrolling row clips */
 .k-meta-c .kd.on, .k-meta-c a.kd.on[href]:hover { border-color: var(--acc-solid); background: var(--acc-solid); color: #fff; cursor: default; }
 @media (max-width: 680px) {
-  #kMeta.k-kvk { min-height: 202px; padding: 10px 12px; }
+  #kMeta.k-kvk { min-height: 160px; padding: 10px 12px; }
   .k-meta-n { flex-direction: column; gap: 2px; }
   .k-meta-lbl { display: none; }
 }
@@ -1504,27 +1515,21 @@ a.k-status[href]:focus-visible { outline: 2px solid currentColor; outline-offset
 .kv-mk.pass { width: 30px; height: 30px; margin: -15px 0 0 -15px; z-index: 2; }
 .kv-mk.pass img { width: 26px; height: 26px; object-fit: contain; transition: transform var(--m-in) var(--m-ease); }
 .kv-mk.pass:hover img, .kv-mk.pass:focus-visible img, .kv-mk.pass.now img { transform: scale(1.2); }
-.kv-mk.pass.past img { filter: brightness(.7) saturate(.7); }
-/* milestones gone by: smaller, the gates most */
-.kv-mk.past svg { width: 7px; height: 7px; }
-.kv-mk.quest.past svg { width: 5px; height: 5px; }
-.kv-mk.pass.past img { width: 15px; height: 15px; }
+/* milestones gone by: the same size, dimmed (a smaller one read as a broken icon) */
+.kv-mk.past img { filter: brightness(.6) saturate(.5); opacity: .7; }
+.kv-mk.past .kv-mkd { opacity: .6; }
 
 /* a behemoth: the game's avatar of it on the bar, when its lair opens under it; smaller once gone by, like a pass */
 .kv-mk.boss:has(img) { width: 36px; height: 36px; margin: -18px 0 0 -18px; z-index: 2; }
 .kv-mk.boss img { width: 34px; height: 34px; object-fit: contain; transition: transform var(--m-in) var(--m-ease); }
 .kv-mk.boss:hover img, .kv-mk.boss:focus-visible img, .kv-mk.boss.now img { transform: scale(1.2); }
-.kv-mk.boss.past img { width: 22px; height: 22px; filter: brightness(.7) saturate(.7); }
 .kv-mkti { display: block; font-size: 11px; color: #e8c877; font-style: italic; margin-top: 1px; }
 .kv-mkav { width: 22px; height: 22px; object-fit: contain; vertical-align: -6px; margin-right: 6px; }
 /* under a gate or a behemoth, on the open / end days' line: the gate's level, the day it opens */
 .kv-mkd { position: absolute; top: 100%; left: 50%; transform: translateX(-50%); margin-top: -3px; display: flex; align-items: baseline; gap: 3px; line-height: 1; white-space: nowrap; pointer-events: none; }
 .kv-mkd b { font-size: 11px; font-weight: 800; letter-spacing: .02em; color: #f2d58a; font-family: Georgia, "Times New Roman", serif; }
 .kv-mkd i { font-style: normal; font-size: 9px; font-weight: 600; color: #e8c877; font-variant-numeric: tabular-nums; }
-.kv-mk.past .kv-mkd { margin-top: -7px; }
-.kv-mk.past .kv-mkd b { font-size: 9px; color: #b9a46c; }
-.kv-mk.past .kv-mkd i { font-size: 8px; color: #a8955f; }
-.kv-mk.edge .kv-mkd i { display: none; }
+.kv-mk.edge .kv-mkd i, .kv-mk.nodate .kv-mkd i { display: none; }
 .kv-ends span { color: #e8c877; font-weight: 600; } /* the open and end days, the colour of the milestones' */
 .kv-prog-h .kv-phases { display: inline-flex; flex-wrap: nowrap; gap: 14px; min-height: 0; vertical-align: top; position: relative; z-index: 3; }
 .kv-prog-h .kv-phases:not(:empty) { margin-right: 12px; }
@@ -1542,37 +1547,60 @@ a.k-status[href]:focus-visible { outline: 2px solid currentColor; outline-offset
 .kv-sched .kv-mk { width: 28px; height: 28px; margin: -14px 0 0 -14px; }
 .kv-sched .kv-mk svg { width: 15px; height: 15px; }
 .kv-sched .kv-mk.quest svg { width: 11px; height: 11px; }
-.kv-sched .kv-mk.past svg { width: 15px; height: 15px; }
-.kv-sched .kv-mk.quest.past svg { width: 11px; height: 11px; }
 .kv-sched .kv-mk.pass { width: 46px; height: 46px; margin: -23px 0 0 -23px; }
 .kv-sched .kv-mk.pass img { width: 42px; height: 42px; }
-.kv-sched .kv-mk.pass.past img { width: 42px; height: 42px; }
 .kv-sched .kv-mk.boss:has(img) { width: 54px; height: 54px; margin: -27px 0 0 -27px; }
 .kv-sched .kv-mk.boss img { width: 52px; height: 52px; }
-.kv-sched .kv-mk.boss.past img { width: 52px; height: 52px; }
 .kv-sched .kv-mkd { margin-top: -6px; gap: 4px; }
-.kv-sched .kv-mk.past .kv-mkd { margin-top: -6px; }
 .kv-sched .kv-mkd b { font-size: 15px; }
 .kv-sched .kv-mkd i { font-size: 13px; }
-.kv-sched .kv-mk.past .kv-mkd b { font-size: 15px; }
-.kv-sched .kv-mk.past .kv-mkd i { font-size: 13px; }
 .kv-hero .kv-name { margin-bottom: 6px; }
 .kv-hero .kv-name h2 { font-size: 34px; }
 .kv-hero .kv-name .mut { font-size: 16px; }
 .kv-mk.up .kv-mkd { top: auto; bottom: 100%; margin: 0 0 -6px; }
-.kv-sched .kv-mk.past.up .kv-mkd { margin: 0 0 -6px; }
 .kv-sched > .kv-prog-h:first-child { flex-wrap: wrap; row-gap: 4px; }
 .kv-sched .kv-prog-h .kv-phases { flex-wrap: wrap; row-gap: 4px; }
 @media (max-width: 600px) { /* a phone: the phases on their own lines, smaller milestones */
   .kv-sched { padding: 10px 10px 8px; }
   .kv-sched .kv-prog-h .kv-phases { gap: 4px 14px; font-size: 13px; }
   .kv-sched .kv-mk.pass, .kv-sched .kv-mk.boss:has(img) { width: 34px; height: 34px; margin: -17px 0 0 -17px; }
-  .kv-sched .kv-mk.pass img, .kv-sched .kv-mk.pass.past img, .kv-sched .kv-mk.boss img, .kv-sched .kv-mk.boss.past img { width: 32px; height: 32px; }
-  .kv-sched .kv-mkd b, .kv-sched .kv-mk.past .kv-mkd b { font-size: 12px; }
-  .kv-sched .kv-mkd i, .kv-sched .kv-mk.past .kv-mkd i { font-size: 11px; }
+  .kv-sched .kv-mk.pass img, .kv-sched .kv-mk.boss img { width: 32px; height: 32px; }
+  .kv-sched .kv-mkd b { font-size: 12px; }
+  .kv-sched .kv-mkd i { font-size: 11px; }
   .kv-sched .kv-ends { font-size: 12px; margin-top: 12px; }
   .kv-sched .kv-track { margin-top: 36px; }
   .kv-sched .kv-ends + .kv-track { margin-top: 38px; }
   .kv-hero .kv-name h2 { font-size: 28px; }
   .kv-hero .kv-name .mut { font-size: 14px; }
+}
+
+/* a phone, the Kingdom page's KvK block: the bar in 2 rows (kinfo.js), the labels that would collide lifted over their
+   milestone, the phases on their own line; the season's picture covers the whole block, whatever its shape */
+@media (max-width: 600px) {
+  #kingdomTop, #kingdomTop.art-wide { --art-at: center top / cover; }
+  /* no fade from the left: the block takes the whole width, the picture goes on behind all of it */
+  #kingdomTop .k-row.has-art::before { -webkit-mask: linear-gradient(to bottom, transparent, #000 60px, #000 calc(100% - 32px), transparent); mask: linear-gradient(to bottom, transparent, #000 60px, #000 calc(100% - 32px), transparent); }
+  #kMeta.k-kvk { gap: 8px; } /* the loading shapes and the block: 160 px (the 680 px rules), nothing moves when it comes */
+  #kMeta.k-kvk .k-meta-l { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 4px 10px; }
+  #kMeta.k-kvk .k-meta-n { display: contents; }
+  /* the season's name first, cut short ("…") so "KvK details" keeps the top right corner; the KvK's code under it */
+  .k-meta-n b { grid-area: 1 / 1; overflow: hidden; font-size: 16px; line-height: 1.25; text-overflow: ellipsis; white-space: nowrap; }
+  #kMeta.k-kvk .k-dash { grid-area: 1 / 2; }
+  .k-meta-n .k-meta-tags { grid-area: 2 / 1 / 3 / 3; }
+  /* the phases and how far along share their lines, the percentage at the end of the last */
+  .k-prog > .kv-prog-h:first-child { display: flex; flex-wrap: wrap; justify-content: flex-start; gap: 3px 12px; }
+  .k-prog > .kv-prog-h:first-child > span:first-child, .k-prog .kv-prog-h .kv-phases { display: contents; }
+  .k-prog > .kv-prog-h:first-child > span:last-child { margin-left: auto; white-space: nowrap; }
+}
+
+/* a phone, the KvK page: one 16 px gutter for every block (the players' bar too), text inside the hero off its edge,
+   the tabs one line that scrolls, the camps / kingdoms switch on the left with the link to all KvKs across from it */
+@media (max-width: 600px) {
+  #kvkPage .kv-hero { padding: 14px; }
+  #kvkPage .kv-hero .kv-sched { margin-inline: -4px; }
+  #kvkPage .tbl-bar { padding-inline: 16px; }
+  .kv-tabs { display: flex; max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+  .kv-tabs::-webkit-scrollbar { display: none; }
+  .kv-tabs button { flex: none; white-space: nowrap; }
+  .kr-head .kr-end { flex: 1 0 100%; justify-content: space-between; margin-left: 0; }
 }
