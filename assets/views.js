@@ -43,7 +43,11 @@ function kpiCard(key, label, value, sub) {
   d.dataset.k = key;
   icon.src = `assets/icons/${key}.png?v=3`;
   icon.alt = "";
-  head.append(icon, el("span", "k-l", label));
+  // one line whatever the server rank put after it (#1 or #22): the label gives way, the rank stays whole
+  const l = el("span", "k-l"), lt = el("span", "k-lt", label);
+  lt.title = label;
+  l.appendChild(lt);
+  head.append(icon, l);
   d.append(head, value, sub);
   return d;
 }

@@ -27,18 +27,21 @@ async function drawRank(k) {
   if (ks.length > 1) { drawRanks(box, rows, ks); return; }
   const n = rows.length, main = me.migrationScoreRank; // the place the ranking opens with
   const head = el("div", "kr-head");
-  head.append(el("h2", "", tr("iRankTitle")), el("b", "kr-main", "#" + main), el("span", "mut", tr("iOf").replace("{n}", numFmt().format(n))),
-    el("span", "kr-pill", tr("iTop").replace("{p}", numFmt(1).format((100 * main) / n))));
+  // a phone: two lines that break at the same place for every kingdom (the place's digits must not move the break)
+  head.append(el("h2", "", tr("iRankTitle")), el("b", "kr-main", "#" + main), el("span", "mut", tr("iOf").replace("{n}", numFmt().format(n))), el("i", "kr-br"),
+    el("span", "kr-pill",tr("iTop").replace("{p}", numFmt(1).format((100 * main) / n))));
   // one block with the cards: each card has the place of its metric, the metrics without a card are on this line
   rankOf = { me, n };
+  // a phone: these sit on one line that scrolls sideways, so longer places (#26 against #1) never add a third line
+  const xs = el("span", "kr-xs");
   for (const [key, label] of RANKED) {
     if (CARD_OF[key] || !me[key + "Rank"]) continue;
     const x = el("span", "kr-x");
     x.title = KS.compact(me[key]);
     x.append(tr(label) + " ", el("b", "", "#" + me[key + "Rank"]));
-    head.appendChild(x);
+    xs.appendChild(x);
   }
-  head.appendChild(rankLink(k));
+  head.append(xs, rankLink(k));
   box.appendChild(head);
   markCards();
 }
@@ -101,6 +104,14 @@ async function drawSub(k) {
 }
 
 // ---- the top of the page: the season's picture, its name and the KvK ----
+// The loading shapes of the KvK block (index.html), kept: a kingdom in no KvK holds the same room with them, unseen, so
+// the number and everything under it (Hạng server...) sit at the same place on every kingdom (user 06/11)
+const VOID_KVK = $("kMeta")?.innerHTML ?? "";
+function voidMeta(meta) {
+  meta.className = "k-meta k-kvk sk-kvk k-void";
+  meta.innerHTML = VOID_KVK;
+  meta.setAttribute("aria-hidden", "true");
+}
 async function drawTop(k) {
   const row = document.querySelector("#kingdomTop .k-row"), idx = await load("kvk/index.json");
   if (state.mainK !== k) return;
@@ -119,12 +130,11 @@ async function drawTop(k) {
   const fit = () => { top.style.setProperty("--row-top", row.offsetTop + "px"); top.style.setProperty("--row-h", row.offsetHeight + "px"); };
   fit();
   if (!row._fit) { row._fit = new ResizeObserver(fit); row._fit.observe(row); }
-  if (apart) return;
-  meta.classList.remove("sk-kvk"); // the loading shapes are gone
-  meta.classList.toggle("k-kvk", !!b);
-  // in no KvK: nothing here, the status beside the number already says it (pairing, registering...) (user 06/11)
-  meta.hidden = !b;
-  if (!b) return;
+  // in no KvK (or kingdoms of different ones): nothing to see, the status beside the number already says it
+  // (pairing, registering...) (user 06/11), but the block's room stays
+  if (!b) { voidMeta(meta); return; }
+  meta.className = "k-meta k-kvk"; // the loading shapes are gone
+  meta.removeAttribute("aria-hidden");
   // the KvK the kingdom is in, as one block: its name and the way to its page on top, how far it is, then its kingdoms
   // (links to them, the one shown filled), under a label that says what the numbers are
   const line = el("div", "k-meta-l"), name = el("div", "k-meta-n"), chips = el("div", "k-meta-c"), open = el("a", "btn k-dash", tr("kOpen"));

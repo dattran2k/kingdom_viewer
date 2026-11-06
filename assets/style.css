@@ -127,7 +127,9 @@ body[data-compare="1"] .klist li.cur { background: var(--acc-bg); }
 [data-k="maxDecor"] { --t: #14b8a6; }
 .k-top { display: flex; flex-direction: row-reverse; justify-content: space-between; align-items: center; gap: 10px; min-width: 0; }
 .k-i { flex: none; width: 32px; height: 32px; margin: -4px -2px -4px 0; object-fit: contain; }
-.k-l { min-width: 0; font-size: 12px; color: var(--mut); }
+.k-l { display: flex; align-items: baseline; min-width: 0; font-size: 12px; color: var(--mut); }
+.k-lt { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.k-l .k-rank { flex: none; }
 .k-v { font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.2; }
 .k-v.up { color: var(--up); }
 .k-v.down { color: var(--down); }
@@ -877,6 +879,9 @@ body[data-compare="1"] .k-row.has-art .kbtn { color: #fff; border-color: rgb(255
 /* normal or comparing: in the page's header, right after its title */
 .page-head { flex-wrap: nowrap; gap: 16px; min-height: 72px; padding: 12px 20px; background: var(--panel); border-bottom: 1px solid var(--line); }
 #vsBtn { height: 44px; padding: 0 14px; gap: 10px; border-radius: var(--r-lg); font-size: 15px; }
+/* a kingdom with one scan (and the first frames, before the scans are known): the switch keeps its room, unseen, so the
+   header has one height and one layout for every kingdom (a phone's fixed header would move the whole page) */
+#vsBtn[hidden] { display: inline-flex; visibility: hidden; }
 #vsBtn .mode-l { font-size: 13px; }
 /* what a page puts in its header: its tabs, or the KvK list's search, which takes the room */
 .head-slot { display: flex; align-items: center; flex: 0 1 auto; min-width: 0; }
@@ -959,7 +964,23 @@ body[data-compare="1"] .k-row .kbtn { height: 52px; }
   .k-meta-l { flex-direction: column; gap: 2px; }
 }
 .kr-link-sk { height: 32px; }
-.sk-camps { height: 277px; }
+#kRank > .kr-head.sk-block { min-height: 28px; } /* = the rank line once drawn (its tallest piece, the place, is 26-28px) */
+#kRank > .kr-head.sk-block .kr-link-sk { height: 28px; }
+.kr-br { display: none; }
+.kr-xs { display: contents; }
+@media (max-width: 680px) {
+  #kRank .kr-xs { display: flex; flex: 1 1 0; align-self: center; gap: 10px; min-width: 0; overflow-x: auto; scrollbar-width: none; white-space: nowrap; }
+  #kRank .kr-xs::-webkit-scrollbar { display: none; }
+  #kRank .kr-xs > * { flex: none; }
+  /* a line of its own that is the gap between the two (the row gap would come twice around it) */
+  #kRank .kr-head:has(.kr-br) { row-gap: 0; }
+  #kRank .kr-br { display: block; flex-basis: 100%; height: 6px; }
+  #kRank > .kr-head.sk-block { min-height: 53px; } /* = its two lines once drawn (26 + 6 + 19, rounded up) */
+}
+/* the KvK frame once drawn: camps table + the kingdom's top players, 753px for most KvKs (837 with a third camp row);
+   the shape keeps the smaller one, the whole box (#kCamps) as tall as the real frame */
+.sk-camps { height: 697px; margin-bottom: 0; }
+@media (max-width: 680px) { .sk-camps { height: 803px; } } /* the KvK frame of a phone: 857px for most KvKs */
 /* the real cards and charts with sample text: the text keeps the size, a moving bar shows over it */
 .holding .k-v, .holding .k-a, .holding .b-t, .holding .b-v { width: fit-content; border-radius: var(--r-sm); color: transparent !important; background: linear-gradient(90deg, var(--panel2) 25%, color-mix(in srgb, var(--panel2) 60%, var(--fg2)) 50%, var(--panel2) 75%) 0 0 / 300% 100%; animation: sk-move 1.4s linear infinite; }
 .holding .k-a b, .holding .k-p, .holding .b-n .chip, .holding .b-n > :not(.b-i, .b-t) { color: transparent; border-color: transparent; background: none; }
@@ -974,6 +995,10 @@ body[data-compare="1"] .k-row .kbtn { height: 52px; }
 @media (max-width: 900px) {
   body { --ph: 60px; }
   #kingdomPage, #kvkPage { --ph: var(--head-h, 60px); }
+  /* before app.js measures it: the Kingdom header's two rows (the page's top would move 43px down on the first frame);
+     109px here, 103px on a phone (smaller switch and fields) */
+  #kingdomPage { --ph: var(--head-h, 109px); }
+  @media (max-width: 680px) { #kingdomPage { --ph: var(--head-h, 103px); } }
   .page, #kingdomPage, #kvkPage { --stick: calc(var(--ph) - var(--head-off, 0px)); }
   #kingdomPage > header.bar { flex-wrap: wrap; height: auto; padding: 8px 12px; }
   .page > header.bar { position: fixed; top: 0; left: 0; right: 0; z-index: 20; flex-wrap: nowrap; height: var(--ph); padding: 0 12px; background: var(--panel); transform: translateY(calc(-1 * var(--head-off, 0px))); }
@@ -1229,6 +1254,8 @@ body[data-compare="1"] .k-row .kbtn { height: 52px; }
 .sk-kvk .sk-chip { width: 44px; height: 28px; border-radius: var(--r-sm); }
 .sk-kvk .k-meta-c { gap: 5px; }
 @media (max-width: 680px) { .sk-kvk .k-meta-c > .sk:first-child { display: none; } }
+/* a kingdom in no KvK: the shapes keep the block's room, unseen (the season picture shows through) */
+#kMeta.k-void { visibility: hidden; }
 
 /* The hero's chip row scrolls sideways, so it clips anything that leaves it: a hovered chip does not step up
    (its top border was cut) and keeps its dark ground, only the frame lights. Room above and below for the focus ring. */
