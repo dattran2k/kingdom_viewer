@@ -1,10 +1,12 @@
-/* Flat surfaces on a near-black (or near-white) base: one hairline colour, gradients only on the cards and KvK pictures, shadows only on what opens over the page */
+/* Flat surfaces on a near-black (or near-white) base: one hairline colour, gradients only on the cards and KvK pictures, shadows only on what opens over the page.
+   Four hues and the neutrals, nothing else: the accent blue (what is picked, every bar, side A), gold (the game's rank and tags, seeds),
+   green / red (up / down, in war, side B). A difference inside one of them is its lightness, never another hue */
 :root {
   --bg: #f6f7f9; --panel: #ffffff; --panel2: #f1f2f5; --fg: #18181b; --fg2: #3f3f46; --mut: #5f6573; --line: #ececf0; --edge: #dfe0e6;
   --acc: #1b6fe0; --acc-solid: #1b6fe0; --acc-bg: #eaf2fe; --hover: #f1f4f9; --on-acc: #ffffff; --shadow: 0 8px 28px rgba(20,24,40,.14);
-  --up: #0a8a55; --down: #d81a48; --b-end: #d4d6de; --ta: #0d9488; --tb: #d81a5a;
+  --up: #0a8a55; --down: #d81a48; --b-end: #d4d6de; --ta: var(--acc); --tb: var(--down);
+  --gold: #8a6500; --gold-solid: #c59a00; --on-gold: #1a1400;
   --tag-fg: #7a5a00; --tag-bg: #fff6dc; --tag-bd: #ecd892;
-  --sa: #a86b00; --sb: #4f6480; --sc: #a24d22; --sd: #6b6f7b; /* seeds A-D: gold, steel, bronze, grey */
   --rh: 44px; --hh: 40px;
   /* one radius family and one motion timing for the whole site */
   --r-sm: 4px; --r-md: 6px; --r-lg: 8px;
@@ -15,18 +17,18 @@
   :root:not([data-theme="light"]) {
     --bg: #0b0c10; --panel: #13141a; --panel2: #1b1c22; --fg: #f5f5f5; --fg2: #b5b7c8; --mut: #8d8f9d; --line: #1f2027; --edge: #26272f;
     --acc: #4a8cf7; --acc-solid: #006ae6; --acc-bg: #172331; --hover: #1b1c22; --on-acc: #ffffff; --shadow: 0 8px 28px rgba(0,0,0,.6);
-    --up: #17b878; --down: #ec4a70; --b-end: #363843; --ta: #17b892; --tb: #e8477a;
+    --up: #17b878; --down: #ec4a70; --b-end: #363843; --ta: var(--acc); --tb: var(--down);
+    --gold: #e0b84a; --gold-solid: #d8a920; --on-gold: #1a1400;
     --tag-fg: #d9b24c; --tag-bg: #231f14; --tag-bd: #3d3419;
-    --sa: #e7b445; --sb: #9fb3cf; --sc: #df8f5f; --sd: #9a9cab;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #0b0c10; --panel: #13141a; --panel2: #1b1c22; --fg: #f5f5f5; --fg2: #b5b7c8; --mut: #8d8f9d; --line: #1f2027; --edge: #26272f;
   --acc: #4a8cf7; --acc-solid: #006ae6; --acc-bg: #172331; --hover: #1b1c22; --on-acc: #ffffff; --shadow: 0 8px 28px rgba(0,0,0,.6);
-  --up: #17b878; --down: #ec4a70; --b-end: #363843; --ta: #17b892; --tb: #e8477a;
+  --up: #17b878; --down: #ec4a70; --b-end: #363843; --ta: var(--acc); --tb: var(--down);
+  --gold: #e0b84a; --gold-solid: #d8a920; --on-gold: #1a1400;
   --tag-fg: #d9b24c; --tag-bg: #231f14; --tag-bd: #3d3419;
-  --sa: #e7b445; --sb: #9fb3cf; --sc: #df8f5f; --sd: #9a9cab;
   color-scheme: dark;
 }
 
@@ -119,15 +121,19 @@ body[data-compare="1"] .klist li.cur { background: var(--acc-bg); }
 @media (min-width: 1500px) { .kpis { grid-template-columns: repeat(8, minmax(0, 1fr)); } }
 .kpis[hidden] { display: none; }
 .kpi { display: flex; flex-direction: column; gap: 4px; min-width: 0; padding: 12px 14px; overflow: hidden; border: 1px solid var(--edge); border-radius: var(--r-lg); background: var(--panel); }
-/* a metric's own colour: the bars of its chart */
-[data-k="players"], .b-powerMax { --t: #4a8cf7; }
-[data-k="power"], .b-power { --t: #c59a00; }
-[data-k="merits"], .b-merits { --t: #e5484d; }
-[data-k="kills"], .b-kills { --t: #e42855; }
-[data-k="deaths"], .b-deaths { --t: #d74e00; }
-[data-k="heals"], .b-heals { --t: #00a261; }
-[data-k="migrationScore"] { --t: #1aa3c4; }
-[data-k="maxDecor"] { --t: #14b8a6; }
+/* a figure's bar and card: by what it is about, in the four base hues. War (merits, kills, deaths: deaths a lighter step)
+   in red, heals in green, power in gold, everything else in the accent (--t unset) */
+.g-combat, .g-merit, [data-k="merits"], [data-k="kills"], .b-merits, .b-meritsMax, .b-meritRatio, .b-kills { --t: var(--down); }
+[data-k="deaths"], .b-deaths, .b-defeats { --t: color-mix(in srgb, var(--down) 62%, var(--panel)); }
+[data-k="heals"], .b-heals, .b-victories { --t: var(--up); }
+.g-power, [data-k="power"], .b-power, .b-powerMax { --t: var(--gold-solid); }
+/* the unit types keep their own colours (user 07/11): infantry, cavalry, archers, magic, other */
+.b-meritInfantry { --t: #e42855; }
+.b-meritCavalry { --t: #c59a00; }
+.b-meritArcher { --t: #00a261; }
+.b-meritMagic { --t: #9b5cf6; }
+.b-meritOther { --t: #808290; }
+.b-trades { --t: var(--acc); }
 .k-top { display: flex; flex-direction: row-reverse; justify-content: space-between; align-items: center; gap: 10px; min-width: 0; }
 .k-i { flex: none; width: 32px; height: 32px; margin: -4px -2px -4px 0; object-fit: contain; }
 .k-l { display: flex; align-items: baseline; min-width: 0; font-size: 12px; color: var(--mut); }
@@ -149,24 +155,6 @@ body[data-compare="1"] .klist li.cur { background: var(--acc-bg); }
 .pg::before { right: var(--px); background: color-mix(in srgb, var(--t, var(--acc)) 18%, transparent); }
 .pg::after { width: calc((100% - 2 * var(--px)) * var(--p, 0)); background: var(--t, var(--acc)); }
 /* a column's colour: its group's, or its own */
-.g-basic { --t: #1aa3c4; }
-.g-power { --t: #c59a00; }
-.g-combat { --t: #e42855; }
-.g-trophy { --t: #14b8a6; }
-.g-alliance { --t: #4a8cf7; }
-.g-gather { --t: #00a261; }
-.g-glory { --t: #d74e00; }
-.b-merits, .b-meritsMax { --t: #e5484d; }
-.b-meritInfantry { --t: #e42855; }
-.b-meritCavalry { --t: #c59a00; }
-.b-meritArcher { --t: #00a261; }
-.b-meritOther { --t: #808290; }
-.b-power, .b-gold { --t: #c59a00; }
-.b-powerMax, .b-mana { --t: #4a8cf7; }
-.b-kills { --t: #e42855; }
-.b-deaths { --t: #d74e00; }
-.b-heals, .b-wood { --t: #00a261; }
-.b-ore { --t: #808290; }
 /* Trades: a tinted box */
 .tr-b { display: inline-block; min-width: 40px; padding: 4px 6px; border: 1px solid color-mix(in srgb, var(--up) 22%, transparent); border-radius: var(--r-sm); background: color-mix(in srgb, var(--up) 10%, var(--panel)); color: var(--up); font-size: 12px; font-weight: 600; line-height: 16px; text-align: center; vertical-align: middle; }
 /* a name with its ID under it */
@@ -184,7 +172,7 @@ body[data-compare="1"] .klist li.cur { background: var(--acc-bg); }
 .ic-maxDecor { --i: url(icons/maxDecor.png); }
 /* a kingdom: gold for the top of the list, outlined below it */
 .kd { display: inline-block; min-width: 44px; padding: 3px 6px; border: 1px solid var(--edge); border-radius: var(--r-sm); color: var(--fg2); font-size: 12px; font-weight: 600; line-height: 16px; text-align: center; font-variant-numeric: tabular-nums; }
-.kd.top { background: #c59a00; border-color: #c59a00; color: #1a1400; } /* dark on gold: white was 2.6:1 */
+.kd.top { background: var(--gold-solid); border-color: var(--gold-solid); color: var(--on-gold); } /* dark on gold: white was 2.6:1 */
 
 /* tables: figures in the middle of their column, names on the left */
 .tbl th, .tbl td { text-align: center; }
@@ -401,8 +389,13 @@ body:not([data-compare="1"]) .cmp-only { display: none; }
 .x-tbl .x-k { font-weight: 600; }
 .x-tbl .x-k.a { color: var(--ta); }
 .x-tbl .x-k.b { color: var(--tb); }
-.x-tbl th { cursor: default; }
-.x-tbl th::after { display: none; }
+.x-tbl th { cursor: default; text-align: center; } /* the cells are centred: the heads too */
+.x-tbl th:hover { color: var(--mut); }
+.tbl.x-tbl th:not(.nosort)::after { display: none; } /* not sortable: no arrows */
+.x-share { min-width: 132px; justify-content: center; margin-left: auto; } /* as wide as "Đã chép link": the label change moves nothing */
+.x-share svg { width: 14px; height: 14px; flex: none; fill: currentColor; }
+.x-share + .x-reset { margin-left: 0; }
+.x-share.done { color: var(--up); border-color: color-mix(in srgb, var(--up) 50%, var(--edge)); }
 .x-gi { width: 24px; height: 24px; flex: none; }
 .x-gt { min-width: 0; }
 .x-gd { margin: 1px 0 0; font-size: 12px; line-height: 1.35; color: var(--mut); }
@@ -566,7 +559,7 @@ body:not([data-compare="1"]) .cmp-only { display: none; }
 .kv-panel:has(.tbl-wrap)::before { content: ""; position: absolute; inset: 0 auto 0 -1px; z-index: 5; width: 4px; background: var(--panel); pointer-events: none; }
 .kv-panel:has(.tbl-wrap) .kv-note { margin: 10px 12px; }
 .kv-head.kv-panel { max-width: none; }
-.kv-note { margin: 0 0 8px; padding: 8px 12px; border: 1px solid color-mix(in srgb, #d4a017 30%, transparent); border-radius: var(--r-md); background: color-mix(in srgb, #d4a017 8%, transparent); color: var(--fg2); font-size: 12px; }
+.kv-note { margin: 0 0 8px; padding: 8px 12px; border: 1px solid color-mix(in srgb, var(--gold-solid) 30%, transparent); border-radius: var(--r-md); background: color-mix(in srgb, var(--gold-solid) 8%, transparent); color: var(--fg2); font-size: 12px; }
 .kv-total td { color: var(--fg); font-weight: 600; }
 .kv-kd td { background: color-mix(in srgb, var(--panel2) 45%, transparent); }
 .kv-kd td.nm { padding-left: 34px; }
@@ -655,7 +648,7 @@ body:not([data-compare="1"]) .cmp-only { display: none; }
 .kv-camps { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .kv-camps.one { grid-template-columns: 1fr; }
 .kv-camp { display: flex; flex-direction: column; gap: 6px; padding: 8px 10px; border: 1px solid color-mix(in srgb, var(--c, var(--edge)) 45%, var(--line)); border-radius: var(--r-lg); background: var(--panel2); }
-.kv-camp.c1 { --c: #4a8cf7; } .kv-camp.c2 { --c: #e5484d; } .kv-camp.c3 { --c: #30a46c; } .kv-camp.c4 { --c: #e0a100; }
+.kv-camp.c1 { --c: var(--acc); } .kv-camp.c2 { --c: var(--down); } .kv-camp.c3 { --c: var(--up); } .kv-camp.c4 { --c: var(--gold-solid); }
 .kv-camp .kv-camp-h b { color: var(--c, var(--fg)); } /* the camp's colour on its name, not on a thick side bar */
 .kv-camp-h { display: flex; justify-content: space-between; align-items: baseline; font-size: 13px; }
 .kv-camp-h b { color: var(--fg); font-weight: 700; }
@@ -690,9 +683,9 @@ body:not([data-compare="1"]) .cmp-only { display: none; }
 .k-status { display: inline-block; padding: 2px 8px; border: 1px solid var(--edge); border-radius: 999px; color: var(--fg2); font-size: 12px; font-weight: 600; white-space: nowrap; }
 .k-status[hidden] { display: none; }
 .k-status[data-st="125"] { border-color: color-mix(in srgb, var(--down) 45%, transparent); color: var(--down); }
-.k-status[data-st="110"] { border-color: color-mix(in srgb, #e0a100 55%, transparent); color: #e0a100; }
+.k-status[data-st="110"] { border-color: color-mix(in srgb, var(--gold) 55%, transparent); color: var(--gold); }
 .k-status[data-st="111"] { border-color: color-mix(in srgb, var(--acc) 55%, transparent); color: var(--acc); }
-.k-status[data-st="120"], .k-status[data-st="115"] { border-color: color-mix(in srgb, var(--up) 45%, transparent); color: var(--up); }
+.k-status[data-st="120"], .k-status[data-st="115"] { border-color: color-mix(in srgb, var(--acc) 55%, transparent); color: var(--acc); }
 /* the filters of the ranking: a line each, its name then its buttons. A value has its colour (--c: statuses as the table's chips,
    the generations their own) on its dot and name, and on the frame when picked; All is in the page's blue */
 .rk-filter { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 8px; }
@@ -705,16 +698,18 @@ body:not([data-compare="1"]) .cmp-only { display: none; }
 .rk-pills button[aria-pressed="true"] { border-color: var(--c); background: color-mix(in srgb, var(--c) 15%, transparent); color: var(--c); }
 .rk-pills button[aria-pressed="true"] small { background: color-mix(in srgb, var(--c) 25%, transparent); color: var(--fg); }
 .rk-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
-.rk-pills [data-st] { --c: var(--fg2); }
-.rk-pills [data-st="125"] { --c: var(--down); }
-.rk-pills [data-st="110"] { --c: #e0a100; }
-.rk-pills [data-st="111"] { --c: var(--acc); }
-.rk-pills :is([data-st="120"], [data-st="115"]) { --c: var(--up); }
-/* a generation's colour, in the filter and the Gen column */
-:is(.rk-pills button, .rk-gen)[data-gen="1"] { --c: #ff8a3d; }
-:is(.rk-pills button, .rk-gen)[data-gen="2"] { --c: #22c3d6; }
-:is(.rk-pills button, .rk-gen)[data-gen="3"] { --c: #9ccc3c; }
-:is(.rk-pills button, .rk-gen)[data-gen="4"] { --c: #f472b6; }
+:is(.rk-pills, .rk-filter) [data-st] { --c: var(--fg2); }
+:is(.rk-pills, .rk-filter) [data-st="125"] { --c: var(--down); }
+:is(.rk-pills, .rk-filter) [data-st="110"] { --c: var(--gold); }
+:is(.rk-pills, .rk-filter) [data-st="111"] { --c: var(--acc); }
+:is(.rk-pills, .rk-filter) :is([data-st="120"], [data-st="115"]) { --c: var(--acc); }
+/* a generation's colour, in the filter, the Gen column and the Kingdom header: one of the four base hues each */
+:is(.rk-pills button, .rk-gen, .rk-dd)[data-gen="1"] { --c: var(--gold); }
+:is(.rk-pills button, .rk-gen, .rk-dd)[data-gen="2"] { --c: var(--acc); }
+:is(.rk-pills button, .rk-gen, .rk-dd)[data-gen="3"] { --c: var(--up); }
+:is(.rk-pills button, .rk-gen, .rk-dd)[data-gen="4"] { --c: var(--down); }
+:is(.rk-pills button, .rk-gen, .rk-dd):is([data-gen="SoS1"], [data-gen^="KvK"]) { --c: var(--fg2); } /* SoS1, KvK1-3: no gen number */
+:is(.rk-pills button, .rk-gen, .rk-dd)[data-gen="-"] { --c: var(--mut); } /* TBD: in no gen group */
 .rk-gen { color: var(--c); font-weight: 700; }
 /* the line of the kingdom the ranking was opened from */
 .tbl tr.rk-focus > td { background: color-mix(in srgb, var(--acc) 16%, var(--panel)); }
@@ -753,7 +748,6 @@ body:not([data-compare="1"]) .cmp-only { display: none; }
 .dv-pnums button:disabled { opacity: .4; cursor: default; }
 #kPager { position: sticky; left: 0; padding: 0 16px 12px; }
 /* CT / LC stands out: pink (the merits colour), larger, bold */
-.b-meritRatio { --t: #e5484d; }
 .row .c.b-meritRatio { font-size: 15px; font-weight: 700; } /* its bar is red, its figure the plain text colour */
 /* each total card wears its metric's colour, fading from the top right where its icon sits */
 .kpi { background: linear-gradient(135deg, var(--panel) 35%, color-mix(in srgb, var(--t, var(--acc)) 20%, var(--panel)) 100%); border-color: color-mix(in srgb, var(--t, var(--acc)) 22%, var(--edge)); }
@@ -776,6 +770,7 @@ body[data-compare="1"] #kingdomTop .k-row.has-art { justify-content: flex-start;
 a.k-sub-gen { text-decoration: none; cursor: pointer; transition: background var(--m-in) var(--m-ease); }
 a.k-sub-gen:hover { background: color-mix(in srgb, var(--c) 18%, rgb(8 10 14 / .55)); }
 a.k-sub-gen:focus-visible { outline: 2px solid var(--c); outline-offset: 2px; }
+.k-row.has-art .k-sub-gen { --gold: #e0b84a; --acc: #4a8cf7; --up: #17b878; --down: #ec4a70; } /* over the picture: the dark theme's steps */
 .k-sub .al-tag { padding: 0 10px; border: 1px solid color-mix(in srgb, var(--tag-fg) 45%, transparent); border-radius: var(--r-sm); color: #f1c95a; }
 .k-block { padding: 14px 16px 0; }
 .k-block[hidden] { display: none; }
@@ -943,10 +938,11 @@ body[data-compare="1"] .k-row .kbtn { height: 52px; }
 /* the camps / kingdoms switch: next to what it sorts (after the dates), only the link to all KvKs at the far right */
 .kr-head .kr-end:has(.kv-group-seg) { flex: 1 1 auto; justify-content: space-between; margin-left: 0; }
 .kr-end .kr-link { margin-left: 0; }
-.rk-kds { display: inline-grid; grid-template-columns: repeat(2, minmax(0, max-content)); justify-content: center; gap: 6px 8px; max-width: 100%; padding: 3px 0; }
-/* a camp: its kingdoms in a blue frame, two frames a line, so the camps of a map read apart */
-.rk-camp { display: grid; justify-content: center; gap: 3px; padding: 3px; border: 1px solid var(--acc); border-radius: var(--r-md); background: color-mix(in srgb, var(--acc) 8%, transparent); }
-.rk-camp .kd { min-width: 40px; padding: 2px 6px; color: var(--fg); font-size: 13px; font-weight: 700; }
+.rk-kds { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; width: 100%; padding: 3px 0; }
+/* a camp: one band of the accent's tint, two a line and all as wide, its kingdoms bare numbers in it (no frame in a
+   frame, user 07/11); a bigger camp in even lines inside its band (4: 2 + 2, the columns set by the script) */
+.rk-camp { display: grid; align-content: center; justify-content: center; gap: 0 2px; min-height: 26px; padding: 2px 4px; border-radius: var(--r-md); background: color-mix(in srgb, var(--acc) 12%, transparent); }
+.rk-camp .kd { min-width: 0; height: auto; padding: 1px 5px; border: 0; background: none; color: var(--fg); font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 20px; }
 .rk-kds .kd { margin: 0; }
 .dv-wrap .tbl td:has(.rk-kds) { max-width: none; } /* its width comes from campsW */
 /* until the data is in: the same boxes, each line a soft moving bar, so nothing moves when it arrives */
@@ -1060,8 +1056,8 @@ body[data-compare="1"] .k-row .kbtn { height: 52px; }
 .kv-war-t { display: flex; flex-wrap: wrap; align-items: center; gap: 3px 5px; }
 .kv-war-name small { color: var(--mut); font-size: 12px; }
 .kv-badge { padding: 0 6px; border-radius: 999px; font-size: 11px; font-weight: 700; line-height: 16px; white-space: nowrap; }
-.kv-badge.live { background: color-mix(in srgb, #e5484d 18%, transparent); color: #ff6b6f; }
-.kv-badge.trade { background: color-mix(in srgb, #d4a017 18%, transparent); color: #e2b93b; }
+.kv-badge.live { background: color-mix(in srgb, #ff5c78 18%, transparent); color: #ff5c78; }
+.kv-badge.trade { background: color-mix(in srgb, #d8a920 18%, transparent); color: #f3cf62; }
 .kv-war-kds, .kv-war-as { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px; }
 .dv-wrap .tbl td:has(.kv-war-kds), .dv-wrap .tbl td:has(.kv-war-as) { white-space: normal; }
 .kv-war-unk { opacity: .55; }
@@ -1091,7 +1087,7 @@ body[data-compare="1"] .k-row .kbtn { height: 52px; }
 .kv-war-line .kd { flex: none; }
 .kv-war-bar { height: 4px; border-radius: var(--r-sm); background: var(--panel2); overflow: hidden; }
 .kv-war-bar i { display: block; height: 100%; background: var(--acc-solid); }
-.kv-war-top li.p1 .kv-war-bar i { background: #d4a017; }
+.kv-war-top li.p1 .kv-war-bar i { background: var(--gold-solid); }
 .kv-war-n { display: flex; flex-direction: column; align-items: flex-end; font-variant-numeric: tabular-nums; }
 .kv-war-n b { color: var(--fg); font-size: 13px; font-weight: 600; }
 .kv-war-n small { font-size: 12px; }
@@ -1203,11 +1199,23 @@ body[data-compare="1"] .k-row .kbtn { height: 52px; }
 .page-desc, .kv-note, .hint { text-wrap: pretty; }
 
 /* A phone: each ranking filter is one sideways-scrolling line, so the table starts higher */
+.rk-dd { display: none; }
+/* A phone: each ranking filter folds into one button with the value picked; a click opens its list under it, over the table */
 @media (max-width: 640px) {
-  .rk-filter { align-items: center; gap: 8px; margin-bottom: 6px; }
-  .rk-filter-l { min-width: 0; }
-  .rk-pills { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; min-width: 0; padding-bottom: 1px; }
-  .rk-pills button { flex: none; }
+  .rk-filter { position: relative; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .rk-filter.open { z-index: 40; } /* its list over the table and its sticky head */
+  .rk-filter-l { min-width: 64px; }
+  .rk-dd { --c: var(--acc); display: inline-flex; flex: 1; align-items: center; gap: 7px; min-width: 0; height: 34px; padding: 0 10px 0 14px; border: 1px solid color-mix(in srgb, var(--c) 60%, var(--edge)); border-radius: 999px; background: var(--panel); color: var(--c); font-size: 13px; font-weight: 600; cursor: pointer; }
+  .rk-dd:is([data-st]:not([data-st=""]), [data-gen]:not([data-gen=""])) { border-color: var(--edge); color: var(--fg); } /* a value picked: its dot in its colour */
+  .rk-dd[data-st=""], .rk-dd[data-gen=""] { --c: var(--acc); }
+  .rk-dd small { padding: 1px 7px; border-radius: 999px; background: var(--panel2); color: var(--mut); font-size: 12px; font-variant-numeric: tabular-nums; }
+  .rk-dd .rk-chev { width: 7px; height: 7px; margin-left: auto; border: solid var(--mut); border-width: 0 1.5px 1.5px 0; transform: translateY(-2px) rotate(45deg); transition: transform var(--m-in) var(--m-ease); }
+  .rk-filter.open .rk-chev { transform: translateY(1px) rotate(-135deg); }
+  .rk-filter .rk-pills { display: none; }
+  .rk-filter.open .rk-pills { position: absolute; z-index: 25; top: calc(100% + 4px); left: 72px; right: 0; display: flex; flex-direction: column; gap: 2px; max-height: min(60vh, 420px); overflow: auto; padding: 6px; border: 1px solid var(--edge); border-radius: var(--r-lg); background: var(--panel); box-shadow: var(--shadow); }
+  .rk-filter.open .rk-pills button { justify-content: flex-start; height: 36px; padding: 0 10px; border-color: transparent; border-radius: var(--r-md); }
+  .rk-filter.open .rk-pills button small { margin-left: auto; }
+  .rk-filter.open .rk-pills button[aria-pressed="true"] { border-color: transparent; }
 }
 /* a status chip over the hero art: on a dark backing, as the kingdom chips beside it (3.2:1 on the photo before) */
 .k-row.has-art .k-status { background: rgb(8 10 14 / .6); }
@@ -1308,12 +1316,12 @@ body:not([data-compare="1"]) .k-row .kbtn:hover::after, body:not([data-compare="
 .has-art .battle-tag { border-color: rgb(255 92 120 / .6); background: rgb(20 4 8 / .55); color: #ff5c78; text-shadow: none; }
 
 /* The KvK list's search: what matches is framed gold, a kingdom with a star before its number */
-.kd.hit { display: inline-flex; align-items: center; gap: 3px; border-color: #d8a920; background: var(--tag-bg); color: var(--tag-fg); }
+.kd.hit { display: inline-flex; align-items: center; gap: 3px; border-color: var(--gold-solid); background: var(--tag-bg); color: var(--tag-fg); }
 .kv-sec.has-art .kv-card .kd.hit { border-color: #d8a920; background: rgb(216 169 32 / .16); color: #f3cf62; }
 .kd.hit svg { width: 10px; height: 10px; flex: none; fill: currentColor; }
-.kv-jump button.hit { border-color: #d8a920; color: var(--tag-fg); }
-.kv-sec.has-art .kv-jump button.hit { border-color: #d8a920; color: #f3cf62; }
-.kv-card.hit, .kv-sec.has-art .kv-card.hit { border-color: #d8a920; box-shadow: 0 0 0 1px #d8a920, 0 8px 24px rgb(0 0 0 / .25); }
+.kv-jump button.hit { border-color: var(--gold-solid); color: var(--tag-fg); }
+.kv-sec.has-art .kv-jump button.hit { border-color: var(--gold-solid); color: #f3cf62; }
+.kv-card.hit, .kv-sec.has-art .kv-card.hit { border-color: var(--gold-solid); box-shadow: 0 0 0 1px var(--gold-solid), 0 8px 24px rgb(0 0 0 / .25); }
 
 /* A player's card (player.js): a name anywhere opens it. Header on the season's picture, then the power and the
    three KvK numbers, then two tabs: every metric now, and one metric over the scans */
@@ -1469,7 +1477,7 @@ body:not([data-compare="1"]) .k-row .kbtn:hover::after, body:not([data-compare="
 .pl-rk { position: absolute; top: -8px; right: -6px; display: grid; place-items: center; min-width: 24px; height: 22px; padding: 0 6px; border-radius: 11px; font-size: 11px; font-weight: 800; font-variant-numeric: tabular-nums; opacity: 0; transform: scale(.8); transition: opacity var(--m-out) var(--m-ease), transform var(--m-out) var(--m-ease); }
 .pl-rk.on, .pl-rk.top { opacity: 1; transform: none; }
 .pl-rk.on { background: var(--acc-solid); color: #fff; }
-.pl-rk.top { background: #e8b923; color: #1a1400; }
+.pl-rk.top { background: var(--gold-solid); color: var(--on-gold); }
 .pl-bar { display: block; height: 4px; margin-top: 8px; overflow: hidden; border-radius: 2px; background: color-mix(in srgb, var(--t) 18%, transparent); }
 .pl-bar u { display: block; width: 0; height: 100%; border-radius: 2px; background: var(--t); transition: width 600ms var(--m-ease); }
 @media (prefers-reduced-motion: reduce) { .pl-rk, .pl-bar u { transition: none; } }
@@ -1482,7 +1490,6 @@ body:not([data-compare="1"]) .k-row .kbtn:hover::after, body:not([data-compare="
 
 /* Unit focus: the season's merits by unit type as one bar of four colours (infantry red, cavalry gold, archers
    green, magic purple, as each type's column), the biggest type's picture and share under it */
-.b-meritMagic { --t: #9b5cf6; }
 .us-bar { display: flex; gap: 2px; width: 100%; height: 6px; overflow: hidden; border-radius: 3px; background: var(--edge); }
 .us-bar i { min-width: 2px; height: 100%; background: var(--t); }
 .us-bar.big { height: 10px; border-radius: 5px; }
@@ -1522,13 +1529,13 @@ a.k-status[href]:focus-visible { outline: 2px solid currentColor; outline-offset
 .kv-ph { position: absolute; top: 0; bottom: 0; background: color-mix(in srgb, var(--ph) 45%, #16181d); }
 .kv-ph + .kv-ph { border-left: 2px solid #14171d; }
 .kv-ph i { position: absolute; inset: 0 auto 0 0; background: var(--ph); }
-.p0 { --ph: #4f8cff; } .p1 { --ph: #ff5c78; } .p2 { --ph: #9b5cf6; }
+.p0 { --ph: #4f8cff; } .p1 { --ph: #ff5c78; } .p2 { --ph: #d8a920; } /* on the dark timeline: the accent, red, gold */
 .kv-now { position: absolute; top: -4px; width: 2px; height: 16px; margin-left: -1px; border-radius: 1px; background: var(--fg); text-decoration: none; pointer-events: none; }
 .kv-mk { position: absolute; top: 50%; display: grid; place-items: center; width: 22px; height: 22px; margin: -11px 0 0 -11px; padding: 0; border: 0; background: none; color: var(--mk); cursor: pointer; z-index: 1; }
 .kv-mk svg { width: 11px; height: 11px; fill: currentColor; transition: transform var(--m-in) var(--m-ease); }
 .kv-mk:hover svg, .kv-mk:focus-visible svg { transform: scale(1.35); }
 .kv-mk:focus-visible { outline: 2px solid var(--fg); outline-offset: -3px; border-radius: 50%; }
-.kv-mk.boss { --mk: #f5b942; } .kv-mk.pass { --mk: #3cc8c0; } .kv-mk.quest { --mk: #c9ced8; }
+.kv-mk.boss { --mk: #d8a920; } .kv-mk.pass { --mk: #4f8cff; } .kv-mk.quest { --mk: #c9ced8; }
 .kv-mk.quest svg { width: 8px; height: 8px; }
 .kv-mk.past svg { fill: color-mix(in srgb, var(--mk) 55%, #1c2029); } /* gone by: a darker solid colour, no alpha */
 .kv-mk.now svg { transform: scale(1.3); }
@@ -1543,7 +1550,7 @@ a.k-status[href]:focus-visible { outline: 2px solid currentColor; outline-offset
 .kv-mkrow + .kv-mkrow { padding-top: 10px; border-top: 1px solid var(--edge); }
 .kv-mkh { display: flex; justify-content: space-between; gap: 12px; font-size: 11px; font-weight: 600; letter-spacing: .02em; }
 .kv-mkk { color: var(--mk); text-transform: uppercase; }
-.kv-mkrow.boss { --mk: #f5b942; } .kv-mkrow.pass { --mk: #3cc8c0; } .kv-mkrow.quest { --mk: var(--fg2); }
+.kv-mkrow.boss { --mk: var(--gold); } .kv-mkrow.pass { --mk: var(--acc); } .kv-mkrow.quest { --mk: var(--fg2); }
 .kv-mks { color: var(--mut); }
 .kv-mks.on { color: var(--up, #3ccf7a); }
 .kv-mkrow b { font-size: 14px; font-weight: 700; }
@@ -1651,8 +1658,8 @@ a.k-status[href]:focus-visible { outline: 2px solid currentColor; outline-offset
 }
 
 /* ---- Matchup: the kingdom picker dialog (compare.js), seeds A-D ---- */
-.seed { --s: var(--sd); display: inline-grid; place-items: center; width: 18px; height: 18px; margin-left: 6px; border-radius: var(--r-sm); background: color-mix(in srgb, var(--s) 18%, transparent); color: var(--s); font-size: 11px; font-weight: 700; font-style: normal; line-height: 1; vertical-align: 2px; }
-.seed.s1 { --s: var(--sa); } .seed.s2 { --s: var(--sb); } .seed.s3 { --s: var(--sc); }
+.seed { --s: var(--mut); display: inline-grid; place-items: center; width: 18px; height: 18px; margin-left: 6px; border-radius: var(--r-sm); background: color-mix(in srgb, var(--s) 16%, transparent); color: var(--s); font-size: 11px; font-weight: 700; font-style: normal; line-height: 1; vertical-align: 2px; }
+.seed.s1 { background: var(--gold-solid); color: var(--on-gold); } .seed.s2 { --s: var(--gold); } .seed.s3 { --s: var(--fg2); }
 .x-side .x-tag .seed { width: 20px; height: 20px; font-size: 12px; vertical-align: 3px; }
 .dlg.xp { width: min(560px, calc(100vw - 32px)); height: min(720px, calc(100dvh - 48px)); }
 .dlg.xp .dlg-in { height: 100%; box-sizing: border-box; }
@@ -1667,6 +1674,7 @@ a.k-status[href]:focus-visible { outline: 2px solid currentColor; outline-offset
 .xp-s .seed { margin: 0 4px 0 0; }
 .xp-s[aria-pressed="false"] { opacity: .5; }
 .xp-s[aria-pressed="false"] .seed { background: none; }
+.xp-s[aria-pressed="false"] .seed.s1 { color: var(--gold); }
 .xp-s[aria-pressed="true"] { border-color: var(--fg2); color: var(--fg); }
 .xp-q { flex: none; }
 .xp-note { flex: none; margin: -2px 0 0; color: var(--mut); font-size: 12px; line-height: 1.4; }
@@ -1687,3 +1695,129 @@ a.k-status[href]:focus-visible { outline: 2px solid currentColor; outline-offset
   .xp-list li { grid-template-columns: minmax(80px, 1fr) auto auto 18px; gap: 10px; }
   .xp-list li span { font-size: 11px; }
 }
+.kd-s { display: inline-flex; align-items: center; white-space: nowrap; } /* a ranking's kingdom chip and its seed after it */
+.seed.off { visibility: hidden; }
+.k-seed { --s: var(--mut); display: inline-block; padding: 2px 8px; border: 1px solid color-mix(in srgb, var(--s) 55%, transparent); border-radius: 999px; background: color-mix(in srgb, var(--s) 14%, transparent); color: var(--s); font-size: 12px; font-weight: 700; white-space: nowrap; }
+.k-seed[hidden] { display: none; }
+.k-seed[data-s="1"] { border-color: var(--gold-solid); background: var(--gold-solid); color: var(--on-gold); } .k-seed[data-s="2"] { --s: var(--gold); } .k-seed[data-s="3"] { --s: var(--fg2); }
+.k-row.has-art .k-seed:not([data-s="1"]) { background: rgb(8 10 14 / .6); }
+.k-row.has-art .k-seed { --gold: #e0b84a; --fg2: #e4e5ee; --mut: #b5b7c8; } /* over the picture: the dark theme's steps */
+
+/* ---- the Kingdom page's block of a kingdom being paired (kinfo.js pairing): the game's Season screen steps ---- */
+.k-steps { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); margin: 0; padding: 16px 0 0; list-style: none; }
+.k-steps li { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 0; text-align: center; }
+.k-steps li::before { content: ""; position: absolute; top: 5px; right: 50%; left: -50%; height: 2px; background: rgb(255 255 255 / .22); }
+.k-steps li:first-child::before { display: none; }
+.k-steps li.done::before, .k-steps li.now::before { background: var(--acc-solid); }
+.k-steps i { position: relative; z-index: 1; width: 12px; height: 12px; box-sizing: border-box; border: 2px solid rgb(255 255 255 / .4); border-radius: 50%; background: rgb(8 10 14 / .9); }
+.k-steps li.done i { border-color: var(--acc-solid); background: var(--acc-solid); }
+.k-steps li.now i { border-color: #fff; background: var(--acc-solid); box-shadow: 0 0 0 3px color-mix(in srgb, var(--acc-solid) 45%, transparent); }
+.k-steps b { margin-top: 4px; overflow: hidden; max-width: 100%; color: rgb(255 255 255 / .7); font-size: 12px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.k-steps li.done b { color: rgb(255 255 255 / .85); }
+.k-steps li.now b { color: #fff; }
+.k-steps small { color: rgb(255 255 255 / .6); font-size: 11px; font-variant-numeric: tabular-nums; }
+.k-step-left { position: absolute; bottom: calc(100% + 2px); padding: 0 6px; border-radius: var(--r-sm); background: #fff; color: #14171d; font-size: 11px; font-weight: 700; line-height: 16px; white-space: nowrap; }
+.k-pair-s { display: inline-flex; align-items: center; gap: 4px; height: 28px; padding: 0 9px 0 5px; border-radius: 999px; background: rgb(8 10 14 / .55); color: #fff; font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.k-pair-s .seed { margin: 0; --gold: #e0b84a; --fg2: #e4e5ee; --mut: #b5b7c8; }
+@media (max-width: 680px) {
+  .k-steps li { padding: 0 3px; }
+  .k-steps b { font-size: 11px; white-space: normal; line-height: 1.2; text-wrap: balance; }
+  .k-steps small { font-size: 10px; }
+}
+
+/* ---- the Kingdom page's KvK bar: each phase at its start, its day, what is left of the one going on (kvk.js placePhases);
+   one line as high as the names alone were ---- */
+.k-prog > .kv-prog-h.kv-at { position: relative; display: block; height: 18px; }
+.k-prog > .kv-prog-h.kv-at > span:first-child { position: absolute; inset: 0; display: block; }
+.k-prog .kv-prog-h.kv-at .kv-phases { position: absolute; inset: 0; display: block; margin: 0; }
+.kv-at .kv-phase { position: absolute; top: 0; gap: 6px; line-height: 18px; }
+.kv-at .kv-ph-d { color: rgb(255 255 255 / .62); font-size: 11px; font-variant-numeric: tabular-nums; }
+.kv-at-top .kv-ph-left { padding: 0 6px; border-radius: var(--r-sm); background: #fff; color: #14171d; font-size: 11px; font-weight: 700; line-height: 16px; text-shadow: none; }
+.kv-at.tight1 .kv-phase:not(.on) .kv-ph-d, .kv-at.tight2 .kv-ph-d, .kv-at.tight3 .kv-phase:not(.on) b { display: none; }
+.k-prog > .kv-prog-h.kv-at.wrap { height: auto; }
+.k-prog > .kv-prog-h.kv-at.wrap > span:first-child, .k-prog .kv-prog-h.kv-at.wrap .kv-phases { position: static; display: flex; flex-wrap: wrap; gap: 3px 12px; }
+.kv-at.wrap .kv-phase { position: static; }
+
+/* the Kingdom page's KvK bar, v2 (user 07/11): "còn X" over the now mark, the phases with their days under the bar; the
+   two lines and the bar fit the block's 163 px (16 + 6 + 8 + 6 + 18) */
+.k-prog > .kv-prog-h.kv-at-top { position: relative; display: block; height: 16px; }
+.kv-at-top .kv-ph-left { position: absolute; top: 0; white-space: nowrap; }
+.k-prog > .kv-prog-h.kv-below { position: relative; display: block; height: 18px; }
+.k-prog .kv-below .kv-phases { position: absolute; inset: 0; display: block; margin: 0; }
+.k-prog .kv-below .kv-phase.on b { color: #fff; font-weight: 700; }
+.k-prog > .kv-prog-h.kv-below.wrap { height: auto; }
+.k-prog .kv-prog-h.kv-below.wrap .kv-phases { position: static; display: flex; flex-wrap: wrap; gap: 3px 12px; }
+/* the pairing block's steps in the same room: 14 + 12 + 2 + 15 + 13 */
+.k-steps { padding-top: 13px; }
+.k-steps li { gap: 0; }
+.k-steps b { margin-top: 2px; line-height: 15px; }
+.k-steps small { line-height: 13px; }
+
+/* a phone: the KvK block's title takes 2 lines, so the bar keeps one line of text as before (the block stays 160 px):
+   no line over the bar, "còn X" after the phase going on */
+.kv-ph-in { display: none; }
+@media (max-width: 680px) {
+  .k-prog > .kv-prog-h.kv-at-top { display: none; }
+  .kv-below .kv-ph-in { display: inline; color: #fff; font-weight: 600; }
+}
+
+/* ---- the ranking's filters (user 07/11): Status on its line, Gen and Seed side by side under it. A wide screen keeps
+   the buttons spread out on their lines; a phone folds each into one button that opens its list (the rules above) ---- */
+.rk-filters { display: flex; flex-direction: column; }
+#dv .dv-out > .rk-filters { z-index: 8; } /* sticky (sideways) makes it a layer: over the table's bar (6), a phone's list with it */
+.rk-filters-row { display: flex; flex-wrap: wrap; column-gap: 28px; }
+.rk-filters-row:empty { display: none; }
+.rk-dd-w { display: contents; }
+.rk-f-seed .rk-filter-l { min-width: 0; }
+.rk-pills button[data-seed] { color: var(--fg2); }
+.rk-seed { display: inline-flex; align-items: center; gap: 8px; }
+.rk-seed .seed { margin: 0; }
+/* Gen and Seed: a dropdown each at every width, side by side (user 07/11); Status keeps its buttons on a wide screen */
+.rk-filters-row .rk-filter { position: relative; align-items: center; gap: 10px; }
+.rk-filters-row .rk-filter.open { z-index: 40; }
+.rk-filters-row .rk-filter-l { line-height: 34px; }
+.rk-filters-row .rk-dd-w { position: relative; display: flex; width: 240px; }
+.rk-filters-row .rk-dd { --c: var(--acc); display: inline-flex; width: 100%; align-items: center; gap: 7px; min-width: 0; height: 34px; padding: 0 10px 0 14px; border: 1px solid color-mix(in srgb, var(--c) 60%, var(--edge)); border-radius: 999px; background: var(--panel); color: var(--c); font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; cursor: pointer; }
+.rk-filters-row .rk-dd:is([data-gen]:not([data-gen=""]), [data-seed]:not([data-seed=""])) { border-color: var(--edge); color: var(--fg); }
+.rk-filters-row .rk-dd:is([data-gen=""], [data-seed=""]) { --c: var(--acc); }
+.rk-filters-row .rk-dd small { margin-left: auto; padding: 1px 7px; border-radius: 999px; background: var(--panel2); color: var(--mut); font-size: 12px; font-variant-numeric: tabular-nums; }
+.rk-filters-row .rk-dd .rk-chev { width: 7px; height: 7px; margin-left: 4px; border: solid var(--mut); border-width: 0 1.5px 1.5px 0; transform: translateY(-2px) rotate(45deg); transition: transform var(--m-in) var(--m-ease); }
+.rk-filters-row .rk-filter.open .rk-chev { transform: translateY(1px) rotate(-135deg); }
+.rk-filters-row .rk-pills { display: none; }
+.rk-filters-row .rk-filter.open .rk-pills { position: absolute; z-index: 25; top: calc(100% + 4px); left: 0; min-width: 100%; width: max-content; display: flex; flex-direction: column; flex-wrap: nowrap; gap: 2px; max-height: min(60vh, 420px); overflow: auto; padding: 6px; border: 1px solid var(--edge); border-radius: var(--r-lg); background: var(--panel); box-shadow: var(--shadow); }
+.rk-filters-row .rk-filter.open .rk-pills button { position: relative; justify-content: flex-start; height: 36px; padding: 0 10px 0 28px; border-color: transparent; border-radius: var(--r-md); white-space: nowrap; }
+.rk-filters-row .rk-filter.open .rk-pills button small { margin-left: auto; }
+.rk-filters-row .rk-filter.open .rk-pills button[aria-pressed="true"] { border-color: transparent; }
+.rk-filters-row .rk-filter.open .rk-pills button[aria-pressed="true"]::before { content: ""; position: absolute; left: 11px; top: 50%; width: 5px; height: 9px; border: solid currentColor; border-width: 0 2px 2px 0; transform: translateY(-65%) rotate(45deg); }
+a.k-pair-s { text-decoration: none; cursor: pointer; }
+a.k-pair-s:hover { background: rgb(8 10 14 / .8); box-shadow: inset 0 0 0 1px rgb(255 255 255 / .35); }
+a.k-pair-s:focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; }
+@media (max-width: 640px) {
+  .rk-filters-row { flex-wrap: nowrap; gap: 8px; }
+  .rk-filters-row .rk-filter { flex: 1; min-width: 0; }
+  .rk-filters-row .rk-f-seed .rk-filter-l { min-width: 0; }
+  .rk-dd-w, .rk-filters-row .rk-dd-w { position: relative; display: flex; flex: 1; width: auto; min-width: 0; }
+  .rk-dd-w .rk-dd { width: 100%; }
+  .rk-dd[data-seed]:not([data-seed=""]) { border-color: var(--edge); color: var(--fg); }
+  .rk-dd[data-seed=""] { --c: var(--acc); }
+  .rk-dd small { margin-left: auto; }
+  .rk-dd .rk-chev { margin-left: 4px; }
+  .rk-dd { white-space: nowrap; overflow: hidden; }
+  .rk-filters-row .rk-dd { padding: 0 10px 0 12px; }
+  .rk-filters-row .rk-dd > small { display: none; } /* Gen and Seed share a line: the counts stay in the lists */
+  .rk-filters-row .rk-dd .rk-chev { margin-left: auto; }
+  .rk-filter.open .rk-dd-w .rk-pills { left: 0; right: auto; min-width: 100%; width: max-content; max-width: calc(100vw - 32px); }
+  .rk-f-seed.open .rk-dd-w .rk-pills { left: auto; right: 0; }
+  .rk-filter.open .rk-pills button { position: relative; padding-left: 28px; white-space: nowrap; }
+  .rk-filter.open .rk-pills button[aria-pressed="true"]::before { content: ""; position: absolute; left: 11px; top: 50%; width: 5px; height: 9px; border: solid currentColor; border-width: 0 2px 2px 0; transform: translateY(-65%) rotate(45deg); }
+}
+
+/* a KvK just over (kvk_export: the map at 130, kept until its kingdoms' next season): its card's dot grey */
+.kv-state i.over { background: var(--mut); box-shadow: none; animation: none; }
+
+/* the KvK page's Current / History switch (user 07/11), beside the search */
+.kv-hist { margin-left: auto; }
+.kv-hist button small { margin-left: 2px; color: var(--mut); font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.kv-hist button[aria-pressed="true"] small { color: inherit; opacity: .75; }
+.kv-ctl > .kv-hist { width: 100%; margin: 0; }
+.kv-ctl > .kv-hist button { flex: 1; }

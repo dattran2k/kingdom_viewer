@@ -8,38 +8,43 @@ const KS = window.KS, { state, tr, $, numFmt } = KS;
 Object.assign(KS.T.vi, {
   navKingdom: "Kingdom", navCompare: "Ghép cặp", openSource: "Mã nguồn mở trên GitHub",
   xSideA: "Phe 1", xSideB: "Phe 2", xAdd: "+ Kingdom", xRemove: "Bỏ", xEmpty: "Thêm kingdom vào cả hai phe để xem so sánh.",
-  xPlayers: "người", xSum: "Tổng", xAvg: "TB", xAggTip: "Tổng / trung bình mỗi người", xTopAll: "Mọi người", xTop: "Top", xReset: "Đặt lại",
+  xPlayers: "người", xReset: "Đặt lại", xFull: "Đầy đủ", xShort: "Rút gọn", xViewTip: "Đầy đủ: mọi chỉ số. Rút gọn: người chơi, điểm di cư, LC max, Decor max, Pet max, công trạng, CT / LC",
   xdDuels: "Các mức LC max, mức điểm di cư, Decor max, Pet max, Bảo vật đỏ và Nhà Thiên Đỉnh đếm số người chơi. CT / LC là trung bình mỗi người. Các số còn lại là {agg}.",
-  xAggSum: "tổng của cả phe", xAggAvg: "trung bình mỗi người", xBand: "LC max",
+  xdShort: "Decor max và Pet max đếm số người chơi. CT / LC là trung bình mỗi người. Các số còn lại là {agg}.",
+  xAggSum: "tổng của cả phe", xBand: "LC max",
   xInfantry: "CT bộ binh", xCavalry: "CT kỵ binh", xArcher: "CT cung thủ", xMagic: "CT pháp sư",
   xdEach: "Số tổng của từng kingdom ở ngày mới nhất, chỉ tính người qua mức lực chiến đã chọn.",
   xMigrationSum: "Điểm di cư", xMigrationBand: "Điểm di cư", xEach: "Từng kingdom", xScan: "Ngày", xKingdom: "Kingdom",
   xCount: "Người chơi", xLoadErr: "Không tải được:",
   pkTitle: "Thêm kingdom vào", pkPairing: "Đang ghép cặp", pkAll: "Tất cả", pkGroup: "Nhóm", pkSeed: "Seed", pkDone: "Xong",
   pkNote: "Bảng Phân Loại của game, cập nhật {d} UTC, ghép cho {s}. SP-: kingdom khu vực khác, không có dữ liệu người chơi.",
+  xShare: "Chia sẻ", xShareTip: "Chép link trang Ghép cặp với các cặp đang chọn", xShared: "Đã chép link",
   pkNoData: "Không có dữ liệu", pkOther: "Ở phe kia", pkPower: "Lực chiến tổng (game)",
 });
 Object.assign(KS.T.en, {
   navKingdom: "Kingdom", navCompare: "Matchup", openSource: "Open source on GitHub",
   xSideA: "Side 1", xSideB: "Side 2", xAdd: "+ Kingdom", xRemove: "Remove", xEmpty: "Add kingdoms to both sides to compare them.",
-  xPlayers: "players", xSum: "Total", xAvg: "Avg", xAggTip: "Total / average per player", xTopAll: "Everyone", xTop: "Top", xReset: "Reset",
+  xPlayers: "players", xReset: "Reset", xFull: "Full", xShort: "Short", xViewTip: "Full: every figure. Short: players, migration score, max power, max decor, max pets, merits, merit %",
   xdDuels: "Max power bands, migration bands, Max decor, Max pets, Red artifact and Legendary themes count players. Merit % is the average per player. The other figures are the {agg}.",
-  xAggSum: "total of the side", xAggAvg: "average per player", xBand: "Max power",
+  xdShort: "Max decor and Max pets count players. Merit % is the average per player. The other figures are the {agg}.",
+  xAggSum: "total of the side", xBand: "Max power",
   xInfantry: "Infantry merits", xCavalry: "Cavalry merits", xArcher: "Archer merits", xMagic: "Magic merits",
   xdEach: "Totals of each kingdom on its newest day, only players over the chosen power step.",
   xMigrationSum: "Migration score", xMigrationBand: "Migration score", xEach: "Each kingdom", xScan: "Day", xKingdom: "Kingdom",
   xCount: "Players", xLoadErr: "Could not load:",
   pkTitle: "Add a kingdom to", pkPairing: "Being paired", pkAll: "All", pkGroup: "Group", pkSeed: "Seed", pkDone: "Done",
   pkNote: "The game's seed table, updated {d} UTC, pairing for {s}. SP-: kingdoms of another region, no player data.",
+  xShare: "Share", xShareTip: "Copy a link to this matchup, its pairs filled in", xShared: "Link copied",
   pkNoData: "No data", pkOther: "On the other side", pkPower: "Total power (the game's)",
 });
 
 const MAX_PER_SIDE = 10, MAX_PAIRS = 5;
-const TOPS = [0, 100, 200, 300, 500];
 const POWER_BANDS = [[100e6, 200e6, "100–200M"], [200e6, 300e6, "200–300M"], [300e6, Infinity, "300M+"]];
 const { MIGRATION_BANDS, DECOR_MAX } = KS;
 
-const cfg = Object.assign({ pairs: [], minStep: KS.DEFAULT_POWER, top: 0, avg: false }, KS.store.get("cmp", {}));
+// a first visit opens on #357 vs #375 (the user, 07/11); "Đặt lại" still empties it
+const cfg = Object.assign({ pairs: [{ a: [357], b: [375] }], minStep: KS.DEFAULT_POWER, short: false }, KS.store.get("cmp", {}));
+delete cfg.top; delete cfg.avg; // the Top N and average switches of before 07/11
 const MAX_FILES = 4 * MAX_PER_SIDE + 20; // a couple of full pairs, and some to go back to: a long visit must not keep every kingdom opened
 const cache = new Map();   // "<scan>/<kingdom>" -> file (a promise while it loads)
 if (cfg.a || cfg.b) { cfg.pairs = [{ a: cfg.a || [], b: cfg.b || [] }]; delete cfg.a; delete cfg.b; } // saved before the pairs
@@ -66,27 +71,26 @@ function load(id) {
   return file;
 }
 
-// the players of a side: every kingdom's over the power step, then the side's strongest N
+// the players of a side: every kingdom's over the power step
 function sidePlayers(files) {
-  let ps = [];
-  for (const f of files) if (f) for (const p of f.players) if (KS.filterPower(p) > cfg.minStep) ps.push(p);
-  if (cfg.top) ps = ps.sort((x, y) => (y.power ?? 0) - (x.power ?? 0)).slice(0, cfg.top);
+  const ps = [];
+  for (const f of files) if (f) for (const p of f.players) if (KS.filterPower(p) > KS.minOf(f.kingdom, cfg.minStep)) ps.push(p);
   return ps;
 }
 
-// one column over a side. A % never adds up: it is the average, whatever the total / average switch says
+// one column over a side: the total; a % never adds up, it is the average
 function measure(c, ps) {
   let s = 0, n = 0;
   for (const p of ps) { const v = KS.value(c, p); if (typeof v === "number" && !Number.isNaN(v)) { s += v; n++; } }
   if (!n) return undefined;
-  return cfg.avg || c.type === "pct" ? s / n : s;
+  return c.type === "pct" ? s / n : s;
 }
-const show = (c, v) => (v == null ? "–" : c.type === "pct" ? numFmt(2).format(v) + "%" : cfg.avg && c.type === "int" ? numFmt(1).format(v) : c.type === "int" ? numFmt().format(v) : num(v));
+const show = (c, v) => (v == null ? "–" : c.type === "pct" ? numFmt(2).format(v) + "%" : c.type === "int" ? numFmt().format(v) : num(v));
 
 // a titled block
 function group(icon, title, desc, ...kids) {
   const g = el("section", "x-grp"), top = el("div", "x-grp-top"), text = el("div", "x-gt");
-  text.append(el("h3", "", title), el("p", "x-gd", desc.replace("{agg}", tr(cfg.avg ? "xAggAvg" : "xAggSum"))));
+  text.append(el("h3", "", title), el("p", "x-gd", desc.replace("{agg}", tr("xAggSum"))));
   top.append(iconOf(icon, "x-gi"), text);
   g.appendChild(top);
   g.append(...kids);
@@ -104,6 +108,17 @@ function save() {
   tidy();
   KS.store.set("cmp", cfg);
   if (state.page === "compare") history.replaceState(null, "", linkHash());
+}
+// the page's link with the pairs: opened, it fills them in (fromHash). Copied; said on the button for a moment
+function shareLink(btn) {
+  const url = location.origin + location.pathname + linkHash();
+  const label = btn.querySelector("span");
+  const done = () => { label.textContent = tr("xShared"); btn.classList.add("done"); setTimeout(() => { label.textContent = tr("xShare"); btn.classList.remove("done"); }, 1800); };
+  const old = () => { // no clipboard API (http on another host): a selected textarea
+    const t = el("textarea"); t.value = url; t.style.cssText = "position:fixed;opacity:0"; document.body.appendChild(t); t.select();
+    try { document.execCommand("copy"); done(); } finally { t.remove(); }
+  };
+  if (navigator.clipboard?.writeText) navigator.clipboard.writeText(url).then(done, old); else old();
 }
 const linkHash = () => "#p=compare" + cfg.pairs.map((p, i) => `&a${i ? i + 1 : ""}=${p.a.join(",")}&b${i ? i + 1 : ""}=${p.b.join(",")}`).join("");
 
@@ -292,22 +307,26 @@ function controls() {
     return s;
   };
   const fmt = KS.ui.fmtBtn(() => { if (state.data) KS.refresh(); draw(); });
-  // total or average per player: a two-way choice, the chosen one pressed
-  const avg = el("div", "rk-seg");
-  avg.setAttribute("role", "group"); avg.title = tr("xAggTip");
-  for (const [a, label] of [[false, tr("xSum")], [true, tr("xAvg")]]) {
+  // every figure or the short list: a two-way choice, the chosen one pressed
+  const view = el("div", "rk-seg");
+  view.setAttribute("role", "group"); view.title = tr("xViewTip");
+  for (const [v, label] of [[false, tr("xFull")], [true, tr("xShort")]]) {
     const x = el("button", "", label);
-    x.type = "button"; x.setAttribute("aria-pressed", String(!!cfg.avg === a));
-    x.onclick = () => { if (!!cfg.avg === a) return; cfg.avg = a; save(); draw(); };
-    avg.appendChild(x);
+    x.type = "button"; x.setAttribute("aria-pressed", String(!!cfg.short === v));
+    x.onclick = () => { if (!!cfg.short === v) return; cfg.short = v; save(); draw(); };
+    view.appendChild(x);
   }
+  const share = el("button", "btn x-share");
+  share.innerHTML = `<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M12 1a3 3 0 1 1-2.2 5l-3.9 2a3 3 0 0 1 0 1l3.9 2a3 3 0 1 1-.7 1.3l-3.9-2a3 3 0 1 1 0-4.6l3.9-2A3 3 0 0 1 12 1z"/></svg><span>${tr("xShare")}</span>`;
+  share.type = "button"; share.title = tr("xShareTip");
+  share.disabled = !cfg.pairs.some((p) => p.a.length || p.b.length);
+  share.onclick = () => shareLink(share);
   const reset = el("button", "btn x-reset", tr("xReset"));
   reset.type = "button";
   reset.onclick = () => { cfg.pairs = []; save(); draw(); };
   bar.append(
-    sel(KS.POWER_STEPS.map((v) => [v, `${tr("minPower")} > ${v / 1e6}M`]), cfg.minStep, (v) => (cfg.minStep = v)),
-    sel(TOPS.map((v) => [v, v ? `${tr("xTop")} ${v}` : tr("xTopAll")]), cfg.top, (v) => (cfg.top = v)),
-    fmt, avg, reset,
+    sel(KS.POWER_STEPS.map((v) => [v, KS.powerLabel(v)]), cfg.minStep, (v) => (cfg.minStep = v)),
+    fmt, view, share, reset,
   );
   return bar;
 }
@@ -320,7 +339,7 @@ function eachKingdom(fa, fb) {
   t.appendChild(el("thead")).appendChild(hr);
   const tb = t.appendChild(el("tbody"));
   for (const [side, files] of [["a", fa], ["b", fb]]) {
-    const rows = files.filter(Boolean).map((f) => ({ f, ps: f.players.filter((p) => KS.filterPower(p) > cfg.minStep) }));
+    const rows = files.filter(Boolean).map((f) => ({ f, ps: f.players.filter((p) => KS.filterPower(p) > KS.minOf(f.kingdom, cfg.minStep)) }));
     rows.sort((x, y) => (measure(KS.BY_KEY.power, y.ps) ?? 0) - (measure(KS.BY_KEY.power, x.ps) ?? 0));
     for (const { f, ps } of rows) {
       const r = el("tr");
@@ -373,6 +392,12 @@ function duels(pa, pb, pair) {
     ["merits", ...main("merits"), [col("meritsMax"), col("meritRatio"), col("meritInfantry", tr("xInfantry")), col("meritCavalry", tr("xCavalry")), col("meritArcher", tr("xArcher")), col("meritMagic", tr("xMagic"))]],
     ["kills", ...main("kills"), [col("deaths", null, "deaths"), col("heals", null, "heals")]],
   ];
+  if (cfg.short) items.splice(0, items.length,
+    ["players", tr("xCount"), (ps) => ps.length, int, []],
+    ["migrationScore", ...main("migrationScore", tr("xMigrationSum")), []],
+    ["power", ...main("powerMax"), []],
+    ["maxDecor", KS.label(KS.BY_KEY.maxDecor), (ps) => ps.filter((p) => (p.maxDecor ?? 0) >= DECOR_MAX).length, int, [owners("pets8Skills3Star")]],
+    ["merits", ...main("merits"), [col("meritRatio")]]);
   const value = (side, v, other, text) => {
     const lead = v != null && other != null && v > other, b = el("b", side + (lead ? " lead" : ""), v == null ? "–" : text(v));
     if (lead) b.appendChild(el("small", "", "+" + text(v - other))); // how far ahead, small, after the value
@@ -409,7 +434,7 @@ function duels(pa, pb, pair) {
     d.dataset.k = key;
     top.append(iconOf(key, "x-d-i"), el("span", "x-d-l", label));
     const figs = [[label, get(pa), get(pb), text], ...(subs || []).map(([name, of, fmt, icon]) => [name, of(pa), of(pb), fmt, icon])];
-    if (key === "players") figs.push([KS.label(KS.BY_KEY.unitFocus), null, null, null, null, (side) => focusOf(pair[side])]); // beside the count, half each
+    if (key === "players" && !cfg.short) figs.push([KS.label(KS.BY_KEY.unitFocus), null, null, null, null, (side) => focusOf(pair[side])]); // beside the count, half each
     let n = 0;
     // as many columns as fit, then shared out evenly between the blocks: 7 in 4 is 4 + 3, not 4 + 4 empty slots.
     // Run at once when the card is put in the page (a page drawn again keeps its height, so its scroll stays), and on resize
@@ -435,7 +460,7 @@ async function draw() {
   const waiting = loads.flat(2).some((f) => f.value === undefined);
   if (waiting) paint(loads.map((sides) => sides.map((fs) => fs.map((f) => f.value))));
   const [files, roll] = await Promise.all([Promise.all(loads.map((sides) => Promise.all(sides.map((fs) => Promise.all(fs))))), KS.ui.load("derived/rollup.json"), loadSeeds()]);
-  kdRows ||= new Map(roll ? KS.ui.objects(roll.kingdomCols, roll.kingdoms).map((x) => [x.kingdom, x]) : []);
+  kdRows ||= new Map(roll ? KS.ui.objects(roll.cols, roll.rows).map((x) => [x.kingdom, x]) : []);
   if (me !== token) return;
   paint(files);
 }
@@ -469,7 +494,7 @@ function paint(files) {
       else hint("loading");
       return;
     }
-    if (!noted) sec.appendChild(el("p", "x-gd x-note", tr("xdDuels").replace("{agg}", tr(cfg.avg ? "xAggAvg" : "xAggSum"))));
+    if (!noted) sec.appendChild(el("p", "x-gd x-note", tr(cfg.short ? "xdShort" : "xdDuels").replace("{agg}", tr("xAggSum"))));
     noted = true;
     sec.append(duels(pa, pb, p), group("players", tr("xEach"), tr("xdEach"), eachKingdom(fa, fb)));
     sec.querySelectorAll(".x-d-body").forEach((b) => b.fit());
@@ -494,6 +519,13 @@ function fromHash() {
   KS.store.set("cmp", cfg);
 }
 
+KS.seeds = { load: loadSeeds, badge: seedBadge, of: (k) => loadSeeds().then(() => seedOf.get(k)?.[0] || 0),
+  // the kingdom's pairing group: {seed, n (its number), season, times, rows}, or null (the Kingdom page's pairing block, kinfo.js)
+  loaded: () => !!seeds, has: (k) => seedOf.has(k),
+  at: (k) => seedOf.get(k), // [seed 1-4, its group's index] once loaded (the ranking's Seed filter)
+  // the season screen's dates (UTC s) of the kingdom's group, else of the first group (one wave: the same dates)
+  times: (k) => (seedOf.has(k) ? seeds.groups[seedOf.get(k)[1]] : seeds?.groups[0])?.times,
+  group: (k) => loadSeeds().then(() => { const s = seedOf.get(k); return s ? { seed: s[0], n: s[1] + 1, ...seeds.groups[s[1]] } : null; }) }; // the ranking's kingdom column (pages.js)
 KS.compare = {
   draw,
   show() { fromHash(); history.replaceState(null, "", linkHash()); draw(); },

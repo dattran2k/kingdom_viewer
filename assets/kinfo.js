@@ -5,8 +5,12 @@
 const KS = window.KS, { state, tr, $, numFmt } = KS;
 const { el, load, objects } = KS.ui;
 
-Object.assign(KS.T.vi, { iSeeRank: "Bảng xếp hạng", iRankTitle: "Hạng server", iOf: "/ {n} kingdom", iTop: "Top {p}%", iKds: "{n} kingdom trong KvK", iTopAl: "Liên minh mạnh nhất (tổng lực chiến)", iSameGen: "Kingdom cùng Gen" });
-Object.assign(KS.T.en, { iSeeRank: "Ranking", iRankTitle: "Kingdom rank", iOf: "/ {n} kingdoms", iTop: "Top {p}%", iKds: "{n} kingdoms in this KvK", iTopAl: "Strongest alliance (total power)", iSameGen: "Kingdoms of the same Gen" });
+Object.assign(KS.T.vi, { iSeeRank: "Bảng xếp hạng", iRankTitle: "Hạng server", iOf: "/ {n} kingdom", iTop: "Top {p}%", iKds: "{n} kingdom trong KvK", iTopAl: "Liên minh mạnh nhất (tổng lực chiến)", iSameGen: "Kingdom cùng Gen",
+  pStep: ["Xem Trước", "Đăng Ký", "Phân Loại", "Ghép Cặp", "Bờ Vực Chiến Tranh", "Mùa Giải Bắt Đầu"], pTbd: "Chưa định", pLeft: "còn {t}",
+  pGroup: "Nhóm {n}", pKds: "{n} kingdom cùng nhóm ghép cặp", pOpen: "Ghép cặp", pTip: "Lịch của mùa giải sắp tới, như màn Mùa Giải trong game (UTC). Map có sau Bờ Vực Chiến Tranh" });
+Object.assign(KS.T.en, { iSeeRank: "Ranking", iRankTitle: "Kingdom rank", iOf: "/ {n} kingdoms", iTop: "Top {p}%", iKds: "{n} kingdoms in this KvK", iTopAl: "Strongest alliance (total power)", iSameGen: "Kingdoms of the same Gen",
+  pStep: ["Preview", "Register", "Seeding", "Pairing", "Brink of War", "Season Starts"], pTbd: "TBD", pLeft: "{t} left",
+  pGroup: "Group {n}", pKds: "{n} kingdoms in the pairing group", pOpen: "Matchup", pTip: "The coming season's schedule, as the game's Season screen (UTC). The map comes after Brink of War" });
 
 const RANKED = [["migrationScore", "cMigration"], ["powerMax", "cPowerMax"], ["power", "cPower"], ["merits", "cMerits"], ["kills", "cKills"], ["deaths", "cDeaths"], ["heals", "cHeals"], ["gathered", "cGathered"], ["decorMax", "cDecor"]];
 // underlined text at the end of the line, as the links of the KvK frame
@@ -18,7 +22,7 @@ async function drawRank(k) {
   const box = $("kRank"), [roll, idx] = await Promise.all([load("derived/rollup.json"), load("kvk/index.json")]);
   if (state.mainK !== k) return;
   box.innerHTML = "";
-  const rows = roll ? objects(roll.kingdomCols, roll.kingdoms) : [], me = rows.find((r) => r.kingdom === k);
+  const rows = roll ? objects(roll.cols, roll.rows) : [], me = rows.find((r) => r.kingdom === k);
   const ks = state.comparing ? [state.mainK, ...state.also] : [k];
   rankOf = null;
   markCards();
@@ -86,14 +90,14 @@ async function drawSub(k) {
   // several kingdoms compared: no one generation or alliance to say, but the line keeps its room (nothing below moves
   // when kingdoms are added or taken out, or the mode changes)
   box.style.visibility = state.comparing && state.also.length ? "hidden" : "";
-  const me = roll ? objects(roll.kingdomCols, roll.kingdoms).find((r) => r.kingdom === k) : null, gen = idx?.genOf?.[k];
+  const me = roll ? objects(roll.cols, roll.rows).find((r) => r.kingdom === k) : null, gen = idx?.genOf?.[k];
   if (gen) {
     // as the ranking's Gen filter, and a click opens the ranking filtered on it, on this kingdom's line (as the status)
     const g = el("a", "rk-gen k-sub-gen");
     g.dataset.gen = gen;
     g.href = `#p=rank&gen=${gen}&at=${k}`;
     g.title = tr("iSameGen");
-    g.append(el("i", "rk-dot"), `${tr("cGen")} ${gen}`);
+    g.append(el("i", "rk-dot"), typeof gen === "string" ? gen : `${tr("cGen")} ${gen}`); // SoS1: a lone SoS1 map, no number
     box.appendChild(g);
   }
   if (me?.topAlliance) {
@@ -118,20 +122,25 @@ async function drawTop(k) {
   const ks = state.comparing ? [state.mainK, ...state.also] : [k];
   // several kingdoms: the KvK is said only when they all share it
   const b = ks.every((x) => battleOf(idx, x) === battleOf(idx, k)) ? battleOf(idx, k) : null, apart = ks.length > 1 && !b;
+  // in no KvK but being paired (one kingdom): the coming season's schedule in the KvK block's room
+  const grp = !b && ks.length === 1 ? await KS.seeds.group(k) : null;
+  if (state.mainK !== k) return;
   let meta = $("kMeta");
   if (!meta) { meta = el("div", "k-meta"); meta.id = "kMeta"; row.appendChild(meta); }
   meta.innerHTML = "";
   meta.hidden = false;
-  KS.season.art(row, b?.season);
+  const season = b?.season ?? (grp?.times ? grp.season : undefined);
+  KS.season.art(row, season);
   // the same picture goes on below the top, more and more blurred, down to the table
   const top = $("kingdomTop");
-  KS.season.art(top, b?.season);
+  KS.season.art(top, season);
   // the picture's room follows the top's height, which the KvK block below sets (and a phone's 2-row bar)
   const fit = () => { top.style.setProperty("--row-top", row.offsetTop + "px"); top.style.setProperty("--row-h", row.offsetHeight + "px"); };
   fit();
   if (!row._fit) { row._fit = new ResizeObserver(fit); row._fit.observe(row); }
   // in no KvK (or kingdoms of different ones): nothing to see, the status beside the number already says it
   // (pairing, registering...) (user 06/11), but the block's room stays
+  if (!b && grp?.times) { pairing(meta, k, grp, idx?.genOf?.[k]); return; }
   if (!b) { voidMeta(meta); return; }
   meta.className = "k-meta k-kvk"; // the loading shapes are gone
   meta.removeAttribute("aria-hidden");
@@ -160,6 +169,49 @@ async function drawTop(k) {
   const prog = el("div", "k-prog");
   prog.append(...KS.season.progress(b, false, 1, false));
   meta.append(line, prog, chips);
+}
+
+// ---- a kingdom being paired: the game's Season screen, its steps on one line (Preview, Register, Seeding, Pairing,
+// Brink of War = the map is set, Season Starts), the one now marked with what is left of it; then its group's kingdoms by seed
+const DAY = 86400;
+const ddmm = (t) => { const d = new Date(t * 1000); return `${String(d.getUTCDate()).padStart(2, "0")}/${String(d.getUTCMonth() + 1).padStart(2, "0")}`; };
+function lasted(s) {
+  // as the game: whole days gone by (1 day 20 h = "1 ngày"), then the hours of the last day
+  const en = state.lang === "en", d = Math.floor(s / DAY), h = Math.floor((s % DAY) / 3600);
+  if (d) return `${d} ${en ? "d" : "ngày"}` + (h ? ` ${h} ${en ? "h" : "giờ"}` : "");
+  return `${Math.max(1, Math.ceil(s / 3600))} ${en ? "h" : "giờ"}`;
+}
+function pairing(meta, k, g, gen) {
+  meta.className = "k-meta k-kvk k-pair";
+  meta.removeAttribute("aria-hidden");
+  const t = g.times, now = Date.now() / 1000, sn = g.season > 1000 ? "SoS" + (g.season - 1000) : "S" + g.season;
+  // the steps' start days; Preview's is before Register, Season Starts' is not known yet
+  const at = [-Infinity, t.register, t.rank, t.pair, t.match, Infinity];
+  const cur = at.findIndex((s, i) => now >= s && now < at[i + 1]);
+  const line = el("div", "k-meta-l"), name = el("div", "k-meta-n"), tags = el("span", "k-meta-tags"), open = el("a", "btn k-dash", tr("pOpen"));
+  tags.append(el("span", "", `${tr("kSos")} · ${sn}`), el("span", "", tr("pGroup").replace("{n}", g.n)));
+  name.append(el("b", "", KS.season.title(g.season)), tags);
+  open.href = "#p=compare&a=" + k;
+  line.append(name, open);
+  const steps = el("ol", "k-steps");
+  steps.title = tr("pTip");
+  tr("pStep").forEach((label, i) => {
+    const li = el("li", i < cur ? "done" : i === cur ? "now" : "");
+    const day = i === 0 ? "" : i === 5 ? tr("pTbd") : ddmm(at[i]);
+    if (i === cur && at[i + 1] !== Infinity) li.appendChild(el("span", "k-step-left", tr("pLeft").replace("{t}", lasted(at[i + 1] - now))));
+    li.append(el("i"), el("b", "", label), el("small", "", day));
+    steps.appendChild(li);
+  });
+  // the group: how many, and how many of each seed
+  const chips = el("div", "k-meta-c");
+  chips.appendChild(el("span", "k-meta-lbl", tr("pKds").replace("{n}", g.rows.length)));
+  for (const s of [1, 2, 3, 4]) {
+    const c = el("a", "k-pair-s"); // its seed of this group in the ranking (user 07/11)
+    c.href = `#p=rank${gen != null ? "&gen=" + encodeURIComponent(gen) : ""}&seed=${g.n}:${s}`; // with the kingdom's gen (user 07/11)
+    c.innerHTML = `<i class="seed s${s}">${"ABCD"[s - 1]}</i>${g.rows.filter((r) => r[1] === s).length}`;
+    chips.appendChild(c);
+  }
+  meta.append(line, steps, chips);
 }
 
 const shown = KS.onKingdomShown;

@@ -15,7 +15,7 @@ const T = {
     view: "View", viewTitle: "Tuỳ chọn hiển thị", fmtName: "Số gọn (1.2M)", fmtTip: "Bật: 1.2M, tắt: số đầy đủ", pickCols: "Chọn chỉ số hiển thị", filterCols: "Lọc chỉ số…", all: "Tất cả",
     none: "Bỏ hết", defaults: "Mặc định", players: "người", of: "/", crawled: "Thu thập", loading: "Đang tải…",
     heat: "± TB", heatTip: "Tô màu: cao hơn (xanh) / thấp hơn (đỏ) trung bình cột, trong danh sách đang lọc",
-    noRows: "Không có người chơi nào khớp.", minPower: "Lực chiến", loadErr: "Không tải được dữ liệu.", noData: "Chưa có kingdom nào trong data/.", noIndex: "Không đọc được data/kingdoms.json.",
+    noRows: "Không có người chơi nào khớp.", minPower: "Lực chiến", allPower: "tất cả", loadErr: "Không tải được dữ liệu.", noData: "Chưa có kingdom nào trong data/.", noIndex: "Không đọc được data/kingdoms.json.",
     fileUrl: "Trang cần chạy qua web (GitHub Pages). Trên máy: mở terminal TRONG thư mục chứa index.html, chạy python -m http.server 8000 --bind 127.0.0.1 rồi mở http://localhost:8000/. Mở thẳng file index.html thì trình duyệt không cho đọc dữ liệu.",
   },
   en: {
@@ -26,7 +26,7 @@ const T = {
     view: "View", viewTitle: "Display options", fmtName: "Compact numbers (1.2M)", fmtTip: "On: 1.2M, off: full numbers", pickCols: "Metrics", filterCols: "Filter metrics…", all: "All",
     none: "None", defaults: "Defaults", players: "players", of: "/", crawled: "Collected", loading: "Loading…",
     heat: "± avg", heatTip: "Colour: above (green) / below (red) the column average, over the players listed",
-    noRows: "No player matches.", minPower: "Power", loadErr: "Could not load the data.", noData: "No kingdom in data/ yet.", noIndex: "Could not read data/kingdoms.json.",
+    noRows: "No player matches.", minPower: "Power", allPower: "all", loadErr: "Could not load the data.", noData: "No kingdom in data/ yet.", noIndex: "Could not read data/kingdoms.json.",
     fileUrl: "Open this page through a web server (GitHub Pages). Locally: in a terminal IN the folder that holds index.html, run python -m http.server 8000 --bind 127.0.0.1, then open http://localhost:8000/. Opened straight from the disk, the browser does not let it read its data.",
   },
 };
@@ -39,10 +39,24 @@ const store = {
 
 // only players whose power now is above the chosen step are listed: the rest of a ranking is mostly small
 // accounts, and what "small" is depends on the kingdom (a weak one has few players above 20M)
-const POWER_STEPS = [20e6, 15e6, 10e6, 5e6], DEFAULT_POWER = 15e6; // every page opens on > 15M: the players the ranking and the kingdom search count
+const POWER_STEPS = [20e6, 15e6, 10e6, 5e6, 1e6], DEFAULT_POWER = 15e6; // every page opens on > 15M: the players the ranking and the kingdom search count
 // what the power filters go by, everywhere: the power now, as the ranking counts
 const filterPower = (p) => p.power ?? 0;
+// A kingdom's own power step, its filter's default (the user, 07/11): KvK1-3 1M, SoS1 5M (kingdoms.json minPower,
+// kingdom_export.summary); an SoS one has none and goes by the step picked (15M at first). A step picked on a kingdom
+// with its own stays with that kingdom for the visit (stepPicked)
+let ownOf = [null, new Map()]; // [the list it was read from, kingdom -> its own step]
+const ownStep = (k) => {
+  if (ownOf[0] !== state.list) ownOf = [state.list, new Map((state.list || []).filter((x) => x.minPower != null).map((x) => [x.kingdom, x.minPower]))];
+  return ownOf[1].get(k);
+};
+const stepPicked = new Map();
+const minOf = (k, step) => stepPicked.get(k) ?? ownStep(k) ?? step;
+const powerLabel = (v) => (v ? `${tr("minPower")} > ${v / 1e6}M` : `${tr("minPower")}: ${tr("allPower")}`);
 const BY_KEY = Object.fromEntries(COLUMNS.map((c) => [c.key, c]));
+// the kingdom a first visit opens on (the user, 07/11); the newest list's first when it is not crawled
+const FIRST_KINGDOM = 583;
+const firstKingdom = () => (state.list.some((x) => x.kingdom === FIRST_KINGDOM) ? FIRST_KINGDOM : state.list[0].kingdom);
 const DEFAULT_COLS = COLUMNS.filter((c) => c.def).map((c) => c.key);
 const NUMERIC = new Set(["int", "num", "pct", "date", "grade", "yesno", "kingdom", "split"]);
 const COMPARED = new Set(["int", "num", "pct"]); // shown as before / change / after while comparing
@@ -175,7 +189,7 @@ async function loadIndex() {
   if (!list.length) { showEmpty(tr("noData")); return; }
   const hp = await kvkParams(new URLSearchParams(location.hash.slice(1)));
   state.kvk = Number(hp.get("kvk")) || 0;
-  const want = Number(hp.get("k")) || store.get("kingdom", list[0].kingdom);
+  const want = Number(hp.get("k")) || store.get("kingdom", firstKingdom());
   // a page opened on another view loads no kingdom until the kingdom view is opened
   const first = hp.get("p") || (hp.get("k") ? "kingdom" : store.get("page", "kingdom"));
   if (first === "compare" || KS.pages[first]) { setPage(first); return; }
@@ -579,7 +593,7 @@ function setPage(p, quiet) {
   if (p === "compare") { KS.compare.show(); return; }
   if (KS.pages[p]) { drawDvHead(); $("dvSlot").innerHTML = ""; KS.pages[p].show(); return; }
   if (state.data) { setHash(); rowH = 0; drawn = ""; schedule(); } // the table had no size while hidden
-  else if (state.list.length) loadKingdom(store.get("kingdom", state.list[0].kingdom));
+  else if (state.list.length) loadKingdom(store.get("kingdom", firstKingdom()));
 }
 function drawDvHead() {
   $("dvTitle").textContent = tr(KS.pages[state.page].title);
@@ -613,7 +627,9 @@ function warmFonts(players) {
 }
 
 function pickRows() {
-  state.rows = state.data ? state.data.players.filter((p) => filterPower(p) > state.minPower && (!state.kOnly || state.kOnly.has(p._k))) : [];
+  state.rows = state.data ? state.data.players.filter((p) => filterPower(p) > minOf(p._k ?? state.data.kingdom, state.minPower) && (!state.kOnly || state.kOnly.has(p._k))) : [];
+  const sel = $("minPower");
+  if (sel && state.data) sel.value = minOf(state.data.kingdom, state.minPower); // the main kingdom's step
 }
 
 function fillPower() {
@@ -622,7 +638,7 @@ function fillPower() {
   for (const v of POWER_STEPS) {
     const o = document.createElement("option");
     o.value = v;
-    o.textContent = `${tr("minPower")} > ${v / 1e6}M`;
+    o.textContent = powerLabel(v);
     sel.appendChild(o);
   }
   sel.value = state.minPower;
@@ -934,8 +950,10 @@ function allianceChip(tag) {
   s.textContent = tag;
   return s;
 }
-// the tags of a player's alliance cell: two when comparing and the alliance changed
-const tagsOf = (p) => (p._was && !p._left && p._was.alliance && p._was.alliance !== p.alliance && p.alliance ? [p._was.alliance, p.alliance] : p.alliance ? [p.alliance] : []);
+// the tag of a player's alliance cell: the one now only, also when comparing (user 07/11: two stacked tags read as two
+// alliances); the one it was in before goes in the cell's title
+const tagsOf = (p) => (p.alliance ? [p.alliance] : []);
+const wasTag = (p) => (p._was && !p._left && p._was.alliance && p._was.alliance !== p.alliance ? p._was.alliance : "");
 
 // every amount has a bar under the number (colour: .b-<key> or .g-<group> in the stylesheet); its length = value / the list's largest.
 // While comparing, a figure with a change has the bar of its change, rise or fall alike (|change| / the list's largest; the badge says which)
@@ -967,7 +985,8 @@ function cellsOf(p) {
     const c = state.cols[i], v = value(c, p), s = fmt(c, v), parts = c.key === "alliance" ? null : comparedCell(c, p, v);
     if (c.key === "alliance" && v != null) {
       const tags = tagsOf(p);
-      out[i] = { text: tags.join("→"), cls: c._cls + " al-cell", title: "", plus: false, chips: tags };
+      const was = wasTag(p);
+      out[i] = { text: tags.join(""), cls: c._cls + " al-cell", title: was ? `${was} → ${tags[0] ?? "–"}` : "", plus: false, chips: tags };
       continue;
     }
     if (parts) {
@@ -1314,8 +1333,9 @@ function init() {
   let qt = 0;
   $("pq").addEventListener("input", (e) => { clearTimeout(qt); qt = setTimeout(() => { state.q = e.target.value; toTable(); refresh(); }, 120); });
   $("minPower").onchange = (e) => {
-    state.minPower = Number(e.target.value);
-    store.set("minPower", state.minPower);
+    const v = Number(e.target.value), k = state.data?.kingdom;
+    if (k != null && ownStep(k) != null) stepPicked.set(k, v); // a kingdom with its own step: for it only
+    else { state.minPower = v; store.set("minPower", v); }
     toTable();
     pickRows();
     if (state.data) refresh();
@@ -1454,7 +1474,7 @@ function keepScroll(root, draw) {
 
 // what views.js uses
 const KS = (window.KS = {
-  state, T, tr, label, $, store, fmt, compact, numFmt, getJSON, BY_KEY, NUMERIC, value, idle, POWER_STEPS, DEFAULT_POWER, filterPower,
+  state, T, tr, label, $, store, fmt, compact, numFmt, getJSON, BY_KEY, NUMERIC, value, idle, POWER_STEPS, DEFAULT_POWER, filterPower, minOf, powerLabel,
   openPicker, toggleKingdom, fitPop,
   repick: () => { pickRows(); refresh(); },
   refresh, setHash, kingdomMatches, listKeys, checkVersion, deltaOf, keepScroll, allianceChip, rankColour, dayDrop,

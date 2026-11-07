@@ -5,7 +5,7 @@
 "use strict";
 const KS = window.KS, { state, tr, $, numFmt, fitPop } = KS;
 
-Object.assign(KS.T.vi, {
+Object.assign(KS.T.vi, { rNoGen: "TBD", rSeed: "Seed", rSeedGrp: "Nhóm {n}", 
   descKingdom: "Người chơi của từng kingdom theo ngày. Bật So sánh để xem mỗi người tăng giảm bao nhiêu giữa 2 ngày.",
   descCompare: "Đối chiếu hai phe, mỗi phe gồm một hoặc nhiều kingdom, ở ngày mới nhất. + Kingdom: chọn từ các kingdom đang ghép cặp theo Seed, hoặc mọi kingdom.",
   descRank: "Xếp hạng các kingdom ở ngày mới nhất, tính người có lực chiến hiện tại trên 15M.",
@@ -23,7 +23,7 @@ Object.assign(KS.T.vi, {
   mTotal: "lượt di cư", mPeople: "người", mPage: "Trang", mPrev: "◀ Trước", mNext: "Sau ▶", mNone: "Không có lượt di cư nào khớp.", mWindow: "Còn ở kingdom cũ lúc {a}, đã ở kingdom mới lúc {b}",
   mIn: "vào", mOut: "ra", mNet: "ròng", mHint: "Lực chiến và các số khác là số mới nhất. Ngày di cư thật nằm trong khoảng hiện ở cột Thời điểm. Chỉ thấy người có trong top lực chiến ≥ 5M ở cả hai đầu.",
 });
-Object.assign(KS.T.en, {
+Object.assign(KS.T.en, { rNoGen: "TBD", rSeed: "Seed", rSeedGrp: "Group {n}", 
   descKingdom: "Each kingdom's players by day. Turn on Compare to see how much each one changed between two days.",
   descCompare: "Two sides face to face, each of one or more kingdoms, on the newest day. + Kingdom: pick from the kingdoms being paired by seed, or from all.",
   descRank: "Kingdoms ranked on the newest day, counting players above 15M power now.",
@@ -145,6 +145,8 @@ const HEAD_ICONS = new Set(["power", "merits", "kills", "deaths", "heals"]);
 // the cells shared by the tables: a name with its ID under it, a kingdom chip, a figure with its bar
 const whoCell = (name, id, k) => { const d = el("span", "who"); d.append(el("b", "", name ?? "–"), el("small", "", String(id ?? ""))); if (id && k) KS.playerLink(d, id, k, name ?? ""); return d; };
 const kdCell = (k, top) => el("span", top ? "kd top" : "kd", "#" + k);
+// the rankings' kingdom: its chip, then its seed (A-D) while it is being paired (kvk/seeds.json, loaded with the page)
+const kdSeedCell = (k, top) => { const d = el("span", "kd-s"); d.append(kdCell(k, top)); d.insertAdjacentHTML("beforeend", KS.seeds.badge(k) || '<i class="seed off" aria-hidden="true"></i>'); return d; }; // an empty seed keeps the chips in line
 const barCol = (key, label, rows) => ({ key, label: tr(label), get: (r) => r[key], max: rows.reduce((m, r) => Math.max(m, r[key] ?? 0), 0) });
 // Widths come from every row of the list (cols.all), not the ones on this page: sorting or paging never moves a column
 const NODE_W = { name: 190, kingdom: 76, from: 76, to: 76, kvk: 190, st: 156, alliance: 96, allianceFrom: 96, allianceTo: 96, topAlliance: 96, trades: 84 };
@@ -408,7 +410,7 @@ const RANK_LAST = [["helps", "cHelps"], ["gathered", "cGathered"]];
 const RANK_HIDDEN = [...RANK_LAST.map(([k]) => k), "meritInfantry", "meritCavalry", "meritArcher", "meritMagic"];
 const tradesCol = () => ({ key: "trades", label: "Trades", get: (r) => r.trades, tip: () => tr("tradesTip"), node: (r) => el("span", "tr-b", r.trades == null ? "–" : numFmt(0).format(r.trades) + "%") });
 const RANK_DEFAULT = { server: "migrationScore", member: "power", kvk: "powerMax" }; // what each ranking is sorted by when it opens
-const rank = { q: "", page: 1, sort: { key: RANK_DEFAULT.server, dir: -1 }, mode: "server", st: "", gen: "", at: 0 }; // at: the kingdom to open on
+const rank = { q: "", page: 1, sort: { key: RANK_DEFAULT.server, dir: -1 }, mode: "server", st: "", gen: "", seed: "", at: 0 }; // at: the kingdom to open on; seed: "<group>:<seed 1-4>"
 
 async function showRank() {
   const { ctl, out } = frame();
@@ -416,8 +418,8 @@ async function showRank() {
   const asked = { players: "member", kvk: "kvk" }[hp.get("m")] || "server";
   if (rank.mode !== asked) { rank.mode = asked; rank.sort = { key: RANK_DEFAULT[asked], dir: -1 }; rank.page = 1; }
   // a shared link, or from a Kingdom page: the server ranking as it opens with the link's filters, on that kingdom's line
-  if (asked === "server" && ["at", "st", "gen"].some((x) => hp.has(x)))
-    Object.assign(rank, { at: Number(hp.get("at")) || 0, q: "", st: hp.get("st") || "", gen: hp.get("gen") || "", page: 1, sort: { key: RANK_DEFAULT.server, dir: -1 } });
+  if (asked === "server" && ["at", "st", "gen", "seed"].some((x) => hp.has(x)))
+    Object.assign(rank, { at: Number(hp.get("at")) || 0, q: "", st: hp.get("st") || "", gen: hp.get("gen") || "", seed: hp.get("seed") || "", page: 1, sort: { key: RANK_DEFAULT.server, dir: -1 } });
   const redraw = () => drawRank(out);
   const restart = () => { rank.page = 1; redraw(); };
   const seg = el("nav", "rk-seg");
@@ -443,8 +445,8 @@ async function showRank() {
 // the Kingdom column of the KvK ranking: two camps a line (a map is mostly 4 camps of 2 kingdoms), as wide as twice
 // the widest camp, up to 3 kingdoms a camp: a bigger camp's kingdoms wrap inside its frame. A chip is 40px (47 with
 // 4 digits) and 3 apart, a frame 8 around them
-const chipW = (k) => (k.k > 999 ? 47 : 40) + 3;
-const CAMPS_MAX_W = 2 * (3 * 50 + 5) + 8 + 20;
+const chipW = (k) => (k.k > 999 ? 52 : 44) + 3; // "#" and the number, 13px bold
+const CAMPS_MAX_W = 2 * (3 * 55 + 5) + 8 + 20;
 const campsW = (rows) => Math.min(CAMPS_MAX_W, Math.max(0, ...rows.map((r) =>
   2 * Math.max(...KS.season.camps(r.kvk).map(([, list]) => list.slice(0, 3).reduce((x, k) => x + chipW(k), 5))) + 8 + 20)));
 const kvkCell = (b) => {
@@ -490,7 +492,7 @@ function membersFound(m, q) {
   return m.found;
 }
 async function drawMembers(out, me) {
-  const cur = await load("derived/top_players.json");
+  const [cur] = await Promise.all([load("derived/top_players.json"), KS.seeds.load()]);
   if (me !== rankToken) return;
   setLink("rank", { m: "players" });
   out.innerHTML = "";
@@ -503,7 +505,7 @@ async function drawMembers(out, me) {
   const cols = [
     { key: "#", label: "#", nosort: true, text: (r) => String(r._i), cls: () => "mut" },
     { key: "name", label: tr("cName"), left: true, w: state.narrow ? 120 : undefined, get: (r) => r.name, node: (r) => whoCell(r.name, r.id, r.kingdom) },
-    { key: "kingdom", label: tr("cKingdom"), nopin: true, get: (r) => r.kingdom, node: (r) => kdCell(r.kingdom, r._i <= 8) },
+    { key: "kingdom", label: tr("cKingdom"), nopin: true, w: 100, get: (r) => r.kingdom, node: (r) => kdSeedCell(r.kingdom, r._i <= 8) },
     { key: "alliance", label: tr("cAlliance"), get: (r) => r.alliance, node: (r) => allianceChip(r.alliance) },
     metric("powerMax", "cPowerMax"), metric("power", "cPower"), metric("merits", "cMerits"), metric("kills", "cKills"), metric("deaths", "cDeaths"), metric("heals", "cHeals"),
     metric("meritInfantry", "cInf"), metric("meritCavalry", "cCav"), metric("meritArcher", "cArc"), metric("meritMagic", "cMag"), metric("helps", "cHelps"), metric("migrationScore", "cMigration"),
@@ -541,8 +543,8 @@ async function drawKvks(out, me) {
       for (const [camp, list] of KS.season.camps(r.kvk)) {
         const box = d.appendChild(el("span", "rk-camp"));
         box.title = camp ? `${tr("kCamp")} ${camp}` : "";
-        box.append(...list.map((k) => el("span", "kd", String(k.k)))); // no "#": chipW sizes the camps for the bare number
-        box.style.gridTemplateColumns = `repeat(${Math.ceil(list.length / Math.ceil(list.length / 3))}, auto)`; // a big camp in even lines: 6 is 3 + 3
+        box.append(...list.map((k) => el("span", "kd", "#" + k.k))); // "#357" (user 07/11): chipW counts the "#"
+        box.style.gridTemplateColumns = `repeat(${Math.ceil(list.length / Math.ceil(list.length / 3))}, auto)`; // even lines: 4 is 2 + 2, 6 is 3 + 3
       }
       if (r.have < r.kvk.kingdoms.length) d.append(el("small", "mut", `${r.have}/${r.kvk.kingdoms.length}`));
       return d;
@@ -561,57 +563,106 @@ async function drawKvks(out, me) {
 }
 
 let rankToken = 0;
+// a gen's name and place: Gen 1-4, then SoS1 (a lone SoS1 map), KvK3, KvK2, KvK1 (not at SoS yet): kvk_export.gen_of;
+// "-" (in none of them) last, TBD
+const genName = (g) => (g === "-" ? tr("rNoGen") : typeof g === "string" ? g : `${tr("cGen")} ${g}`);
+const genOrder = (g) => (typeof g === "number" ? g : { SoS1: 10, KvK3: 11, KvK2: 12, KvK1: 13 }[g] ?? 20);
+document.addEventListener("click", (e) => {
+  if (!e.target.closest?.(".rk-filter")) document.querySelectorAll(".rk-filter.open").forEach((x) => x.classList.remove("open"));
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") document.querySelectorAll(".rk-filter.open").forEach((x) => x.classList.remove("open"));
+});
 async function drawRank(out) {
   const me = ++rankToken;
   if (rank.mode === "member") return drawMembers(out, me);
   if (rank.mode === "kvk") return drawKvks(out, me);
-  const [cur, kvk] = await Promise.all([load("derived/rollup.json"), KS.season.list()]);
+  const [cur, kvk] = await Promise.all([load("derived/rollup.json"), KS.season.list(), KS.seeds.load()]);
   if (me !== rankToken) return;
-  setLink("rank", { st: rank.st, gen: rank.gen }); // the filters picked: the link shares them
+  setLink("rank", { st: rank.st, gen: rank.gen, seed: rank.seed }); // the filters picked: the link shares them
   out.innerHTML = "";
   if (!cur) { out.appendChild(el("p", "hint", tr("noDerived"))); return; }
-  let rows = objects(cur.kingdomCols, cur.kingdoms);
-  rows.forEach((r) => { r.kvk = KS.season.of(kvk, r.kingdom); r.st = kvk?.servers?.[r.kingdom]?.[1]; r.stf = KS.season.filterOf(r.st); r.gen = kvk?.genOf?.[r.kingdom]; });
+  let rows = objects(cur.cols, cur.rows);
+  rows.forEach((r) => { r.kvk = KS.season.of(kvk, r.kingdom); r.st = KS.season.statusOf(kvk, r.kingdom); r.stf = KS.season.filterOf(r.st); r.gen = kvk?.genOf?.[r.kingdom] ?? "-"; const s = KS.seeds.at(r.kingdom); r.seed = s ? `${s[1] + 1}:${s[0]}` : ""; }); // "-": in no gen group (TBD)
   const all = rows; // before any filter: the columns keep their width
   const counts = new Map();
   rows.forEach((r) => { if (r.stf != null) counts.set(r.stf, (counts.get(r.stf) || 0) + 1); }); // a filter per status that has one
   if (rank.st && !counts.has(Number(rank.st))) rank.st = "";
-  // the two filters, a line each: a name, then its buttons (All, then each value with its colour dot and count)
-  const filterLine = (name) => { const line = el("div", "rk-filter"), nav = el("nav", "rk-pills"); line.append(el("span", "rk-filter-l", name), nav); return line; };
-  const pills = filterLine(tr("rStatus")), genPills = filterLine(tr("cGen"));
-  // a filter button: `prop` of `rank` set to `v`; data-st / data-gen give the dot its colour
+  // the filters, a line each: a name, then its buttons (All, then each value with its colour dot and count). Status on
+  // its own line, Gen and Seed side by side under it, a dropdown each at every width (user 07/11); a phone folds Status
+  // too. A dropdown: one button with the value picked; a click opens its list (the one picked ticked), a pick draws the
+  // page again (closed)
+  const filterLine = (name, cls) => {
+    const line = el("div", "rk-filter " + cls), nav = el("nav", "rk-pills"), dd = el("button", "rk-dd"), wrap = el("div", "rk-dd-w");
+    dd.type = "button";
+    dd.setAttribute("aria-expanded", "false");
+    dd.onclick = () => {
+      document.querySelectorAll(".rk-filter.open").forEach((x) => x !== line && x.classList.remove("open"));
+      dd.setAttribute("aria-expanded", String(line.classList.toggle("open")));
+    };
+    wrap.append(dd, nav);
+    line.append(el("span", "rk-filter-l", name), wrap);
+    return line;
+  };
+  // the button's face: the picked value's name and count
+  // (only its own filter's data-*: an empty data-seed on Gen's button made it the "All" accent, user 07/11)
+  const face = (line, prop) => {
+    const on = line.querySelector('.rk-pills [aria-pressed="true"]'), dd = line.querySelector(".rk-dd");
+    if (on) {
+      dd.replaceChildren(...[...on.childNodes].map((x) => x.cloneNode(true)), el("i", "rk-chev"));
+      dd.dataset[prop] = on.dataset[prop] ?? "";
+    }
+  };
+  const pills = filterLine(tr("rStatus"), "rk-f-st"), genPills = filterLine(tr("cGen"), "rk-f-gen"), seedPills = filterLine(tr("rSeed"), "rk-f-seed");
+  // a filter button: `prop` of `rank` set to `v`; data-st / data-gen give the dot its colour (a seed shows its letter)
   const pill = (line, prop, v, name, n) => {
     const b = el("button");
     b.type = "button";
-    if (v !== "") { b.dataset[prop] = v; b.appendChild(el("i", "rk-dot")); }
+    if (v !== "") { b.dataset[prop] = v; if (prop !== "seed") b.appendChild(el("i", "rk-dot")); }
     b.append(name, el("small", "", numFmt().format(n)));
     b.setAttribute("aria-pressed", String(String(rank[prop]) === String(v)));
     b.onclick = () => { rank[prop] = v; rank.page = 1; drawRank(out); };
-    line.lastChild.appendChild(b);
+    line.querySelector(".rk-pills").appendChild(b);
   };
   pill(pills, "st", "", tr("kAll"), rows.length);
   [...counts.entries()].sort((a, b) => b[1] - a[1]).forEach(([st, n]) => pill(pills, "st", st, KS.season.status(st), n));
   if (rank.st !== "") rows = rows.filter((r) => String(r.stf) === String(rank.st));
   // the SoS generation, counted within the status picked
   const gens = new Map();
-  rows.forEach((r) => { if (r.gen) gens.set(r.gen, (gens.get(r.gen) || 0) + 1); });
-  if (rank.gen && !gens.has(Number(rank.gen))) rank.gen = "";
+  rows.forEach((r) => { if (r.gen != null) gens.set(r.gen, (gens.get(r.gen) || 0) + 1); });
+  if (rank.gen !== "" && ![...gens.keys()].some((g) => String(g) === String(rank.gen))) rank.gen = "";
   if (gens.size) {
     pill(genPills, "gen", "", tr("kAll"), rows.length);
-    [...gens.entries()].sort((a, b) => a[0] - b[0]).forEach(([g, n]) => pill(genPills, "gen", g, `${tr("cGen")} ${g}`, n));
+    [...gens.entries()].sort((a, b) => genOrder(a[0]) - genOrder(b[0])).forEach(([g, n]) => pill(genPills, "gen", g, genName(g), n));
   }
   if (rank.gen !== "") rows = rows.filter((r) => String(r.gen) === String(rank.gen));
+  // the seed (A-D) of a kingdom being paired, by its pairing group (each group has its own A-D), counted within the
+  // filters above; a Kingdom page's pairing block opens its seed chips here (#p=rank&seed=<group>:<seed>)
+  const seeds = new Map(), nGroups = new Set(rows.map((r) => r.seed.split(":")[0]).filter(Boolean)).size;
+  rows.forEach((r) => { if (r.seed) seeds.set(r.seed, (seeds.get(r.seed) || 0) + 1); });
+  if (rank.seed !== "" && !seeds.has(rank.seed)) rank.seed = "";
+  if (seeds.size) {
+    pill(seedPills, "seed", "", tr("kAll"), rows.length);
+    [...seeds.entries()].sort((a, b) => (a[0] < b[0] ? -1 : 1)).forEach(([v, n]) => {
+      const [g, s] = v.split(":"), name = el("span", "rk-seed");
+      name.innerHTML = `<i class="seed s${s}">${"ABCD"[s - 1]}</i>`;
+      if (nGroups > 1) name.append(tr("rSeedGrp").replace("{n}", g));
+      pill(seedPills, "seed", v, name, n);
+    });
+  }
+  if (rank.seed !== "") rows = rows.filter((r) => r.seed === rank.seed);
+  face(pills, "st"); face(genPills, "gen"); face(seedPills, "seed");
   const q = rank.q.toLowerCase(), kq = /^#?(\d+)$/.exec(q)?.[1];
   if (q) rows = rows.filter((r) => (kq && String(r.kingdom).startsWith(kq)) || String(r.topAlliance).toLowerCase().includes(q));
   const metricCol = ([key, label]) => ({ key, label: tr(label), get: (r) => r[key], max: rows.reduce((m, r) => Math.max(m, r[key] ?? 0), 0) });
   const cols = [
     { key: "#", label: "#", nosort: true, text: (r) => String(r._i), cls: () => "mut" },
-    { key: "kingdom", label: tr("cKingdom"), get: (r) => r.kingdom, node: (r) => kdCell(r.kingdom, r._i <= 8) },
+    { key: "kingdom", label: tr("cKingdom"), w: 100, get: (r) => r.kingdom, node: (r) => kdSeedCell(r.kingdom, r._i <= 8) },
     { key: "topAlliance", label: tr("cTopAlliance"), get: (r) => r.topAlliance, node: (r) => allianceChip(r.topAlliance) }, // its top alliance
     // no KvK column when none of the kingdoms listed is in one (a filter on the ones being paired, say)
     ...(rows.some((r) => r.kvk) ? [{ key: "kvk", label: "KvK", get: (r) => r.kvk?.name ?? "", node: (r) => kvkCell(r.kvk) }] : []),
     { key: "st", label: tr("rStatus"), w: statusW(all), get: (r) => r.st ?? -1, node: (r) => statusCell(r.st) },
-    { key: "gen", label: tr("cGen"), w: 60, get: (r) => r.gen ?? 0, node: (r) => { if (!r.gen) return el("span", "mut", "–"); const g = el("span", "rk-gen", String(r.gen)); g.dataset.gen = r.gen; return g; } },
+    { key: "gen", label: tr("cGen"), w: 92, get: (r) => (r.gen === "-" ? -99 : genOrder(r.gen) > 9 ? -genOrder(r.gen) : r.gen), node: (r) => { const g = el("span", "rk-gen", genName(r.gen)); g.dataset.gen = r.gen; return g; } },
     ...RANK_METRICS.slice(0, 4).map(metricCol), // the migration score and its bands
     { key: "players", label: tr("cPlayers"), get: (r) => r.players, text: (r) => numFmt().format(r.players) },
     ...RANK_METRICS.slice(4).map(metricCol),
@@ -625,8 +676,10 @@ async function drawRank(out) {
   const at = rows.findIndex((r) => r.kingdom === rank.at), size = pageSize();
   if (at >= 0 && size) rank.page = Math.floor(at / size) + 1;
   const shown = onPage(rows, rank.page, bigSize());
-  out.appendChild(pills);
-  if (gens.size) out.appendChild(genPills);
+  const filters = out.appendChild(el("div", "rk-filters")), under = el("div", "rk-filters-row");
+  filters.append(pills, under);
+  if (gens.size) under.appendChild(genPills);
+  if (seeds.size) under.appendChild(seedPills);
   // a new id: the hidden columns kept under "servers" were saved before helps and gathered were hidden at first
   const view = tableBar(out, { id: "rankServers", title: tr("rServers"), meta: `${numFmt().format(rows.length)} kingdom`, cols, holder: rank, prop: "sort", hideFirst: RANK_HIDDEN, redraw: () => KS.keepScroll($("dv"), () => drawRank(out)) });
   view.all = rows;

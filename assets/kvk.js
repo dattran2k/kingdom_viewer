@@ -8,7 +8,7 @@ const { el, num, load, objects, table, sortRows, nextSort, searchBox, fmtBtn, pa
 Object.assign(KS.T.vi, {
   navKvk: "KvK", descKvk: "Các KvK đang diễn ra theo mùa. Bấm Chi tiết KvK để xem phe, kingdom và người chơi từ lúc mở.",
   kNotOpen: "KvK này chưa mở nên chưa có số liệu. Dưới đây là các phe và lực chiến hiện tại của người chơi.", cName: "Tên", cAlliance: "Liên minh", rServers: "Xếp hạng server", rMembers: "Xếp hạng người chơi", rKvks: "Xếp hạng KvK", kSeeAll: "Xếp hạng KvK", kRankOf: "/ {n} KvK", kRankTip: "Xếp theo tổng lực chiến max của người chơi có lực chiến hiện tại trên 15M trong KvK", rStatus: "Trạng thái", rSearchP: "Tên, ID, liên minh, #kingdom...", rMembersHint: "{n} người chơi (top {top} mỗi chỉ số, trong {all} người) ", kAll: "Tất cả", kS2: "Mùa Giải 2", kS3: "Mùa Giải 3", kSos: "Mùa Giải Xung Đột", kSearch: "Kingdom hoặc mã KvK...", kTime: "Thời gian", kHit: "khớp tìm kiếm", kFightsTip: "{n} trận đang diễn ra", kOpenWar: "Mở Lịch sử chiến sự", kvkNone: "Không có KvK nào khớp.", kNoData: "Chưa có dữ liệu KvK.",
-  kLive: "Đang diễn ra", kSoon: "Sắp mở", kDayLeft: "còn {n} ngày", kOpenIn: "mở sau {n} ngày", kCamp: "Phe", kOpen: "Chi tiết KvK", kRunning: "Đang diễn ra", kKds: "KD", kBack: "← Danh sách KvK",
+  kLive: "Đang diễn ra", kSoon: "Sắp mở", kEnded: "Đã kết thúc", kNow: "Hiện tại", kHist: "Lịch sử", kHistNone: "Chưa có KvK nào kết thúc.", kDayLeft: "còn {n} ngày", kOpenIn: "mở sau {n} ngày", kCamp: "Phe", kOpen: "Chi tiết KvK", kRunning: "Đang diễn ra", kKds: "KD", kBack: "← Danh sách KvK",
   kCamps: "Xếp hạng KvK", kRankPlayers: "Xếp hạng người chơi", kByCamp: "Theo phe", kByKingdom: "Theo kingdom", kGroupBy: "Gộp theo", kNotFound: "Không tìm thấy KvK này. Có thể link đã cũ.", kShowCols: "Chỉ số", kView: "Hiển thị", kExport: "Xuất CSV", kShow: "Hiện", kPerPage: "mỗi trang", kGo: "Trang", kShowing: "Hiện {a}–{b} / {n}", kOtherNote: "{n}/{m} kingdom ở khu vực khác: chỉ có lực chiến và công trạng của người chơi lọt top {top} toàn map.", kOther: "khu vực khác", kOtherTip: "Kingdom ở khu vực khác: chỉ có số của người chơi lọt top toàn map.",
   kPending: "Chưa có số liệu.", kSeeSame: "Kingdom cùng trạng thái →",  kAllCamps: "Mọi phe", kAllKingdoms: "Mọi kingdom",
   kProgress: "Tiến độ KvK", kInfo: "Thông tin KvK", kTopPlayers: "Top người chơi", kTopHint: "{n} người chơi của #{k} có công trạng cao nhất từ lúc KvK mở", kMore: "Chi tiết KvK",
@@ -25,7 +25,7 @@ Object.assign(KS.T.vi, {
 Object.assign(KS.T.en, {
   navKvk: "KvK", descKvk: "The running KvKs by season. Open KvK details for its camps, kingdoms and players since it opened.",
   kNotOpen: "This KvK has not opened yet, so it has no numbers. These are its camps, and the players as they are now.", cName: "Name", cAlliance: "Alliance", rServers: "Server ranking", rMembers: "Players ranking", rKvks: "KvK ranking", kSeeAll: "See all KvKs", kRankOf: "/ {n} KvKs", kRankTip: "By the total max power of the KvK's players above 15M power now", rStatus: "Status", rSearchP: "Name, ID, alliance, #kingdom...", rMembersHint: "{n} players (top {top} of each metric, out of {all}) ", kAll: "All", kS2: "Season 2", kS3: "Season 3", kSos: "Season of Strife", kSearch: "Kingdom or KvK code...", kTime: "Time", kHit: "matches the search", kFightsTip: "{n} fights going on", kOpenWar: "Open the War history", kvkNone: "No KvK matches.", kNoData: "No KvK data yet.",
-  kLive: "Running", kSoon: "Upcoming", kDayLeft: "{n} days left", kOpenIn: "opens in {n} days", kCamp: "Camp", kOpen: "KvK details", kRunning: "Running", kKds: "KD", kBack: "← All KvKs",
+  kLive: "Running", kSoon: "Upcoming", kEnded: "Over", kNow: "Current", kHist: "History", kHistNone: "No KvK has ended yet.", kDayLeft: "{n} days left", kOpenIn: "opens in {n} days", kCamp: "Camp", kOpen: "KvK details", kRunning: "Running", kKds: "KD", kBack: "← All KvKs",
   kCamps: "KvK ranking", kRankPlayers: "Players ranking", kByCamp: "By camp", kByKingdom: "By kingdom", kGroupBy: "Group by", kNotFound: "This KvK was not found. The link may be old.", kShowCols: "Metrics", kView: "View", kExport: "Export CSV", kShow: "Show", kPerPage: "per page", kGo: "Page", kShowing: "Showing {a}–{b} of {n}", kOtherNote: "{n} of {m} kingdoms are in another region: only the power and merits of players in the map's top {top}.", kOther: "other region", kOtherTip: "A kingdom of another region: numbers of the players in the map's top only.",
   kPending: "No numbers yet.", kSeeSame: "Same status →",  kAllCamps: "All camps", kAllKingdoms: "All kingdoms",
   kProgress: "KvK progress", kInfo: "KvK info", kTopPlayers: "Top players", kTopHint: "The {n} players of #{k} with the most merits since the KvK opened", kMore: "See the KvK details",
@@ -42,10 +42,15 @@ Object.assign(KS.T.en, {
 
 const GROUPS = [["S2", "kS2"], ["S3", "kS3"], ["SoS", "kSos"]]; // Season 1 is no KvK: each kingdom is its own map
 const groupLabel = (g) => tr(GROUPS.find((x) => x[0] === g)?.[1] ?? g);
+// the KvK page's tabs (the user, 07/11): KvK1 (Season 1: each kingdom its own map), KvK2, KvK3, SoS1, then every Season
+// of Strife (SoS1 too: season 1001, the first SoS)
+const KVK_TABS = [["S1", "KvK1", (b) => b.group === "S1"], ["S2", "KvK2", (b) => b.group === "S2"], ["S3", "KvK3", (b) => b.group === "S3"],
+  ["SoS1", "SoS1", (b) => b.seasonName === "SoS1"], ["SoS", null, (b) => b.group === "SoS"]];
+const inTab = (g, b) => !g || !!KVK_TABS.find((x) => x[0] === g)?.[2](b);
 const DAY = 86400;
 const when = (s) => new Date(s * 1000).toISOString().slice(5, 10).split("-").reverse().join("/");
 const nowSec = () => Date.now() / 1000;
-const page = { group: "", q: "", battle: 0, camp: 0, kingdom: 0, pq: "", p: 1, sort: { key: "merits", dir: -1 }, kSort: { key: "merits", dir: -1 }, lSort: { key: "open", dir: -1 }, lp: 1, opened: new Set(), grouped: true, open: new Set(),
+const page = { hist: false, group: "", q: "", battle: 0, camp: 0, kingdom: 0, pq: "", p: 1, sort: { key: "merits", dir: -1 }, kSort: { key: "merits", dir: -1 }, lSort: { key: "open", dir: -1 }, lp: 1, opened: new Set(), grouped: true, open: new Set(),
   topSort: { key: "merits", dir: -1 }, tab: "ov", wq: "", wp: 1, wf: "all", wk: null, wSort: { key: "start", dir: -1 }, wOpen: new Set(), tq: "", tp: 1, tk: null, tSort: { key: "trade", dir: -1 } };
 const tradesCell = (r) => el("span", "tr-b", r.trades == null ? "–" : numFmt(0).format(r.trades) + "%");
 
@@ -60,13 +65,34 @@ const SEASON_TITLE = {
 const label = (o) => o[state.lang] ?? o.vi;
 const seasonTitle = (id) => (SEASON_TITLE[id] ? label(SEASON_TITLE[id]) : "");
 // what a kingdom is doing: SeasonData.SeasonStatusType of the game
+// 113 -> 111 -> 115 -> 120: the steps of the game's Season screen (Register, Seeding, Pairing, Brink of War), our own words;
+// 111 (Seeding) is shown as Pairing (user 07/11: one step, seed or not)
 const STATUS = { 1: { vi: "Mùa 1", en: "Season 1" }, 103: { vi: "Sắp tổng kết", en: "Settling soon" }, 110: { vi: "Chuẩn bị chiến tranh", en: "War prep" },
-  111: { vi: "Đang ghép cặp", en: "Pairing" }, 113: { vi: "Đăng ký mùa mới", en: "Registering" }, 115: { vi: "Đang ghép trận", en: "Matching" }, 120: { vi: "Đã ghép trận", en: "Matched" },
-  125: { vi: "Đang trong mùa giải", en: "In season" }, 130: { vi: "KvK đã kết thúc", en: "KvK ended" } };
+  113: { vi: "Đăng ký mùa mới", en: "Registering" }, 115: { vi: "Ghép cặp", en: "Pairing" }, 120: { vi: "Đã ghép trận", en: "Matched" },
+  125: { vi: "Đang trong mùa giải", en: "In season" }, 130: { vi: "Đang trong mùa giải", en: "In season" },
+  131: { vi: "KvK đã kết thúc", en: "KvK over" } }; // 131: no game status, 130 past its KvK's end day (statusOf)
 const statusName = (st) => (STATUS[st] ? label(STATUS[st]) : "");
+// a kingdom's status as shown: the game's (index servers), but at 115 one of an SoS wave with no seed (not in the
+// Seeding, as #352) is Registering: the whole wave goes to 115 on the pairing day, seeded or not. A Season 2 / 3 kingdom
+// has no Seeding: its 115 is its pairing (#985). Needs KS.seeds loaded (rankings, kingdom)
+// The data can be days old (a crawl not run yet): a seeded kingdom (or one at 111) goes on with the season screen's
+// dates, UTC (seeds.json times): Matched from the match day; never back to a step before its own. 111 is Pairing
+const statusOf = (idx, k) => {
+  const [season, st] = idx?.servers?.[k] ?? [];
+  // its KvK's map in its Summary (130, KvkSettled) is still In season (user 07/11: no status of its own); past the KvK's
+  // end day: over (131)
+  const kb = (st === 125 || st === 130) && idx.kvkOf?.[k] != null ? idx.battles?.find((b) => b.id === idx.kvkOf[k]) : null;
+  if (kb?.settled || st === 130) return kb?.end && nowSec() >= kb.end ? 131 : 125;
+  if (season > 1000 && KS.seeds.loaded() && [111, 113, 115].includes(st)) {
+    if (!KS.seeds.has(k) && st !== 111) return 113;
+    const t = KS.seeds.times(k);
+    if (t?.match && Date.now() / 1000 >= t.match) return 120;
+  }
+  return st === 111 ? 115 : st;
+};
 // the ranking's status filter of a status: In KvK is Season 2 on (Season 1 is no KvK, the user 03/11); Season 1, settling
 // soon and matched have no filter of their own
-const filterOf = (st) => ([125, 111, 113, 110].includes(st) ? st : null);
+const filterOf = (st) => ([125, 131, 120, 115, 113, 110].includes(st) ? st : null); // 115: from 07/11, every kingdom of the next wave
 function setArt(node, season) {
   const url = (path) => `url("${new URL(path, document.baseURI).href}")`; // absolute: a var() in the stylesheet would resolve against assets/
   node.classList.add("has-art");
@@ -105,7 +131,7 @@ function progress(b, big = false, rows = big ? 2 : 1, milestones = true) {
   const top = el("div", "kv-prog-h"), t = el("span", "");
   t.append(el("b", "", tr("kProgress")), el("span", "mut", ` ${numFmt(0).format(pct)}%`));
   const left = Math.ceil((b.end - now) / DAY);
-  top.append(t, el("span", "mut", tr("kDayLeft").replace("{n}", left)));
+  top.append(t, el("span", "mut", left <= 0 ? tr("kEnded") : tr("kDayLeft").replace("{n}", left)));
   const mid = b.open + Math.round((b.end - b.open) / 2 / DAY) * DAY;
   const lines2 = (rows === 2 ? [[b.open, mid], [mid, b.end]] : [[b.open, b.end]]).map(([from, to]) => {
     const track = el("div", "kv-track"), bar = track.appendChild(el("div", "kv-prog"));
@@ -128,9 +154,13 @@ function progress(b, big = false, rows = big ? 2 : 1, milestones = true) {
   if (milestones) top.lastChild.textContent = `${pctText} · ${top.lastChild.textContent}`;
   else top.lastChild.remove();
   t.style.visibility = "hidden"; // shown once with its phase: the progress text does not move when the file comes
+  // the Kingdom page (user 07/11, as the pairing block's steps): what is left over the now mark on the top line, each
+  // phase with its day on a line under the bar
+  const below = milestones ? null : el("div", "kv-prog-h kv-at kv-below");
+  if (below) { top.classList.add("kv-at-top"); below.appendChild(legend); below.style.visibility = "hidden"; }
   load(`kvk/progress/${src}.json?v=${read}.6`).then((d) => { if (d) marks(b, b.progress ? d : moved(d, b, srcName, same), lines2, legend, milestones); })
-    .finally(() => { t.style.visibility = ""; });
-  return milestones ? [top, ...lines] : [top, ...lines2.map((r) => r.track)];
+    .finally(() => { t.style.visibility = ""; if (below) below.style.visibility = ""; });
+  return milestones ? [top, ...lines] : [top, ...lines2.map((r) => r.track), below];
 }
 
 // the game's Season screen (LC_SEASON_MAINPAGE_PROGRESS1..4) and what its milestones open
@@ -160,7 +190,7 @@ function moved(d, b, name, same = true) {
 const ROMAN = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII"];
 function marks(b, d, rows, legend, milestones = true) {
   const exact = !d.estFrom, at2 = (s) => (exact ? utcTime(s) + " UTC" : when(s)); // a time when read, a day when estimated
-  const now = nowSec(), ph = d.phases || [b.open, 0, 0, b.end];
+  const ph = d.phases || [b.open, 0, 0, b.end], now = nowSec();
   rows.at(-1).to = ph[3] || b.end;
   if (ph[1]) {
     const at = ph.findIndex((s, i) => i < 3 && now >= s && now < ph[i + 1]);
@@ -170,10 +200,18 @@ function marks(b, d, rows, legend, milestones = true) {
       const left = exact ? lasted(ph[i + 1] - now) : tr("kDayLeft").replace("{n}", Math.ceil((ph[i + 1] - now) / DAY)).replace(/^còn /, "~");
       const note = i === at ? (exact ? tr("kPhLeft").replace("{t}", left) : left) : now < ph[i] ? tr("kPhFrom").replace("{d}", when(ph[i])) : "";
       if (note && milestones) item.append(el("span", "", "· " + note));
+      // the Kingdom page: each phase at its start on the bar, its day, the one going on with what is left of it (the
+      // pairing block's steps, user 07/11), on the line the names had (the block keeps its height)
+      if (!milestones) {
+        item.append(el("small", "kv-ph-d", when(ph[i])));
+        if (i === at) { item.dataset.left = tr("kPhLeft").replace("{t}", left); item.append(el("span", "kv-ph-in", "· " + item.dataset.left)); }
+        item.dataset.at = (ph[i] - rows[0].from) / (rows[0].to - rows[0].from);
+      }
       item.title = `${label(PHASES[i])}: ${at2(ph[i])} – ${at2(ph[i + 1])}` + (exact ? "" : ` · ${tr("kMkEst")}`);
       return item;
     }));
   }
+  if (!milestones && ph[1]) placePhases(legend, (now - rows[0].from) / (rows[0].to - rows[0].from), now >= (ph[3] || b.end) ? tr("kEnded") : "");
   rows.forEach((r, i) => row(r, i === rows.length - 1));
   // one row of the bar, from..to: its stretch of each phase, the milestones in it (the last row keeps the end's own)
   function row({ track, from, to }, last) {
@@ -294,7 +332,7 @@ function mkPop(mk, g, d) {
 // history it opens it. Only while a fight is going on (kvk/index.json liveWars, as of the last War history crawl): a
 // KvK that is running but quiet has none. Not an <a>: on the Rankings page it sits inside the KvK's own link
 function battleTag(b) {
-  if (!b?.live || !b.liveWars) return null;
+  if (!b?.live || b.settled || !b.liveWars) return null; // Summary: no fight goes on
   const t = el("span", "battle-tag go", "Battle");
   t.setAttribute("role", "link");
   t.tabIndex = 0;
@@ -359,8 +397,9 @@ function card(b) {
     a.appendChild(bar);
   }
   const state_ = el("div", "kv-state");
-  state_.append(el("i", b.live ? "" : "soon"), el("b", "", tr(b.live ? "kRunning" : "kSoon")));
-  if ((b.live && b.end) || !b.live) state_.append(el("span", "mut", "· " + tr(b.live ? "kDayLeft" : "kOpenIn").replace("{n}", left)));
+  const over = b.end && now >= b.end;
+  state_.append(el("i", over ? "over" : b.live ? "" : "soon"), el("b", "", over ? tr("kEnded") : tr(b.live ? "kRunning" : "kSoon")));
+  if (!over && ((b.live && b.end) || !b.live)) state_.append(el("span", "mut", "· " + tr(b.live ? "kDayLeft" : "kOpenIn").replace("{n}", left)));
   a.appendChild(state_);
   const camps = el("div", b.kingdoms.some((k) => k.camp) ? "kv-camps" : "kv-camps one");
   for (const [camp, list] of campsOf(b)) {
@@ -388,20 +427,33 @@ function card(b) {
   a.appendChild(open);
   return a;
 }
+// a KvK past its end goes under History (user 07/11), listed by the game still or not (kvk_export: history)
+const isOver = (b) => !!b.history || (!!b.end && nowSec() >= b.end);
 async function showList() {
   const { ctl, out } = frame();
   const all = await load("kvk/index.json");
   if (!all) { out.appendChild(el("p", "hint", tr("kNoData"))); return; }
-  const data = { ...all, battles: all.battles.filter((b) => b.group !== "S1") };
-  if (!GROUPS.some(([k]) => k === page.group)) page.group = "";
+  // Current / History, on the right of the search: the list below is one or the other
+  const seg = el("nav", "rk-seg kv-hist");
+  for (const [h, label] of [[false, "kNow"], [true, "kHist"]]) {
+    const b = el("button", "", tr(label));
+    b.type = "button";
+    b.setAttribute("aria-pressed", String(page.hist === h));
+    b.append(" ", el("small", "", String(all.battles.filter((x) => isOver(x) === h).length)));
+    b.onclick = () => { if (page.hist === h) return; page.hist = h; page.lp = 1; showList(); };
+    seg.appendChild(b);
+  }
+  const data = { ...all, battles: all.battles.filter((b) => isOver(b) === page.hist) };
+  if (!KVK_TABS.some(([k]) => k === page.group)) page.group = "";
   const tabs = el("nav", "kv-pills");
-  const count = (g) => data.battles.filter((b) => !g || b.group === g).length;
+  const count = (g) => data.battles.filter((b) => inTab(g, b)).length;
   const draw = () => drawList(out, data);
   const press = () => tabs.querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x.dataset.g === page.group)));
-  for (const [g, label] of [["", tr("kAll")], ...GROUPS.map(([k]) => [k, groupLabel(k)])]) {
+  for (const [g, label] of [["", tr("kAll")], ...KVK_TABS.map(([k, name]) => [k, name ?? groupLabel(k)])]) {
     const n = el("button");
     n.append(label + " ", el("small", "", String(count(g))));
     n.type = "button"; n.dataset.g = g;
+    n.disabled = !!g && !count(g); // no KvK of it now (KvK3 on 07/11)
     n.onclick = () => { page.group = g; page.lp = 1; press(); draw(); };
     tabs.appendChild(n);
   }
@@ -410,8 +462,9 @@ async function showList() {
   find.innerHTML = '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M10.5 10.5 14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
   find.appendChild(q);
   ctl.classList.add("kv-ctl");
-  $("dvSlot").appendChild(find);
-  ctl.append(tabs, fmtBtn(draw));
+  // a phone: the head has room for the search only, the switch takes the first line of the controls
+  $("dvSlot").append(find, ...(state.narrow ? [] : [seg]));
+  ctl.append(...(state.narrow ? [seg] : []), tabs, fmtBtn(draw));
   press();
   draw();
 }
@@ -423,13 +476,13 @@ function centerCard(c) {
   page_.scrollTo({ top: page_.scrollTop + r.top - box.top - (page_.clientHeight - r.height) / 2, behavior: "smooth" });
 }
 function drawList(out, data) {
-  setLink("kvk", { g: page.group });
+  setLink("kvk", { g: page.group, h: page.hist ? 1 : "" });
   out.innerHTML = "";
   const kq = page.q.replace("#", "").trim().toLowerCase();
   hitQ = kq;
-  const rows = data.battles.filter((b) => (!page.group || b.group === page.group)
+  const rows = data.battles.filter((b) => inTab(page.group, b)
     && (!kq || b.kingdoms.some((k) => String(k.k).startsWith(kq)) || b.name.toLowerCase().includes(kq)));
-  if (!rows.length) { out.appendChild(el("p", "hint mut", tr("kvkNone"))); return; }
+  if (!rows.length) { out.appendChild(el("p", "hint mut", tr(page.hist && !data.battles.length ? "kHistNone" : "kvkNone"))); return; }
   const seasons = new Map();
   for (const b of rows) { if (!seasons.has(b.seasonName)) seasons.set(b.seasonName, []); seasons.get(b.seasonName).push(b); }
   for (const [name, list] of seasons) {
@@ -574,19 +627,29 @@ function drawFilter(b) {
 
 const clearArt = (node) => { node.classList.remove("has-art", "art-wide"); node.style.removeProperty("--art"); node.style.removeProperty("--art-blur"); node.style.removeProperty("--art-mid"); node.style.removeProperty("--ar"); };
 const battleOf = (idx, k) => idx?.battles.find((x) => x.id === idx.kvkOf[k]);
-KS.season = { battleTag, of: battleOf, filterOf, camps: campsOf, title: seasonTitle, status: statusName, dates, progress, list: () => load("kvk/index.json"), art: (node, season) => { clearArt(node); setArt(node, season); } };
+KS.season = { battleTag, of: battleOf, filterOf, statusOf, camps: campsOf, title: seasonTitle, status: statusName, dates, progress, list: () => load("kvk/index.json"), art: (node, season) => { clearArt(node); setArt(node, season); } };
 KS.onKingdomShown = async (k) => {
   // the kingdom's status; a click on it opens the ranking of every kingdom with the same status, on this one's line
   // (a status the ranking has no filter for is only text)
   let chip = $("kStatus");
   if (!chip) { chip = el("a", "k-status"); chip.id = "kStatus"; chip.hidden = true; $("cmpTags").appendChild(chip); }
-  const seen = await load("kvk/index.json"), st = seen?.servers?.[k]?.[1];
+  const seen = await load("kvk/index.json");
+  await KS.seeds.load();
+  const st = statusOf(seen, k);
   const all = state.comparing ? [state.mainK, ...state.also] : [k];
   chip.hidden = !statusName(st) || all.some((x) => seen?.kvkOf[x] !== seen?.kvkOf[k]); // kingdoms apart: no one status for them
   chip.textContent = statusName(st);
   chip.dataset.st = st ?? "";
   if (filterOf(st) == null) { chip.removeAttribute("href"); chip.removeAttribute("title"); }
   else { chip.href = `#p=rank&st=${filterOf(st)}&at=${k}`; chip.title = tr("kSeeSame").replace(/\s*→$/, ""); }
+  // its seed (A-D) while it is being paired, after the number, before the status; one kingdom only
+  let seed = $("kSeed");
+  if (!seed) { seed = el("span", "k-seed"); seed.id = "kSeed"; seed.hidden = true; }
+  chip.before(seed);
+  const sd = all.length === 1 ? await KS.seeds.of(k) : 0;
+  seed.hidden = !sd;
+  seed.dataset.s = sd || "";
+  seed.textContent = sd ? "Seed " + "ABCD"[sd - 1] : "";
   const box = $("kCamps"), idx = await load("kvk/index.json");
   const ks = state.comparing ? [state.mainK, ...state.also] : [k];
   // kingdoms apart have no camps to share: shown only when all of them are in the one KvK
@@ -696,6 +759,35 @@ function drawTop(box, list) {
   box.appendChild(table(cols, rows, page.topSort, (k) => { page.topSort = nextSort(page.topSort, k); drawTop(box, list); }, (r) => { location.hash = "k=" + r.k; }));
 }
 
+// the Kingdom page's phases under the bar, each where it starts: pushed right off the one before and back left off the
+// one after or the end; no room (a phone): first the days of the phases not going on go, then every day, then the names
+// of the phases not going on (their dot stays, its title says it); only then the line wraps. Over the bar, what is left
+// of the phase going on, centred on the now mark and kept inside the bar's ends
+function placePhases(legend, nowAt, over = "") {
+  const head = legend.closest(".kv-prog-h"), top = head.parentNode.querySelector(".kv-at-top");
+  const cur = [...legend.children].find((x) => x.dataset.left), text = cur?.dataset.left || over; // over: "Đã kết thúc" at the end
+  const tip = top && text ? el("span", "kv-ph-left", text) : null;
+  if (top) top.replaceChildren(...(tip ? [tip] : []));
+  const lay = () => {
+    const W = head.clientWidth, items = [...legend.children], GAP = 14;
+    if (!W) return;
+    if (tip) tip.style.left = Math.max(0, Math.min(W - tip.offsetWidth, nowAt * W - tip.offsetWidth / 2)) + "px";
+    for (const tight of [0, 1, 2, 3]) {
+      for (const n of [1, 2, 3]) head.classList.toggle("tight" + n, tight >= n);
+      head.classList.remove("wrap");
+      const w = items.map((x) => x.offsetWidth), x = items.map((it) => Math.max(0, Number(it.dataset.at) * W));
+      for (let i = 1; i < x.length; i++) x[i] = Math.max(x[i], x[i - 1] + w[i - 1] + GAP);
+      x[x.length - 1] = Math.min(x[x.length - 1], W - w[w.length - 1]);
+      for (let i = x.length - 2; i >= 0; i--) x[i] = Math.min(x[i], x[i + 1] - GAP - w[i]);
+      if (x[0] >= 0) { items.forEach((it, i) => (it.style.left = x[i] + "px")); return; }
+    }
+    head.classList.add("wrap");
+    items.forEach((it) => (it.style.left = ""));
+  };
+  lay();
+  if (!head._lay) { head._lay = new ResizeObserver(lay); head._lay.observe(head); }
+}
+
 // ---- War history: every fight of the map (kvk_battles_export.py), the live ones first ----
 const utcTime = (s) => { const t = new Date(s * 1000).toISOString(); return `${t.slice(8, 10)}/${t.slice(5, 7)} ${t.slice(11, 16)}`; };
 function lasted(s) {
@@ -773,7 +865,7 @@ function campCell(ks, campOf) {
     const box = d.appendChild(el("span", "rk-camp"));
     box.title = camp ? `${tr("kCamp")} ${camp}` : "";
     box.append(...list.map(kdOf));
-    box.style.gridTemplateColumns = `repeat(${Math.min(list.length, 3)}, auto)`;
+    box.style.gridTemplateColumns = `repeat(${Math.ceil(list.length / Math.ceil(list.length / 3))}, auto)`;
   }
   if (!ks.length) d.append(kdOf(null));
   return d;
@@ -1000,6 +1092,7 @@ KS.onKvk = drawSlot;
 async function show() {
   const hp = new URLSearchParams(location.hash.slice(1));
   if (hp.get("p") === "kvk" && hp.has("g")) page.group = hp.get("g");
+  if (hp.get("p") === "kvk") page.hist = hp.get("h") === "1";
   const id = hp.get("p") === "kvk" ? Number(hp.get("b")) : 0;
   if (id) { // an older link
     const b = (await load("kvk/index.json"))?.battles.find((x) => x.id === id);
