@@ -26,8 +26,10 @@ Object.assign(KS.T.en, {
   plShow: "Show details", plHide: "Hide details", plMetric: "Metric", plAccount: "Account strength", plKvkMark: "KvK", plRankIn: "Place {r} of {n} players of #{k}", plFirstHas: "since {d} (the first scan with this number)", plUnits: "Unit focus", plUnitsHint: "By the season's merits · mostly {u} ({p}%)",
 });
 
-const LEAD = ["merits", "kills", "deaths"];
-const MINOR = ["heals", "powerMax", "trades", "migrationScore"];
+// the head: five boxes alike, then the smaller numbers on a line under them, max power and the best
+// season first
+const LEAD = ["power", "merits", "kills", "deaths", "heals"];
+const MINOR = ["powerMax", "meritsMax", "trades", "migrationScore"];
 const TREND = ["power", "merits", "kills", "deaths", "heals", "powerMax"];
 const col = (k) => KS.BY_KEY[k];
 const val = (k, p) => (p ? KS.value(col(k), p) : undefined);
@@ -140,16 +142,8 @@ function body(id, now, was, since, list, moves) {
   sinceText = since?.text || "";
   later = was ? list.filter((e) => e.scan > was.scan && e !== now) : []; // the scans a missing metric can count from
   const box = el("div", "pl-body");
-  // the power, then the three numbers a KvK is judged on, then the rest on one line
+  // the power and the four numbers a KvK is judged on, then the rest on one line
   const lead = el("section", "pl-lead");
-  const big = el("div", "pl-big");
-  const pw = val("power", now.p);
-  const n = el("b", "", short("power", pw));
-  n.title = fullN(pw);
-  big.append(el("small", "", colName("power")), n);
-  const d0 = delta("power", now.p, was);
-  if (d0) big.appendChild(d0);
-  lead.appendChild(big);
   for (const k of LEAD) {
     const c = el("div", "pl-num"), v = val(k, now.p), b = el("b", "", short(k, v));
     b.title = fullN(v);
@@ -264,7 +258,7 @@ function unitSection(now) {
     bar.appendChild(s);
   }
   const list = el("div", "pl-ulist");
-  for (const u of [...sp.parts].sort((a, b) => b.v - a.v)) {
+  for (const u of sp.parts) { // in the game's order, infantry, cavalry, archers, magic, as the bar; the top one marked
     const r = el("div", "pl-u b-" + u.key + (u === sp.top ? " top" : "")), ic = el("img", "pl-uic");
     ic.src = `assets/icons/${u.key}.png?v=3`; ic.alt = "";
     const n = el("span", "pl-un");

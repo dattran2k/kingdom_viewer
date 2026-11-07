@@ -42,7 +42,7 @@ Object.assign(KS.T.en, {
 
 const GROUPS = [["S2", "kS2"], ["S3", "kS3"], ["SoS", "kSos"]]; // Season 1 is no KvK: each kingdom is its own map
 const groupLabel = (g) => tr(GROUPS.find((x) => x[0] === g)?.[1] ?? g);
-// the KvK page's tabs (the user, 07/11): KvK1 (Season 1: each kingdom its own map), KvK2, KvK3, SoS1, then every Season
+// the KvK page's tabs: KvK1 (Season 1: each kingdom its own map), KvK2, KvK3, SoS1, then every Season
 // of Strife (SoS1 too: season 1001, the first SoS)
 const KVK_TABS = [["S1", "KvK1", (b) => b.group === "S1"], ["S2", "KvK2", (b) => b.group === "S2"], ["S3", "KvK3", (b) => b.group === "S3"],
   ["SoS1", "SoS1", (b) => b.seasonName === "SoS1"], ["SoS", null, (b) => b.group === "SoS"]];
@@ -66,7 +66,7 @@ const label = (o) => o[state.lang] ?? o.vi;
 const seasonTitle = (id) => (SEASON_TITLE[id] ? label(SEASON_TITLE[id]) : "");
 // what a kingdom is doing: SeasonData.SeasonStatusType of the game
 // 113 -> 111 -> 115 -> 120: the steps of the game's Season screen (Register, Seeding, Pairing, Brink of War), our own words;
-// 111 (Seeding) is shown as Pairing (user 07/11: one step, seed or not)
+// 111 (Seeding) is shown as Pairing (one step, seed or not)
 const STATUS = { 1: { vi: "Mùa 1", en: "Season 1" }, 103: { vi: "Sắp tổng kết", en: "Settling soon" }, 110: { vi: "Chuẩn bị chiến tranh", en: "War prep" },
   113: { vi: "Đăng ký mùa mới", en: "Registering" }, 115: { vi: "Ghép cặp", en: "Pairing" }, 120: { vi: "Đã ghép trận", en: "Matched" },
   125: { vi: "Đang trong mùa giải", en: "In season" }, 130: { vi: "Đang trong mùa giải", en: "In season" },
@@ -79,7 +79,7 @@ const statusName = (st) => (STATUS[st] ? label(STATUS[st]) : "");
 // dates, UTC (seeds.json times): Matched from the match day; never back to a step before its own. 111 is Pairing
 const statusOf = (idx, k) => {
   const [season, st] = idx?.servers?.[k] ?? [];
-  // its KvK's map in its Summary (130, KvkSettled) is still In season (user 07/11: no status of its own); past the KvK's
+  // its KvK's map in its Summary (130, KvkSettled) is still In season (no status of its own); past the KvK's
   // end day: over (131)
   const kb = (st === 125 || st === 130) && idx.kvkOf?.[k] != null ? idx.battles?.find((b) => b.id === idx.kvkOf[k]) : null;
   if (kb?.settled || st === 130) return kb?.end && nowSec() >= kb.end ? 131 : 125;
@@ -90,7 +90,7 @@ const statusOf = (idx, k) => {
   }
   return st === 111 ? 115 : st;
 };
-// the ranking's status filter of a status: In KvK is Season 2 on (Season 1 is no KvK, the user 03/11); Season 1, settling
+// the ranking's status filter of a status: In KvK is Season 2 on (Season 1 is no KvK); Season 1, settling
 // soon and matched have no filter of their own
 const filterOf = (st) => ([125, 131, 120, 115, 113, 110].includes(st) ? st : null); // 115: from 07/11, every kingdom of the next wave
 function setArt(node, season) {
@@ -150,11 +150,11 @@ function progress(b, big = false, rows = big ? 2 : 1, milestones = true) {
   const legend = el("span", "kv-phases");
   const pctText = t.lastChild.textContent.trim();
   t.replaceChildren(legend);
-  // the Kingdom page (no milestones): the phases' colours only, no days nor percentage (user 06/11)
+  // the Kingdom page (no milestones): the phases' colours only, no days nor percentage
   if (milestones) top.lastChild.textContent = `${pctText} · ${top.lastChild.textContent}`;
   else top.lastChild.remove();
   t.style.visibility = "hidden"; // shown once with its phase: the progress text does not move when the file comes
-  // the Kingdom page (user 07/11, as the pairing block's steps): what is left over the now mark on the top line, each
+  // the Kingdom page (as the pairing block's steps): what is left over the now mark on the top line, each
   // phase with its day on a line under the bar
   const below = milestones ? null : el("div", "kv-prog-h kv-at kv-below");
   if (below) { top.classList.add("kv-at-top"); below.appendChild(legend); below.style.visibility = "hidden"; }
@@ -176,7 +176,7 @@ const MK_ICON = { // a lair, a pass, a quest: told apart by shape as well as col
 function moved(d, b, name, same = true) {
   const by = b.open - (d.phases?.[0] ?? d.steps[0].start);
   // the 40000 Darkling milestone (s.early) closes when reached and the next starts then: a KvK usually reaches it
-  // early (user 06/11: within its first 12 h), so read where it was not, it is taken as reached 6 h in (not at 12 h: its
+  // early (within its first 12 h), so read where it was not, it is taken as reached 6 h in (not at 12 h: its
   // lair would open on the next day's 00:00), all after it 18 h sooner
   const e = d.steps.find((s) => s.early && !s.reached), cut = e ? Math.max(0, e.end - e.start - 6 * 3600) : 0;
   const sh = (t) => t + by - (e && t > e.start ? cut : 0);
@@ -201,7 +201,7 @@ function marks(b, d, rows, legend, milestones = true) {
       const note = i === at ? (exact ? tr("kPhLeft").replace("{t}", left) : left) : now < ph[i] ? tr("kPhFrom").replace("{d}", when(ph[i])) : "";
       if (note && milestones) item.append(el("span", "", "· " + note));
       // the Kingdom page: each phase at its start on the bar, its day, the one going on with what is left of it (the
-      // pairing block's steps, user 07/11), on the line the names had (the block keeps its height)
+      // pairing block's steps), on the line the names had (the block keeps its height)
       if (!milestones) {
         item.append(el("small", "kv-ph-d", when(ph[i])));
         if (i === at) { item.dataset.left = tr("kPhLeft").replace("{t}", left); item.append(el("span", "kv-ph-in", "· " + item.dataset.left)); }
@@ -427,12 +427,18 @@ function card(b) {
   a.appendChild(open);
   return a;
 }
-// a KvK past its end goes under History (user 07/11), listed by the game still or not (kvk_export: history)
+// a KvK past its end goes under History, listed by the game still or not (kvk_export: history)
 const isOver = (b) => !!b.history || (!!b.end && nowSec() >= b.end);
 async function showList() {
   const { ctl, out } = frame();
+  $("dv").classList.add("dv-fit"); // the middle column, as the rankings
   const all = await load("kvk/index.json");
   if (!all) { out.appendChild(el("p", "hint", tr("kNoData"))); return; }
+  // its head: the figures of kvk/index.json's head (kvk_export.heads_of), never added up here
+  const { rankHead, dayOf, count: n } = KS.ui, h = all.head?.list ?? {};
+  // going on = ranked + Season 1's maps (which have no ranking): the same ranked count as the KvK ranking's
+  rankHead({ top: tr("kHeadTop"), title: tr("navKvk"), hint: tr("descKvk"), stats: [[n(h.now), "rStatNow"], [n(h.ranked), "rStatRanked"], [n(h.s1), "rStatS1"],
+    [n(h.kingdoms), "rStatInKvk"], [dayOf(all.updated), "rStatUpd", all.updated]] });
   // Current / History, on the right of the search: the list below is one or the other
   const seg = el("nav", "rk-seg kv-hist");
   for (const [h, label] of [[false, "kNow"], [true, "kHist"]]) {
@@ -541,10 +547,12 @@ const note = (text) => el("p", "kv-note", text);
 const kingdomRow = (b, k) => ({ ...k, ...(b.sums?.[k.k] || {}), _cls: "kv-kd" });
 const rankMark = (r) => el("b", r.rank === 1 ? "kv-rk top" : "kv-rk", r.rank ? "#" + r.rank : "–");
 // ---- the camps: each with its total, opened to its kingdoms; or all kingdoms in one list ----
-function drawCamps(box, b) {
+// cur: the kingdom the Kingdom page shows (its KvK info): its line and its camp's framed in gold, and no camp places
+// (#1, #2) there; 0 on the KvK page
+function drawCamps(box, b, cur = 0) {
   box.innerHTML = "";
-  const groups = (b.camps || []).map((c) => ({ ...c, list: b.kingdoms.filter((k) => k.camp === c.camp), _cls: "kv-total" })), grouped = page.grouped && groups.some((c) => c.camp);
-  const kingdoms = b.kingdoms.map((k) => kingdomRow(b, k));
+  const groups = (b.camps || []).map((c) => ({ ...c, list: b.kingdoms.filter((k) => k.camp === c.camp), _cls: "kv-total" + (cur && b.kingdoms.some((k) => k.camp === c.camp && k.k === cur) ? " kv-cur" : "") })), grouped = page.grouped && groups.some((c) => c.camp);
+  const kingdoms = b.kingdoms.map((k) => { const r = kingdomRow(b, k); if (cur && k.k === cur) r._cls += " kv-cur"; return r; });
   const scale = grouped ? groups : kingdoms;
   const cols = [
     { key: "name", label: grouped && !state.narrow ? `${tr("kCamp")} / ${tr("cKingdom")}` : grouped ? tr("kCamp") : tr("cKingdom"), left: true, tip: () => "", w: state.narrow ? 128 : 190, get: (r) => (r.list ? r.camp : r.k), node: (r) => {
@@ -552,13 +560,13 @@ function drawCamps(box, b) {
       const d = el("span", "kv-camp-n");
       const top = el("span", "kv-camp-t"), chips = el("span", "kv-chips");
       // a phone: the place on the camp's line, without the kingdom count, to leave the screen to the figures
-      if (state.narrow) top.append(rankMark(r), el("b", "", `${tr("kCamp")} ${r.camp}`));
+      if (state.narrow) top.append(...(cur ? [] : [rankMark(r)]), el("b", "", `${tr("kCamp")} ${r.camp}`));
       else top.append(el("b", "", `${tr("kCamp")} ${r.camp}`), el("small", "mut", `${r.list.length} KD`));
       chips.append(...r.list.map(kingdomChip));
       const text = el("span", "kv-camp-s");
       text.append(top, chips);
       d.append(el("i", page.open.has(r.camp) ? "kv-arrow on" : "kv-arrow"));
-      if (!state.narrow) d.append(rankMark(r));
+      if (!state.narrow && !cur) d.append(rankMark(r));
       d.append(text);
       return d;
     } },
@@ -577,8 +585,8 @@ function drawCamps(box, b) {
     }
   } else rows = sorted(kingdoms);
   cols.all = [...kingdoms, ...(grouped ? groups : [])]; // opening a camp moves no column either
-  box.appendChild(table(cols, rows, { key: col.key, dir: page.kSort.dir }, (k) => { page.kSort = nextSort(page.kSort, k); drawCamps(box, b); }, (r) => {
-    if (r.list) { page.open.has(r.camp) ? page.open.delete(r.camp) : page.open.add(r.camp); drawCamps(box, b); }
+  box.appendChild(table(cols, rows, { key: col.key, dir: page.kSort.dir }, (k) => { page.kSort = nextSort(page.kSort, k); drawCamps(box, b, cur); }, (r) => {
+    if (r.list) { page.open.has(r.camp) ? page.open.delete(r.camp) : page.open.add(r.camp); drawCamps(box, b, cur); }
   }));
 }
 
@@ -685,7 +693,7 @@ function campsPanel(b, info) {
     btn.type = "button";
     btn.onclick = () => {
       if (!!page.grouped === grouped) return;
-      page.grouped = grouped; press(); drawCamps(body, b);
+      page.grouped = grouped; press(); drawCamps(body, b, info || 0);
     };
     btn.dataset.g = String(grouped);
     tog.appendChild(btn);
@@ -698,7 +706,7 @@ function campsPanel(b, info) {
   const others = b.kingdoms.filter((k) => k.other).length;
   if (others) box.appendChild(note(tr("kOtherNote").replace("{n}", others).replace("{m}", b.kingdoms.length).replace("{top}", b.crossTop ?? 600)));
   box.appendChild(body);
-  drawCamps(body, b);
+  drawCamps(body, b, info || 0);
   if (!info) { const wrap = el("div"); wrap.append(head, box); return wrap; }
   // first the KvK's place among all (and the way to all of them), then its info over the camps table (and the way to its page);
   // the ways out at the end of their lines, the Ungroup switch right after the dates
@@ -734,22 +742,21 @@ function changeCell(now, d) {
 function drawTop(box, list) {
   box.innerHTML = "";
   const dKey = (k) => "d" + k[0].toUpperCase() + k.slice(1);
-  const bars = metricCols([["power", "cPower"], ["merits", "cMerits"], ["kills", "cKills"], ["deaths", "cDeaths"], ["heals", "cHeals"]], list)
+  // the KvK info table's columns: power, max power, the fights, then unit focus (addFocus) and the merits by unit type
+  const bars = metricCols([["power", "cPower"], ["powerMax", "cPowerMax"], ...METRICS], list)
     // ordered by the change since the KvK opened; the bar is its size, rise or fall alike, as everywhere a change is shown
     .map((c) => ({ ...c, get: (r) => r[dKey(c.key)], bar: (r) => Math.abs(r[dKey(c.key)] ?? 0), max: list.reduce((m, r) => Math.max(m, Math.abs(r[dKey(c.key)] ?? 0)), 0),
       node: (r) => changeCell(r[c.key], r[dKey(c.key)]), tip: (r) => `${c.label}: ${fullNum(r[c.key])}` }));
   const cols = [
     { key: "name", label: tr("cName"), left: true, tip: () => "", w: state.narrow ? 150 : 170, get: (r) => r.name, node: (r) => {
       const d = el("span", "kv-kname");
-      d.append(el("b", r._i === 1 ? "kv-rk top" : "kv-rk", "#" + r._i));
-      const who = el("span", "who");
+      const who = el("span", "who"); // no place badge (#1, #2…): the order is the place
       who.append(el("b", "", r.name), el("small", "", String(r.id))); // all of one kingdom: its number is in the line above the table
       KS.playerLink(who, r.id, r.k, r.name);
       d.append(who);
       return d;
     } },
-    { key: "alliance", label: tr("cAlliance"), tip: () => "", w: 88, get: (r) => r.alliance, node: (r) => (r.alliance ? KS.allianceChip(r.alliance) : el("span", "mut", "–")) },
-    ...bars, tradesCol(),
+    ...bars, tradesCol(), // no alliance column, as the KvK info table
   ];
   KS.ui.addFocus(cols, list);
   const col = cols.find((c) => c.key === page.topSort.key) || cols.find((c) => c.key === "merits");

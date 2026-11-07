@@ -42,7 +42,7 @@ const MAX_PER_SIDE = 10, MAX_PAIRS = 5;
 const POWER_BANDS = [[100e6, 200e6, "100–200M"], [200e6, 300e6, "200–300M"], [300e6, Infinity, "300M+"]];
 const { MIGRATION_BANDS, DECOR_MAX } = KS;
 
-// a first visit opens on #357 vs #375 (the user, 07/11); "Đặt lại" still empties it
+// a first visit opens on #357 vs #375; "Đặt lại" still empties it
 const cfg = Object.assign({ pairs: [{ a: [357], b: [375] }], minStep: KS.DEFAULT_POWER, short: false }, KS.store.get("cmp", {}));
 delete cfg.top; delete cfg.avg; // the Top N and average switches of before 07/11
 const MAX_FILES = 4 * MAX_PER_SIDE + 20; // a couple of full pairs, and some to go back to: a long visit must not keep every kingdom opened

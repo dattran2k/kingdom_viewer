@@ -11,7 +11,7 @@ const T = {
     sortBy: "Sắp theo", sortDirTip: "Đổi chiều sắp xếp",
     sortValue: "Giá trị", sortDeltaName: "Sự thay đổi", sortValueTip: "Sắp theo giá trị của chỉ số", sortDeltaTip: "Sắp theo mức tăng / giảm giữa 2 ngày", sortDeltaOff: "Chỉ có khi so sánh 2 ngày khác nhau",
     tradesTip: "Tiêu diệt / Chữa trị", tblPlayers: "Người chơi", yes: "Có", no: "Không", title: "Kingdom Stats", kingdom: "Kingdom", scan: "Ngày", latest: "mới nhất", search: "Tìm", searchPh: "Tên, ID, liên minh…", kSearchPh: "Tìm kingdom…", kJumpPh: "Đổi kingdom: nhập số, vd. 357", kJumpTip: "Đổi kingdom", kNone: "Không có kingdom nào", alliance: "Liên minh",
-    allAlliances: "Mọi liên minh", columns: "Chỉ số", theme: "Đổi giao diện sáng/tối",
+    allAlliances: "Mọi liên minh", columns: "Chỉ số", theme: "Đổi giao diện sáng/tối", sidePin: "Ghim / bỏ ghim menu",
     view: "View", viewTitle: "Tuỳ chọn hiển thị", fmtName: "Số gọn (1.2M)", fmtTip: "Bật: 1.2M, tắt: số đầy đủ", pickCols: "Chọn chỉ số hiển thị", filterCols: "Lọc chỉ số…", all: "Tất cả",
     none: "Bỏ hết", defaults: "Mặc định", players: "người", of: "/", crawled: "Thu thập", loading: "Đang tải…",
     heat: "± TB", heatTip: "Tô màu: cao hơn (xanh) / thấp hơn (đỏ) trung bình cột, trong danh sách đang lọc",
@@ -22,7 +22,7 @@ const T = {
     sortBy: "Sort by", sortDirTip: "Reverse the order",
     sortValue: "Value", sortDeltaName: "Change", sortValueTip: "Sort by the metric's value", sortDeltaTip: "Sort by the change between the two days", sortDeltaOff: "Only while comparing two different days",
     tradesTip: "Kills / Healed", tblPlayers: "Players", yes: "Yes", no: "No", title: "Kingdom Stats", kingdom: "Kingdom", scan: "Day", latest: "latest", search: "Search", searchPh: "Name, ID, alliance…", kSearchPh: "Find a kingdom…", kJumpPh: "Go to a kingdom: type its number, e.g. 357", kJumpTip: "Change kingdom", kNone: "No such kingdom", alliance: "Alliance",
-    allAlliances: "All alliances", columns: "Metrics", theme: "Light / dark",
+    allAlliances: "All alliances", columns: "Metrics", theme: "Light / dark", sidePin: "Pin / unpin the menu",
     view: "View", viewTitle: "Display options", fmtName: "Compact numbers (1.2M)", fmtTip: "On: 1.2M, off: full numbers", pickCols: "Metrics", filterCols: "Filter metrics…", all: "All",
     none: "None", defaults: "Defaults", players: "players", of: "/", crawled: "Collected", loading: "Loading…",
     heat: "± avg", heatTip: "Colour: above (green) / below (red) the column average, over the players listed",
@@ -42,7 +42,7 @@ const store = {
 const POWER_STEPS = [20e6, 15e6, 10e6, 5e6, 1e6], DEFAULT_POWER = 15e6; // every page opens on > 15M: the players the ranking and the kingdom search count
 // what the power filters go by, everywhere: the power now, as the ranking counts
 const filterPower = (p) => p.power ?? 0;
-// A kingdom's own power step, its filter's default (the user, 07/11): KvK1-3 1M, SoS1 5M (kingdoms.json minPower,
+// A kingdom's own power step, its filter's default: KvK1-3 1M, SoS1 5M (kingdoms.json minPower,
 // kingdom_export.summary); an SoS one has none and goes by the step picked (15M at first). A step picked on a kingdom
 // with its own stays with that kingdom for the visit (stepPicked)
 let ownOf = [null, new Map()]; // [the list it was read from, kingdom -> its own step]
@@ -54,7 +54,7 @@ const stepPicked = new Map();
 const minOf = (k, step) => stepPicked.get(k) ?? ownStep(k) ?? step;
 const powerLabel = (v) => (v ? `${tr("minPower")} > ${v / 1e6}M` : `${tr("minPower")}: ${tr("allPower")}`);
 const BY_KEY = Object.fromEntries(COLUMNS.map((c) => [c.key, c]));
-// the kingdom a first visit opens on (the user, 07/11); the newest list's first when it is not crawled
+// the kingdom a first visit opens on; the newest list's first when it is not crawled
 const FIRST_KINGDOM = 583;
 const firstKingdom = () => (state.list.some((x) => x.kingdom === FIRST_KINGDOM) ? FIRST_KINGDOM : state.list[0].kingdom);
 const DEFAULT_COLS = COLUMNS.filter((c) => c.def).map((c) => c.key);
@@ -274,7 +274,7 @@ function showPicker(on) {
   if (cur) { $("klist").querySelector(".act")?.classList.remove("act"); cur.classList.add("act"); cur.scrollIntoView({ block: "center" }); }
   $("kq").focus();
 }
-// the box always shows a list while it has the focus: these kingdoms while it is empty (user 05/11), then the matches,
+// the box always shows a list while it has the focus: these kingdoms while it is empty, then the matches,
 // or "no such kingdom"
 const SUGGESTED = [583, 357, 375, 1, 2, 3, 4, 5, 6, 7];
 function showSuggest() {
@@ -586,7 +586,7 @@ function setPage(p, quiet) {
   $("comparePage").hidden = p !== "compare";
   $("dvPage").hidden = !KS.pages[p];
   const on = p === "kingdom" && state.kvk ? "kvk" : p; // a KvK's players are the Kingdom table
-  document.querySelectorAll(".side-nav button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.page === on)));
+  document.querySelectorAll(".side-nav button[data-page]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.page === on)));
   showMenu(false);
   if (quiet) return;
   if (leftKvk) { setCompare(false); loadKingdom(state.mainK); return; }
@@ -950,7 +950,7 @@ function allianceChip(tag) {
   s.textContent = tag;
   return s;
 }
-// the tag of a player's alliance cell: the one now only, also when comparing (user 07/11: two stacked tags read as two
+// the tag of a player's alliance cell: the one now only, also when comparing (two stacked tags read as two
 // alliances); the one it was in before goes in the cell's title
 const tagsOf = (p) => (p.alliance ? [p.alliance] : []);
 const wasTag = (p) => (p._was && !p._left && p._was.alliance && p._was.alliance !== p.alliance ? p._was.alliance : "");
@@ -1278,14 +1278,37 @@ function init() {
     $("heatBtn").setAttribute("aria-pressed", String(state.heat));
     if (state.data) refresh();
   };
-  document.querySelectorAll(".side-nav button").forEach((b) => (b.onclick = () => { state.kvk = 0; setPage(b.dataset.page); }));
-  // the menu button: a wide window hides / shows the side menu (remembered), a narrow one opens it as a drawer
-  document.body.classList.toggle("side-off", store.get("sideOff", false));
-  document.querySelectorAll(".menu-btn").forEach((b) => (b.onclick = () => {
-    if (matchMedia("(max-width: 900px)").matches) { showMenu(true); return; }
-    store.set("sideOff", document.body.classList.toggle("side-off"));
-    rowH = 0; drawn = ""; schedule(); // the table got wider or narrower
+  // a ranking's entry (data-m) opens that ranking through the link: #p=rank, &m=non / players / kvk
+  const RANK_M = { server: "", non: "non", member: "players", kvk: "kvk" };
+  // the Rankings group: its name opens / closes its list (remembered); the rail shows the list's icons either way
+  const grpOn = (on) => { $("sideGrpRank").parentElement.classList.toggle("open", on); $("sideGrpRank").setAttribute("aria-expanded", String(on)); };
+  grpOn(store.get("sideRankOpen", false)); // closed at first
+  $("sideGrpRank").onclick = () => { const on = !$("sideGrpRank").parentElement.classList.contains("open"); grpOn(on); store.set("sideRankOpen", on); };
+  document.querySelectorAll(".side-nav button[data-page]").forEach((b) => (b.onclick = () => {
+    state.kvk = 0;
+    if (b.dataset.m) { const m = RANK_M[b.dataset.m]; location.hash = "p=rank" + (m ? "&m=" + m : ""); showMenu(false); return; }
+    setPage(b.dataset.page);
   }));
+  // a wide window: the side menu is a rail of icons that opens over the page while the pointer is on it; its pin
+  // button (on its edge, seen on hover) keeps it open beside the page (remembered). A narrow one: a drawer, opened by
+  // the header's menu button
+  const pinSide = (on) => {
+    document.body.classList.toggle("side-pinned", on);
+    $("sidePin").setAttribute("aria-pressed", String(on));
+  };
+  pinSide(store.get("sidePin", false));
+  // the rail opens once the pointer has stayed on it 150 ms, and closes 150 ms after it left: passing over it on the
+  // way somewhere opens nothing. A keyboard focus in it opens it at once (CSS :focus-visible)
+  let sideTimer = 0;
+  const sideOpen = (on) => { clearTimeout(sideTimer); sideTimer = setTimeout(() => $("side").classList.toggle("side-open", on), 150); };
+  $("side").addEventListener("pointerenter", (e) => { if (e.pointerType === "mouse") sideOpen(true); });
+  $("side").addEventListener("pointerleave", (e) => { if (e.pointerType === "mouse") sideOpen(false); });
+  $("sidePin").onclick = () => {
+    pinSide(!document.body.classList.contains("side-pinned"));
+    store.set("sidePin", document.body.classList.contains("side-pinned"));
+    rowH = 0; drawn = ""; schedule(); // the table got wider or narrower
+  };
+  document.querySelectorAll(".menu-btn").forEach((b) => (b.onclick = () => showMenu(true)));
   $("scrim").onclick = () => showMenu(false);
   addEventListener("keydown", (e) => { if (e.key === "Escape") showMenu(false); });
   // scroll events already come once a frame: drawing right away leaves no blank rows behind a fast scroll

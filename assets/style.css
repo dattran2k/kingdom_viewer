@@ -1,11 +1,13 @@
 /* Flat surfaces on a near-black (or near-white) base: one hairline colour, gradients only on the cards and KvK pictures, shadows only on what opens over the page.
-   Four hues and the neutrals, nothing else: the accent blue (what is picked, every bar, side A), gold (the game's rank and tags, seeds),
-   green / red (up / down, in war, side B). A difference inside one of them is its lightness, never another hue */
+   Four hues and the neutrals, nothing else: the accent blue (what is picked, every bar, side A), gold (the game's rank and tags),
+   green / red (up / down, in war, side B). A difference inside one of them is its lightness, never another hue.
+   One exception: the seeds A-D, a hue each (gold, violet, blue, green), as the seed badges read elsewhere */
 :root {
   --bg: #f6f7f9; --panel: #ffffff; --panel2: #f1f2f5; --fg: #18181b; --fg2: #3f3f46; --mut: #5f6573; --line: #ececf0; --edge: #dfe0e6;
   --acc: #1b6fe0; --acc-solid: #1b6fe0; --acc-bg: #eaf2fe; --hover: #f1f4f9; --on-acc: #ffffff; --shadow: 0 8px 28px rgba(20,24,40,.14);
   --up: #0a8a55; --down: #d81a48; --b-end: #d4d6de; --ta: var(--acc); --tb: var(--down);
   --gold: #8a6500; --gold-solid: #c59a00; --on-gold: #1a1400;
+  --seed-a: #9a7400; --seed-b: #7c3aed; --seed-c: #1b6fe0; --seed-d: #0a8a55;
   --tag-fg: #7a5a00; --tag-bg: #fff6dc; --tag-bd: #ecd892;
   --rh: 44px; --hh: 40px;
   /* one radius family and one motion timing for the whole site */
@@ -19,6 +21,7 @@
     --acc: #4a8cf7; --acc-solid: #006ae6; --acc-bg: #172331; --hover: #1b1c22; --on-acc: #ffffff; --shadow: 0 8px 28px rgba(0,0,0,.6);
     --up: #17b878; --down: #ec4a70; --b-end: #363843; --ta: var(--acc); --tb: var(--down);
     --gold: #e0b84a; --gold-solid: #d8a920; --on-gold: #1a1400;
+    --seed-a: #d9a90a; --seed-b: #9d6bff; --seed-c: #4a8cf7; --seed-d: #17b878;
     --tag-fg: #d9b24c; --tag-bg: #231f14; --tag-bd: #3d3419;
     color-scheme: dark;
   }
@@ -28,6 +31,7 @@
   --acc: #4a8cf7; --acc-solid: #006ae6; --acc-bg: #172331; --hover: #1b1c22; --on-acc: #ffffff; --shadow: 0 8px 28px rgba(0,0,0,.6);
   --up: #17b878; --down: #ec4a70; --b-end: #363843; --ta: var(--acc); --tb: var(--down);
   --gold: #e0b84a; --gold-solid: #d8a920; --on-gold: #1a1400;
+  --seed-a: #d9a90a; --seed-b: #9d6bff; --seed-c: #4a8cf7; --seed-d: #17b878;
   --tag-fg: #d9b24c; --tag-bg: #231f14; --tag-bd: #3d3419;
   color-scheme: dark;
 }
@@ -61,6 +65,8 @@ button, input, select { font: inherit; color: inherit; }
 .side-nav button:hover { background: var(--hover); color: var(--fg); }
 .side-nav button[aria-pressed="true"] { background: var(--acc-bg); color: var(--acc); }
 .side-nav svg { width: 16px; height: 16px; fill: currentColor; flex: none; }
+svg.lc { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; } /* Lucide: line icons */
+.side-nav svg.lc { width: 18px; height: 18px; margin: -1px; }
 .side-foot { margin-top: auto; display: flex; gap: 6px; }
 .side-foot a { color: inherit; }
 .scrim { position: fixed; inset: 0; z-index: 30; background: rgba(0,0,0,.55); }
@@ -69,7 +75,6 @@ button, input, select { font: inherit; color: inherit; }
 .page[hidden] { display: none; }
 .page-title { flex: none; margin: 0; font-size: 26px; font-weight: 800; line-height: 1.2; white-space: nowrap; }
 .page-desc { margin: 0 0 0 auto; max-width: 420px; text-align: right; font-size: 12px; color: var(--mut); }
-@media (min-width: 901px) { body.side-off .side { display: none; } }
 
 /* bars */
 .bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 10px 16px; background: var(--bg); border-bottom: 1px solid var(--line); }
@@ -127,7 +132,7 @@ body[data-compare="1"] .klist li.cur { background: var(--acc-bg); }
 [data-k="deaths"], .b-deaths, .b-defeats { --t: color-mix(in srgb, var(--down) 62%, var(--panel)); }
 [data-k="heals"], .b-heals, .b-victories { --t: var(--up); }
 .g-power, [data-k="power"], .b-power, .b-powerMax { --t: var(--gold-solid); }
-/* the unit types keep their own colours (user 07/11): infantry, cavalry, archers, magic, other */
+/* the unit types keep their own colours: infantry, cavalry, archers, magic, other */
 .b-meritInfantry { --t: #e42855; }
 .b-meritCavalry { --t: #c59a00; }
 .b-meritArcher { --t: #00a261; }
@@ -682,7 +687,7 @@ body:not([data-compare="1"]) .cmp-only { display: none; }
 .rk-kvk:hover b { color: var(--acc); }
 .k-status { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px; border: 1px solid var(--edge); border-radius: 999px; color: var(--fg2); font-size: 12px; font-weight: 600; white-space: nowrap; }
 .k-status[hidden] { display: none; }
-/* its dot, in its colour (user 07/11: as the status filter's buttons) */
+/* its dot, in its colour (as the status filter's buttons) */
 .k-status::before { content: ""; flex: none; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 .k-status[data-st="131"] { color: var(--mut); }
 .k-status[data-st="125"] { border-color: color-mix(in srgb, var(--down) 45%, transparent); color: var(--down); }
@@ -713,7 +718,10 @@ body:not([data-compare="1"]) .cmp-only { display: none; }
 :is(.rk-pills button, .rk-gen, .rk-dd)[data-gen="4"] { --c: var(--down); }
 :is(.rk-pills button, .rk-gen, .rk-dd):is([data-gen="SoS1"], [data-gen^="KvK"]) { --c: var(--fg2); } /* SoS1, KvK1-3: no gen number */
 :is(.rk-pills button, .rk-gen, .rk-dd)[data-gen="-"] { --c: var(--mut); } /* TBD: in no gen group */
+:is(.rk-pills button, .rk-dd)[data-gen="other"] { --c: var(--fg2); } /* the Gen filter's Other: SoS1, KvK1-3, TBD */
 .rk-gen { color: var(--c); font-weight: 700; }
+.rk-stg { display: inline-flex; flex-direction: column; align-items: center; gap: 2px; line-height: 1.2; } /* Rankings: the status, its gen under it */
+.rk-stg .rk-gen { font-size: 12px; }
 /* the line of the kingdom the ranking was opened from */
 .tbl tr.rk-focus > td { background: color-mix(in srgb, var(--acc) 16%, var(--panel)); }
 /* every table reads like the Kingdom table: same heights, no box of its own, names and kingdoms alike */
@@ -732,6 +740,14 @@ body:not([data-compare="1"]) .cmp-only { display: none; }
 #dv { padding: 0 0 24px; container-type: inline-size; }
 #dv .dv-ctl { padding-top: 12px; z-index: 7; } /* sticky: a layer of its own, its day menus open over the bar and the table */
 #dv .dv-ctl, #dv .dv-out > :not(.dv-wrap) { position: sticky; left: 0; width: 100cqw; max-width: 100%; padding-inline: 16px; }
+/* Rankings: one column in the middle of a wide screen, the table in a card; a table wider than that (its min-width)
+   still widens the page and scrolls sideways as before */
+#dv.dv-fit .dv-ctl, #dv.dv-fit .dv-out { max-width: var(--fit, 1440px); margin-inline: auto; }
+@container (min-width: 1472px) {
+  #dv.dv-fit .dv-ctl, #dv.dv-fit .dv-out > :not(.dv-wrap) { padding-inline: 0; }
+  #dv.dv-fit .dv-wrap { border: 1px solid var(--edge); border-radius: var(--r-lg); background: var(--panel); }
+  #dv.dv-fit .dv-wrap .tbl .pin { background: var(--panel); }
+}
 .dv-tbar { padding: 8px 0; border-top: 0; z-index: 6; }
 .dv-tbar .pop { z-index: 30; }
 .dv-tbar .btn svg { margin-right: 4px; }
@@ -943,7 +959,7 @@ body[data-compare="1"] .k-row .kbtn { height: 52px; }
 .kr-end .kr-link { margin-left: 0; }
 .rk-kds { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; width: 100%; padding: 3px 0; }
 /* a camp: one band of the accent's tint, two a line and all as wide, its kingdoms bare numbers in it (no frame in a
-   frame, user 07/11); a bigger camp in even lines inside its band (4: 2 + 2, the columns set by the script) */
+   frame); a bigger camp in even lines inside its band (4: 2 + 2, the columns set by the script) */
 .rk-camp { display: grid; align-content: center; justify-content: center; gap: 0 2px; min-height: 26px; padding: 2px 4px; border-radius: var(--r-md); background: color-mix(in srgb, var(--acc) 12%, transparent); }
 .rk-camp .kd { min-width: 0; height: auto; padding: 1px 5px; border: 0; background: none; color: var(--fg); font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 20px; }
 .rk-kds .kd { margin: 0; }
@@ -1278,7 +1294,7 @@ body[data-compare="1"] .k-row .kbtn { height: 52px; }
 .k-meta-c a.kd[href]:not(.on):hover { border-color: #fff; background: rgb(8 10 14 / .8); color: #fff; }
 
 /* A page's tabs in the header (Rankings: three long Vietnamese tabs) never shrink: the note beside them gives way, in two
-   lines at most, and goes when the header is too narrow for it (901-1279 px with the side menu: the tabs were cut, user 05/11).
+   lines at most, and goes when the header is too narrow for it (901-1279 px with the side menu: the tabs were cut).
    At 900 px and less the note is above the table and the tabs take a line of their own under 640 px. */
 @media (min-width: 901px) {
   .head-slot:has(.rk-seg) { flex: none; }
@@ -1287,7 +1303,7 @@ body[data-compare="1"] .k-row .kbtn { height: 52px; }
   @container (max-width: 880px) { #dvPage .head-slot:has(.rk-seg) ~ .page-desc { display: none; } }
 }
 
-/* The kingdom switcher (user 05/11: the search sank into the header, a first visit did not see how to change kingdom).
+/* The kingdom switcher (the search sank into the header, a first visit did not see how to change kingdom).
    The header's main control: a lit field with a search mark, a placeholder that says what it does, and the "/" key;
    the big kingdom number carries a chevron, since a click on it lands in this box. */
 .q-wrap { position: relative; display: block; flex: 1 1 auto; min-width: 0; }
@@ -1359,11 +1375,10 @@ body:not([data-compare="1"]) .k-row .kbtn:hover::after, body:not([data-compare="
 .pl-wait { margin: 0; padding: 32px 18px; }
 .pl-body { display: flex; flex-direction: column; gap: 14px; padding: 16px 18px 6px; }
 
-.pl-lead { display: grid; grid-template-columns: 1.4fr repeat(3, 1fr); gap: 1px; overflow: hidden; border: 1px solid var(--edge); border-radius: var(--r-lg); background: var(--edge); }
+.pl-lead { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px; overflow: hidden; border: 1px solid var(--edge); border-radius: var(--r-lg); background: var(--edge); }
 .pl-lead > div:not(.pl-minor) { display: flex; flex-direction: column; gap: 2px; min-width: 0; padding: 12px 14px; background: var(--panel); }
 .pl-lead small { color: var(--mut); font-size: 12px; font-weight: 500; }
-.pl-lead b { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.2; }
-.pl-big b { font-size: 30px; font-weight: 800; letter-spacing: -.01em; }
+.pl-lead b { font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1.2; letter-spacing: -.01em; }
 .pl-minor { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 6px 20px; padding: 9px 14px; background: var(--panel2); color: var(--mut); font-size: 12px; }
 .pl-minor b { color: var(--fg); font-size: 12px; font-weight: 700; }
 .pl-d { color: var(--mut); font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; }
@@ -1414,10 +1429,10 @@ body:not([data-compare="1"]) .k-row .kbtn:hover::after, body:not([data-compare="
   .pl-head { padding: 14px 14px 12px; }
   .pl-who h2 { font-size: 20px; }
   .pl-body { padding: 12px 14px 4px; }
-  .pl-lead { grid-template-columns: repeat(3, 1fr); }
-  .pl-big { grid-column: 1 / -1; }
-  .pl-lead > div:not(.pl-minor) b { font-size: 16px; }
-  .pl-big b { font-size: 26px; }
+  .pl-lead { grid-template-columns: repeat(6, 1fr); } /* a phone: 3 boxes then 2, the 2 wider */
+  .pl-lead > div:not(.pl-minor) { grid-column: span 2; }
+  .pl-lead > div:nth-child(4), .pl-lead > div:nth-child(5) { grid-column: span 3; }
+  .pl-lead > div:not(.pl-minor) b { font-size: 18px; }
   .pl-foot { padding: 10px 14px; }
 }
 .pl-since { margin-left: auto; }
@@ -1661,8 +1676,8 @@ a.k-status[href]:focus-visible { outline: 2px solid currentColor; outline-offset
 }
 
 /* ---- Matchup: the kingdom picker dialog (compare.js), seeds A-D ---- */
-.seed { --s: var(--mut); display: inline-grid; place-items: center; width: 18px; height: 18px; margin-left: 6px; border-radius: var(--r-sm); background: color-mix(in srgb, var(--s) 16%, transparent); color: var(--s); font-size: 11px; font-weight: 700; font-style: normal; line-height: 1; vertical-align: 2px; }
-.seed.s1 { background: var(--gold-solid); color: var(--on-gold); } .seed.s2 { --s: var(--gold); } .seed.s3 { --s: var(--fg2); }
+.seed { --s: var(--mut); display: inline-grid; place-items: center; box-sizing: border-box; width: 18px; height: 18px; margin-left: 6px; border: 1px solid color-mix(in srgb, var(--s) 30%, transparent); border-radius: var(--r-sm); background: color-mix(in srgb, var(--s) 14%, transparent); color: var(--s); font-size: 11px; font-weight: 700; font-style: normal; line-height: 1; vertical-align: 2px; }
+.seed.s1 { --s: var(--seed-a); } .seed.s2 { --s: var(--seed-b); } .seed.s3 { --s: var(--seed-c); } .seed.s4 { --s: var(--seed-d); }
 .x-side .x-tag .seed { width: 20px; height: 20px; font-size: 12px; vertical-align: 3px; }
 .dlg.xp { width: min(560px, calc(100vw - 32px)); height: min(720px, calc(100dvh - 48px)); }
 .dlg.xp .dlg-in { height: 100%; box-sizing: border-box; }
@@ -1677,7 +1692,6 @@ a.k-status[href]:focus-visible { outline: 2px solid currentColor; outline-offset
 .xp-s .seed { margin: 0 4px 0 0; }
 .xp-s[aria-pressed="false"] { opacity: .5; }
 .xp-s[aria-pressed="false"] .seed { background: none; }
-.xp-s[aria-pressed="false"] .seed.s1 { color: var(--gold); }
 .xp-s[aria-pressed="true"] { border-color: var(--fg2); color: var(--fg); }
 .xp-q { flex: none; }
 .xp-note { flex: none; margin: -2px 0 0; color: var(--mut); font-size: 12px; line-height: 1.4; }
@@ -1702,9 +1716,10 @@ a.k-status[href]:focus-visible { outline: 2px solid currentColor; outline-offset
 .seed.off { visibility: hidden; }
 .k-seed { --s: var(--mut); display: inline-block; padding: 2px 8px; border: 1px solid color-mix(in srgb, var(--s) 55%, transparent); border-radius: 999px; background: color-mix(in srgb, var(--s) 14%, transparent); color: var(--s); font-size: 12px; font-weight: 700; white-space: nowrap; }
 .k-seed[hidden] { display: none; }
-.k-seed[data-s="1"] { border-color: var(--gold-solid); background: var(--gold-solid); color: var(--on-gold); } .k-seed[data-s="2"] { --s: var(--gold); } .k-seed[data-s="3"] { --s: var(--fg2); }
-.k-row.has-art .k-seed:not([data-s="1"]) { background: rgb(8 10 14 / .6); }
-.k-row.has-art .k-seed { --gold: #e0b84a; --fg2: #e4e5ee; --mut: #b5b7c8; } /* over the picture: the dark theme's steps */
+.k-seed[data-s="1"] { --s: var(--seed-a); } .k-seed[data-s="2"] { --s: var(--seed-b); } .k-seed[data-s="3"] { --s: var(--seed-c); } .k-seed[data-s="4"] { --s: var(--seed-d); }
+.k-row.has-art .k-seed { background: rgb(8 10 14 / .6); }
+/* over a picture: the dark theme's seed colours */
+.k-row.has-art .k-seed, .k-pair-s .seed { --seed-a: #d9a90a; --seed-b: #9d6bff; --seed-c: #4a8cf7; --seed-d: #17b878; --mut: #b5b7c8; }
 
 /* ---- the Kingdom page's block of a kingdom being paired (kinfo.js pairing): the game's Season screen steps ---- */
 .k-steps { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); margin: 0; padding: 16px 0 0; list-style: none; }
@@ -1721,7 +1736,7 @@ a.k-status[href]:focus-visible { outline: 2px solid currentColor; outline-offset
 .k-steps small { color: rgb(255 255 255 / .6); font-size: 11px; font-variant-numeric: tabular-nums; }
 .k-step-left { position: absolute; bottom: calc(100% + 2px); padding: 0 6px; border-radius: var(--r-sm); background: #fff; color: #14171d; font-size: 11px; font-weight: 700; line-height: 16px; white-space: nowrap; }
 .k-pair-s { display: inline-flex; align-items: center; gap: 4px; height: 28px; padding: 0 9px 0 5px; border-radius: 999px; background: rgb(8 10 14 / .55); color: #fff; font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
-.k-pair-s .seed { margin: 0; --gold: #e0b84a; --fg2: #e4e5ee; --mut: #b5b7c8; }
+.k-pair-s .seed { margin: 0; }
 @media (max-width: 680px) {
   .k-steps li { padding: 0 3px; }
   .k-steps b { font-size: 11px; white-space: normal; line-height: 1.2; text-wrap: balance; }
@@ -1741,7 +1756,7 @@ a.k-status[href]:focus-visible { outline: 2px solid currentColor; outline-offset
 .k-prog > .kv-prog-h.kv-at.wrap > span:first-child, .k-prog .kv-prog-h.kv-at.wrap .kv-phases { position: static; display: flex; flex-wrap: wrap; gap: 3px 12px; }
 .kv-at.wrap .kv-phase { position: static; }
 
-/* the Kingdom page's KvK bar, v2 (user 07/11): "còn X" over the now mark, the phases with their days under the bar; the
+/* the Kingdom page's KvK bar, v2: "còn X" over the now mark, the phases with their days under the bar; the
    two lines and the bar fit the block's 163 px (16 + 6 + 8 + 6 + 18) */
 .k-prog > .kv-prog-h.kv-at-top { position: relative; display: block; height: 16px; }
 .kv-at-top .kv-ph-left { position: absolute; top: 0; white-space: nowrap; }
@@ -1764,7 +1779,7 @@ a.k-status[href]:focus-visible { outline: 2px solid currentColor; outline-offset
   .kv-below .kv-ph-in { display: inline; color: #fff; font-weight: 600; }
 }
 
-/* ---- the ranking's filters (user 07/11): Status on its line, Gen and Seed side by side under it. A wide screen keeps
+/* ---- the ranking's filters: Status on its line, Gen and Seed side by side under it. A wide screen keeps
    the buttons spread out on their lines; a phone folds each into one button that opens its list (the rules above) ---- */
 .rk-filters { display: flex; flex-direction: column; }
 #dv .dv-out > .rk-filters { z-index: 8; } /* sticky (sideways) makes it a layer: over the table's bar (6), a phone's list with it */
@@ -1774,8 +1789,8 @@ a.k-status[href]:focus-visible { outline: 2px solid currentColor; outline-offset
 .rk-f-seed .rk-filter-l { min-width: 0; }
 .rk-pills button[data-seed] { color: var(--fg2); }
 .rk-seed { display: inline-flex; align-items: center; gap: 8px; }
-.rk-seed .seed { margin: 0; }
-/* Gen and Seed: a dropdown each at every width, side by side (user 07/11); Status keeps its buttons on a wide screen */
+.rk-seed .seed, .rk-seed-c .seed { margin: 0; }
+/* Gen and Seed: a dropdown each at every width, side by side; Status keeps its buttons on a wide screen */
 .rk-filters-row .rk-filter { position: relative; align-items: center; gap: 10px; }
 .rk-filters-row .rk-filter.open { z-index: 40; }
 .rk-filters-row .rk-filter-l { line-height: 34px; }
@@ -1818,9 +1833,130 @@ a.k-pair-s:focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; }
 /* a KvK just over (kvk_export: the map at 130, kept until its kingdoms' next season): its card's dot grey */
 .kv-state i.over { background: var(--mut); box-shadow: none; animation: none; }
 
-/* the KvK page's Current / History switch (user 07/11), beside the search */
+/* the KvK page's Current / History switch, beside the search */
 .kv-hist { margin-left: auto; }
 .kv-hist button small { margin-left: 2px; color: var(--mut); font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; }
 .kv-hist button[aria-pressed="true"] small { color: inherit; opacity: .75; }
 .kv-ctl > .kv-hist { width: 100%; margin: 0; }
 .kv-ctl > .kv-hist button { flex: 1; }
+
+/* ---- Rankings: the Seed filter as a row of small buttons (All, A-D), never a dropdown, at every width ---- */
+.rk-filters-row .rk-filter.rk-f-inline .rk-dd { display: none; }
+.rk-filters-row .rk-filter.rk-f-inline .rk-dd-w { position: static; display: contents; width: auto; }
+.rk-filters-row .rk-filter.rk-f-inline .rk-pills { position: static; display: flex; flex-direction: row; flex-wrap: wrap; gap: 4px; max-height: none; padding: 0; border: 0; background: none; box-shadow: none; }
+.rk-filters-row .rk-filter.rk-f-inline .rk-pills button { height: 28px; padding: 0 10px; gap: 6px; border-color: var(--edge); border-radius: var(--r-md); font-size: 12px; }
+.rk-filters-row .rk-filter.rk-f-inline .rk-pills button small { display: none; } /* the count: its tooltip */
+.rk-filters-row .rk-filter.rk-f-inline .rk-pills button[aria-pressed="true"] { border-color: var(--c); }
+.rk-filters-row .rk-filter.rk-f-inline .rk-pills button[aria-pressed="true"]::before { content: none; }
+.rk-pills button[data-seed="1"] { --c: var(--seed-a); } .rk-pills button[data-seed="2"] { --c: var(--seed-b); }
+.rk-pills button[data-seed="3"] { --c: var(--seed-c); } .rk-pills button[data-seed="4"] { --c: var(--seed-d); }
+.rk-f-inline .seed { width: 16px; height: 16px; font-size: 10px; }
+@media (max-width: 680px) { /* Seed on its own line under Gen, its name as wide as the others: the buttons line up with the lists */
+  .rk-filters-row { flex-wrap: wrap; }
+  .rk-filters-row .rk-filter.rk-f-inline { flex: 1 1 100%; }
+  .rk-filters-row .rk-f-inline .rk-filter-l { min-width: 64px; }
+}
+
+/* ---- Rankings: the head above the filters, the season over the ranking's name, then 4 figures ---- */
+.rk-hero { padding-top: 8px; padding-bottom: 16px; }
+.rk-hero h1 { display: flex; flex-direction: column; margin: 0; font-size: 30px; font-weight: 800; line-height: 1.15; letter-spacing: -.01em; }
+.rk-hero h1 b { color: var(--acc); font-weight: 800; }
+.rk-hero p { margin: 6px 0 0; color: var(--mut); font-size: 13px; }
+.rk-stats { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
+.rk-stat { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 128px; padding: 10px 18px; border-radius: var(--r-lg); background: var(--panel2); }
+.rk-stat b { color: var(--fg); font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.rk-stat small { color: var(--mut); font-size: 12px; }
+@media (max-width: 640px) {
+  .rk-hero h1 { font-size: 24px; }
+  .rk-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .rk-stat { min-width: 0; }
+}
+#dv > .rk-hero { position: sticky; left: 0; box-sizing: border-box; width: 100cqw; max-width: 100%; padding-inline: 16px; padding-top: 20px; }
+#dv.dv-fit > .rk-hero { max-width: var(--fit, 1440px); margin-inline: auto; }
+@container (min-width: 1472px) { #dv.dv-fit > .rk-hero { padding-inline: 0; } }
+@media (max-width: 640px) { #dv > .rk-hero { padding-inline: 12px; } }
+
+/* ---- side menu, a wide window: a rail of icons; the pointer on it (or a focus in it) opens it over the page, the pin
+   on its edge (seen on hover) keeps it open beside the page. Its open width overlaps the page by a negative margin,
+   so the page never moves while it opens. The Rankings group: a name over its 4 rankings ---- */
+/* the Rankings group: its name (a button, as the other entries) with a chevron, then its list under it, set in with a
+   line down its left as a tree; closed: the list hidden (the rail shows the list's icons either way) */
+.side-grp { display: flex; flex-direction: column; gap: 2px; }
+.side-grp-list { position: relative; display: flex; flex-direction: column; gap: 2px; margin-left: 19px; padding-left: 8px; }
+.side-grp-list::before { content: ""; position: absolute; top: 2px; bottom: 2px; left: 0; width: 1px; background: var(--edge); }
+.side-grp:not(.open) .side-grp-list { display: none; }
+.side-chev { flex: none; width: 6px; height: 6px; margin-left: auto; border: solid currentColor; border-width: 0 1.5px 1.5px 0; transform: translateY(-2px) rotate(45deg); transition: transform var(--m-in) var(--m-ease); }
+.side-grp.open .side-chev { transform: translateY(1px) rotate(-135deg); }
+/* a ranking shown: its group lit as the entry picked while its list is closed (and on the rail, where the group is its
+   icon only); open, its name stays blue over the lit ranking */
+.side-grp:has(.side-grp-list button[aria-pressed="true"]) > .side-grp-h { color: var(--acc); }
+.side-grp:not(.open):has(.side-grp-list button[aria-pressed="true"]) > .side-grp-h { background: var(--acc-bg); }
+@media (min-width: 901px) {
+  body:not(.side-pinned) .side:not(.side-open, :has(:focus-visible)) .side-grp:has(.side-grp-list button[aria-pressed="true"]) > .side-grp-h { background: var(--acc-bg); }
+}
+.side-nav button span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.side-pin { display: none; }
+@media (min-width: 901px) {
+  .menu-btn { display: none; }
+  .side { --rail: 56px; --open: 224px; position: relative; z-index: 32; box-sizing: border-box; width: var(--rail); padding: 12px 8px;
+    transition: width var(--m-out) var(--m-ease), margin-right var(--m-out) var(--m-ease), box-shadow var(--m-out); }
+  body:not(.side-pinned) .side:is(.side-open, :has(:focus-visible)) { width: var(--open); margin-right: calc(var(--rail) - var(--open)); box-shadow: var(--shadow); }
+  body.side-pinned .side { width: var(--open); }
+  .side .brand { margin: 2px 0 6px 11px; overflow: hidden; }
+  .side-nav button { overflow: hidden; padding: 0 12px; }
+  .side :is(.brand > span[data-i18n], .side-nav button span, .side-chev) { transition: opacity var(--m-in); }
+  body:not(.side-pinned) .side:not(.side-open, :has(:focus-visible)) :is(.brand > span[data-i18n], .side-nav button span, .side-chev) { opacity: 0; }
+  /* the rail: the group is its icon only; its list shows once the menu is open and the group too */
+  body:not(.side-pinned) .side:not(.side-open, :has(:focus-visible)) .side-grp-list { display: none; }
+  body:not(.side-pinned) .side:not(.side-open, :has(:focus-visible)) .side-foot { flex-direction: column; align-items: center; }
+  .side-pin { position: absolute; top: 50%; right: -13px; z-index: 1; display: grid; place-items: center; width: 26px; height: 26px; padding: 0;
+    border: 1px solid var(--edge); border-radius: var(--r-md); background: var(--panel); color: var(--mut); cursor: pointer; opacity: 0; transition: opacity var(--m-in); }
+  .side-pin svg { width: 14px; height: 14px; }
+  .side-pin:hover { color: var(--fg); }
+  .side:is(:hover, :focus-within) .side-pin { opacity: 1; }
+  .side .crown { flex: none; }
+  body.side-pinned .side-pin svg { transform: scaleX(-1); } /* pinned: the arrow points in, to unpin */
+}
+
+
+/* Gen as Seed on a wider screen: a row of small buttons; a phone keeps its dropdown */
+@media (min-width: 681px) {
+  .rk-filters-row .rk-filter.rk-f-gen .rk-dd { display: none; }
+  .rk-filters-row .rk-filter.rk-f-gen .rk-dd-w { position: static; display: contents; width: auto; }
+  .rk-filters-row .rk-filter.rk-f-gen .rk-pills { position: static; display: flex; flex-direction: row; flex-wrap: wrap; gap: 4px; max-height: none; padding: 0; border: 0; background: none; box-shadow: none; }
+  .rk-filters-row .rk-filter.rk-f-gen .rk-pills button { height: 28px; padding: 0 10px; gap: 6px; border-color: var(--edge); border-radius: var(--r-md); font-size: 12px; }
+  .rk-filters-row .rk-filter.rk-f-gen .rk-pills button small { display: none; }
+  .rk-filters-row .rk-filter.rk-f-gen .rk-pills button[aria-pressed="true"] { border-color: var(--c); }
+  .rk-filters-row .rk-filter.rk-f-gen .rk-pills button[aria-pressed="true"]::before { content: none; }
+}
+
+/* ---- Rankings: the search box on the table's bar, on the right before Metrics ---- */
+#dv .dv-ctl[hidden] { display: none; }
+.tbl-bar .tbl-search { box-sizing: border-box; width: 220px; height: 32px; padding: 0 10px 0 30px; border: 1px solid var(--edge); border-radius: var(--r-md); background: var(--panel)
+  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='7' cy='7' r='4.6' fill='none' stroke='%238d8f9d' stroke-width='1.6'/%3E%3Cpath d='M10.4 10.4 14 14' stroke='%238d8f9d' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E") 10px 50% / 14px no-repeat; font-size: 13px; }
+.tbl-bar .tbl-search:focus { border-color: var(--acc); outline: none; }
+@media (max-width: 680px) { .tbl-bar .tbl-search { flex: 1 1 100%; width: 100%; height: 36px; } .tbl-bar .tools:has(.tbl-search) { flex-wrap: wrap; } }
+
+/* Status like Gen and Seed (one shape): small square buttons on a wider screen, its counts kept */
+@media (min-width: 641px) {
+  .rk-f-st .rk-pills { gap: 4px; }
+  .rk-f-st .rk-pills button { height: 28px; padding: 0 5px 0 10px; gap: 6px; border-radius: var(--r-md); font-size: 12px; }
+  .rk-f-st .rk-pills button small { padding: 0 5px; border-radius: var(--r-sm); font-size: 11px; }
+  .rk-filter-l { line-height: 28px; }
+}
+@container (min-width: 1472px) { #dv.dv-fit .dv-out > .kv-sec { margin-inline: 0; } } /* the KvK page's cards, in line with its head */
+/* Matchup: the same middle column as the rankings, not edge to edge */
+#cmp > * { box-sizing: border-box; max-width: 1440px; margin-inline: auto; }
+/* the KvK info (Kingdom page): the kingdom shown and its camp framed in a faint gold, 1px; the camp and its kingdom
+   open under it are one frame (no line between them) */
+.tbl tr.kv-cur > td { --g: color-mix(in srgb, var(--gold-solid) 45%, transparent); background: color-mix(in srgb, var(--gold-solid) 5%, var(--panel)); box-shadow: inset 0 1px 0 var(--g), inset 0 -1px 0 var(--g); }
+.tbl tr.kv-cur > td:first-child { box-shadow: inset 1px 0 0 var(--g), inset 0 1px 0 var(--g), inset 0 -1px 0 var(--g); }
+.tbl tr.kv-cur > td:last-child { box-shadow: inset -1px 0 0 var(--g), inset 0 1px 0 var(--g), inset 0 -1px 0 var(--g); }
+.tbl tr.kv-cur:has(+ tr.kv-cur) > td { border-bottom-color: transparent; box-shadow: inset 0 1px 0 var(--g); }
+.tbl tr.kv-cur:has(+ tr.kv-cur) > td:first-child { box-shadow: inset 1px 0 0 var(--g), inset 0 1px 0 var(--g); }
+.tbl tr.kv-cur:has(+ tr.kv-cur) > td:last-child { box-shadow: inset -1px 0 0 var(--g), inset 0 1px 0 var(--g); }
+.tbl tr.kv-cur + tr.kv-cur > td { box-shadow: inset 0 -1px 0 var(--g); }
+.tbl tr.kv-cur + tr.kv-cur > td:first-child { box-shadow: inset 1px 0 0 var(--g), inset 0 -1px 0 var(--g); }
+.tbl tr.kv-cur + tr.kv-cur > td:last-child { box-shadow: inset -1px 0 0 var(--g), inset 0 -1px 0 var(--g); }
+/* its pinned first cell too: the panel's own rule for pinned cells (.kv-panel .tbl td.pin) is stronger than the line's */
+.kv-panel .tbl tr.kv-cur > td.pin { background: color-mix(in srgb, var(--gold-solid) 5%, var(--panel)); }

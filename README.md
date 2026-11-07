@@ -50,7 +50,16 @@ value, `null` or a missing end means "unknown", and `0` means zero. The viewer t
 `index.json` (scans), `migrations.json` (one row per move of a player between kingdoms, with the player's newest
 numbers), `rollup.json` (the newest scan, one row per kingdom, players above 15M power now), `top_players.json` (the
 newest scan, every player above 15M power now, one list per column in `cols`). Tables name their columns in a `cols` list.
-A move is only known to lie between two scans.
+A move is only known to lie between two scans. `rollup.json`'s `sos` column is 1 for a kingdom at the Season of Strife
+(its season in the game's list is one), 0 for the rest (Seasons 1-3): the SoS / Non SoS rankings. A kingdom's places
+(`<metric>Rank`) are among the kingdoms of its own ranking.
+
+The figures on top of each page (the cards under its title) come worked out with the data, never added up in the page:
+`rollup.json` `heads.sos` / `heads.non` (`kingdoms`, `powerMaxHi`, `powerMaxLo`), `top_players.json` `head` (`players`,
+`kingdoms`, `powerMaxTop`), `derived/index.json` `head` (over every scan at the Migration page's first filter, power now
+above `minPower`: `moves`, `players` who moved, `scans`, `first`, `last`), `kvk/index.json` `head.ranking` (`kvks`
+ranked: every map but Season 1's; their `kingdoms`; `powerMaxTop`; `s1` maps going on, unranked) and `head.list` (maps
+going `now` = `ranked` + `s1`, the `kingdoms` on them, `history`).
 
 `data/kvk/seeds.json` (`tools/seed_export.py`) is the game's seed table of the kingdoms being paired for the next KvK: one
 entry per pairing group (`season`, `updated`, `rows`), a row per kingdom in the game's order with the columns of `cols`
@@ -87,3 +96,5 @@ number a lair milestone's `boss` names; the bar shows that avatar with the day t
 
 ¹ Players in an alliance only. ² Read from achievement tiers, so a value stops at the last tier. Fields listed
 in `atLeast` mean "this number or more".
+
+The side menu's icons are [Lucide](https://lucide.dev) icons (ISC licence), as published.

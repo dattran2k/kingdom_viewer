@@ -29,10 +29,12 @@ async function drawRank(k) {
   box.hidden = !me;
   if (box.hidden) return;
   if (ks.length > 1) { drawRanks(box, rows, ks); return; }
-  const n = rows.length, main = me.migrationScoreRank; // the place the ranking opens with
+  // its place in its own ranking, SoS or Non SoS (rollup.json: sos, the places and each ranking's count come worked
+  // out by kingdom_derive), by max power: the place that ranking opens with
+  const set = me.sos === 0 ? "non" : "sos", n = roll.heads?.[set]?.kingdoms ?? rows.length, main = me.powerMaxRank;
   const head = el("div", "kr-head");
   // a phone: two lines that break at the same place for every kingdom (the place's digits must not move the break)
-  head.append(el("h2", "", tr("iRankTitle")), el("b", "kr-main", "#" + main), el("span", "mut", tr("iOf").replace("{n}", numFmt().format(n))), el("i", "kr-br"),
+  head.append(el("h2", "", tr(set === "non" ? "rNonSos" : "rSos")), el("b", "kr-main", "#" + main), el("span", "mut", tr("iOf").replace("{n}", numFmt().format(n))), el("i", "kr-br"),
     el("span", "kr-pill",tr("iTop").replace("{p}", numFmt(1).format((100 * main) / n))));
   // one block with the cards: each card has the place of its metric, the metrics without a card are on this line
   rankOf = { me, n };
@@ -109,7 +111,7 @@ async function drawSub(k) {
 
 // ---- the top of the page: the season's picture, its name and the KvK ----
 // The loading shapes of the KvK block (index.html), kept: a kingdom in no KvK holds the same room with them, unseen, so
-// the number and everything under it (Hạng server...) sit at the same place on every kingdom (user 06/11)
+// the number and everything under it (Hạng server...) sit at the same place on every kingdom
 const VOID_KVK = $("kMeta")?.innerHTML ?? "";
 function voidMeta(meta) {
   meta.className = "k-meta k-kvk sk-kvk k-void";
@@ -139,7 +141,7 @@ async function drawTop(k) {
   fit();
   if (!row._fit) { row._fit = new ResizeObserver(fit); row._fit.observe(row); }
   // in no KvK (or kingdoms of different ones): nothing to see, the status beside the number already says it
-  // (pairing, registering...) (user 06/11), but the block's room stays
+  // (pairing, registering...), but the block's room stays
   if (!b && grp?.times) { pairing(meta, k, grp, idx?.genOf?.[k]); return; }
   if (!b) { voidMeta(meta); return; }
   meta.className = "k-meta k-kvk"; // the loading shapes are gone
@@ -165,7 +167,7 @@ async function drawTop(k) {
     chips.appendChild(c);
   }
   open.href = "#kvk=" + b.id;
-  // the phases only: the milestones are the KvK page's (user 06/11)
+  // the phases only: the milestones are the KvK page's
   const prog = el("div", "k-prog");
   prog.append(...KS.season.progress(b, false, 1, false));
   meta.append(line, prog, chips);
@@ -206,8 +208,8 @@ function pairing(meta, k, g, gen) {
   const chips = el("div", "k-meta-c");
   chips.appendChild(el("span", "k-meta-lbl", tr("pKds").replace("{n}", g.rows.length)));
   for (const s of [1, 2, 3, 4]) {
-    const c = el("a", "k-pair-s"); // its seed of this group in the ranking (user 07/11)
-    c.href = `#p=rank${gen != null ? "&gen=" + encodeURIComponent(gen) : ""}&seed=${g.n}:${s}`; // with the kingdom's gen (user 07/11)
+    const c = el("a", "k-pair-s"); // its seed of this group in the ranking
+    c.href = `#p=rank${gen != null ? "&gen=" + encodeURIComponent(gen) : ""}&seed=${s}`; // with the kingdom's gen; the ranking filters by seed letter, not group
     c.innerHTML = `<i class="seed s${s}">${"ABCD"[s - 1]}</i>${g.rows.filter((r) => r[1] === s).length}`;
     chips.appendChild(c);
   }

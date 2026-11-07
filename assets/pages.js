@@ -5,7 +5,7 @@
 "use strict";
 const KS = window.KS, { state, tr, $, numFmt, fitPop } = KS;
 
-Object.assign(KS.T.vi, { rNoGen: "TBD", rSeed: "Seed", rSeedGrp: "Nhóm {n}", 
+Object.assign(KS.T.vi, { rNoGen: "TBD", rSeed: "Seed", rOtherGen: "Khác", rStatRanked: "KvK được xếp hạng", rStatS1: "Map Mùa 1", rKvkS1: "Map Mùa 1 ({n}) không xếp hạng.", rStatMoves: "Lượt di cư", rStatMovers: "Người đã di cư", rStatScans: "Đợt quét", rStatSpan: "Từ – đến", mHeadTop: "Giữa các đợt quét", rStatNow: "KvK đang diễn ra", rStatHist: "Trong lịch sử", rStatInKvk: "Kingdom trong KvK", kHeadTop: "Mọi mùa giải", rAllKds: "Mọi kingdom", rAllKvks: "Mọi trận KvK", rStatPlayers: "Người chơi", rStatKvks: "KvK", rStatTopP: "LC max cao nhất", rStatTopK: "Tổng LC max cao nhất", rHintP: "Mọi người chơi có lực chiến hiện tại trên 15M, ở mọi kingdom. Bấm một dòng để mở kingdom của người đó.", rSos: "Xếp hạng SoS", rNonSos: "Xếp hạng Non SoS", rNonSosTop: "Mùa Giải 1–3", rStatKds: "Kingdom", rStatHi: "LC max cao nhất", rStatLo: "LC max thấp nhất", rStatUpd: "Cập nhật", 
   descKingdom: "Người chơi của từng kingdom theo ngày. Bật So sánh để xem mỗi người tăng giảm bao nhiêu giữa 2 ngày.",
   descCompare: "Đối chiếu hai phe, mỗi phe gồm một hoặc nhiều kingdom, ở ngày mới nhất. + Kingdom: chọn từ các kingdom đang ghép cặp theo Seed, hoặc mọi kingdom.",
   descRank: "Xếp hạng các kingdom ở ngày mới nhất, tính người có lực chiến hiện tại trên 15M.",
@@ -15,7 +15,7 @@ Object.assign(KS.T.vi, { rNoGen: "TBD", rSeed: "Seed", rSeedGrp: "Nhóm {n}",
   rKingdoms: "kingdom", 
   rSearch: "#kingdom, tag…", rSearchK: "SoS8-10045, #kingdom…", rHint: "Tính theo người có lực chiến hiện tại trên 15M, trong top lực chiến mỗi kingdom. Bấm một dòng để mở.",
   cKingdom: "Kingdom", cGen: "Gen", cTopAlliance: "Liên Minh", cPlayers: "Người chơi",
-  cPower: "Lực chiến", cPowerMax: "LC max", cMerits: "Công trạng", cKills: "Tiêu diệt", cDeaths: "Tử trận", cHeals: "Chữa trị", cHelps: "Giúp đỡ", cGathered: "Thu thập",
+  cPower: "Lực chiến", cPowerMax: "LC max", cMerits: "Công trạng", cMeritsMax: "CT mùa đỉnh", cKills: "Tiêu diệt", cDeaths: "Tử trận", cHeals: "Chữa trị", cHelps: "Giúp đỡ", cGathered: "Thu thập",
   cMigration: "Điểm di cư", cDecor: "Decor max", cInf: "CT bộ", cCav: "CT kỵ", cArc: "CT cung", cMag: "CT phép",
   gFrom: "Từ", gTo: "Đến", gName: "Người chơi",
   mStart: "Từ ngày", mEnd: "Đến ngày", mLords: "Người chơi", mServers: "Kingdom", mKingdom: "Kingdom", mLord: "ID / tên", mMin: "Lực chiến > (M)",
@@ -23,7 +23,7 @@ Object.assign(KS.T.vi, { rNoGen: "TBD", rSeed: "Seed", rSeedGrp: "Nhóm {n}",
   mTotal: "lượt di cư", mPeople: "người", mPage: "Trang", mPrev: "◀ Trước", mNext: "Sau ▶", mNone: "Không có lượt di cư nào khớp.", mWindow: "Còn ở kingdom cũ lúc {a}, đã ở kingdom mới lúc {b}",
   mIn: "vào", mOut: "ra", mNet: "ròng", mHint: "Lực chiến và các số khác là số mới nhất. Ngày di cư thật nằm trong khoảng hiện ở cột Thời điểm. Chỉ thấy người có trong top lực chiến ≥ 5M ở cả hai đầu.",
 });
-Object.assign(KS.T.en, { rNoGen: "TBD", rSeed: "Seed", rSeedGrp: "Group {n}", 
+Object.assign(KS.T.en, { rNoGen: "TBD", rSeed: "Seed", rOtherGen: "Other", rStatRanked: "KvKs ranked", rStatS1: "Season 1 maps", rKvkS1: "Season 1 maps ({n}) have no ranking.", rStatMoves: "Moves", rStatMovers: "Players who moved", rStatScans: "Scans", rStatSpan: "From – to", mHeadTop: "Between scans", rStatNow: "KvKs going on", rStatHist: "In the History", rStatInKvk: "Kingdoms in a KvK", kHeadTop: "Every season", rAllKds: "Every kingdom", rAllKvks: "Every KvK", rStatPlayers: "Players", rStatKvks: "KvKs", rStatTopP: "Highest max power", rStatTopK: "Highest total max power", rHintP: "Every player whose power now is above 15M, in every kingdom. Click a line to open their kingdom.", rSos: "SoS ranking", rNonSos: "Non SoS ranking", rNonSosTop: "Seasons 1–3", rStatKds: "Kingdoms", rStatHi: "Highest max power", rStatLo: "Lowest max power", rStatUpd: "Updated", 
   descKingdom: "Each kingdom's players by day. Turn on Compare to see how much each one changed between two days.",
   descCompare: "Two sides face to face, each of one or more kingdoms, on the newest day. + Kingdom: pick from the kingdoms being paired by seed, or from all.",
   descRank: "Kingdoms ranked on the newest day, counting players above 15M power now.",
@@ -33,7 +33,7 @@ Object.assign(KS.T.en, { rNoGen: "TBD", rSeed: "Seed", rSeedGrp: "Group {n}",
   rKingdoms: "kingdoms", 
   rSearch: "#kingdom, tag…", rSearchK: "SoS8-10045, #kingdom…", rHint: "Counts players whose power now is above 15M, within each kingdom's power ranking. Click a line to open it.",
   cKingdom: "Kingdom", cGen: "Gen", cTopAlliance: "Alliance", cPlayers: "Players",
-  cPower: "Power", cPowerMax: "Max power", cMerits: "Merits", cKills: "Kills", cDeaths: "Dead", cHeals: "Healed", cHelps: "Helps", cGathered: "Gathered",
+  cPower: "Power", cPowerMax: "Max power", cMerits: "Merits", cMeritsMax: "Best season", cKills: "Kills", cDeaths: "Dead", cHeals: "Healed", cHelps: "Helps", cGathered: "Gathered",
   cMigration: "Migration score", cDecor: "Max decor", cInf: "Infantry", cCav: "Cavalry", cArc: "Archers", cMag: "Magic",
   gFrom: "From", gTo: "To", gName: "Player",
   mStart: "From", mEnd: "To", mLords: "Players", mServers: "Kingdoms", mKingdom: "Kingdom", mLord: "ID / name", mMin: "Power > (M)",
@@ -47,7 +47,7 @@ const PAGE_SIZES = [20, 50, 100, 200, 0]; // 0 = all
 const sessionSize = {};
 const pageSize = () => sessionSize.pageSize ?? 20;
 const onPage = (rows, page, size = pageSize()) => (size ? rows.slice((page - 1) * size, page * size) : rows);
-// Rankings and Migration: 200 rows a page at most, no "All" (the user, 05/11: ~80k players); a bigger pick made on
+// Rankings and Migration: 200 rows a page at most, no "All" (~80k players); a bigger pick made on
 // another page counts as 200
 const BIG_SIZES = [20, 50, 100, 200];
 const bigSize = () => Math.min(pageSize() || 200, 200);
@@ -141,7 +141,8 @@ function pager(total, page, go, { size = pageSize(), sizes = PAGE_SIZES, key = "
 }
 // a sortable table: cols = [{key, label, get(row), text(row), cls(row), tip(row), nosort, ranked, max, bar(row)}]; sort = {key, dir};
 // a ranked column takes its colour from the row's place in the whole list, r._i
-const HEAD_ICONS = new Set(["power", "merits", "kills", "deaths", "heals"]);
+const HEAD_ICONS = new Set(["power", "merits", "meritsMax", "kills", "deaths", "heals"]);
+const headIcon = (k) => (k === "meritsMax" ? "merits" : k); // the best season: the merits' picture
 // the cells shared by the tables: a name with its ID under it, a kingdom chip, a figure with its bar
 const whoCell = (name, id, k) => { const d = el("span", "who"); d.append(el("b", "", name ?? "–"), el("small", "", String(id ?? ""))); if (id && k) KS.playerLink(d, id, k, name ?? ""); return d; };
 const kdCell = (k, top) => el("span", top ? "kd top" : "kd", "#" + k);
@@ -215,7 +216,7 @@ function widthSample(all, get) {
 }
 // The bar above a table, the Kingdom table's: its title, Show, View, sort by. Returns the columns to show.
 let barPop = ""; // the menu left open across a redraw
-function tableBar(out, { id, title, meta, cols, holder, prop, redraw, hideFirst = [] }) {
+function tableBar(out, { id, title, meta, cols, holder, prop, redraw, hideFirst = [], search = null }) {
   const bar = el("div", "bar tbl-bar dv-tbar"), head = el("div", "tbl-title"), tools = el("div", "tools");
   head.append(el("b", "", title), el("p", "meta", meta));
   const hidden = new Set(KS.store.get("hide_" + id, hideFirst));
@@ -278,7 +279,14 @@ function tableBar(out, { id, title, meta, cols, holder, prop, redraw, hideFirst 
   dir.onclick = () => { holder[prop] = { ...holder[prop], dir: -holder[prop].dir }; redraw(); };
   sortBox.append(label, dir);
   bar.append(head, tools, sortBox);
-  out.appendChild(bar);
+  if (search) {
+    // a box that had the focus when its old bar was cleared: its focus and caret back once it is on the page again
+    const at = search._caret ?? -1;
+    search.classList.add("tbl-search");
+    tools.prepend(search);
+    out.appendChild(bar);
+    if (at >= 0) { search.focus({ preventScroll: true }); search.setSelectionRange(at, at); } // no scroll: the page stays where it was
+  } else out.appendChild(bar);
   return shown;
 }
 document.addEventListener("pointerdown", (e) => {
@@ -329,10 +337,14 @@ function table(cols, rows, sort, onSort, onRow) {
     if ([...pins.keys()].pop() === c.key) node.classList.add("pin-last");
   };
   t.style.minWidth = total + "px";
-  queueMicrotask(() => { const page = wrap.closest("#dv .dv-out"); if (page) page.style.minWidth = total + "px"; }); // the sticky bars need a parent as wide as the table
+  queueMicrotask(() => { // the sticky bars need a parent as wide as the table; the page's middle column (and its head)
+    // as wide as a table wider than 1440 px, so the head, filters and table keep one left edge
+    const page = wrap.closest("#dv .dv-out");
+    if (page) { page.style.minWidth = total + "px"; page.parentElement.style.setProperty("--fit", Math.max(1440, total) + "px"); }
+  });
   for (const c of cols) {
     const th = el("th", (sort.key === c.key ? "on" : "") + (c.left ? " nm" : ""), c.label);
-    if (HEAD_ICONS.has(c.key)) { const i = el("img", "th-ic"); i.src = `assets/icons/${c.key}.png`; i.alt = ""; th.prepend(i); }
+    if (HEAD_ICONS.has(c.key)) { const i = el("img", "th-ic"); i.src = `assets/icons/${headIcon(c.key)}.png`; i.alt = ""; th.prepend(i); }
     if (sort.key === c.key) th.dataset.dir = sort.dir < 0 ? "▼" : "▲";
     if (c.nosort) th.classList.add("nosort");
     else th.onclick = () => onSort(c.key);
@@ -392,6 +404,8 @@ function setLink(p, params) {
 function frame() {
   const box = $("dv");
   box.innerHTML = "";
+  box.style.removeProperty("--fit"); // a table of this page sets it again
+  box.classList.remove("dv-fit"); // the Rankings page sets it again
   $("dvSlot").innerHTML = ""; // what the page puts in its header
   const ctl = el("div", "dv-ctl"), out = el("div", "dv-out");
   box.append(ctl, out);
@@ -399,37 +413,52 @@ function frame() {
 }
 
 // ---- ranking: the kingdoms of one scan, optionally against an older one ----
-// in the order of the server ranking's columns: the migration score with its bands, then power with max decor after max power;
-// helps and gathered last; those two and the merits by troop type hidden until asked for (RANK_HIDDEN)
+// in the order of the server ranking's columns: the migration score with its bands, max power (no power now: max power
+// says more of a kingdom), players, max decor, then unit focus and the fights; helps and gathered last. Hidden until
+// asked for (RANK_HIDDEN): the migration score's bands, the merits by troop type, Trades, helps and gathered
 const RANK_METRICS = [
-  ["migrationScore", "cMigration"], ["migration24", "24–27"], ["migration28", "28–30"], ["migration31", "31+"],
-  ["power", "cPower"], ["powerMax", "cPowerMax"], ["decorMax", "cDecor"], ["merits", "cMerits"], ["kills", "cKills"], ["deaths", "cDeaths"], ["heals", "cHeals"],
+  ["migrationScore", "cMigration"], ["migration24", "24–27"], ["migration28", "28–30"], ["migration31", "31+"], ["powerMax", "cPowerMax"],
+  ["decorMax", "cDecor"], ["meritsMax", "cMeritsMax"], ["kills", "cKills"], ["deaths", "cDeaths"], ["heals", "cHeals"],
   ["meritInfantry", "cInf"], ["meritCavalry", "cCav"], ["meritArcher", "cArc"], ["meritMagic", "cMag"],
 ];
 const RANK_LAST = [["helps", "cHelps"], ["gathered", "cGathered"]];
-const RANK_HIDDEN = [...RANK_LAST.map(([k]) => k), "meritInfantry", "meritCavalry", "meritArcher", "meritMagic"];
+const RANK_HIDDEN = ["migration24", "migration28", "migration31", "trades", "helps", "gathered", "meritInfantry", "meritCavalry", "meritArcher", "meritMagic"];
 const tradesCol = () => ({ key: "trades", label: "Trades", get: (r) => r.trades, tip: () => tr("tradesTip"), node: (r) => el("span", "tr-b", r.trades == null ? "–" : numFmt(0).format(r.trades) + "%") });
-const RANK_DEFAULT = { server: "migrationScore", member: "power", kvk: "powerMax" }; // what each ranking is sorted by when it opens
-const rank = { q: "", page: 1, sort: { key: RANK_DEFAULT.server, dir: -1 }, mode: "server", st: "", gen: "", seed: "", at: 0 }; // at: the kingdom to open on; seed: "<group>:<seed 1-4>"
+const RANK_DEFAULT = { server: "powerMax", non: "powerMax", member: "powerMax", kvk: "powerMax" }; // what each ranking is sorted by when it opens
+const rank = { q: "", page: 1, sort: { key: RANK_DEFAULT.server, dir: -1 }, mode: "server", st: "", gen: "", seed: "", at: 0 }; // mode: server (the SoS kingdoms), non (Non SoS: not at the Season of Strife yet), member, kvk; at: the kingdom to open on; seed: "1"-"4" (A-D), gen: "1"-"4" or "other" (SoS), KvK1-3 (Non SoS)
 
+const isKds = (m) => m === "server" || m === "non"; // the kingdom rankings: SoS and Non SoS
+let rankPaint = () => {};
+let rankBox = null; // the rankings' search box: on the table's bar, the same element across redraws
+// before a ranking clears its old bar: whether its search box has the focus, and where the caret is
+const holdBox = () => { if (rankBox) rankBox._caret = document.activeElement === rankBox ? rankBox.selectionStart ?? rankBox.value.length : -1; };
+// the ranking shown, pressed in the header's tabs and in the side menu
+function markRank() {
+  document.querySelectorAll(".rk-seg button, .side-nav button[data-m]").forEach((x) => x.setAttribute("aria-pressed", String(state.page === "rank" && x.dataset.m === rank.mode)));
+}
 async function showRank() {
   const { ctl, out } = frame();
+  $("dv").classList.add("dv-fit"); // a column in the middle of a wide screen, not edge to edge (a wider table still scrolls sideways)
   const hp = new URLSearchParams(location.hash.slice(1));
-  const asked = { players: "member", kvk: "kvk" }[hp.get("m")] || "server";
+  const asked = { players: "member", kvk: "kvk", non: "non" }[hp.get("m")] || "server";
   if (rank.mode !== asked) { rank.mode = asked; rank.sort = { key: RANK_DEFAULT[asked], dir: -1 }; rank.page = 1; }
   // a shared link, or from a Kingdom page: the server ranking as it opens with the link's filters, on that kingdom's line
-  if (asked === "server" && ["at", "st", "gen", "seed"].some((x) => hp.has(x)))
-    Object.assign(rank, { at: Number(hp.get("at")) || 0, q: "", st: hp.get("st") || "", gen: hp.get("gen") || "", seed: hp.get("seed") || "", page: 1, sort: { key: RANK_DEFAULT.server, dir: -1 } });
+  // (gen as the link has it: drawRank takes it to the set's filter value, after an `at` kingdom picked the set)
+  if (isKds(asked) && ["at", "st", "gen", "seed"].some((x) => hp.has(x)))
+    Object.assign(rank, { at: Number(hp.get("at")) || 0, q: "", st: hp.get("st") || "", gen: hp.get("gen") || "",
+      seed: (hp.get("seed") || "").split(":").pop(), page: 1, sort: { key: RANK_DEFAULT[asked], dir: -1 }, linked: true }); // an older link's seed=<group>:<seed>: its letter
   const redraw = () => drawRank(out);
   const restart = () => { rank.page = 1; redraw(); };
   const seg = el("nav", "rk-seg");
   const box = searchBox("", rank.q, (v) => { rank.q = v; restart(); });
-  box.classList.add("dv-wide");
+  rankBox = box;
+  ctl.hidden = true; // its search box is on the table's bar
   const paint = () => {
     box.placeholder = tr(rank.mode === "member" ? "rSearchP" : rank.mode === "kvk" ? "rSearchK" : "rSearch");
-    seg.querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x.dataset.m === rank.mode)));
+    markRank();
   };
-  for (const [m, label] of [["server", "rServers"], ["member", "rMembers"], ["kvk", "rKvks"]]) {
+  rankPaint = paint;
+  for (const [m, label] of [["server", "rSos"], ["non", "rNonSos"], ["member", "rMembers"], ["kvk", "rKvks"]]) {
     const b = el("button", "", tr(label));
     b.type = "button"; b.dataset.m = m;
     b.onclick = () => { if (rank.mode === m) return; rank.mode = m; rank.sort = { key: RANK_DEFAULT[m], dir: -1 }; paint(); restart(); };
@@ -437,11 +466,10 @@ async function showRank() {
   }
   paint();
   $("dvSlot").appendChild(seg);
-  ctl.appendChild(box);
   redraw();
 }
 
-// the KvK of each kingdom, a chip like the sample's: its code and season
+// the KvK of each kingdom, a chip: its code and season
 // the Kingdom column of the KvK ranking: two camps a line (a map is mostly 4 camps of 2 kingdoms), as wide as twice
 // the widest camp, up to 3 kingdoms a camp: a bigger camp's kingdoms wrap inside its frame. A chip is 40px (47 with
 // 4 digits) and 3 apart, a frame 8 around them
@@ -466,7 +494,7 @@ const kvkCell = (b) => {
 const statusW = (rows) => Math.ceil(Math.max(0, ...rows.map((r) => textW(KS.season.status(r.st), "600 12px"))) + 18 + 20 + 6 + 11); // + its dot and gap
 const statusCell = (st) => { const c = el("span", "k-status", KS.season.status(st) || "–"); c.dataset.st = st ?? ""; return c; };
 // top_players.json is one list per column (kingdom_derive.top_players); trades = kills per 100 heals, as trades_of.
-// ~80k players: each step is kept for the next draw (user 05/11: switching to this tab froze). Rows are built once; the
+// ~80k players: each step is kept for the next draw (switching to this tab froze). Rows are built once; the
 // search's rows and each bar's top once per search; the order once per search + column + way; a page then only slices
 // it, and its columns are as wide as the rows it shows (the whole list is never measured).
 let membersOf = null;
@@ -495,30 +523,40 @@ async function drawMembers(out, me) {
   const [cur] = await Promise.all([load("derived/top_players.json"), KS.seeds.load()]);
   if (me !== rankToken) return;
   setLink("rank", { m: "players" });
+  holdBox();
   out.innerHTML = "";
   if (!cur) { out.appendChild(el("p", "hint", tr("noDerived"))); return; }
   const m = members(cur), found = membersFound(m, rank.q.toLowerCase());
+  const h = cur.head ?? {}; // top_players.json's head (kingdom_derive.top_players)
+  rankHead({ top: tr("rAllKds"), title: tr("rMembers"), hint: tr("rHintP"), stats: [[count(h.players), "rStatPlayers"],
+    [count(h.kingdoms), "rStatKds"], bigStat(h.powerMaxTop, "rStatTopP"), [dayOf(cur.scan), "rStatUpd", cur.scan]] });
   const metric = (key, label) => {
     if (!m.maxOf.has(key)) m.maxOf.set(key, found.reduce((x, r) => Math.max(x, r[key] ?? 0), 0));
     return { key, label: tr(label), get: (r) => r[key], max: m.maxOf.get(key) };
   };
   const cols = [
     { key: "#", label: "#", nosort: true, text: (r) => String(r._i), cls: () => "mut" },
-    { key: "name", label: tr("cName"), left: true, w: state.narrow ? 120 : undefined, get: (r) => r.name, node: (r) => whoCell(r.name, r.id, r.kingdom) },
+    { key: "name", label: tr("cName"), left: true, w: state.narrow ? 120 : 170, get: (r) => r.name, node: (r) => whoCell(r.name, r.id, r.kingdom) },
     { key: "kingdom", label: tr("cKingdom"), nopin: true, w: 100, get: (r) => r.kingdom, node: (r) => kdSeedCell(r.kingdom, r._i <= 8) },
-    { key: "alliance", label: tr("cAlliance"), get: (r) => r.alliance, node: (r) => allianceChip(r.alliance) },
-    metric("powerMax", "cPowerMax"), metric("power", "cPower"), metric("merits", "cMerits"), metric("kills", "cKills"), metric("deaths", "cDeaths"), metric("heals", "cHeals"),
-    metric("meritInfantry", "cInf"), metric("meritCavalry", "cCav"), metric("meritArcher", "cArc"), metric("meritMagic", "cMag"), metric("helps", "cHelps"), metric("migrationScore", "cMigration"),
+    // as the kingdom rankings: no alliance, no power; the migration score, max power, the account's
+    // max decor / max pets / legendary city themes (named as on the Kingdom table), then unit focus before the merits
+    metric("migrationScore", "cMigration"), metric("powerMax", "cPowerMax"),
+    ...["maxDecor", "pets8Skills3Star", "cityTheme"].map((k) => ({ ...metric(k, ""), label: KS.label(KS.BY_KEY[k]), tip: (r) => KS.label(KS.BY_KEY[k].tip) })),
+    ...(found.some((r) => unitSplit(r)) ? [focusCol()] : []),
+    metric("meritsMax", "cMeritsMax"), metric("kills", "cKills"), metric("deaths", "cDeaths"), metric("heals", "cHeals"),
+    metric("meritInfantry", "cInf"), metric("meritCavalry", "cCav"), metric("meritArcher", "cArc"), metric("meritMagic", "cMag"), metric("helps", "cHelps"),
     tradesCol(),
   ];
-  addFocus(cols, found);
-  const col = cols.find((c) => c.key === rank.sort.key) || cols.find((c) => c.key === "power");
+  const col = cols.find((c) => c.key === rank.sort.key) || cols.find((c) => c.key === RANK_DEFAULT.member);
   const how = col.key + "|" + rank.sort.dir;
   if (!m.sorted.has(how)) m.sorted.set(how, sortRows(found, col.get, rank.sort.dir));
   const rows = m.sorted.get(how), size = bigSize();
   const shown = onPage(rows, rank.page, size);
   shown.forEach((r, i) => { r._i = (rank.page - 1) * size + i + 1; });
-  const view = tableBar(out, { id: "members", title: tr("rMembers"), meta: `${numFmt().format(rows.length)} ${tr("cPlayers").toLowerCase()}`, cols, holder: rank, prop: "sort", redraw: () => KS.keepScroll($("dv"), () => drawRank(out)) });
+  // hidden at first: the merits by troop type and helps, so the table fits the page's middle column (a new id: the
+  // pick saved under "members" hid nothing; members2 had the alliance and power)
+  // members4: Trades hidden at first too, as the kingdom rankings' (the best season's wider title)
+  const view = tableBar(out, { id: "members4", hideFirst: ["meritInfantry", "meritCavalry", "meritArcher", "meritMagic", "helps", "trades"], title: tr("rMembers"), meta: `${numFmt().format(rows.length)} ${tr("cPlayers").toLowerCase()}`, cols, holder: rank, prop: "sort", search: rankBox, redraw: () => KS.keepScroll($("dv"), () => drawRank(out)) });
   view.all = shown;
   out.appendChild(table(view, shown, { key: col.key, dir: rank.sort.dir }, (k) => { rank.sort = nextSort(rank.sort, k); rank.page = 1; KS.keepScroll($("dv"), () => drawRank(out)); },
     (r) => { location.hash = "k=" + r.kingdom; }));
@@ -529,9 +567,13 @@ async function drawKvks(out, me) {
   const kvk = await KS.season.list();
   if (me !== rankToken) return;
   setLink("rank", { m: "kvk" });
+  holdBox();
   out.innerHTML = "";
   if (!kvk) { out.appendChild(el("p", "hint", tr("noDerived"))); return; }
   let rows = kvk.battles.filter((b) => b.rank).map((b) => ({ ...b.totals, id: b.id, kvk: b, have: b.have, powerMax: b.powerMax, rank: b.rank }));
+  const h = kvk.head?.ranking ?? {}; // kvk/index.json's head (kvk_export.heads_of)
+  rankHead({ top: tr("rAllKvks"), title: tr("rKvks"), hint: `${tr("kRankTip")}. ${tr("rKvkS1").replace("{n}", count(h.s1))}`, stats: [[count(h.kvks), "rStatRanked"],
+    [count(h.kingdoms), "rStatKds"], bigStat(h.powerMaxTop, "rStatTopK"), [dayOf(kvk.updated), "rStatUpd", kvk.updated]] });
   const q = rank.q.toLowerCase().replace("#", "");
   if (q) rows = rows.filter((r) => r.kvk.name.toLowerCase().includes(q) || r.kvk.kingdoms.some((k) => String(k.k).startsWith(q)));
   const cols = [
@@ -543,7 +585,7 @@ async function drawKvks(out, me) {
       for (const [camp, list] of KS.season.camps(r.kvk)) {
         const box = d.appendChild(el("span", "rk-camp"));
         box.title = camp ? `${tr("kCamp")} ${camp}` : "";
-        box.append(...list.map((k) => el("span", "kd", "#" + k.k))); // "#357" (user 07/11): chipW counts the "#"
+        box.append(...list.map((k) => el("span", "kd", "#" + k.k))); // "#357": chipW counts the "#"
         box.style.gridTemplateColumns = `repeat(${Math.ceil(list.length / Math.ceil(list.length / 3))}, auto)`; // even lines: 4 is 2 + 2, 6 is 3 + 3
       }
       if (r.have < r.kvk.kingdoms.length) d.append(el("small", "mut", `${r.have}/${r.kvk.kingdoms.length}`));
@@ -555,7 +597,7 @@ async function drawKvks(out, me) {
   const col = cols.find((c) => c.key === rank.sort.key) || cols.find((c) => c.key === "powerMax");
   rows = sortRows(rows, col.get, rank.sort.dir);
   const shown = onPage(rows, rank.page, bigSize());
-  const view = tableBar(out, { id: "kvks", title: tr("rKvks"), meta: `${numFmt().format(rows.length)} KvK`, cols, holder: rank, prop: "sort", redraw: () => KS.keepScroll($("dv"), () => drawRank(out)) });
+  const view = tableBar(out, { id: "kvks", title: tr("rKvks"), meta: `${numFmt().format(rows.length)} KvK`, cols, holder: rank, prop: "sort", search: rankBox, redraw: () => KS.keepScroll($("dv"), () => drawRank(out)) });
   view.all = rows;
   out.appendChild(table(view, shown, { key: col.key, dir: rank.sort.dir }, (k) => { rank.sort = nextSort(rank.sort, k); rank.page = 1; KS.keepScroll($("dv"), () => drawRank(out)); },
     (r) => { location.hash = "kvk=" + r.id; }));
@@ -563,10 +605,41 @@ async function drawKvks(out, me) {
 }
 
 let rankToken = 0;
+// the server ranking's head: the season over the ranking's name, a line under it, then 4 figures of every kingdom
+// ranked (not the filters'): how many, the highest and lowest max power, the day of the data
+// A ranking tab's head, above its table (and the search box on the table's bar): a line over the ranking's name, a
+// line under it, then figures of the whole list (not the filters'): stats = [[value, label key, tooltip]]. Put back in
+// place on each draw, so the page does not jump
+function rankHead({ top, title, hint, stats }) {
+  const box = el("section", "rk-hero"), h = el("h1"), row = el("div", "rk-stats");
+  h.append(el("span", "", top), el("b", "", title));
+  for (const [v, label, tip] of stats) {
+    const c = el("div", "rk-stat");
+    c.append(el("b", "", v), el("small", "", tr(label)));
+    if (tip) c.title = tip;
+    row.appendChild(c);
+  }
+  box.append(h, el("p", "", hint), row);
+  const dv = $("dv"), old = dv.querySelector(":scope > .rk-hero");
+  old ? old.replaceWith(box) : dv.prepend(box);
+}
+// a day of the data, "07 Nov" ("2026-11-07" or an ISO time)
+const dayOf = (iso) => (iso ? new Date(iso.length === 10 ? iso + "T00:00:00Z" : iso).toLocaleDateString(state.lang === "vi" ? "vi-VN" : "en-GB", { day: "2-digit", month: "short", timeZone: "UTC" }) : "–");
+const bigStat = (v, label, tip) => [v == null || !isFinite(v) ? "–" : KS.compact(v), label, tip ?? fullNum(v)];
+const count = (v) => (v == null ? "–" : numFmt().format(v));
+// the kingdom rankings' head: SoS or Non SoS, from rollup.json's heads (kingdom_derive.heads_of)
+function rankHero(cur, non) {
+  const h = cur.heads?.[non ? "non" : "sos"] ?? {};
+  rankHead({ top: tr(non ? "rNonSosTop" : "kSos"), title: tr(non ? "rNonSos" : "rSos"), hint: tr("rHint"),
+    stats: [[count(h.kingdoms), "rStatKds"], bigStat(h.powerMaxHi, "rStatHi"), bigStat(h.powerMaxLo, "rStatLo"), [dayOf(cur.scan), "rStatUpd", cur.scan]] });
+}
 // a gen's name and place: Gen 1-4, then SoS1 (a lone SoS1 map), KvK3, KvK2, KvK1 (not at SoS yet): kvk_export.gen_of;
 // "-" (in none of them) last, TBD
 const genName = (g) => (g === "-" ? tr("rNoGen") : typeof g === "string" ? g : `${tr("cGen")} ${g}`);
 const genOrder = (g) => (typeof g === "number" ? g : { SoS1: 10, KvK3: 11, KvK2: 12, KvK1: 13 }[g] ?? 20);
+// the Gen filter's value. SoS: "1"-"4", or "other" for the rest (a link's gen=SoS1 / - lands on Other). Non SoS: its
+// own gen, KvK1-3
+const genKey = (g, non) => (non ? String(g) : ["1", "2", "3", "4"].includes(String(g)) ? String(g) : "other");
 document.addEventListener("click", (e) => {
   if (!e.target.closest?.(".rk-filter")) document.querySelectorAll(".rk-filter.open").forEach((x) => x.classList.remove("open"));
 });
@@ -575,21 +648,31 @@ document.addEventListener("keydown", (e) => {
 });
 async function drawRank(out) {
   const me = ++rankToken;
+  markRank();
   if (rank.mode === "member") return drawMembers(out, me);
   if (rank.mode === "kvk") return drawKvks(out, me);
   const [cur, kvk] = await Promise.all([load("derived/rollup.json"), KS.season.list(), KS.seeds.load()]);
   if (me !== rankToken) return;
-  setLink("rank", { st: rank.st, gen: rank.gen, seed: rank.seed }); // the filters picked: the link shares them
+  holdBox();
   out.innerHTML = "";
   if (!cur) { out.appendChild(el("p", "hint", tr("noDerived"))); return; }
   let rows = objects(cur.cols, cur.rows);
-  rows.forEach((r) => { r.kvk = KS.season.of(kvk, r.kingdom); r.st = KS.season.statusOf(kvk, r.kingdom); r.stf = KS.season.filterOf(r.st); r.gen = kvk?.genOf?.[r.kingdom] ?? "-"; const s = KS.seeds.at(r.kingdom); r.seed = s ? `${s[1] + 1}:${s[0]}` : ""; }); // "-": in no gen group (TBD)
+  // a kingdom to open on that is in the other set: that set's ranking
+  const atK = rank.at && rows.find((r) => r.kingdom === rank.at);
+  if (atK && !!atK.sos !== (rank.mode === "server")) { rank.mode = atK.sos ? "server" : "non"; rankPaint(); }
+  const non = rank.mode === "non";
+  if (rank.non !== undefined && rank.non !== non && !rank.linked) rank.gen = ""; // the other set: its own gens (a link's gen stays)
+  rank.non = non; rank.linked = false;
+  if (rank.gen !== "") rank.gen = genKey(rank.gen, non);
+  rows = rows.filter((r) => !r.sos === non); // sos: at the Season of Strife (kingdom_derive.sos_kingdoms)
+  rows.forEach((r) => { r.kvk = KS.season.of(kvk, r.kingdom); r.st = KS.season.statusOf(kvk, r.kingdom); r.stf = KS.season.filterOf(r.st); r.gen = kvk?.genOf?.[r.kingdom] ?? "-"; r.gk = genKey(r.gen, non); const s = KS.seeds.at(r.kingdom); r.seed = s ? `${s[1] + 1}:${s[0]}` : ""; r.sd = s ? String(s[0]) : ""; }); // "-": in no gen group (TBD)
   const all = rows; // before any filter: the columns keep their width
+  rankHero(cur, non);
   const counts = new Map();
   rows.forEach((r) => { if (r.stf != null) counts.set(r.stf, (counts.get(r.stf) || 0) + 1); }); // a filter per status that has one
   if (rank.st && !counts.has(Number(rank.st))) rank.st = "";
   // the filters, a line each: a name, then its buttons (All, then each value with its colour dot and count). Status on
-  // its own line, Gen and Seed side by side under it, a dropdown each at every width (user 07/11); a phone folds Status
+  // its own line, Gen and Seed side by side under it, a dropdown each at every width; a phone folds Status
   // too. A dropdown: one button with the value picked; a click opens its list (the one picked ticked), a pick draws the
   // page again (closed)
   const filterLine = (name, cls) => {
@@ -605,7 +688,7 @@ async function drawRank(out) {
     return line;
   };
   // the button's face: the picked value's name and count
-  // (only its own filter's data-*: an empty data-seed on Gen's button made it the "All" accent, user 07/11)
+  // (only its own filter's data-*: an empty data-seed on Gen's button made it the "All" accent)
   const face = (line, prop) => {
     const on = line.querySelector('.rk-pills [aria-pressed="true"]'), dd = line.querySelector(".rk-dd");
     if (on) {
@@ -613,64 +696,77 @@ async function drawRank(out) {
       dd.dataset[prop] = on.dataset[prop] ?? "";
     }
   };
-  const pills = filterLine(tr("rStatus"), "rk-f-st"), genPills = filterLine(tr("cGen"), "rk-f-gen"), seedPills = filterLine(tr("rSeed"), "rk-f-seed");
+  const pills = filterLine(tr("rStatus"), "rk-f-st"), genPills = filterLine(tr("cGen"), "rk-f-gen"), seedPills = filterLine(tr("rSeed"), "rk-f-seed rk-f-inline"); // Seed: its buttons in a row, small, never a dropdown
   // a filter button: `prop` of `rank` set to `v`; data-st / data-gen give the dot its colour (a seed shows its letter)
   const pill = (line, prop, v, name, n) => {
     const b = el("button");
     b.type = "button";
     if (v !== "") { b.dataset[prop] = v; if (prop !== "seed") b.appendChild(el("i", "rk-dot")); }
     b.append(name, el("small", "", numFmt().format(n)));
+    b.title = numFmt().format(n) + " kingdom";
     b.setAttribute("aria-pressed", String(String(rank[prop]) === String(v)));
-    b.onclick = () => { rank[prop] = v; rank.page = 1; drawRank(out); };
+    b.onclick = () => { rank[prop] = v; rank.page = 1; KS.keepScroll($("dv"), () => drawRank(out)); }; // the page stays where it was
     line.querySelector(".rk-pills").appendChild(b);
   };
   pill(pills, "st", "", tr("kAll"), rows.length);
   [...counts.entries()].sort((a, b) => b[1] - a[1]).forEach(([st, n]) => pill(pills, "st", st, KS.season.status(st), n));
   if (rank.st !== "") rows = rows.filter((r) => String(r.stf) === String(rank.st));
-  // the SoS generation, counted within the status picked
+  // the SoS generation, counted within the status picked: Gen 1-4, the rest (SoS1, KvK1-3, TBD) together as Other
   const gens = new Map();
-  rows.forEach((r) => { if (r.gen != null) gens.set(r.gen, (gens.get(r.gen) || 0) + 1); });
-  if (rank.gen !== "" && ![...gens.keys()].some((g) => String(g) === String(rank.gen))) rank.gen = "";
+  rows.forEach((r) => gens.set(r.gk, (gens.get(r.gk) || 0) + 1));
+  if (rank.gen !== "" && !gens.has(String(rank.gen))) rank.gen = "";
   if (gens.size) {
     pill(genPills, "gen", "", tr("kAll"), rows.length);
-    [...gens.entries()].sort((a, b) => genOrder(a[0]) - genOrder(b[0])).forEach(([g, n]) => pill(genPills, "gen", g, genName(g), n));
+    [...gens.entries()].sort((a, b) => (non ? genOrder(b[0]) - genOrder(a[0]) : (a[0] === "other") - (b[0] === "other") || a[0] - b[0]))
+      .forEach(([g, n]) => pill(genPills, "gen", g, non ? genName(g) : g === "other" ? tr("rOtherGen") : `${tr("cGen")} ${g}`, n));
   }
-  if (rank.gen !== "") rows = rows.filter((r) => String(r.gen) === String(rank.gen));
-  // the seed (A-D) of a kingdom being paired, by its pairing group (each group has its own A-D), counted within the
-  // filters above; a Kingdom page's pairing block opens its seed chips here (#p=rank&seed=<group>:<seed>)
-  const seeds = new Map(), nGroups = new Set(rows.map((r) => r.seed.split(":")[0]).filter(Boolean)).size;
-  rows.forEach((r) => { if (r.seed) seeds.set(r.seed, (seeds.get(r.seed) || 0) + 1); });
-  if (rank.seed !== "" && !seeds.has(rank.seed)) rank.seed = "";
+  if (rank.gen !== "") rows = rows.filter((r) => r.gk === String(rank.gen));
+  // the seed (A-D) of a kingdom being paired, counted within the filters above: each pairing group has its own A-D,
+  // the filter takes the letter in every group. A Kingdom page's pairing block opens its seed here (#p=rank&seed=<1-4>)
+  const seeds = new Map();
+  rows.forEach((r) => { if (r.sd) seeds.set(r.sd, (seeds.get(r.sd) || 0) + 1); });
+  if (rank.seed !== "" && !seeds.has(String(rank.seed))) rank.seed = "";
   if (seeds.size) {
     pill(seedPills, "seed", "", tr("kAll"), rows.length);
-    [...seeds.entries()].sort((a, b) => (a[0] < b[0] ? -1 : 1)).forEach(([v, n]) => {
-      const [g, s] = v.split(":"), name = el("span", "rk-seed");
+    [...seeds.entries()].sort((a, b) => a[0] - b[0]).forEach(([s, n]) => {
+      const name = el("span", "rk-seed");
       name.innerHTML = `<i class="seed s${s}">${"ABCD"[s - 1]}</i>`;
-      if (nGroups > 1) name.append(tr("rSeedGrp").replace("{n}", g));
-      pill(seedPills, "seed", v, name, n);
+      pill(seedPills, "seed", s, name, n);
     });
   }
-  if (rank.seed !== "") rows = rows.filter((r) => r.seed === rank.seed);
+  if (rank.seed !== "") rows = rows.filter((r) => r.sd === String(rank.seed));
   face(pills, "st"); face(genPills, "gen"); face(seedPills, "seed");
+  setLink("rank", { m: non ? "non" : "", st: rank.st, gen: rank.gen, seed: rank.seed }); // the filters left: the link shares them
   const q = rank.q.toLowerCase(), kq = /^#?(\d+)$/.exec(q)?.[1];
   if (q) rows = rows.filter((r) => (kq && String(r.kingdom).startsWith(kq)) || String(r.topAlliance).toLowerCase().includes(q));
   const metricCol = ([key, label]) => ({ key, label: tr(label), get: (r) => r[key], max: rows.reduce((m, r) => Math.max(m, r[key] ?? 0), 0) });
   const cols = [
     { key: "#", label: "#", nosort: true, text: (r) => String(r._i), cls: () => "mut" },
-    { key: "kingdom", label: tr("cKingdom"), w: 100, get: (r) => r.kingdom, node: (r) => kdSeedCell(r.kingdom, r._i <= 8) },
-    { key: "topAlliance", label: tr("cTopAlliance"), get: (r) => r.topAlliance, node: (r) => allianceChip(r.topAlliance) }, // its top alliance
+    { key: "kingdom", label: tr("cKingdom"), w: 76, get: (r) => r.kingdom, node: (r) => kdCell(r.kingdom, r._i <= 8) },
+    // the seed (A-D) while the kingdom is being paired, a column of its own as narrow as its title
+    ...(all.some((r) => r.sd) ? [{ key: "seed", label: tr("rSeed"), w: 0, get: (r) => (r.seed ? Number(r.seed.split(":")[1]) : null), node: (r) => {
+      const d = el("span", "rk-seed-c");
+      d.innerHTML = KS.seeds.badge(r.kingdom) || '<span class="mut">–</span>';
+      return d;
+    } }] : []),
     // no KvK column when none of the kingdoms listed is in one (a filter on the ones being paired, say)
-    ...(rows.some((r) => r.kvk) ? [{ key: "kvk", label: "KvK", get: (r) => r.kvk?.name ?? "", node: (r) => kvkCell(r.kvk) }] : []),
-    { key: "st", label: tr("rStatus"), w: statusW(all), get: (r) => r.st ?? -1, node: (r) => statusCell(r.st) },
-    { key: "gen", label: tr("cGen"), w: 92, get: (r) => (r.gen === "-" ? -99 : genOrder(r.gen) > 9 ? -genOrder(r.gen) : r.gen), node: (r) => { const g = el("span", "rk-gen", genName(r.gen)); g.dataset.gen = r.gen; return g; } },
-    ...RANK_METRICS.slice(0, 4).map(metricCol), // the migration score and its bands
+    ...(rows.some((r) => r.kvk) ? [{ key: "kvk", label: "KvK", w: 176, get: (r) => r.kvk?.name ?? "", node: (r) => kvkCell(r.kvk) }] : []),
+    // the status, its gen under it: one column, so the table fits the page's middle column (the Gen filter stays)
+    { key: "st", label: tr("rStatus"), w: statusW(all), get: (r) => r.st ?? -1, node: (r) => {
+      const d = el("span", "rk-stg"), g = el("span", "rk-gen", genName(r.gen));
+      g.dataset.gen = r.gen;
+      d.append(statusCell(r.st), g);
+      return d;
+    } },
+    ...RANK_METRICS.slice(0, 5).map(metricCol), // the migration score and its bands, max power
     { key: "players", label: tr("cPlayers"), get: (r) => r.players, text: (r) => numFmt().format(r.players) },
-    ...RANK_METRICS.slice(4).map(metricCol),
+    metricCol(RANK_METRICS[5]), // max decor
+    ...(rows.some((r) => unitSplit(r)) ? [focusCol()] : []), // the kingdom's merits by unit type (rollup.json), before the merits
+    ...RANK_METRICS.slice(6).map(metricCol),
     tradesCol(),
     ...RANK_LAST.map(metricCol),
   ];
-  addFocus(cols, rows); // the kingdom's merits by unit type, from rollup.json
-  const col = cols.find((c) => c.key === rank.sort.key) || cols.find((c) => c.key === RANK_DEFAULT.server);
+  const col = cols.find((c) => c.key === rank.sort.key) || cols.find((c) => c.key === RANK_DEFAULT[rank.mode]);
   rows = sortRows(rows, col.get, rank.sort.dir);
   rows.forEach((r, i) => { r._i = i + 1; r._cls = r.kingdom === rank.at ? "rk-focus" : ""; });
   const at = rows.findIndex((r) => r.kingdom === rank.at), size = pageSize();
@@ -680,8 +776,8 @@ async function drawRank(out) {
   filters.append(pills, under);
   if (gens.size) under.appendChild(genPills);
   if (seeds.size) under.appendChild(seedPills);
-  // a new id: the hidden columns kept under "servers" were saved before helps and gathered were hidden at first
-  const view = tableBar(out, { id: "rankServers", title: tr("rServers"), meta: `${numFmt().format(rows.length)} kingdom`, cols, holder: rank, prop: "sort", hideFirst: RANK_HIDDEN, redraw: () => KS.keepScroll($("dv"), () => drawRank(out)) });
+  // a new id each time the columns hidden at first change: a pick saved under an old id kept the old defaults
+  const view = tableBar(out, { id: "rankKingdoms2", title: tr(non ? "rNonSos" : "rSos"), meta: `${numFmt().format(rows.length)} kingdom`, cols, holder: rank, prop: "sort", hideFirst: RANK_HIDDEN, search: rankBox, redraw: () => KS.keepScroll($("dv"), () => drawRank(out)) });
   view.all = rows;
   out.appendChild(table(view, shown, { key: col.key, dir: rank.sort.dir }, (k) => { rank.sort = nextSort(rank.sort, k); rank.page = 1; KS.keepScroll($("dv"), () => drawRank(out)); },
     (r) => { location.hash = "k=" + r.kingdom; }));
@@ -705,6 +801,10 @@ async function showMigration() {
   if (!scans.includes(mig.b)) mig.b = scans[scans.length - 1];
   if (!scans.includes(mig.a)) mig.a = scans[Math.max(0, scans.length - 2)];
   const { ctl, out } = frame();
+  $("dv").classList.add("dv-fit"); // the middle column, as the rankings
+  const h = idx.head ?? {}; // derived/index.json's head (kingdom_derive.build)
+  rankHead({ top: tr("mHeadTop"), title: tr("navMigration"), hint: tr("mHint"), stats: [[count(h.moves), "rStatMoves"], [count(h.players), "rStatMovers"],
+    [count(h.scans), "rStatScans"], [h.first ? `${dayOf(h.first)} – ${dayOf(h.last)}` : "–", "rStatSpan"]] });
   const data = await load("derived/migrations.json");
   if (!data) { out.textContent = tr("dvLoadErr"); return; }
   const moves = objects(data.cols, data.rows);
@@ -814,7 +914,7 @@ function drawFlows(out, list, moves) {
   out.appendChild(pager(rows.length, mig.page, (p) => { mig.page = p; go(); }, { size: bigSize(), sizes: BIG_SIZES }));
 }
 
-KS.ui = { el, num, load, objects, table, focusCell, addFocus, tableBar, sortRows, nextSort, searchBox, fmtBtn, pager, pageSize, frame, setLink };
+KS.ui = { rankHead, dayOf, bigStat, count, el, num, load, objects, table, focusCell, addFocus, tableBar, sortRows, nextSort, searchBox, fmtBtn, pager, pageSize, frame, setLink };
 KS.pages = {
   rank: { title: "navRank", desc: "descRank", show: showRank },
   migration: { title: "navMigration", desc: "descMigration", show: showMigration },
