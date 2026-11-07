@@ -680,8 +680,11 @@ body:not([data-compare="1"]) .cmp-only { display: none; }
 .rk-kvk b { color: var(--fg); font-size: 12px; font-weight: 700; }
 .rk-kvk small { max-width: 170px; overflow: hidden; font-size: 12px; text-overflow: ellipsis; }
 .rk-kvk:hover b { color: var(--acc); }
-.k-status { display: inline-block; padding: 2px 8px; border: 1px solid var(--edge); border-radius: 999px; color: var(--fg2); font-size: 12px; font-weight: 600; white-space: nowrap; }
+.k-status { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px; border: 1px solid var(--edge); border-radius: 999px; color: var(--fg2); font-size: 12px; font-weight: 600; white-space: nowrap; }
 .k-status[hidden] { display: none; }
+/* its dot, in its colour (user 07/11: as the status filter's buttons) */
+.k-status::before { content: ""; flex: none; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.k-status[data-st="131"] { color: var(--mut); }
 .k-status[data-st="125"] { border-color: color-mix(in srgb, var(--down) 45%, transparent); color: var(--down); }
 .k-status[data-st="110"] { border-color: color-mix(in srgb, var(--gold) 55%, transparent); color: var(--gold); }
 .k-status[data-st="111"] { border-color: color-mix(in srgb, var(--acc) 55%, transparent); color: var(--acc); }

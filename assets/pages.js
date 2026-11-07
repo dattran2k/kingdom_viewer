@@ -463,7 +463,7 @@ const kvkCell = (b) => {
 };
 // the status column as wide as its longest chip: padding 8 + border 1 a side, the cell's padding 10 a side, and 6 to
 // spare: the canvas measures the text a pixel or so short of the page, and the cell's ellipsis shows for any overflow
-const statusW = (rows) => Math.ceil(Math.max(0, ...rows.map((r) => textW(KS.season.status(r.st), "600 12px"))) + 18 + 20 + 6);
+const statusW = (rows) => Math.ceil(Math.max(0, ...rows.map((r) => textW(KS.season.status(r.st), "600 12px"))) + 18 + 20 + 6 + 11); // + its dot and gap
 const statusCell = (st) => { const c = el("span", "k-status", KS.season.status(st) || "–"); c.dataset.st = st ?? ""; return c; };
 // top_players.json is one list per column (kingdom_derive.top_players); trades = kills per 100 heals, as trades_of.
 // ~80k players: each step is kept for the next draw (user 05/11: switching to this tab froze). Rows are built once; the
