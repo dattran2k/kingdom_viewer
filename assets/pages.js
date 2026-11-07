@@ -7,7 +7,7 @@ const KS = window.KS, { state, tr, $, numFmt, fitPop } = KS;
 
 Object.assign(KS.T.vi, {
   descKingdom: "Người chơi của từng kingdom theo ngày. Bật So sánh để xem mỗi người tăng giảm bao nhiêu giữa 2 ngày.",
-  descCompare: "Đối chiếu hai phe, mỗi phe gồm một hoặc nhiều kingdom, ở ngày mới nhất.",
+  descCompare: "Đối chiếu hai phe, mỗi phe gồm một hoặc nhiều kingdom, ở ngày mới nhất. + Kingdom: chọn từ các kingdom đang ghép cặp theo Seed, hoặc mọi kingdom.",
   descRank: "Xếp hạng các kingdom ở ngày mới nhất, tính người có lực chiến hiện tại trên 15M.",
   descMigration: "Ai đã chuyển từ kingdom nào sang kingdom nào giữa 2 ngày.",
   navRank: "Xếp hạng", navMigration: "Di cư", cmpDays: "So sánh", modeLabel: "Chế độ", modeNormal: "Thường", cmpRemove: "Bỏ", cmpDaysTip: "So sánh 2 ngày của một hoặc nhiều kingdom: mỗi người tăng bao nhiêu",
@@ -25,7 +25,7 @@ Object.assign(KS.T.vi, {
 });
 Object.assign(KS.T.en, {
   descKingdom: "Each kingdom's players by day. Turn on Compare to see how much each one changed between two days.",
-  descCompare: "Two sides face to face, each of one or more kingdoms, on the newest day.",
+  descCompare: "Two sides face to face, each of one or more kingdoms, on the newest day. + Kingdom: pick from the kingdoms being paired by seed, or from all.",
   descRank: "Kingdoms ranked on the newest day, counting players above 15M power now.",
   descMigration: "Who moved from which kingdom to which between two days.",
   navRank: "Rankings", navMigration: "Migration", cmpDays: "Compare", modeLabel: "Mode", modeNormal: "Normal", cmpRemove: "Remove", cmpDaysTip: "Compare two days of one or more kingdoms: how much each player gained",

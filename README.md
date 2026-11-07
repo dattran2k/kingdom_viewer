@@ -15,7 +15,7 @@ Questions, bugs, ideas, or want a kingdom crawled: message me on Discord, **`tra
 
 ## ✨ What it shows
 - 🏰 **Kingdom**: every player over a power step, with totals, charts and a sortable table (compare two days, ± average).
-- ⚔️ **Compare**: two sides of up to 10 kingdoms each, head to head.
+- ⚔️ **Matchup**: two sides of up to 10 kingdoms each, head to head; kingdoms picked from the ones being paired (by group and seed A–D) or from all.
 - 🏆 **Rankings**: kingdoms ranked by power, merits and kills.
 - 🔁 **Migration**: who moved between kingdoms, and when.
 - 👤 **Player card**: click any player name for their numbers now, every metric, and their history over the scans (moves included).
@@ -51,6 +51,10 @@ value, `null` or a missing end means "unknown", and `0` means zero. The viewer t
 numbers), `rollup.json` (the newest scan, one row per kingdom, players above 15M power now), `top_players.json` (the
 newest scan, every player above 15M power now, one list per column in `cols`). Tables name their columns in a `cols` list.
 A move is only known to lie between two scans.
+
+`data/kvk/seeds.json` (`tools/seed_export.py`) is the game's seed table of the kingdoms being paired for the next KvK: one
+entry per pairing group (`season`, `updated`, `rows`), a row per kingdom in the game's order with the columns of `cols`
+(`seed` 1-4 = A-D, `power` the game's total). Another region's kingdoms are `1000000xx` (shown as SP-xx), with no scans.
 
 `data/kvk/index.json` lists the running KvKs: their camps and kingdoms, the numbers since each opened, each kingdom's
 top 5 players by merits since then (`top`), how many fights its War history has (`wars`) and how many of them are going on (`liveWars`, none when 0).

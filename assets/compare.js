@@ -6,7 +6,7 @@
 const KS = window.KS, { state, tr, $, numFmt } = KS;
 
 Object.assign(KS.T.vi, {
-  navKingdom: "Kingdom", navCompare: "So sánh", openSource: "Mã nguồn mở trên GitHub",
+  navKingdom: "Kingdom", navCompare: "Ghép cặp", openSource: "Mã nguồn mở trên GitHub",
   xSideA: "Phe 1", xSideB: "Phe 2", xAdd: "+ Kingdom", xRemove: "Bỏ", xEmpty: "Thêm kingdom vào cả hai phe để xem so sánh.",
   xPlayers: "người", xSum: "Tổng", xAvg: "TB", xAggTip: "Tổng / trung bình mỗi người", xTopAll: "Mọi người", xTop: "Top", xReset: "Đặt lại",
   xdDuels: "Các mức LC max, mức điểm di cư, Decor max, Pet max, Bảo vật đỏ và Nhà Thiên Đỉnh đếm số người chơi. CT / LC là trung bình mỗi người. Các số còn lại là {agg}.",
@@ -15,9 +15,12 @@ Object.assign(KS.T.vi, {
   xdEach: "Số tổng của từng kingdom ở ngày mới nhất, chỉ tính người qua mức lực chiến đã chọn.",
   xMigrationSum: "Điểm di cư", xMigrationBand: "Điểm di cư", xEach: "Từng kingdom", xScan: "Ngày", xKingdom: "Kingdom",
   xCount: "Người chơi", xLoadErr: "Không tải được:",
+  pkTitle: "Thêm kingdom vào", pkPairing: "Đang ghép cặp", pkAll: "Tất cả", pkGroup: "Nhóm", pkSeed: "Seed", pkDone: "Xong",
+  pkNote: "Bảng Phân Loại của game, cập nhật {d} UTC, ghép cho {s}. SP-: kingdom khu vực khác, không có dữ liệu người chơi.",
+  pkNoData: "Không có dữ liệu", pkOther: "Ở phe kia", pkPower: "Lực chiến tổng (game)",
 });
 Object.assign(KS.T.en, {
-  navKingdom: "Kingdom", navCompare: "Compare", openSource: "Open source on GitHub",
+  navKingdom: "Kingdom", navCompare: "Matchup", openSource: "Open source on GitHub",
   xSideA: "Side 1", xSideB: "Side 2", xAdd: "+ Kingdom", xRemove: "Remove", xEmpty: "Add kingdoms to both sides to compare them.",
   xPlayers: "players", xSum: "Total", xAvg: "Avg", xAggTip: "Total / average per player", xTopAll: "Everyone", xTop: "Top", xReset: "Reset",
   xdDuels: "Max power bands, migration bands, Max decor, Max pets, Red artifact and Legendary themes count players. Merit % is the average per player. The other figures are the {agg}.",
@@ -26,6 +29,9 @@ Object.assign(KS.T.en, {
   xdEach: "Totals of each kingdom on its newest day, only players over the chosen power step.",
   xMigrationSum: "Migration score", xMigrationBand: "Migration score", xEach: "Each kingdom", xScan: "Day", xKingdom: "Kingdom",
   xCount: "Players", xLoadErr: "Could not load:",
+  pkTitle: "Add a kingdom to", pkPairing: "Being paired", pkAll: "All", pkGroup: "Group", pkSeed: "Seed", pkDone: "Done",
+  pkNote: "The game's seed table, updated {d} UTC, pairing for {s}. SP-: kingdoms of another region, no player data.",
+  pkNoData: "No data", pkOther: "On the other side", pkPower: "Total power (the game's)",
 });
 
 const MAX_PER_SIDE = 10, MAX_PAIRS = 5;
@@ -40,7 +46,6 @@ if (cfg.a || cfg.b) { cfg.pairs = [{ a: cfg.a || [], b: cfg.b || [] }]; delete c
 tidy();
 let kdRows = null; // rollup.json by kingdom: the kingdoms' own merits by unit type, for the unit focus
 let token = 0;             // a newer draw makes an older, still loading one give up
-let openSide = null;       // the side whose picker is open: "<pair><a|b>"
 
 function iconOf(key, cls) { const i = el("img", cls); i.src = `assets/icons/${key}.png?v=3`; i.alt = ""; return i; }
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
@@ -102,49 +107,158 @@ function save() {
 }
 const linkHash = () => "#p=compare" + cfg.pairs.map((p, i) => `&a${i ? i + 1 : ""}=${p.a.join(",")}&b${i ? i + 1 : ""}=${p.b.join(",")}`).join("");
 
-function pickerList(ul, q, pair) {
-  const used = new Set([...pair.a, ...pair.b]); // one pair's sides never share a kingdom; another pair may have it again
-  const items = (q ? KS.kingdomMatches(q) : state.list).filter((k) => !used.has(k.kingdom));
+// ---- the kingdom picker: a dialog, the kingdoms being paired (by group and seed, data/kvk/seeds.json) or all of them;
+// a click puts a kingdom in the side or takes it out, and the dialog stays open to pick more ----
+let seeds = null;          // seeds.json once loaded: {cols, groups: [{season, updated, rows}]}
+const seedOf = new Map();  // kingdom -> [seed 1-4, its group]
+const pk = { n: 0, side: "a", tab: "pair", group: 0, on: new Set([1, 2, 3, 4]) }; // tab, group and seeds stay between opens
+const LETTER = ["", "A", "B", "C", "D"];
+const OTHER = 100000000;   // another region's kingdom: 1000000xx, shown as the game does, SP-xx
+const kName = (k) => (k >= OTHER ? "SP-" + (k - OTHER) : "#" + k);
+const seasonName = (s) => (s > 1000 ? "SoS" + (s - 1000) : "S" + s);
+const two = (v) => String(v).padStart(2, "0");
+function loadSeeds() {
+  return KS.ui.load("kvk/seeds.json").then((d) => {
+    if (d && !seeds) {
+      seeds = d;
+      const c = d.cols.indexOf("seed");
+      d.groups.forEach((g, i) => g.rows.forEach((r) => seedOf.set(r[0], [r[c], i])));
+    }
+    return seeds;
+  });
+}
+const seedBadge = (k) => { const s = seedOf.get(k)?.[0]; return s ? `<i class="seed s${s}">${LETTER[s]}</i>` : ""; };
+
+let dlg = null;
+function pickDialog() {
+  if (dlg) return dlg;
+  dlg = el("dialog", "dlg xp");
+  dlg.innerHTML = `<form method="dialog" class="dlg-in">
+    <div class="dlg-top"><h2><span class="xp-t"></span> <b class="pill xp-n"></b></h2><button class="btn icon" value="close" aria-label="Close">✕</button></div>
+    <div class="xp-tabs rk-seg" role="group"></div>
+    <div class="xp-f"></div>
+    <input class="xp-q" type="search" autocomplete="off" inputmode="numeric">
+    <p class="xp-note"></p>
+    <ul class="klist xp-list" role="listbox" aria-multiselectable="true"></ul>
+    <div class="xp-foot"><button class="btn primary xp-done" value="close"></button></div>
+  </form>`;
+  document.body.appendChild(dlg);
+  const q = dlg.querySelector(".xp-q"), ul = dlg.querySelector(".xp-list");
+  q.addEventListener("input", () => fillPick());
+  q.addEventListener("keydown", (e) => { if (KS.listKeys(e, ul, togglePick)) e.preventDefault(); });
+  ul.onclick = (e) => { const li = e.target.closest("li[data-k]"); if (li) togglePick(Number(li.dataset.k)); };
+  return dlg;
+}
+const pairOf = () => cfg.pairs[pk.n] ?? { a: [], b: [] };
+function togglePick(k) {
+  const pair = pairOf(), mine = pair[pk.side], other = pair[pk.side === "a" ? "b" : "a"];
+  if (!itemOf(k) || other.includes(k)) return;
+  if (mine.includes(k)) pair[pk.side] = mine.filter((x) => x !== k);
+  else if (mine.length < MAX_PER_SIDE) pair[pk.side] = [...mine, k];
+  else return;
+  cfg.pairs[pk.n] = pair; // the empty pair under the others is kept from its first kingdom on
+  save(); draw();
+  fillPick(true);
+}
+function openPick(n, side) {
+  Object.assign(pk, { n, side });
+  const d = pickDialog();
+  d.querySelector(".xp-q").value = "";
+  loadSeeds().then(() => {
+    if (!seeds) pk.tab = "all";
+    else {
+      // the group of a kingdom already in this pair, else the one looked at last
+      const pair = pairOf(), had = [...pair.a, ...pair.b].map((k) => seedOf.get(k)?.[1]).find((g) => g != null);
+      pk.group = had ?? Math.min(pk.group, seeds.groups.length - 1);
+    }
+    fillPick();
+    if (!d.open) d.showModal();
+    d.querySelector(".xp-list").scrollTop = 0;
+    if (!matchMedia("(pointer: coarse)").matches) d.querySelector(".xp-q").focus(); // no keyboard over the list on a phone
+  });
+}
+// the dialog's head, filters and list, drawn again on each change (keepY: a pick keeps the list where it was)
+function fillPick(keepY) {
+  const d = dlg, pair = pairOf(), mine = pair[pk.side], other = pair[pk.side === "a" ? "b" : "a"], nf = numFmt();
+  const title = d.querySelector(".xp-t");
+  title.textContent = `${tr("pkTitle")} ${tr(pk.side === "a" ? "xSideA" : "xSideB")}`;
+  title.className = "xp-t " + pk.side;
+  d.querySelector(".xp-n").textContent = `${mine.length}/${MAX_PER_SIDE}`;
+  d.querySelector(".xp-done").textContent = tr("pkDone");
+  d.querySelector(".xp-q").placeholder = tr("kSearchPh");
+  const seg = (box, opts, cur, on) => {
+    box.innerHTML = "";
+    for (const [v, label] of opts) {
+      const b = el("button", "", label);
+      b.type = "button"; b.setAttribute("aria-pressed", String(v === cur));
+      b.onclick = () => { on(v); fillPick(); };
+      box.appendChild(b);
+    }
+  };
+  const tabs = d.querySelector(".xp-tabs"), f = d.querySelector(".xp-f"), note = d.querySelector(".xp-note");
+  tabs.hidden = !seeds;
+  if (seeds) seg(tabs, [["pair", tr("pkPairing")], ["all", tr("pkAll")]], pk.tab, (v) => (pk.tab = v));
+  const pairing = !!seeds && pk.tab === "pair", g = pairing ? seeds.groups[pk.group] : null;
+  f.hidden = note.hidden = !pairing;
+  if (pairing) {
+    f.innerHTML = "";
+    if (seeds.groups.length > 1) {
+      const gs = el("div", "rk-seg xp-g");
+      gs.setAttribute("role", "group");
+      seg(gs, seeds.groups.map((x, i) => [i, `${tr("pkGroup")} ${i + 1} · ${x.rows.length}`]), pk.group, (v) => (pk.group = v));
+      f.appendChild(gs);
+    }
+    // the seeds as toggles: all on at first; the last one on, clicked, turns them all back on
+    const chips = el("div", "xp-seeds");
+    chips.setAttribute("role", "group");
+    chips.appendChild(el("span", "xp-sl", tr("pkSeed")));
+    for (const s of [1, 2, 3, 4]) {
+      const n = g.rows.filter((r) => r[1] === s).length, b = el("button", "xp-s");
+      b.type = "button"; b.setAttribute("aria-pressed", String(pk.on.has(s)));
+      b.innerHTML = `<i class="seed s${s}">${LETTER[s]}</i><span>${n}</span>`;
+      b.onclick = () => {
+        if (pk.on.size === 4) pk.on = new Set([s]); // from all: just this one
+        else if (!pk.on.has(s)) pk.on.add(s);
+        else if (pk.on.size === 1) pk.on = new Set([1, 2, 3, 4]);
+        else pk.on.delete(s);
+        fillPick();
+      };
+      chips.appendChild(b);
+    }
+    f.appendChild(chips);
+    const at = new Date(g.updated || seeds.updated);
+    note.textContent = tr("pkNote").replace("{d}", `${two(at.getUTCDate())}/${two(at.getUTCMonth() + 1)} ${two(at.getUTCHours())}:${two(at.getUTCMinutes())}`).replace("{s}", seasonName(g.season));
+  }
+  const q = d.querySelector(".xp-q").value.replace(/[#\s]/g, "").replace(/^sp-?/i, "");
+  const ul = d.querySelector(".xp-list"), y = ul.scrollTop;
+  // [kingdom, total power or null]: the group's in the game's order (seed, then power), or every kingdom of the index
+  let items;
+  if (pairing) {
+    const pc = seeds.cols.indexOf("power"), num = (k) => String(k % OTHER);
+    items = g.rows.filter((r) => pk.on.has(r[1])).map((r) => [r[0], r[pc]]);
+    if (q) items = items.filter(([k]) => num(k).includes(q)).sort(([x], [z]) => num(z).startsWith(q) - num(x).startsWith(q));
+  } else items = (q ? KS.kingdomMatches(q) : state.list).map((k) => [k.kingdom, null]);
   if (!items.length) { ul.innerHTML = `<li class="none">${tr("kNone")}</li>`; return; }
-  // a thousand kingdoms, built again on every draw while it is open: one string, not three elements each
-  const n = numFmt(), players = tr("players");
-  ul.innerHTML = items.map((k) => `<li role="option" data-k="${k.kingdom}"><b>#${k.kingdom}</b><span>${n.format(k.players)} ${players}</span></li>`).join("");
-  ul.firstElementChild.classList.add("act");
+  const full = mine.length >= MAX_PER_SIDE, players = tr("players");
+  // a few hundred lines, built again on every pick: one string
+  ul.innerHTML = items.map(([k, power]) => {
+    const it = itemOf(k), on = mine.includes(k), there = other.includes(k);
+    const cls = on ? "cur" : !it || there || full ? "off" : "";
+    const sub = !it ? tr("pkNoData") : there ? tr("pkOther") : `${nf.format(it.players)} ${players}`;
+    const pw = power != null ? `<em title="${tr("pkPower")}">${KS.compact(power)}</em>` : "";
+    return `<li role="option" aria-selected="${on}" data-k="${k}"${cls ? ` class="${cls}"` : ""}><b>${kName(k)}${seedBadge(k)}</b>${pw}<span>${sub}</span><s aria-hidden="true"></s></li>`;
+  }).join("");
+  (ul.querySelector("li[data-k]:not(.off)") || ul.querySelector("li[data-k]")).classList.add("act");
+  if (keepY) ul.scrollTop = y;
 }
 
 function picker(n, side) {
-  const wrap = el("div", "x-add"), pair = cfg.pairs[n] ?? { a: [], b: [] }, me = n + side;
+  const wrap = el("div", "x-add"), pair = cfg.pairs[n] ?? { a: [], b: [] };
   const add = el("button", "x-add-btn", tr("xAdd"));
   add.type = "button";
   add.disabled = pair[side].length >= MAX_PER_SIDE;
-  add.onclick = () => { openSide = openSide === me ? null : me; draw(); };
+  add.onclick = () => openPick(n, side);
   wrap.appendChild(add);
-  if (openSide !== me) return wrap;
-  const pop = el("div", "pop x-pop"), q = el("input"), ul = el("ul", "klist");
-  q.type = "search"; q.autocomplete = "off"; q.inputMode = "numeric"; q.placeholder = tr("kSearchPh");
-  ul.setAttribute("role", "listbox");
-  pickerList(ul, "", pair);
-  const pick = (k) => {
-    cfg.pairs[n] = pair; // the empty pair under the others is kept from its first kingdom on
-    pair[side] = [...pair[side], k];
-    if (pair[side].length >= MAX_PER_SIDE) openSide = null;
-    save(); draw();
-  };
-  q.addEventListener("input", () => pickerList(ul, q.value, pair));
-  q.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") { openSide = null; draw(); }
-    else if (KS.listKeys(e, ul, pick)) e.preventDefault();
-  });
-  ul.onclick = (e) => { const li = e.target.closest("li[data-k]"); if (li) pick(Number(li.dataset.k)); };
-  pop.append(q, ul);
-  wrap.appendChild(pop);
-  // run by draw once the page is built, before it is painted: it opens upwards when the page has no room under it,
-  // so the page never grows or jumps and the menu is never seen on the wrong side first
-  pop.place = () => {
-    const page = $("cmp").getBoundingClientRect(), at = wrap.getBoundingClientRect();
-    if (pop.offsetHeight + 8 > page.bottom - at.bottom && at.top - page.top > page.bottom - at.bottom) pop.classList.add("up");
-    q.focus({ preventScroll: true });
-  };
   return wrap;
 }
 
@@ -155,7 +269,8 @@ function sidePanel(n, side, titleKey, ps) {
   if (ids.length) head.appendChild(el("span", "x-side-n", `${numFmt().format(ps.length)} ${tr("xPlayers")}`));
   const tags = el("div", "x-tags");
   for (const id of ids) {
-    const tag = el("button", "x-tag", "#" + id);
+    const tag = el("button", "x-tag");
+    tag.innerHTML = "#" + id + seedBadge(id);
     tag.type = "button";
     tag.title = `${tr("xRemove")} #${id}`;
     tag.onclick = () => { pair[side] = pair[side].filter((k) => k !== id); save(); draw(); };
@@ -188,7 +303,7 @@ function controls() {
   }
   const reset = el("button", "btn x-reset", tr("xReset"));
   reset.type = "button";
-  reset.onclick = () => { cfg.pairs = []; openSide = null; save(); draw(); };
+  reset.onclick = () => { cfg.pairs = []; save(); draw(); };
   bar.append(
     sel(KS.POWER_STEPS.map((v) => [v, `${tr("minPower")} > ${v / 1e6}M`]), cfg.minStep, (v) => (cfg.minStep = v)),
     sel(TOPS.map((v) => [v, v ? `${tr("xTop")} ${v}` : tr("xTopAll")]), cfg.top, (v) => (cfg.top = v)),
@@ -319,7 +434,7 @@ async function draw() {
   const loads = cfg.pairs.map((p) => [p.a.map(load), p.b.map(load)]);
   const waiting = loads.flat(2).some((f) => f.value === undefined);
   if (waiting) paint(loads.map((sides) => sides.map((fs) => fs.map((f) => f.value))));
-  const [files, roll] = await Promise.all([Promise.all(loads.map((sides) => Promise.all(sides.map((fs) => Promise.all(fs))))), KS.ui.load("derived/rollup.json")]);
+  const [files, roll] = await Promise.all([Promise.all(loads.map((sides) => Promise.all(sides.map((fs) => Promise.all(fs))))), KS.ui.load("derived/rollup.json"), loadSeeds()]);
   kdRows ||= new Map(roll ? KS.ui.objects(roll.kingdomCols, roll.kingdoms).map((x) => [x.kingdom, x]) : []);
   if (me !== token) return;
   paint(files);
@@ -363,13 +478,7 @@ function paint(files) {
   const n = cfg.pairs.length;
   if (n < MAX_PAIRS && ready(cfg.pairs[n - 1])) box.appendChild(el("section", "x-pair")).appendChild(pairHead(n, [], []));
   box.scrollTop = keepY;
-  box.querySelector(".x-pop")?.place();
 }
-
-// a click outside closes the picker
-document.addEventListener("pointerdown", (e) => {
-  if (openSide && !e.target.closest(".x-add")) { openSide = null; if (state.page === "compare") draw(); }
-});
 
 function fromHash() {
   const hp = new URLSearchParams(location.hash.slice(1));
