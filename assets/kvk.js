@@ -468,9 +468,9 @@ async function showList() {
   find.innerHTML = '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M10.5 10.5 14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
   find.appendChild(q);
   ctl.classList.add("kv-ctl");
-  // a phone: the head has room for the search only, the switch takes the first line of the controls
-  $("dvSlot").append(find, ...(state.narrow ? [] : [seg]));
-  ctl.append(...(state.narrow ? [seg] : []), tabs, fmtBtn(draw));
+  // the search first in the row of filters (user 08/11); Current / History in the head (a phone: the first line of the controls)
+  if (!state.narrow) $("dvSlot").append(seg);
+  ctl.append(...(state.narrow ? [seg] : []), find, tabs, fmtBtn(draw));
   press();
   draw();
 }

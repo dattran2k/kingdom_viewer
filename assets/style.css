@@ -346,14 +346,17 @@ body:not([data-compare="1"]) .cmp-only { display: none; }
 .grp { break-inside: avoid; margin: 0 0 14px; }
 .grp h3 { margin: 0 0 4px; font-size: 12px; font-weight: 600; color: var(--mut); display: flex; gap: 6px; align-items: baseline; flex-wrap: wrap; }
 .grp h3 small { font-weight: 400; }
+.grp h3 .grp-sw { margin: 0 4px 0 auto; align-self: center; }
 .tog { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 6px 4px; border-radius: var(--r-sm); cursor: pointer; color: var(--fg2); }
 .tog:hover { background: var(--hover); }
-.tog input { appearance: none; flex: none; width: 30px; height: 16px; border-radius: 999px; background: var(--edge); position: relative; cursor: pointer; transition: background .15s; margin: 0; }
-.tog input::after { content: ""; position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; border-radius: 50%; background: #fff; transition: transform .15s; }
-.tog input:checked { background: var(--acc-solid); }
-.tog input:checked::after { transform: translateX(14px); }
+.tog input, .grp-sw { appearance: none; flex: none; width: 30px; height: 16px; border-radius: 999px; background: var(--edge); position: relative; cursor: pointer; transition: background .15s; margin: 0; }
+.tog input::after, .grp-sw::after { content: ""; position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; border-radius: 50%; background: #fff; transition: transform .15s; }
+.tog input:checked, .grp-sw:checked { background: var(--acc-solid); }
+.tog input:checked::after, .grp-sw:checked::after { transform: translateX(14px); }
 .tog input:disabled { opacity: .5; cursor: default; }
 .tog.on { color: var(--fg); }
+.grp-sw:indeterminate { background: color-mix(in srgb, var(--acc-solid) 45%, var(--edge)); }
+.grp-sw:indeterminate::after { transform: translateX(7px); }
 
 /* compare page */
 .cmp { flex: 1; overflow: auto; padding: 12px 16px 24px; }
@@ -1065,7 +1068,8 @@ body[data-compare="1"] .k-row .kbtn { height: 52px; }
 .kv-war-out > :not(.dv-wrap) { padding-inline: 16px; }
 .kv-war-out .dv-wrap { max-height: none; overflow-x: auto; overflow-y: visible; }
 .kv-war-ctl { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding-block: 2px 8px; }
-.kv-war-ctl .kv-find { flex: 1 1 220px; max-width: 360px; }
+.kv-war-ctl .kv-find, .kv-ctl > .kv-find { flex: 1 1 220px; max-width: 360px; }
+.kv-ctl > .kv-find input { height: 34px; font-size: 13px; }
 .kv-war-ctl .kv-find input { height: 34px; font-size: 13px; }
 .kv-war-ctl .rk-seg small { color: var(--mut); font-size: 12px; font-weight: 500; }
 .kv-war-ctl .rk-seg button[aria-pressed="true"] small { color: inherit; }

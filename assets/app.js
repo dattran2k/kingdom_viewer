@@ -14,6 +14,7 @@ const T = {
     allAlliances: "Mọi liên minh", columns: "Chỉ số", theme: "Đổi giao diện sáng/tối", sidePin: "Ghim / bỏ ghim menu",
     view: "View", viewTitle: "Tuỳ chọn hiển thị", fmtName: "Số gọn (1.2M)", fmtTip: "Bật: 1.2M, tắt: số đầy đủ", pickCols: "Chọn chỉ số hiển thị", filterCols: "Lọc chỉ số…", all: "Tất cả",
     none: "Bỏ hết", defaults: "Mặc định", players: "người", of: "/", crawled: "Thu thập", loading: "Đang tải…",
+    deltaOnly: "Chỉ hiện thay đổi", deltaOnlyTip: "Khi so sánh: mỗi ô chỉ hiện mức tăng / giảm, không hiện giá trị bên dưới",
     heat: "± TB", heatTip: "Tô màu: cao hơn (xanh) / thấp hơn (đỏ) trung bình cột, trong danh sách đang lọc",
     noRows: "Không có người chơi nào khớp.", minPower: "Lực chiến", allPower: "tất cả", loadErr: "Không tải được dữ liệu.", noData: "Chưa có kingdom nào trong data/.", noIndex: "Không đọc được data/kingdoms.json.",
     fileUrl: "Trang cần chạy qua web (GitHub Pages). Trên máy: mở terminal TRONG thư mục chứa index.html, chạy python -m http.server 8000 --bind 127.0.0.1 rồi mở http://localhost:8000/. Mở thẳng file index.html thì trình duyệt không cho đọc dữ liệu.",
@@ -25,6 +26,7 @@ const T = {
     allAlliances: "All alliances", columns: "Metrics", theme: "Light / dark", sidePin: "Pin / unpin the menu",
     view: "View", viewTitle: "Display options", fmtName: "Compact numbers (1.2M)", fmtTip: "On: 1.2M, off: full numbers", pickCols: "Metrics", filterCols: "Filter metrics…", all: "All",
     none: "None", defaults: "Defaults", players: "players", of: "/", crawled: "Collected", loading: "Loading…",
+    deltaOnly: "Changes only", deltaOnlyTip: "While comparing: each cell shows the rise / fall only, not the value under it",
     heat: "± avg", heatTip: "Colour: above (green) / below (red) the column average, over the players listed",
     noRows: "No player matches.", minPower: "Power", allPower: "all", loadErr: "Could not load the data.", noData: "No kingdom in data/ yet.", noIndex: "Could not read data/kingdoms.json.",
     fileUrl: "Open this page through a web server (GitHub Pages). Locally: in a terminal IN the folder that holds index.html, run python -m http.server 8000 --bind 127.0.0.1, then open http://localhost:8000/. Opened straight from the disk, the browser does not let it read its data.",
@@ -42,7 +44,7 @@ const store = {
 const POWER_STEPS = [20e6, 15e6, 10e6, 5e6, 1e6], DEFAULT_POWER = 15e6; // every page opens on > 15M: the players the ranking and the kingdom search count
 // what the power filters go by, everywhere: the power now, as the ranking counts
 const filterPower = (p) => p.power ?? 0;
-// A kingdom's own power step, its filter's default: KvK1-3 1M, SoS1 5M (kingdoms.json minPower,
+// A kingdom's own power step, its filter's default: KvK1 5M, KvK2 10M (kingdoms.json minPower,
 // kingdom_export.summary); an SoS one has none and goes by the step picked (15M at first). A step picked on a kingdom
 // with its own stays with that kingdom for the visit (stepPicked)
 let ownOf = [null, new Map()]; // [the list it was read from, kingdom -> its own step]
@@ -58,6 +60,14 @@ const BY_KEY = Object.fromEntries(COLUMNS.map((c) => [c.key, c]));
 const FIRST_KINGDOM = 583;
 const firstKingdom = () => (state.list.some((x) => x.kingdom === FIRST_KINGDOM) ? FIRST_KINGDOM : state.list[0].kingdom);
 const DEFAULT_COLS = COLUMNS.filter((c) => c.def).map((c) => c.key);
+// Compare has a column set of its own (user 8/11): the figures whose change matters; the fixed ones are added to both
+const DEFAULT_CMP_COLS = ["power", "powerMax", "merits", "meritRatio", "unitFocus", "meritInfantry", "meritCavalry", "meritArcher", "meritMagic", "mana", "kills", "deaths", "heals"];
+const colsStore = () => (state.comparing ? "colsCmp" : "cols");
+const defaultCols = () => (state.comparing ? DEFAULT_CMP_COLS : DEFAULT_COLS);
+function loadShown() {
+  state.shown = new Set(store.get(colsStore(), defaultCols()).filter((k) => BY_KEY[k]));
+  COLUMNS.filter((c) => c.fixed).forEach((c) => state.shown.add(c.key));
+}
 const NUMERIC = new Set(["int", "num", "pct", "date", "grade", "yesno", "kingdom", "split"]);
 const COMPARED = new Set(["int", "num", "pct"]); // shown as before / change / after while comparing
 const MAX_COMPARED = 32; // a KvK map has up to 24 kingdoms
@@ -74,7 +84,7 @@ const state = {
   sortDelta: false, // sort by the value or the change: the change when comparing opens, then the user's choice, kept across columns
   data: null, rows: [], view: [], cols: [], q: "",
   minPower: POWER_STEPS.includes(store.get("minPower")) ? store.get("minPower") : DEFAULT_POWER, // a new key: the 20M kept under the old one opened on 20M
-  list: [], heat: store.get("heat", false), avg: {}, avgVer: 0,
+  list: [], heat: store.get("heat", false), deltaOnly: store.get("deltaOnly", true), avg: {}, avgVer: 0,
   // a phone: the totals strip starts hidden, the name column is narrower
   narrow: matchMedia("(max-width: 640px)").matches,
 };
@@ -429,6 +439,7 @@ function setCompare(on) {
   if (on === state.comparing) return;
   if (!on) { state.also = []; state.vs = ""; }
   state.comparing = on;
+  loadShown(); // each mode keeps its own columns
   document.body.dataset.compare = on ? "1" : "";
   $("vsBtn").setAttribute("aria-checked", String(on));
   if (!on) $("cmpChips").innerHTML = "";
@@ -740,6 +751,10 @@ function layout() {
   let left = 0;
   const pins = state.cols.filter((c) => c.pin);
   fitWidths();
+  // fewer columns than the table is wide (compare's short set): the room left is shared out over the columns that
+  // scroll, so the rows reach the right edge instead of stopping halfway
+  const room = $("grid").clientWidth - state.cols.reduce((s, c) => s + c.w, 0), free = state.cols.filter((c) => !c.pin);
+  if (room > 0 && free.length) { const add = Math.floor(room / free.length); free.forEach((c) => (c.w += add)); }
   state.cols.forEach((c) => { c._left = c.pin ? left : null; if (c.pin) left += c.w; c._last = c === pins[pins.length - 1]; });
   state.pinW = left;
   state.rankI = state.cols.findIndex((c) => c.key === "rank");
@@ -777,7 +792,7 @@ function cellWidth(text, family) {
   return textWidth(rest, `700 13px ${family}`) + (text.length - rest.length) * digitW;
 }
 function fitWidths() {
-  const key = `${state.data?.kingdom}|${state.data?.scan}|${state.data?._vs}|${state.data?._ks}|${state.compact}|${state.lang}|${state.narrow}`;
+  const key = `${state.data?.kingdom}|${state.data?.scan}|${state.data?._vs}|${state.data?._ks}|${state.compact}|${state.lang}|${state.narrow}|${state.deltaOnly}`;
   if (key !== fitKey) { fitKey = key; fitted = new Map(); }
   const family = getComputedStyle(document.body).fontFamily;
   for (const c of state.cols) {
@@ -795,7 +810,7 @@ function fitWidths() {
         for (const p of state.data.players) {
           // while comparing the change sits in the cell too, with its sign
           // an alliance cell: its longest tag + the chip's padding (two tags stack, they don't add up)
-          const s = c.key === "alliance" ? tagsOf(p).reduce((a, t) => (String(t).length > a.length ? String(t) : a), "") + (state.narrow ? "M" : "MM") : (state.data._vs && COMPARED.has(c.type) ? "+" : "") + fmt(c, value(c, p)) + (p.atLeast && p.atLeast.includes(c.key) ? "+" : "");
+          const s = c.key === "alliance" ? tagsOf(p).reduce((a, t) => (String(t).length > a.length ? String(t) : a), "") + (state.narrow ? "M" : "MM") : (state.data._vs && COMPARED.has(c.type) ? "+" + fmt(c, state.deltaOnly && typeof deltaOf(c, p) === "number" ? Math.abs(deltaOf(c, p)) : value(c, p)) : fmt(c, value(c, p))) + (p.atLeast && p.atLeast.includes(c.key) ? "+" : "");
           if (s.length > longest.length) longest = s;
         }
         w = Math.max(w, cellWidth(longest, family) * (c.key === "meritRatio" ? 15 / 13 : 1)); // CT / LC is drawn in 15px
@@ -916,13 +931,17 @@ function makeRow() {
 // draws ~30 rows x every column a frame. Built ahead while the page is idle (warmCells), else on first draw.
 let cellKey = "", warmJob = 0;
 function newCellKey() {
-  cellKey = state.cols.map((c) => c.key).join() + "|" + state.compact + "|" + state.lang + "|" + (state.heat ? state.avgVer : 0) + "|" + (state.data?._vs || "");
+  cellKey = state.cols.map((c) => c.key).join() + "|" + state.compact + "|" + state.lang + "|" + (state.heat ? state.avgVer : 0) + "|" + (state.data?._vs || "") + "|" + state.deltaOnly;
   warmCells();
 }
 
 // a cell while comparing: [text, class] per line (the change, then the value now; the value before is in the tooltip);
-// null = a plain cell
+// null = a plain cell. "Changes only" (View) keeps the change's line alone when there is one
 function comparedCell(c, p, v) {
+  const parts = comparedParts(c, p, v);
+  return parts && state.deltaOnly && parts.length === 2 && parts[0][1].startsWith("d-d") ? [parts[0]] : parts;
+}
+function comparedParts(c, p, v) {
   if (c.pin || !state.data?._vs) return null;
   const was = p._left ? v : p._was ? value(c, p._was) : undefined, now = p._left ? undefined : v;
   if (was == null && now == null) return null;
@@ -991,7 +1010,7 @@ function cellsOf(p) {
     }
     if (parts) {
       const was = p._left ? v : p._was ? value(c, p._was) : undefined;
-      const title = c.type === "num" && state.compact ? `${typeof was === "number" ? numFmt().format(was) : "–"} → ${p._left || typeof v !== "number" ? "–" : numFmt().format(v)}` : "";
+      const title = (c.type === "num" && state.compact) || (state.deltaOnly && c.type !== "text") ? `${typeof was === "number" ? numFmt().format(was) : "–"} → ${p._left || typeof v !== "number" ? "–" : numFmt().format(v)}` : "";
       out[i] = withBar(c, p, { text: parts.map((x) => x[0]).join("|"), cls: c._cls, title, plus: false, parts });
       continue;
     }
@@ -1183,6 +1202,7 @@ function drawOtherPicker(list, q) {
     box.className = "grp";
     h.textContent = label(g);
     box.appendChild(h);
+    groupSwitch(h, cols.filter((c) => !c.fixed).map((c) => c.key), picker.on, (k, on) => picker.toggle(k, on), () => drawPicker());
     for (const c of cols) {
       const l = document.createElement("label"), t = document.createElement("span"), i = document.createElement("input");
       l.className = "tog" + (picker.on(c.key) ? " on" : "");
@@ -1194,6 +1214,18 @@ function drawOtherPicker(list, q) {
     }
     list.appendChild(box);
   }
+}
+// a group's own switch, at the end of its title: on = every metric under it on, a click turns them all on / all off
+function groupSwitch(h, keys, isOn, set, done) {
+  if (!keys.length) return;
+  const i = document.createElement("input");
+  i.type = "checkbox";
+  i.className = "grp-sw";
+  i.checked = keys.every(isOn);
+  i.indeterminate = !i.checked && keys.some(isOn);
+  i.setAttribute("aria-label", h.firstChild.textContent);
+  i.onchange = () => { const on = i.checked; keys.forEach((k) => set(k, on)); done(); };
+  h.appendChild(i);
 }
 function openPicker(p) {
   picker = p;
@@ -1214,6 +1246,8 @@ function drawPicker() {
     h.textContent = label(g);
     if (g.note) { const s = document.createElement("small"); s.textContent = "· " + label(g.note); h.appendChild(s); }
     box.appendChild(h);
+    groupSwitch(h, cols.filter((c) => !c.fixed).map((c) => c.key), (k) => state.shown.has(k),
+      (k, on) => (on ? state.shown.add(k) : state.shown.delete(k)), () => { drawPicker(); colsChanged(); });
     for (const c of cols) {
       const l = document.createElement("label");
       l.className = "tog" + (state.shown.has(c.key) ? " on" : "");
@@ -1233,7 +1267,7 @@ function drawPicker() {
 }
 
 function colsChanged() {
-  store.set("cols", [...state.shown]);
+  store.set(colsStore(), [...state.shown]);
   drawHead();
   resetPool();
   render();
@@ -1272,6 +1306,13 @@ function init() {
   applyTheme(store.get("appTheme", "dark")); // dark unless chosen here; the device has no say, and an older saved choice is dropped
   $("fmtBtn").setAttribute("aria-pressed", String(state.compact));
   $("heatBtn").setAttribute("aria-pressed", String(state.heat));
+  $("deltaBtn").setAttribute("aria-pressed", String(state.deltaOnly));
+  $("deltaBtn").onclick = () => {
+    state.deltaOnly = !state.deltaOnly;
+    store.set("deltaOnly", state.deltaOnly);
+    $("deltaBtn").setAttribute("aria-pressed", String(state.deltaOnly));
+    if (state.data) refresh();
+  };
   $("heatBtn").onclick = () => {
     state.heat = !state.heat;
     store.set("heat", state.heat);
@@ -1348,9 +1389,11 @@ function init() {
     if (m) { m.classList.add("hov"); m._pin.classList.add("hov"); }
   });
   $("body").addEventListener("mouseleave", () => { if (hov) { hov.classList.remove("hov"); hov._pin.classList.remove("hov"); hov = null; } });
+  let gridW = $("grid").clientWidth;
   addEventListener("resize", () => {
     const narrow = matchMedia("(max-width: 640px)").matches;
-    if (narrow !== state.narrow) { state.narrow = narrow; if (state.data) refresh(); }
+    const gw = $("grid").clientWidth;
+    if (narrow !== state.narrow || gw !== gridW) { state.narrow = narrow; gridW = gw; if (state.data) refresh(); } // the columns fill the width
     rowH = 0; drawn = ""; schedule();
   });
   let qt = 0;
@@ -1393,7 +1436,7 @@ function init() {
     if (act && picker) { picker.act(act); drawPicker(); return; }
     if (act === "all") setCols(pickable().map((c) => c.key));
     if (act === "none") setCols([]);
-    if (act === "def") setCols(DEFAULT_COLS);
+    if (act === "def") setCols(defaultCols());
   });
   $("fmtBtn").onclick = () => {
     state.compact = !state.compact;
