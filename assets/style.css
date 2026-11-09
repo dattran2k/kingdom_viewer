@@ -376,6 +376,13 @@ body:not([data-compare="1"]) .cmp-only { display: none; }
 .x-tag:hover { text-decoration: line-through; color: var(--down); border-color: var(--down); }
 .x-side .x-tag { height: 40px; padding: 0 14px; font-size: 20px; color: var(--t); border-color: color-mix(in srgb, var(--t) 40%, transparent); background: color-mix(in srgb, var(--t) 10%, var(--panel)); }
 .x-side .x-tag:hover { color: var(--down); border-color: var(--down); background: color-mix(in srgb, var(--down) 10%, var(--panel)); }
+.x-side .x-tag { touch-action: none; } /* a finger on a kingdom drags it, not the page */
+.x-side { transition: border-color .12s, box-shadow .12s; }
+.x-side.x-drop { border-color: var(--t); box-shadow: 0 0 0 2px color-mix(in srgb, var(--t) 45%, transparent); }
+.x-tag.x-dragging { opacity: .35; }
+.x-ghost { position: fixed; z-index: 1000; margin: 0; pointer-events: none; box-shadow: 0 6px 18px rgb(0 0 0 / .35); cursor: grabbing; }
+body.x-drag-on, body.x-drag-on * { cursor: grabbing !important; user-select: none; }
+body.x-drag-on .x-side .x-tag:hover { color: var(--t); border-color: color-mix(in srgb, var(--t) 40%, transparent); background: color-mix(in srgb, var(--t) 10%, var(--panel)); }
 .x-add { position: relative; }
 .x-add-btn { height: 32px; padding: 0 12px; border: 1px dashed var(--edge); border-radius: var(--r-md); background: none; color: var(--mut); font-weight: 600; cursor: pointer; white-space: nowrap; }
 .x-side .x-add-btn { height: 40px; }

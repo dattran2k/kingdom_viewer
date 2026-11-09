@@ -277,8 +277,67 @@ function picker(n, side) {
   return wrap;
 }
 
+// ---- a kingdom dragged from one side to another (the other side of its pair, or a side of another pair): pointer
+// events, so a finger drags it too; a press that does not move is still the click that takes it out ----
+let dragged = false;
+function dragStart(e, tag, n, side, id) {
+  if (e.button !== 0) return;
+  e.preventDefault(); // no text selected on the way
+  const x0 = e.clientX, y0 = e.clientY;
+  let ghost = null, over = null;
+  dragged = false;
+  const target = (x, y) => {
+    const box = document.elementFromPoint(x, y)?.closest(".x-side[data-n]");
+    if (!box) return null;
+    const tn = Number(box.dataset.n), ts = box.dataset.side, p = cfg.pairs[tn] ?? { a: [], b: [] };
+    const ok = !(tn === n && ts === side) && !p[ts].includes(id) && p[ts].length < MAX_PER_SIDE;
+    return ok ? box : null;
+  };
+  const move = (ev) => {
+    if (!ghost) {
+      if (Math.hypot(ev.clientX - x0, ev.clientY - y0) < 6) return;
+      dragged = true;
+      const r = tag.getBoundingClientRect();
+      document.body.classList.add("x-drag-on"); // first: it takes off the hover's red, read just below
+      const cs = getComputedStyle(tag); // out of its side the clone keeps the side's colours this way
+      ghost = tag.cloneNode(true);
+      ghost.classList.add("x-ghost");
+      for (const k of ["color", "backgroundColor", "borderColor", "fontSize", "padding", "borderRadius"]) ghost.style[k] = cs[k];
+      Object.assign(ghost.style, { width: r.width + "px", height: r.height + "px", left: r.left + "px", top: r.top + "px" });
+      ghost._dx = x0 - r.left; ghost._dy = y0 - r.top;
+      document.body.appendChild(ghost);
+      tag.classList.add("x-dragging");
+      document.body.classList.add("x-drag-on");
+    }
+    ghost.style.left = ev.clientX - ghost._dx + "px";
+    ghost.style.top = ev.clientY - ghost._dy + "px";
+    const t = target(ev.clientX, ev.clientY);
+    if (t !== over) { over?.classList.remove("x-drop"); t?.classList.add("x-drop"); over = t; }
+  };
+  const end = (ev) => {
+    removeEventListener("pointermove", move);
+    removeEventListener("pointerup", end);
+    removeEventListener("pointercancel", end);
+    if (!ghost) return;
+    ghost.remove(); tag.classList.remove("x-dragging"); document.body.classList.remove("x-drag-on");
+    over?.classList.remove("x-drop");
+    setTimeout(() => (dragged = false)); // the click that follows the release is not a remove
+    const t = ev.type === "pointerup" ? target(ev.clientX, ev.clientY) : null;
+    if (!t) return;
+    const tn = Number(t.dataset.n), ts = t.dataset.side;
+    cfg.pairs[n][side] = cfg.pairs[n][side].filter((k) => k !== id);
+    const p = (cfg.pairs[tn] ??= { a: [], b: [] });
+    p[ts] = [...p[ts], id];
+    save(); draw();
+  };
+  addEventListener("pointermove", move);
+  addEventListener("pointerup", end);
+  addEventListener("pointercancel", end);
+}
+
 function sidePanel(n, side, titleKey, ps) {
   const box = el("div", "x-side " + side), pair = cfg.pairs[n] ?? { a: [], b: [] }, ids = pair[side];
+  box.dataset.n = n; box.dataset.side = side; // a kingdom dragged here lands in this side
   const head = el("div", "x-side-head");
   head.appendChild(el("h3", "", tr(titleKey)));
   if (ids.length) head.appendChild(el("span", "x-side-n", `${numFmt().format(ps.length)} ${tr("xPlayers")}`));
@@ -288,7 +347,8 @@ function sidePanel(n, side, titleKey, ps) {
     tag.innerHTML = "#" + id + seedBadge(id);
     tag.type = "button";
     tag.title = `${tr("xRemove")} #${id}`;
-    tag.onclick = () => { pair[side] = pair[side].filter((k) => k !== id); save(); draw(); };
+    tag.onclick = () => { if (dragged) return; pair[side] = pair[side].filter((k) => k !== id); save(); draw(); };
+    tag.addEventListener("pointerdown", (e) => dragStart(e, tag, n, side, id));
     tags.appendChild(tag);
   }
   tags.appendChild(picker(n, side));
