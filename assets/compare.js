@@ -7,10 +7,10 @@ const KS = window.KS, { state, tr, $, numFmt } = KS;
 
 Object.assign(KS.T.vi, {
   navKingdom: "Kingdom", navCompare: "Ghép cặp", openSource: "Mã nguồn mở trên GitHub",
-  xSideA: "Phe 1", xSideB: "Phe 2", xAdd: "+ Kingdom", xRemove: "Bỏ", xEmpty: "Thêm kingdom vào cả hai phe để xem so sánh.",
-  xPlayers: "người", xReset: "Đặt lại", xFull: "Đầy đủ", xShort: "Rút gọn", xViewTip: "Đầy đủ: mọi chỉ số. Rút gọn: người chơi, điểm di cư, LC max, Decor max, Pet max, công trạng, CT / LC",
-  xdDuels: "Các mức LC max, mức điểm di cư, Decor max, Pet max, Bảo vật đỏ và Nhà Thiên Đỉnh đếm số người chơi. CT / LC là trung bình mỗi người. Các số còn lại là {agg}.",
-  xdShort: "Decor max và Pet max đếm số người chơi. CT / LC là trung bình mỗi người. Các số còn lại là {agg}.",
+  xSide: "Phe", xAdd: "+ Kingdom", xRemove: "Bỏ", xEmpty: "Thêm kingdom vào cả hai phe để xem so sánh.",
+  xPlayers: "người", xReset: "Đặt lại", xFull: "Đầy đủ", xShort: "Rút gọn", xViewTip: "Đầy đủ: mọi chỉ số. Rút gọn: người chơi, Decor max, Pet max, điểm di cư, LC max, công trạng",
+  xdDuels: "Decor max, Pet max, các mức điểm di cư và mức LC max đếm số người chơi. Các số còn lại là {agg}.",
+  xdShort: "Decor max và Pet max đếm số người chơi. Các số còn lại là {agg}.",
   xAggSum: "tổng của cả phe", xBand: "LC max",
   xInfantry: "CT bộ binh", xCavalry: "CT kỵ binh", xArcher: "CT cung thủ", xMagic: "CT pháp sư",
   xdEach: "Số tổng của từng kingdom ở ngày mới nhất, chỉ tính người qua mức lực chiến đã chọn.",
@@ -20,13 +20,14 @@ Object.assign(KS.T.vi, {
   pkNote: "Bảng Phân Loại của game, cập nhật {d} UTC, ghép cho {s}. SP-: kingdom khu vực khác, không có dữ liệu người chơi.",
   xShare: "Chia sẻ", xShareTip: "Chép link trang Ghép cặp với các cặp đang chọn", xShared: "Đã chép link",
   pkNoData: "Không có dữ liệu", pkOther: "Ở phe kia", pkPower: "Lực chiến tổng (game)",
+  xSplit: "Chia đôi", xSplitTip: "Hai cặp cạnh nhau (Phe 1 vs 2 | Phe 3 vs 4), chỉ ở màn rộng",
 });
 Object.assign(KS.T.en, {
   navKingdom: "Kingdom", navCompare: "Matchup", openSource: "Open source on GitHub",
-  xSideA: "Side 1", xSideB: "Side 2", xAdd: "+ Kingdom", xRemove: "Remove", xEmpty: "Add kingdoms to both sides to compare them.",
-  xPlayers: "players", xReset: "Reset", xFull: "Full", xShort: "Short", xViewTip: "Full: every figure. Short: players, migration score, max power, max decor, max pets, merits, merit %",
-  xdDuels: "Max power bands, migration bands, Max decor, Max pets, Red artifact and Legendary themes count players. Merit % is the average per player. The other figures are the {agg}.",
-  xdShort: "Max decor and Max pets count players. Merit % is the average per player. The other figures are the {agg}.",
+  xSide: "Side", xAdd: "+ Kingdom", xRemove: "Remove", xEmpty: "Add kingdoms to both sides to compare them.",
+  xPlayers: "players", xReset: "Reset", xFull: "Full", xShort: "Short", xViewTip: "Full: every figure. Short: players, max decor, max pets, migration score, max power, merits",
+  xdDuels: "Max decor, Max pets, migration bands and max power bands count players. The other figures are the {agg}.",
+  xdShort: "Max decor and Max pets count players. The other figures are the {agg}.",
   xAggSum: "total of the side", xBand: "Max power",
   xInfantry: "Infantry merits", xCavalry: "Cavalry merits", xArcher: "Archer merits", xMagic: "Magic merits",
   xdEach: "Totals of each kingdom on its newest day, only players over the chosen power step.",
@@ -36,6 +37,7 @@ Object.assign(KS.T.en, {
   pkNote: "The game's seed table, updated {d} UTC, pairing for {s}. SP-: kingdoms of another region, no player data.",
   xShare: "Share", xShareTip: "Copy a link to this matchup, its pairs filled in", xShared: "Link copied",
   pkNoData: "No data", pkOther: "On the other side", pkPower: "Total power (the game's)",
+  xSplit: "Split", xSplitTip: "Two pairs side by side (Side 1 vs 2 | Side 3 vs 4), on a wide screen only",
 });
 
 const MAX_PER_SIDE = 10, MAX_PAIRS = 5;
@@ -130,6 +132,8 @@ const pk = { n: 0, side: "a", tab: "pair", group: 0, on: new Set([1, 2, 3, 4]) }
 const LETTER = ["", "A", "B", "C", "D"];
 const OTHER = 100000000;   // another region's kingdom: 1000000xx, shown as the game does, SP-xx
 const kName = (k) => (k >= OTHER ? "SP-" + (k - OTHER) : "#" + k);
+// a side's name: numbered on through the pairs (the second pair is Side 3 vs Side 4, as a map's camps)
+const sideName = (n, side) => `${tr("xSide")} ${2 * n + (side === "a" ? 1 : 2)}`;
 const seasonName = (s) => (s > 1000 ? "SoS" + (s - 1000) : "S" + s);
 const two = (v) => String(v).padStart(2, "0");
 function loadSeeds() {
@@ -196,7 +200,7 @@ function openPick(n, side) {
 function fillPick(keepY) {
   const d = dlg, pair = pairOf(), mine = pair[pk.side], other = pair[pk.side === "a" ? "b" : "a"], nf = numFmt();
   const title = d.querySelector(".xp-t");
-  title.textContent = `${tr("pkTitle")} ${tr(pk.side === "a" ? "xSideA" : "xSideB")}`;
+  title.textContent = `${tr("pkTitle")} ${sideName(pk.n, pk.side)}`;
   title.className = "xp-t " + pk.side;
   d.querySelector(".xp-n").textContent = `${mine.length}/${MAX_PER_SIDE}`;
   d.querySelector(".xp-done").textContent = tr("pkDone");
@@ -335,11 +339,11 @@ function dragStart(e, tag, n, side, id) {
   addEventListener("pointercancel", end);
 }
 
-function sidePanel(n, side, titleKey, ps) {
+function sidePanel(n, side, ps) {
   const box = el("div", "x-side " + side), pair = cfg.pairs[n] ?? { a: [], b: [] }, ids = pair[side];
   box.dataset.n = n; box.dataset.side = side; // a kingdom dragged here lands in this side
   const head = el("div", "x-side-head");
-  head.appendChild(el("h3", "", tr(titleKey)));
+  head.appendChild(el("h3", "", sideName(n, side)));
   if (ids.length) head.appendChild(el("span", "x-side-n", `${numFmt().format(ps.length)} ${tr("xPlayers")}`));
   const tags = el("div", "x-tags");
   for (const id of ids) {
@@ -376,6 +380,12 @@ function controls() {
     x.onclick = () => { if (!!cfg.short === v) return; cfg.short = v; save(); draw(); };
     view.appendChild(x);
   }
+  // two pairs side by side (Side 1 vs 2 | Side 3 vs 4 of a map): a switch, kept; only on a wide screen (style.css)
+  const split = el("button", "btn x-split-btn");
+  split.type = "button"; split.title = tr("xSplitTip");
+  split.innerHTML = `<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 2h5v12H2zM9 2h5v12H9z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span>${tr("xSplit")}</span>`;
+  split.setAttribute("aria-pressed", String(!!cfg.split));
+  split.onclick = () => { cfg.split = !cfg.split; save(); draw(); };
   const share = el("button", "btn x-share");
   share.innerHTML = `<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M12 1a3 3 0 1 1-2.2 5l-3.9 2a3 3 0 0 1 0 1l3.9 2a3 3 0 1 1-.7 1.3l-3.9-2a3 3 0 1 1 0-4.6l3.9-2A3 3 0 0 1 12 1z"/></svg><span>${tr("xShare")}</span>`;
   share.type = "button"; share.title = tr("xShareTip");
@@ -386,7 +396,7 @@ function controls() {
   reset.onclick = () => { cfg.pairs = []; save(); draw(); };
   bar.append(
     sel(KS.POWER_STEPS.map((v) => [v, KS.powerLabel(v)]), cfg.minStep, (v) => (cfg.minStep = v)),
-    fmt, view, share, reset,
+    fmt, view, split, share, reset,
   );
   return bar;
 }
@@ -434,73 +444,92 @@ function focusOf(ks) {
   return c;
 }
 
-function duels(pa, pb, pair) {
+function duels(pa, pb, pair, pn) {
   const box = el("div", "x-duels"), int = (v) => numFmt().format(v);
   const short = (c) => (v) => (c.type === "num" && state.compact ? KS.compact(v) : show(c, v)); // follows the 1.2M switch
   const col = (k, name, icon) => { const c = KS.BY_KEY[k]; return [name || KS.label(c), (ps) => measure(c, ps), short(c), icon]; };
   const main = (k, name) => col(k, name).slice(0, 3); // a card's own figure: name, value, text
-  const spelled = (k) => col(k, KS.label(KS.BY_KEY[k].tip)); // the short column name says too little here
-  const counted = (key, lo, hi, name) => [name, (ps) => ps.filter((p) => (p[key] ?? 0) >= lo && (p[key] ?? 0) < hi).length, int];
+  const counted = (key, lo, hi, name, tip) => [name, (ps) => ps.filter((p) => (p[key] ?? 0) >= lo && (p[key] ?? 0) < hi).length, int, null, null, tip];
   const owners = (k) => counted(k, 1, Infinity, KS.label(KS.BY_KEY[k]));
   const peak = [[cfg.minStep, POWER_BANDS[0][0], `${cfg.minStep / 1e6}–100M`], ...POWER_BANDS];
+  // a breakdown of the card's own figure (its players by band): one line of small figures under it, named by the band
+  const bands = (key, list, name) => list.map(([lo, hi, t]) => counted(key, lo, hi, t, `${name} ${t}`));
+  // under the players: how many have the max decor and the max pets, small (user 11/11: no card of their own)
+  const decorPets = [[KS.label(KS.BY_KEY.maxDecor), (ps) => ps.filter((p) => (p.maxDecor ?? 0) >= DECOR_MAX).length, int], owners("pets8Skills3Star")];
+  // [key, card name = its own figure's, value, text, the other figures, the breakdown line, how many figures lead]; a
+  // card with a breakdown shows its leading figures larger: the rest is more about them
   const items = [
-    ["players", tr("xCount"), (ps) => ps.length, int, []],
-    ["migrationScore", ...main("migrationScore", tr("xMigrationSum")), MIGRATION_BANDS.map(([lo, hi, t]) => counted("migrationScore", lo, hi, `${tr("xMigrationBand")} ${t}`))],
-    ["power", ...main("power"), [col("powerMax"), ...peak.map(([lo, hi, t]) => counted("powerMax", lo, hi, `${tr("xBand")} ${t}`))]],
-    ["maxDecor", KS.label(KS.BY_KEY.maxDecor), (ps) => ps.filter((p) => (p.maxDecor ?? 0) >= DECOR_MAX).length, int,
-      [owners("pets8Skills3Star"), owners("redArtifact"), owners("cityTheme"), ...["awakenedHeroes", "artifactSkillsLv5", "gemsSpent", "exchangeCoinsSpent"].map(spelled)]],
-    ["merits", ...main("merits"), [col("meritsMax"), col("meritRatio"), col("meritInfantry", tr("xInfantry")), col("meritCavalry", tr("xCavalry")), col("meritArcher", tr("xArcher")), col("meritMagic", tr("xMagic"))]],
+    ["players", tr("xCount"), (ps) => ps.length, int, [], decorPets],
+    ["migrationScore", ...main("migrationScore", tr("xMigrationSum")), [], bands("migrationScore", MIGRATION_BANDS, tr("xMigrationBand"))],
+    ["power", ...main("powerMax"), [col("power")], bands("powerMax", peak, tr("xBand")), 2],
+    ["merits", ...main("merits"), [col("meritsMax")],
+      [col("meritInfantry", tr("xInfantry")), col("meritCavalry", tr("xCavalry")), col("meritArcher", tr("xArcher")), col("meritMagic", tr("xMagic"))], 2],
     ["kills", ...main("kills"), [col("deaths", null, "deaths"), col("heals", null, "heals")]],
   ];
   if (cfg.short) items.splice(0, items.length,
-    ["players", tr("xCount"), (ps) => ps.length, int, []],
+    ["players", tr("xCount"), (ps) => ps.length, int, [], decorPets],
     ["migrationScore", ...main("migrationScore", tr("xMigrationSum")), []],
     ["power", ...main("powerMax"), []],
-    ["maxDecor", KS.label(KS.BY_KEY.maxDecor), (ps) => ps.filter((p) => (p.maxDecor ?? 0) >= DECOR_MAX).length, int, [owners("pets8Skills3Star")]],
-    ["merits", ...main("merits"), [col("meritRatio")]]);
+    ["merits", ...main("merits"), []]);
   const value = (side, v, other, text) => {
-    const lead = v != null && other != null && v > other, b = el("b", side + (lead ? " lead" : ""), v == null ? "–" : text(v));
+    const lead = v != null && other != null && v > other, b = el("b", side + (lead ? " lead" : ""));
+    b.appendChild(el("span", "", v == null ? "–" : text(v)));
     if (lead) b.appendChild(el("small", "", "+" + text(v - other))); // how far ahead, small, after the value
     return b;
   };
-  const cell = (side, v, other, text) => {
-    const c = el("div", "x-c"), high = Math.max(v || 0, other || 0);
+  const cell = (side, v, other, text, cls) => {
+    const c = el("div", "x-c" + (cls ? " " + cls : "")), high = Math.max(v || 0, other || 0);
     c.appendChild(value(side, v, other, text));
     c.appendChild(el("span", "x-d-bar " + side)).appendChild(el("i")).style.width = (high > 0 ? (100 * Math.max(0, v || 0)) / high : 0).toFixed(2) + "%";
     return c;
   };
-  // the figures in blocks of n columns: a head of names, then side 1's line and side 2's
-  const blocks = (body, figs, n) => {
-    body.innerHTML = "";
+  // the figures in blocks of n columns: a head of names, then side 1's line and side 2's. small: the breakdown line
+  // (smaller text, thinner bars); big: how many figures, from the first, are drawn larger
+  const blocks = (body, figs, n, small, big = 0) => {
     for (let at = 0; at < figs.length; at += n) {
-      const part = figs.slice(at, at + n), g = body.appendChild(el("div", "x-blk"));
+      const part = figs.slice(at, at + n), g = body.appendChild(el("div", "x-blk" + (small ? " x-sm" : "")));
       g.style.gridTemplateColumns = `${SIDE_W}px repeat(${part.length}, minmax(0, 1fr))`; // each block fills the width
       g.appendChild(el("span"));
-      for (const [name, , , , icon] of part) {
+      for (const [name, , , , icon, , tip] of part) {
         const h = g.appendChild(el("span", "x-h"));
         if (icon) h.appendChild(iconOf(icon, "x-d-si"));
-        h.appendChild(el("span", "", name)).title = name;
+        h.appendChild(el("span", "", name)).title = tip || name;
       }
-      for (const [side, label] of [["a", "xSideA"], ["b", "xSideB"]]) {
-        g.appendChild(el("span", "x-sd " + side, tr(label)));
-        for (const [, va, vb, text, , own] of part) g.appendChild(own ? own(side) : side === "a" ? cell("a", va, vb, text) : cell("b", vb, va, text));
+      for (const side of ["a", "b"]) {
+        g.appendChild(el("span", "x-sd " + side, sideName(pn, side)));
+        part.forEach(([, va, vb, text, , own], j) => {
+          const cls = at + j < big ? "x-main" : "";
+          g.appendChild(own ? own(side) : side === "a" ? cell("a", va, vb, text, cls) : cell("b", vb, va, text, cls));
+        });
       }
     }
   };
-  const colW = COL_W[state.compact ? "compact" : "full"];
+  // a split page's cards are half as wide: narrower columns, so a card's two leading figures still share their line
+  const wide = !(cfg.split && matchMedia("(min-width: 1100px)").matches);
+  const colW = wide ? COL_W[state.compact ? "compact" : "full"] : state.compact ? 104 : 150;
   const cols = [0, 1].map(() => box.appendChild(el("div", "x-col")));
-  items.forEach(([key, label, get, text, subs], i) => {
+  const figsOf = (list) => list.map(([name, of, fmt, icon, own, tip]) => [name, of(pa), of(pb), fmt, icon, own, tip]);
+  items.forEach(([key, label, get, text, subs, parts, lead = 1], i) => {
     const d = el("div", "x-duel"), top = el("div", "x-d-top"), body = el("div", "x-d-body");
     d.dataset.k = key;
     top.append(iconOf(key, "x-d-i"), el("span", "x-d-l", label));
-    const figs = [[label, get(pa), get(pb), text], ...(subs || []).map(([name, of, fmt, icon]) => [name, of(pa), of(pb), fmt, icon])];
-    if (key === "players" && !cfg.short) figs.push([KS.label(KS.BY_KEY.unitFocus), null, null, null, null, (side) => focusOf(pair[side])]); // beside the count, half each
-    let n = 0;
+    const figs = [[label, get(pa), get(pb), text], ...figsOf(subs || [])], small = figsOf(parts || []);
+    if (key === "merits" && !cfg.short) figs.push([KS.label(KS.BY_KEY.unitFocus), null, null, null, null, (side) => focusOf(pair[side])]); // after the best season
+    let n = 0, m = 0;
     // as many columns as fit, then shared out evenly between the blocks: 7 in 4 is 4 + 3, not 4 + 4 empty slots.
     // Run at once when the card is put in the page (a page drawn again keeps its height, so its scroll stays), and on resize
+    const even = (count, w) => { const most = Math.max(1, Math.floor((body.clientWidth - SIDE_W) / w)); return Math.ceil(count / Math.ceil(count / most)); };
     body.fit = () => {
-      const most = Math.max(1, Math.floor((body.clientWidth - SIDE_W) / colW)), fit = Math.ceil(figs.length / Math.ceil(figs.length / most));
-      if (body.clientWidth && fit !== n) blocks(body, figs, (n = fit));
+      if (!body.clientWidth) return;
+      // the breakdown: each of its cells as wide as its longest value needs at its size (~7.5 px a character: a band's
+      // count of players "95", or full merits "1,291,476,754"), all on one line when they fit
+      const fit = even(figs.length, colW), need = Math.max(48, 10 + 7.5 * Math.max(...small.map(([, va, vb, text]) =>
+        Math.max(va == null ? 1 : text(va).length, vb == null ? 1 : text(vb).length)), 0));
+      const fitS = !small.length ? 0 : even(small.length, need);
+      if (fit === n && fitS === m) return;
+      body.innerHTML = "";
+      blocks(body, figs, (n = fit), false, small.length ? lead : 0);
+      if (small.length) blocks(body, small, (m = fitS), true);
     };
     new ResizeObserver(body.fit).observe(body);
     d.append(top, body);
@@ -530,13 +559,18 @@ function paint(files) {
   const box = $("cmp"), keepY = box.scrollTop;
   const before = [...box.querySelectorAll(":scope > .x-pair")]; // a pair still waiting keeps these figures: no blink, no jump
   box.innerHTML = "";
+  box.classList.toggle("x-split", !!cfg.split);
   box.appendChild(controls());
   const pairHead = (n, pa, pb) => {
     const head = el("div", "x-head");
-    head.append(sidePanel(n, "a", "xSideA", pa), el("div", "x-vs", "VS"), sidePanel(n, "b", "xSideB", pb));
+    head.append(sidePanel(n, "a", pa), el("div", "x-vs", "VS"), sidePanel(n, "b", pb));
     return head;
   };
-  let noted = false;
+  const note = () => el("p", "x-gd x-note", tr(cfg.short ? "xdShort" : "xdDuels").replace("{agg}", tr("xAggSum")));
+  // split: one note over both columns, under the controls, from the first pair with two sides on (loading or not), so
+  // the two pairs' cards start on the same line
+  let noted = !!cfg.split && cfg.pairs.some(ready);
+  if (noted) box.appendChild(note());
   cfg.pairs.forEach((p, n) => {
     const [fa, fb] = files[n], pa = sidePlayers(fa), pb = sidePlayers(fb), sec = box.appendChild(el("section", "x-pair"));
     sec.appendChild(pairHead(n, pa, pb));
@@ -554,9 +588,9 @@ function paint(files) {
       else hint("loading");
       return;
     }
-    if (!noted) sec.appendChild(el("p", "x-gd x-note", tr(cfg.short ? "xdShort" : "xdDuels").replace("{agg}", tr("xAggSum"))));
+    if (!noted) sec.appendChild(note());
     noted = true;
-    sec.append(duels(pa, pb, p), group("players", tr("xEach"), tr("xdEach"), eachKingdom(fa, fb)));
+    sec.append(duels(pa, pb, p, n), group("players", tr("xEach"), tr("xdEach"), eachKingdom(fa, fb)));
     sec.querySelectorAll(".x-d-body").forEach((b) => b.fit());
   });
   // the last pair has both sides: an empty one under it for the next, kept once a kingdom is picked in it

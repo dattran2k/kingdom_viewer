@@ -7,10 +7,12 @@ const { el, load, objects } = KS.ui;
 
 Object.assign(KS.T.vi, { iSeeRank: "Bảng xếp hạng", iRankTitle: "Hạng server", iOf: "/ {n} kingdom", iTop: "Top {p}%", iKds: "{n} kingdom trong KvK", iTopAl: "Liên minh mạnh nhất (tổng lực chiến)", iSameGen: "Kingdom cùng Gen",
   pStep: ["Xem Trước", "Đăng Ký", "Phân Loại", "Ghép Cặp", "Bờ Vực Chiến Tranh", "Mùa Giải Bắt Đầu"], pTbd: "Chưa định", pLeft: "còn {t}",
-  pGroup: "Nhóm {n}", pKds: "{n} kingdom cùng nhóm ghép cặp", pOpen: "Ghép cặp", pTip: "Lịch của mùa giải sắp tới, như màn Mùa Giải trong game (UTC). Map có sau Bờ Vực Chiến Tranh" });
+  pGroup: "Nhóm {n}", pKds: "{n} kingdom cùng nhóm ghép cặp", pOpen: "Ghép cặp", pTip: "Lịch của mùa giải sắp tới, như màn Mùa Giải trong game (UTC). Map có sau Bờ Vực Chiến Tranh",
+  iCmp: "So sánh sức mạnh", iCmpS: "So sánh", iCmpTip: "Mở Ghép cặp: đội của kingdom này với đội kia của KvK" });
 Object.assign(KS.T.en, { iSeeRank: "Ranking", iRankTitle: "Kingdom rank", iOf: "/ {n} kingdoms", iTop: "Top {p}%", iKds: "{n} kingdoms in this KvK", iTopAl: "Strongest alliance (total power)", iSameGen: "Kingdoms of the same Gen",
   pStep: ["Preview", "Register", "Seeding", "Pairing", "Brink of War", "Season Starts"], pTbd: "TBD", pLeft: "{t} left",
-  pGroup: "Group {n}", pKds: "{n} kingdoms in the pairing group", pOpen: "Matchup", pTip: "The coming season's schedule, as the game's Season screen (UTC). The map comes after Brink of War" });
+  pGroup: "Group {n}", pKds: "{n} kingdoms in the pairing group", pOpen: "Matchup", pTip: "The coming season's schedule, as the game's Season screen (UTC). The map comes after Brink of War",
+  iCmp: "Compare strength", iCmpS: "Compare", iCmpTip: "Open the Matchup: this kingdom's team against the other team of the KvK" });
 
 const RANKED = [["migrationScore", "cMigration"], ["powerMax", "cPowerMax"], ["power", "cPower"], ["merits", "cMerits"], ["kills", "cKills"], ["deaths", "cDeaths"], ["heals", "cHeals"], ["gathered", "cGathered"], ["decorMax", "cDecor"]];
 // underlined text at the end of the line, as the links of the KvK frame
@@ -155,7 +157,10 @@ async function drawTop(k) {
   const bt = KS.season.battleTag(b);
   if (bt) tags.appendChild(bt);
   name.append(el("b", "", KS.season.title(b.season)), tags);
-  line.append(name, open);
+  const acts = el("span", "k-acts"), cmp = matchupLink(b, k);
+  if (cmp) acts.appendChild(cmp);
+  acts.appendChild(open);
+  line.append(name, acts);
   chips.appendChild(el("span", "k-meta-lbl", tr("iKds").replace("{n}", b.kingdoms.length)));
   for (const y of b.kingdoms) {
     const c = el("a", ks.includes(y.k) ? "kd on" : "kd", "#" + y.k);
@@ -171,6 +176,24 @@ async function drawTop(k) {
   const prog = el("div", "k-prog");
   prog.append(...KS.season.progress(b, false, 1, false));
   meta.append(line, prog, chips);
+}
+
+// the Matchup of a KvK's two teams (the season's camps of each, kvk_export SEASON_TEAMS), the kingdom's team as side 1;
+// a map of two camps and no teams is camp against camp. Only kingdoms with data (another region's have none); null when
+// there are no two sides to fill
+function matchupLink(b, k) {
+  const camps = [...new Set(b.kingdoms.map((x) => x.camp))].sort((x, y) => x - y);
+  const teams = b.teams || (camps.length === 2 ? camps.map((c) => [c]) : null);
+  if (!teams) return null;
+  const has = (x) => !x.other && state.list.some((i) => i.kingdom === x.k);
+  let sides = teams.map((t) => b.kingdoms.filter((x) => t.includes(x.camp) && has(x)).map((x) => x.k));
+  if (sides[1].includes(k)) sides = [sides[1], sides[0]];
+  if (!sides[0].length || !sides[1].length) return null;
+  const a = el("a", "btn k-cmp");
+  a.append(el("span", "k-cmp-l", tr("iCmp")), el("span", "k-cmp-s", tr("iCmpS")));
+  a.title = tr("iCmpTip");
+  a.href = `#p=compare&a=${sides[0].join(",")}&b=${sides[1].join(",")}`;
+  return a;
 }
 
 // ---- a kingdom being paired: the game's Season screen, its steps on one line (Preview, Register, Seeding, Pairing,
