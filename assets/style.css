@@ -2056,3 +2056,6 @@ a.k-pair-s:focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; }
 .tbl tr.kv-cur + tr.kv-cur > td:last-child { box-shadow: inset -1px 0 0 var(--g), inset 0 -1px 0 var(--g); }
 /* its pinned first cell too: the panel's own rule for pinned cells (.kv-panel .tbl td.pin) is stronger than the line's */
 .kv-panel .tbl tr.kv-cur > td.pin { background: color-mix(in srgb, var(--gold-solid) 5%, var(--panel)); }
+/* the schedule's View menu: its time zone list, full width under the layout switch */
+.kv-view-pop .kv-tz { display: block; width: 100%; height: 34px; margin: 0 0 12px; padding: 0 8px; border: 1px solid var(--edge); border-radius: var(--r-md, 8px); background: var(--panel); color: var(--fg); font: inherit; font-size: 14px; font-weight: 600; }
+.kv-view-pop .kv-tz option { background: var(--panel); }

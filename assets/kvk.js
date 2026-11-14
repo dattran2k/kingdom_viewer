@@ -17,7 +17,7 @@ Object.assign(KS.T.vi, {
   kWarTop10: "Xếp hạng công trạng (top 10)", kWarAlliances: "Liên minh tham gia", kWarNone: "Không có trận nào khớp.",
   kWarNote: "Game chỉ trả top 10 người mỗi trận. \"Người tham gia\" là số game hiện. Đang diễn ra: trận trong danh sách đang diễn ra của game lúc lấy dữ liệu, chưa có giờ kết thúc (trận đã xong mới vào lịch sử). Một vị trí bị đánh lại nhiều lần vẫn là một trận, nên trận có thể kéo dài nhiều ngày; \"Giao tranh cuối\" là lần cập nhật cuối của server. Merits trade: mọi liên minh và người chơi biết được kingdom đều cùng một kingdom.",
   kMin: "{n} phút", kHour: "{h} giờ {m} phút", kHourOnly: "{h} giờ", kDay: "{d} ngày {h} giờ",
-  kPhLeft: "còn {t}", kPhFrom: "từ {d}", kMkPast: "Đã qua", kMkNow: "Đang mở · còn {t}", kMkNext: "Mở sau {t}", kMkEst: "ước tính", kMkReached: "Hoàn thành {t} UTC · mốc sau bắt đầu ngay", kMkOpens: "Mở trên bản đồ {t} UTC", kMkView: "Mốc hiển thị", kMkMode: "Kiểu", kMkModeBar: "Thường", kMkModeCal: "Lịch", kMkShowBoss: "Behemoth", kMkShowBossTip: "Giờ mở hang behemoth", kMkShowPass: "Ải", kMkShowPassTip: "Giờ mở ải", kMkShowStatue: "Tượng Tổ Tiên", kMkShowStatueTip: "Cổ Ngữ và Tối Cao, mỗi lần mở", kMkStatue: "Mở {h} giờ, lặp lại mỗi {e} giờ · {n} tượng · lần {k}", kMkChapter: "Chương: {t}", kMkOpensDay: "Mở trên bản đồ {t} (12 giờ sau khi chương trước kết thúc)", kMkOpened: "Đã mở", kMkQuest: "Nhiệm vụ {a} – {b} UTC", kMkQuestDay: "Nhiệm vụ {a} – {b}", kMkOn: "Đang diễn ra", kMkSoon: "Sắp tới", kMkEarly: "Không có dữ liệu mốc 40000 Đội Tuần Tra Hắc Ám của KvK này: coi như xong trong vòng 12 giờ; không xong thì các mốc sau muộn hơn 18 giờ.", kMkFrom: "Ước tính: lịch mốc của mùa này (thời lượng của game), dời theo ngày mở của KvK này. Chỉ đúng ngày.", kMkFromOther: "Tạm lấy mốc của {k} (mùa khác): mùa này chưa đọc được mốc, nhiệm vụ và behemoth có thể khác.", kMkRead: "Đọc từ game lúc {t} UTC. Mốc chưa mở tính theo thời lượng của game.",
+  kPhLeft: "còn {t}", kPhFrom: "từ {d}", kMkPast: "Đã qua", kMkNow: "Đang mở · còn {t}", kMkNext: "Mở sau {t}", kMkEst: "ước tính", kMkReached: "Hoàn thành {t} {z} · mốc sau bắt đầu ngay", kMkOpens: "Mở trên bản đồ {t} {z}", kMkTz: "Múi giờ", kMkTzLocal: "Giờ máy ({z})", kMkView: "Mốc hiển thị", kMkMode: "Kiểu", kMkModeBar: "Thường", kMkModeCal: "Lịch", kMkShowBoss: "Behemoth", kMkShowBossTip: "Giờ mở hang behemoth", kMkShowPass: "Ải", kMkShowPassTip: "Giờ mở ải", kMkShowStatue: "Tượng Tổ Tiên", kMkShowStatueTip: "Cổ Ngữ và Tối Cao, mỗi lần mở", kMkStatue: "Mở {h} giờ, lặp lại mỗi {e} giờ · {n} tượng · lần {k}", kMkChapter: "Chương: {t}", kMkOpensDay: "Mở trên bản đồ {t} (12 giờ sau khi chương trước kết thúc)", kMkOpened: "Đã mở", kMkQuest: "Nhiệm vụ {a} – {b} UTC", kMkQuestDay: "Nhiệm vụ {a} – {b}", kMkOn: "Đang diễn ra", kMkSoon: "Sắp tới", kMkEarly: "Không có dữ liệu mốc 40000 Đội Tuần Tra Hắc Ám của KvK này: coi như xong trong vòng 12 giờ; không xong thì các mốc sau muộn hơn 18 giờ.", kMkFrom: "Ước tính: lịch mốc của mùa này (thời lượng của game), dời theo ngày mở của KvK này. Chỉ đúng ngày.", kMkFromOther: "Tạm lấy mốc của {k} (mùa khác): mùa này chưa đọc được mốc, nhiệm vụ và behemoth có thể khác.", kMkRead: "Đọc từ game lúc {t} {z}. Mốc chưa mở tính theo thời lượng của game.",
   kWarReal: "Trận thật", kTabTrade: "Phát hiện Merits trade", kTradeMerits: "Công trạng trade", kTradeFights: "Trận trade", kRealMerits: "Công trạng trận thật", kRealFights: "Trận thật", kTradeShare: "% trade", kTradeShareTip: "Phần công trạng từ merits trade trong tổng công trạng của người chơi ở các top 10", kTradeBest: "Trận trade lớn nhất", kTradeMeta: "{n} người chơi · lấy lúc {t} UTC", kTradeNote: "Người chơi có mặt trong top 10 của ít nhất một trận merits trade (chỉ một kingdom tham gia), xếp theo công trạng lấy được ở các trận đó. Game chỉ trả top 10 mỗi trận nên đây là phần thấy được, không phải toàn bộ. Bấm một người để xem các trận trade của họ.", kWarNoLive: "Lần lấy này không có danh sách đang diễn ra của game.", kWarTrade: "Merits trade", kWarTradeTip: "Chỉ một kingdom tham gia: đánh nhau trong cùng kingdom để lấy công trạng", kWarKd: "Kingdom", kWarEnd: "Giao tranh cuối (UTC)",
   kWarShare: "Top 10 chiếm {p}% công trạng trận", kWarOfFight: "{p}% trận", kWarLegion: "Quân đoàn {n}", kWarNoLegion: "Không quân đoàn",
   kWarNowAs: "Tag liên minh của người chơi là liên minh hiện tại (lúc lấy dữ liệu), có thể khác lúc đánh.", kWarUnknownK: "Không rõ kingdom (ngoài bảng xếp hạng đã quét)",
@@ -34,7 +34,7 @@ Object.assign(KS.T.en, {
   kWarTop10: "Merit ranking (top 10)", kWarAlliances: "Alliances in it", kWarNone: "No fight matches.",
   kWarNote: "The game gives the top 10 players of a fight only. \"Participants\" is the game's number. In progress: a fight on the game's in-progress list at the crawl, no end yet (a fight joins the history when it is over). A place fought over again and again stays one fight, so a fight can last days; \"Last clash\" is the server's last update of it. Merits trade: every alliance and player whose kingdom is known is of one kingdom.",
   kMin: "{n} min", kHour: "{h} h {m} min", kHourOnly: "{h} h", kDay: "{d} d {h} h",
-  kPhLeft: "{t} left", kPhFrom: "from {d}", kMkPast: "Over", kMkNow: "Open · {t} left", kMkNext: "Opens in {t}", kMkEst: "estimated", kMkReached: "Reached {t} UTC · the next starts then", kMkOpens: "Opens on the map {t} UTC", kMkView: "Milestones shown", kMkMode: "Layout", kMkModeBar: "Timeline", kMkModeCal: "Calendar", kMkShowBoss: "Behemoths", kMkShowBossTip: "When behemoth lairs open", kMkShowPass: "Passes", kMkShowPassTip: "When passes open", kMkShowStatue: "Ancestor Statues", kMkShowStatueTip: "Runic and Supreme, every opening", kMkStatue: "Open {h} h, again every {e} h · {n} statues · opening {k}", kMkChapter: "Chapter: {t}", kMkOpensDay: "Opens on the map {t} (12 h after the chapter before ends)", kMkOpened: "Open", kMkQuest: "Quest {a} – {b} UTC", kMkQuestDay: "Quest {a} – {b}", kMkOn: "Running", kMkSoon: "Upcoming", kMkEarly: "No data on this KvK's 40000 Darkling Patrols milestone: taken as done within 12 h; not done, the milestones after it come 18 h later.", kMkFrom: "Estimated: this season's milestones (the game's durations), moved to this KvK's open day. The day only.", kMkFromOther: "For now the milestones of {k} (another season): none read for this season yet, its quests and behemoths may differ.", kMkRead: "Read from the game {t} UTC. Milestones not open yet are timed by the game's durations.",
+  kPhLeft: "{t} left", kPhFrom: "from {d}", kMkPast: "Over", kMkNow: "Open · {t} left", kMkNext: "Opens in {t}", kMkEst: "estimated", kMkReached: "Reached {t} {z} · the next starts then", kMkOpens: "Opens on the map {t} {z}", kMkTz: "Time zone", kMkTzLocal: "This device ({z})", kMkView: "Milestones shown", kMkMode: "Layout", kMkModeBar: "Timeline", kMkModeCal: "Calendar", kMkShowBoss: "Behemoths", kMkShowBossTip: "When behemoth lairs open", kMkShowPass: "Passes", kMkShowPassTip: "When passes open", kMkShowStatue: "Ancestor Statues", kMkShowStatueTip: "Runic and Supreme, every opening", kMkStatue: "Open {h} h, again every {e} h · {n} statues · opening {k}", kMkChapter: "Chapter: {t}", kMkOpensDay: "Opens on the map {t} (12 h after the chapter before ends)", kMkOpened: "Open", kMkQuest: "Quest {a} – {b} UTC", kMkQuestDay: "Quest {a} – {b}", kMkOn: "Running", kMkSoon: "Upcoming", kMkEarly: "No data on this KvK's 40000 Darkling Patrols milestone: taken as done within 12 h; not done, the milestones after it come 18 h later.", kMkFrom: "Estimated: this season's milestones (the game's durations), moved to this KvK's open day. The day only.", kMkFromOther: "For now the milestones of {k} (another season): none read for this season yet, its quests and behemoths may differ.", kMkRead: "Read from the game {t} {z}. Milestones not open yet are timed by the game's durations.",
   kWarReal: "Real fights", kTabTrade: "Merits trade detection", kTradeMerits: "Trade merits", kTradeFights: "Trade fights", kRealMerits: "Real fight merits", kRealFights: "Real fights", kTradeShare: "% trade", kTradeShareTip: "The share of the player's merits in the top 10s that came from merits trades", kTradeBest: "Biggest trade", kTradeMeta: "{n} players · crawled {t} UTC", kTradeNote: "Players in the top 10 of at least one merits trade (one kingdom only), by the merits they took in those fights. The game gives the top 10 of a fight only: this is what can be seen, not all. Click a player for their trade fights.", kWarNoLive: "This crawl has no in-progress list from the game.", kWarTrade: "Merits trade", kWarTradeTip: "One kingdom only: a fight inside one kingdom for merits", kWarKd: "Kingdom", kWarEnd: "Last clash (UTC)",
   kWarShare: "The top 10 have {p}% of the fight's merits", kWarOfFight: "{p}% of fight", kWarLegion: "Legion {n}", kWarNoLegion: "No legion",
   kWarNowAs: "A player's alliance tag is their alliance now (at the crawl), maybe not the one they fought in.", kWarUnknownK: "Kingdom unknown (not in the crawled rankings)",
@@ -182,6 +182,17 @@ const MK_ICON = { // a lair, a pass, a quest: told apart by shape as well as col
 // which milestones the schedule shows (its View menu, kept): behemoths, passes, Ancestor Statues
 const MK_KINDS = ["boss", "pass", "statue"];
 const mkShown = () => new Set(KS.store.get("kvkMarks", MK_KINDS));
+// the schedule's time zone (View menu, kept): "utc" (the game's own time), "local" (this device's), or a fixed offset in
+// minutes. Every day and hour on the schedule and its cards follows it; the game and the files stay in UTC
+const TZ_FIXED = [-720, -600, -480, -420, -360, -300, -240, -180, 0, 60, 120, 180, 240, 330, 420, 480, 540, 570, 600, 720];
+const mkTz = () => KS.store.get("kvkTz", "utc");
+const tzMin = (t, z = mkTz()) => (z === "local" ? -new Date(t * 1000).getTimezoneOffset() : z === "utc" ? 0 : +z || 0);
+const tzLabel = (m) => (m ? `UTC${m > 0 ? "+" : "−"}${Math.floor(Math.abs(m) / 60)}${Math.abs(m) % 60 ? ":" + String(Math.abs(m) % 60).padStart(2, "0") : ""}` : "UTC");
+const tzName = (t = nowSec()) => tzLabel(tzMin(t));
+const tzIso = (t) => new Date((t + tzMin(t) * 60) * 1000).toISOString();
+const tzDay = (t) => tzIso(t).slice(5, 10).split("-").reverse().join("/");   // dd/mm in the zone picked
+const tzHM = (t) => tzIso(t).slice(11, 16);                                  // HH:MM
+const tzTime = (t) => `${tzDay(t)} ${tzHM(t)}`;
 // the schedule's layout (View menu, kept): "bar" the timeline, "cal" one tile per milestone; unset, a phone gets the tiles
 const mkMode = () => KS.store.get("kvkMode", matchMedia("(max-width: 600px)").matches ? "cal" : "bar");
 // an Ancestor Statue's picture: the game's HUD icon of it (kvk_behemoth_export.py --statues; 1 Runic, 2 Supreme)
@@ -214,6 +225,14 @@ function mkView(d, redraw) {
   }
   const press = () => seg.querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x.dataset.m === mkMode())));
   press();
+  pop.append(el("h3", "", tr("kMkTz")));
+  const tz = pop.appendChild(el("select", "kv-tz"));
+  tz.setAttribute("aria-label", tr("kMkTz"));
+  for (const [v, text] of [["utc", "UTC"], ["local", tr("kMkTzLocal").replace("{z}", tzLabel(tzMin(nowSec(), "local")))], ...TZ_FIXED.filter(Boolean).map((m) => [String(m), tzLabel(m)])]) {
+    const o = tz.appendChild(el("option", "", text)); o.value = v;
+  }
+  tz.value = String(mkTz());
+  tz.onchange = () => { KS.store.set("kvkTz", tz.value); redraw(); };
   pop.append(el("h3", "", tr("kMkView")));
   const key = { boss: "Boss", pass: "Pass", statue: "Statue" };
   for (const k of MK_KINDS) {
@@ -275,10 +294,11 @@ function moved(d, b, name, same = true) {
 }
 const ROMAN = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII"];
 function marks(b, d, rows, legend, milestones = true) {
-  const exact = !d.estFrom, at2 = (s) => (exact ? utcTime(s) + " UTC" : when(s)); // a time when read, a day when estimated
+  const exact = !d.estFrom, at2 = (s) => (exact ? tzTime(s) + " " + tzName(s) : tzDay(s)); // a time when read, a day when estimated
+  const when = tzDay; // the days here: in the zone the View menu picks
   // under a lair or a pass: the day it opens on the map, and its hour (UTC) when read from the game
   // (the hour in its own span: a narrow bar drops it, the card keeps it)
-  const mkWhen = (t) => (exact ? `${when(t)}<em class="kv-hm"> ${new Date(t * 1000).toISOString().slice(11, 16)}</em>` : when(t));
+  const mkWhen = (t) => (exact ? `${when(t)}<em class="kv-hm"> ${tzHM(t)}</em>` : when(t));
   const ph = d.phases || [b.open, 0, 0, b.end], now = nowSec();
   rows.at(-1).to = ph[3] || b.end;
   if (ph[1]) {
@@ -316,7 +336,7 @@ function marks(b, d, rows, legend, milestones = true) {
     box.replaceChildren(...items.map((s) => {
       const t = at(s), st = s.kind === "phase" ? (now >= t ? "past" : "next") : now >= s.end ? "past" : now >= t ? "now" : "next";
       const tile = el(s.kind === "phase" ? "div" : "button", `kv-tile ${s.kind} ${st}` + (s === next ? " soon" : "") + (s.kind === "statue" ? ` l${s.level}` : "") + (s.kind === "phase" && s.i < 3 ? ` p${s.i}` : ""));
-      const hm = exact ? `<i>${new Date(t * 1000).toISOString().slice(11, 16)}</i>` : "";
+      const hm = exact ? `<i>${tzHM(t)}</i>` : "";
       let pic, name;
       if (s.kind === "phase") { name = label(PHASES[s.i]); pic = `<span class="kv-tph p${Math.min(s.i, 2)}${s.i === 3 ? " end" : ""}">${name}</span>`; }
       else if (s.kind === "pass") { const lv = s.level ?? +(s.en?.name.match(/\d+/)?.[0] ?? 0); pic = `<img src="assets/icons/pass.png?v=1" alt=""><b class="kv-tlv">${ROMAN[lv] ?? lv}</b>`; name = label(KINDS.pass) + " " + (ROMAN[lv] ?? lv); }
@@ -442,7 +462,7 @@ function mkPop(mk, g, d) {
     addEventListener("scroll", mkHide, true);
     addEventListener("click", mkHide);
   }
-  const now = nowSec(), exact = !d.estFrom, at2 = (t) => (exact ? utcTime(t) : when(t));
+  const now = nowSec(), exact = !d.estFrom, at2 = (t) => (exact ? tzTime(t) : tzDay(t)), when = tzDay;
   popBox.replaceChildren(...g.map((s) => {
     const row = el("div", `kv-mkrow ${s.kind}`), head = el("div", "kv-mkh");
     // a lair or a pass: open on the map or not yet; a quest: over, running or to come
@@ -460,9 +480,9 @@ function mkPop(mk, g, d) {
     if (txt.title) row.appendChild(el("span", "kv-mkti", tr("kMkChapter").replace("{t}", txt.title)));
     // when it opens on the map, nothing of the quest behind it (user 14/11: the opening is what counts)
     if (s.kind === "statue") row.appendChild(el("span", "kv-mkt", tr("kMkStatue").replace("{h}", s.hours).replace("{e}", s.every).replace("{n}", s.count).replace("{k}", s.k)));
-    if (s.opens) row.appendChild(el("span", "kv-mko", (exact ? tr("kMkOpens").replace("{t}", utcTime(s.opens)) : tr("kMkOpensDay").replace("{t}", when(s.opens))) + est));
+    if (s.opens) row.appendChild(el("span", "kv-mko", (exact ? tr("kMkOpens").replace("{t}", tzTime(s.opens)).replace("{z}", tzName(s.opens)) : tr("kMkOpensDay").replace("{t}", when(s.opens))) + est));
     return row;
-  }), el("div", "kv-mkf", exact ? tr("kMkRead").replace("{t}", utcTime(d.read)) : tr(d.other ? "kMkFromOther" : "kMkFrom").replace("{k}", d.estFrom) + (d.early ? " " + tr("kMkEarly") : "")));
+  }), el("div", "kv-mkf", exact ? tr("kMkRead").replace("{t}", tzTime(d.read)).replace("{z}", tzName(d.read)) : tr(d.other ? "kMkFromOther" : "kMkFrom").replace("{k}", d.estFrom) + (d.early ? " " + tr("kMkEarly") : "")));
   popBox.hidden = false;
   const r = mk.getBoundingClientRect(), w = popBox.offsetWidth, h = popBox.offsetHeight;
   const x = Math.max(8, Math.min(innerWidth - w - 8, r.left + r.width / 2 - w / 2));
