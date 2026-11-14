@@ -190,6 +190,8 @@ function moved(d, b, name, same = true) {
 const ROMAN = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII"];
 function marks(b, d, rows, legend, milestones = true) {
   const exact = !d.estFrom, at2 = (s) => (exact ? utcTime(s) + " UTC" : when(s)); // a time when read, a day when estimated
+  // under a lair or a pass: the day it opens on the map, and its hour (UTC) when read from the game
+  const mkWhen = (t) => (exact ? `${when(t)} ${new Date(t * 1000).toISOString().slice(11, 16)}` : when(t));
   const ph = d.phases || [b.open, 0, 0, b.end], now = nowSec();
   rows.at(-1).to = ph[3] || b.end;
   if (ph[1]) {
@@ -239,7 +241,9 @@ function marks(b, d, rows, legend, milestones = true) {
   // a lair or a pass sits where it opens on the map (its quest + 12 h: s.opens), a quest where it starts
   // closer than a gate's width (24 px, so more of them on a phone) also share one
   const groups = [], at = (s) => s.opens ?? s.start, near = Math.max(1.2, (100 * 24) / (track.offsetWidth || 600));
-  for (const s of [...d.steps].filter((x) => at(x) >= from && (at(x) < to || last)).sort((x, y) => at(x) - at(y))) {
+  // only what opens on the map (a behemoth lair, a pass), at its opening time: the quests between them are the game's
+  // own steps, not times a player plans by (user 14/11)
+  for (const s of [...d.steps].filter((x) => x.kind !== "quest" && at(x) >= from && (at(x) < to || last)).sort((x, y) => at(x) - at(y))) {
     const last = groups.at(-1);
     if (last && pos(at(s)) - pos(at(last[0])) < near) last.push(s); else groups.push([s]);
   }
@@ -256,10 +260,10 @@ function marks(b, d, rows, legend, milestones = true) {
     // day it opens on the map, on one line
     if (main.kind === "pass") {
       const lv = g.filter((s) => s.kind === "pass").map((s) => s.level ?? +(s.en?.name.match(/\d+/)?.[0] ?? 0));
-      mk.innerHTML = `<img src="assets/icons/pass.png?v=1" alt=""><span class="kv-mkd"><b>${lv.map((n) => ROMAN[n] ?? n).join("·")}</b><i>${when(at(main))}</i></span>`;
+      mk.innerHTML = `<img src="assets/icons/pass.png?v=1" alt=""><span class="kv-mkd"><b>${lv.map((n) => ROMAN[n] ?? n).join("·")}</b><i>${mkWhen(at(main))}</i></span>`;
     } else if (main.kind === "boss" && main.boss) {
       // a behemoth: the game's avatar of it (kvk_behemoth_export.py), the day its lair opens under it (the hour is on the card)
-      mk.innerHTML = `<img src="assets/behemoths/${main.boss}.png?v=1" alt=""><span class="kv-mkd"><i>${when(at(main))}</i></span>`;
+      mk.innerHTML = `<img src="assets/behemoths/${main.boss}.png?v=1" alt=""><span class="kv-mkd"><i>${mkWhen(at(main))}</i></span>`;
     } else mk.innerHTML = MK_ICON[main.kind];
     mk.setAttribute("aria-label", g.map((s) => `${label(KINDS[s.kind])} ${s[state.lang]?.name ?? s.vi.name}${(s[state.lang] ?? s.vi).title ? ` (${(s[state.lang] ?? s.vi).title})` : ""}, ${at2(at(s))}`).join("; "));
     const show = () => mkPop(mk, g, d);
@@ -314,11 +318,8 @@ function mkPop(mk, g, d) {
     row.append(head, name);
     // a lair or a pass: the chapter's own title in the game ("Kỷ Nguyên Mới"), its name here being what it opens
     if (txt.title) row.appendChild(el("span", "kv-mkti", tr("kMkChapter").replace("{t}", txt.title)));
+    // when it opens on the map, nothing of the quest behind it (user 14/11: the opening is what counts)
     if (s.opens) row.appendChild(el("span", "kv-mko", (exact ? tr("kMkOpens").replace("{t}", utcTime(s.opens)) : tr("kMkOpensDay").replace("{t}", when(s.opens))) + est));
-    row.appendChild(el("span", "kv-mkt", tr(exact ? "kMkQuest" : "kMkQuestDay").replace("{a}", at2(s.start)).replace("{b}", at2(s.end)) + (s.opens ? "" : est)));
-    // a milestone that closes when reached: when it was, the next one starting then
-    if (s.reached) row.appendChild(el("span", "kv-mkt", tr("kMkReached").replace("{t}", utcTime(s.reached))));
-    if (txt.task) row.appendChild(el("small", "", txt.task));
     return row;
   }), el("div", "kv-mkf", exact ? tr("kMkRead").replace("{t}", utcTime(d.read)) : tr(d.other ? "kMkFromOther" : "kMkFrom").replace("{k}", d.estFrom) + (d.early ? " " + tr("kMkEarly") : "")));
   popBox.hidden = false;
