@@ -1669,6 +1669,59 @@ a.k-status[href]:focus-visible { outline: 2px solid currentColor; outline-offset
 .kv-hero .kv-name h2 { font-size: 34px; }
 .kv-hero .kv-name .mut { font-size: 16px; }
 .kv-mk.up .kv-mkd { top: auto; bottom: 100%; margin: 0 0 -6px; }
+.kv-mkd .kv-hm { font-style: normal; }
+/* an Ancestor Statue's opening: a ring under the lairs and passes (Runic teal, Supreme violet), no label (its time is on the card) */
+.kv-mk.statue { --mk: #3fc7b5; z-index: 1; } .kv-mk.statue.l2 { --mk: #b58cff; }
+.kv-mk.statue { width: 24px; height: 24px; margin: -12px 0 0 -12px; }
+.kv-mk.statue img { width: 22px; height: 22px; object-fit: contain; filter: drop-shadow(0 0 2px var(--mk)); transition: transform var(--m-in) var(--m-ease); }
+.kv-mk.statue:hover img, .kv-mk.statue:focus-visible img, .kv-mk.statue.now img { transform: scale(1.25); }
+.kv-mk.statue .kv-mkd i { color: #8fe3d6; } .kv-mk.statue.l2 .kv-mkd i { color: #cdb5ff; } /* its day in its kind's colour */
+.kv-sched .kv-mk.statue.up .kv-mkd { margin-bottom: 10px; } /* above, clear of the big lair and gate pictures beside it */
+.kv-sched .kv-mk.statue:not(.up) .kv-mkd { margin-top: 8px; }
+.kv-sched .kv-mk.statue { width: 30px; height: 30px; margin: -15px 0 0 -15px; }
+.kv-sched .kv-mk.statue img { width: 28px; height: 28px; }
+/* the Calendar layout (View menu; a phone's default): tiles instead of the bar (kvk.js tiles()), one per milestone in time order */
+.kv-tiles { display: none; }
+.kv-sched.cal > .kv-track, .kv-sched.cal > .kv-ends { display: none; }
+.kv-sched.cal .kv-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 8px; margin-top: 12px; }
+.kv-sched.cal .kv-tiles:empty { display: none; }
+.kv-tile { --mk: var(--fg2); display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 0; padding: 8px 4px 7px; border: 1px solid rgb(255 255 255 / .1); border-bottom: 2px solid color-mix(in srgb, var(--mk) 70%, transparent); border-radius: var(--r-md, 8px); background: rgb(255 255 255 / .05); color: var(--fg); font: inherit; line-height: 1.15; cursor: pointer; transition: background var(--m-in) var(--m-ease); }
+.kv-tile:hover { background: rgb(255 255 255 / .1); }
+.kv-tile.boss { --mk: #d8a920; } .kv-tile.pass { --mk: #4f8cff; } .kv-tile.statue { --mk: #3fc7b5; } .kv-tile.statue.l2 { --mk: #b58cff; }
+.kv-tile.phase { cursor: default; background: transparent; border-style: dashed; border-bottom-width: 1px; justify-content: flex-end; border-color: color-mix(in srgb, var(--ph, var(--mut)) 55%, transparent); }
+.kv-tpic { position: relative; display: grid; place-items: center; width: 60px; height: 60px; margin-bottom: 2px; }
+.kv-tpic img { width: 60px; height: 60px; object-fit: contain; }
+.kv-tpic svg { width: 20px; height: 20px; fill: var(--mk); }
+.kv-tlv { position: absolute; bottom: -4px; left: 50%; transform: translateX(-50%); font: 800 14px/1 Georgia, "Times New Roman", serif; color: #f2d58a; text-shadow: 0 1px 2px #000; }
+.kv-tile.phase .kv-tpic { width: auto; }
+.kv-tph { max-width: 100%; padding: 0 2px; font-size: 14px; font-weight: 700; line-height: 1.1; text-align: center; color: var(--ph, var(--mut)); }
+.kv-tph.end { color: var(--fg2); }
+.kv-tname { max-width: 100%; overflow: hidden; font-size: 12px; color: var(--fg2); text-align: center; white-space: nowrap; text-overflow: ellipsis; }
+.kv-tday { font-size: 15px; font-weight: 700; color: #e8c877; font-variant-numeric: tabular-nums; }
+.kv-tile > i { font-style: normal; font-size: 13px; color: var(--fg2); font-variant-numeric: tabular-nums; }
+.kv-tile.past { opacity: .5; } .kv-tile.past img { filter: saturate(.5); }
+.kv-tile.now { border-color: var(--up, #3ccf7a); background: color-mix(in srgb, var(--up, #3ccf7a) 14%, transparent); }
+.kv-tile.soon { border-color: var(--acc); box-shadow: 0 0 0 1px var(--acc) inset; }
+.kv-tile:focus-visible { outline: 2px solid var(--fg); outline-offset: 1px; }
+.kv-mode-seg { display: flex; margin-bottom: 12px; }
+.kv-mode-seg button { flex: 1; }
+@media (max-width: 600px) { /* a phone: 4 tiles a row at 390 px, no name (it is on the card) */
+  .kv-sched.cal .kv-tiles { grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 6px; margin-top: 10px; }
+  .kv-tile { padding: 6px 2px 5px; gap: 1px; }
+  .kv-tpic, .kv-tpic img { width: 46px; height: 46px; }
+  .kv-tpic svg { width: 16px; height: 16px; }
+  .kv-tlv { font-size: 12px; bottom: -3px; }
+  .kv-tname { display: none; }
+  .kv-tph { font-size: 12px; }
+  .kv-tday { font-size: 13px; }
+  .kv-tile > i { font-size: 11px; }
+}
+.kv-mkrow.statue { --mk: #3fc7b5; }
+/* the schedule's View button after the progress text */
+.kv-prog-r { display: inline-flex; align-items: center; gap: 10px; }
+.kv-view .btn { padding: 4px 10px; font-size: 13px; }
+.kv-view-pop { position: fixed; top: 0; left: 0; text-shadow: none; z-index: 1000; }
+.kv-track.short .kv-hm { display: none; } /* a narrow bar: the day only, the hour is on the card */
 .kv-sched > .kv-prog-h:first-child { flex-wrap: wrap; row-gap: 4px; }
 .kv-sched .kv-prog-h .kv-phases { flex-wrap: wrap; row-gap: 4px; }
 @media (max-width: 600px) { /* a phone: the phases on their own lines, smaller milestones */

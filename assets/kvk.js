@@ -17,7 +17,7 @@ Object.assign(KS.T.vi, {
   kWarTop10: "Xếp hạng công trạng (top 10)", kWarAlliances: "Liên minh tham gia", kWarNone: "Không có trận nào khớp.",
   kWarNote: "Game chỉ trả top 10 người mỗi trận. \"Người tham gia\" là số game hiện. Đang diễn ra: trận trong danh sách đang diễn ra của game lúc lấy dữ liệu, chưa có giờ kết thúc (trận đã xong mới vào lịch sử). Một vị trí bị đánh lại nhiều lần vẫn là một trận, nên trận có thể kéo dài nhiều ngày; \"Giao tranh cuối\" là lần cập nhật cuối của server. Merits trade: mọi liên minh và người chơi biết được kingdom đều cùng một kingdom.",
   kMin: "{n} phút", kHour: "{h} giờ {m} phút", kHourOnly: "{h} giờ", kDay: "{d} ngày {h} giờ",
-  kPhLeft: "còn {t}", kPhFrom: "từ {d}", kMkPast: "Đã qua", kMkNow: "Đang mở · còn {t}", kMkNext: "Mở sau {t}", kMkEst: "ước tính", kMkReached: "Hoàn thành {t} UTC · mốc sau bắt đầu ngay", kMkOpens: "Mở trên bản đồ {t} UTC", kMkChapter: "Chương: {t}", kMkOpensDay: "Mở trên bản đồ {t} (12 giờ sau khi chương trước kết thúc)", kMkOpened: "Đã mở", kMkQuest: "Nhiệm vụ {a} – {b} UTC", kMkQuestDay: "Nhiệm vụ {a} – {b}", kMkOn: "Đang diễn ra", kMkSoon: "Sắp tới", kMkEarly: "Không có dữ liệu mốc 40000 Đội Tuần Tra Hắc Ám của KvK này: coi như xong trong vòng 12 giờ; không xong thì các mốc sau muộn hơn 18 giờ.", kMkFrom: "Ước tính: lịch mốc của mùa này (thời lượng của game), dời theo ngày mở của KvK này. Chỉ đúng ngày.", kMkFromOther: "Tạm lấy mốc của {k} (mùa khác): mùa này chưa đọc được mốc, nhiệm vụ và behemoth có thể khác.", kMkRead: "Đọc từ game lúc {t} UTC. Mốc chưa mở tính theo thời lượng của game.",
+  kPhLeft: "còn {t}", kPhFrom: "từ {d}", kMkPast: "Đã qua", kMkNow: "Đang mở · còn {t}", kMkNext: "Mở sau {t}", kMkEst: "ước tính", kMkReached: "Hoàn thành {t} UTC · mốc sau bắt đầu ngay", kMkOpens: "Mở trên bản đồ {t} UTC", kMkView: "Mốc hiển thị", kMkMode: "Kiểu", kMkModeBar: "Thường", kMkModeCal: "Lịch", kMkShowBoss: "Behemoth", kMkShowBossTip: "Giờ mở hang behemoth", kMkShowPass: "Ải", kMkShowPassTip: "Giờ mở ải", kMkShowStatue: "Tượng Tổ Tiên", kMkShowStatueTip: "Cổ Ngữ và Tối Cao, mỗi lần mở", kMkStatue: "Mở {h} giờ, lặp lại mỗi {e} giờ · {n} tượng · lần {k}", kMkChapter: "Chương: {t}", kMkOpensDay: "Mở trên bản đồ {t} (12 giờ sau khi chương trước kết thúc)", kMkOpened: "Đã mở", kMkQuest: "Nhiệm vụ {a} – {b} UTC", kMkQuestDay: "Nhiệm vụ {a} – {b}", kMkOn: "Đang diễn ra", kMkSoon: "Sắp tới", kMkEarly: "Không có dữ liệu mốc 40000 Đội Tuần Tra Hắc Ám của KvK này: coi như xong trong vòng 12 giờ; không xong thì các mốc sau muộn hơn 18 giờ.", kMkFrom: "Ước tính: lịch mốc của mùa này (thời lượng của game), dời theo ngày mở của KvK này. Chỉ đúng ngày.", kMkFromOther: "Tạm lấy mốc của {k} (mùa khác): mùa này chưa đọc được mốc, nhiệm vụ và behemoth có thể khác.", kMkRead: "Đọc từ game lúc {t} UTC. Mốc chưa mở tính theo thời lượng của game.",
   kWarReal: "Trận thật", kTabTrade: "Phát hiện Merits trade", kTradeMerits: "Công trạng trade", kTradeFights: "Trận trade", kRealMerits: "Công trạng trận thật", kRealFights: "Trận thật", kTradeShare: "% trade", kTradeShareTip: "Phần công trạng từ merits trade trong tổng công trạng của người chơi ở các top 10", kTradeBest: "Trận trade lớn nhất", kTradeMeta: "{n} người chơi · lấy lúc {t} UTC", kTradeNote: "Người chơi có mặt trong top 10 của ít nhất một trận merits trade (chỉ một kingdom tham gia), xếp theo công trạng lấy được ở các trận đó. Game chỉ trả top 10 mỗi trận nên đây là phần thấy được, không phải toàn bộ. Bấm một người để xem các trận trade của họ.", kWarNoLive: "Lần lấy này không có danh sách đang diễn ra của game.", kWarTrade: "Merits trade", kWarTradeTip: "Chỉ một kingdom tham gia: đánh nhau trong cùng kingdom để lấy công trạng", kWarKd: "Kingdom", kWarEnd: "Giao tranh cuối (UTC)",
   kWarShare: "Top 10 chiếm {p}% công trạng trận", kWarOfFight: "{p}% trận", kWarLegion: "Quân đoàn {n}", kWarNoLegion: "Không quân đoàn",
   kWarNowAs: "Tag liên minh của người chơi là liên minh hiện tại (lúc lấy dữ liệu), có thể khác lúc đánh.", kWarUnknownK: "Không rõ kingdom (ngoài bảng xếp hạng đã quét)",
@@ -34,7 +34,7 @@ Object.assign(KS.T.en, {
   kWarTop10: "Merit ranking (top 10)", kWarAlliances: "Alliances in it", kWarNone: "No fight matches.",
   kWarNote: "The game gives the top 10 players of a fight only. \"Participants\" is the game's number. In progress: a fight on the game's in-progress list at the crawl, no end yet (a fight joins the history when it is over). A place fought over again and again stays one fight, so a fight can last days; \"Last clash\" is the server's last update of it. Merits trade: every alliance and player whose kingdom is known is of one kingdom.",
   kMin: "{n} min", kHour: "{h} h {m} min", kHourOnly: "{h} h", kDay: "{d} d {h} h",
-  kPhLeft: "{t} left", kPhFrom: "from {d}", kMkPast: "Over", kMkNow: "Open · {t} left", kMkNext: "Opens in {t}", kMkEst: "estimated", kMkReached: "Reached {t} UTC · the next starts then", kMkOpens: "Opens on the map {t} UTC", kMkChapter: "Chapter: {t}", kMkOpensDay: "Opens on the map {t} (12 h after the chapter before ends)", kMkOpened: "Open", kMkQuest: "Quest {a} – {b} UTC", kMkQuestDay: "Quest {a} – {b}", kMkOn: "Running", kMkSoon: "Upcoming", kMkEarly: "No data on this KvK's 40000 Darkling Patrols milestone: taken as done within 12 h; not done, the milestones after it come 18 h later.", kMkFrom: "Estimated: this season's milestones (the game's durations), moved to this KvK's open day. The day only.", kMkFromOther: "For now the milestones of {k} (another season): none read for this season yet, its quests and behemoths may differ.", kMkRead: "Read from the game {t} UTC. Milestones not open yet are timed by the game's durations.",
+  kPhLeft: "{t} left", kPhFrom: "from {d}", kMkPast: "Over", kMkNow: "Open · {t} left", kMkNext: "Opens in {t}", kMkEst: "estimated", kMkReached: "Reached {t} UTC · the next starts then", kMkOpens: "Opens on the map {t} UTC", kMkView: "Milestones shown", kMkMode: "Layout", kMkModeBar: "Timeline", kMkModeCal: "Calendar", kMkShowBoss: "Behemoths", kMkShowBossTip: "When behemoth lairs open", kMkShowPass: "Passes", kMkShowPassTip: "When passes open", kMkShowStatue: "Ancestor Statues", kMkShowStatueTip: "Runic and Supreme, every opening", kMkStatue: "Open {h} h, again every {e} h · {n} statues · opening {k}", kMkChapter: "Chapter: {t}", kMkOpensDay: "Opens on the map {t} (12 h after the chapter before ends)", kMkOpened: "Open", kMkQuest: "Quest {a} – {b} UTC", kMkQuestDay: "Quest {a} – {b}", kMkOn: "Running", kMkSoon: "Upcoming", kMkEarly: "No data on this KvK's 40000 Darkling Patrols milestone: taken as done within 12 h; not done, the milestones after it come 18 h later.", kMkFrom: "Estimated: this season's milestones (the game's durations), moved to this KvK's open day. The day only.", kMkFromOther: "For now the milestones of {k} (another season): none read for this season yet, its quests and behemoths may differ.", kMkRead: "Read from the game {t} UTC. Milestones not open yet are timed by the game's durations.",
   kWarReal: "Real fights", kTabTrade: "Merits trade detection", kTradeMerits: "Trade merits", kTradeFights: "Trade fights", kRealMerits: "Real fight merits", kRealFights: "Real fights", kTradeShare: "% trade", kTradeShareTip: "The share of the player's merits in the top 10s that came from merits trades", kTradeBest: "Biggest trade", kTradeMeta: "{n} players · crawled {t} UTC", kTradeNote: "Players in the top 10 of at least one merits trade (one kingdom only), by the merits they took in those fights. The game gives the top 10 of a fight only: this is what can be seen, not all. Click a player for their trade fights.", kWarNoLive: "This crawl has no in-progress list from the game.", kWarTrade: "Merits trade", kWarTradeTip: "One kingdom only: a fight inside one kingdom for merits", kWarKd: "Kingdom", kWarEnd: "Last clash (UTC)",
   kWarShare: "The top 10 have {p}% of the fight's merits", kWarOfFight: "{p}% of fight", kWarLegion: "Legion {n}", kWarNoLegion: "No legion",
   kWarNowAs: "A player's alliance tag is their alliance now (at the crawl), maybe not the one they fought in.", kWarUnknownK: "Kingdom unknown (not in the crawled rankings)",
@@ -146,6 +146,8 @@ function progress(b, big = false, rows = big ? 2 : 1, milestones = true) {
   // the milestones' numerals and days share the open and end days' line, the phases' names go before the progress (left,
   // where the milestones gone by are small): the box is as high as a KvK's without them
   lines2.forEach((r) => r.ends.classList.add("kv-ends"));
+  // a phone (KvK page): the milestones as tiles in time order instead of the bar (CSS swaps them, user 14/11)
+  if (milestones) lines2.tiles = el("div", "kv-tiles");
   // with the phases' names there, no "KvK progress" label: its percentage goes before the days left
   const legend = el("span", "kv-phases");
   const pctText = t.lastChild.textContent.trim();
@@ -158,18 +160,100 @@ function progress(b, big = false, rows = big ? 2 : 1, milestones = true) {
   // phase with its day on a line under the bar
   const below = milestones ? null : el("div", "kv-prog-h kv-at kv-below");
   if (below) { top.classList.add("kv-at-top"); below.appendChild(legend); below.style.visibility = "hidden"; }
-  load(`kvk/progress/${src}.json?v=${read}.6`).then((d) => { if (d) marks(b, b.progress ? d : moved(d, b, srcName, same), lines2, legend, milestones); })
+  load(`kvk/progress/${src}.json?v=${read}.6`).then((d) => {
+    if (!d) return;
+    const dd = b.progress ? d : moved(d, b, srcName, same), draw = () => marks(b, dd, lines2, legend, milestones);
+    draw();
+    // the KvK page: which milestones it shows (behemoths, passes, statues), after the progress text
+    if (milestones) { const right = el("span", "kv-prog-r"); right.append(top.lastChild, mkView(dd, draw)); top.appendChild(right); }
+  })
     .finally(() => { t.style.visibility = ""; if (below) below.style.visibility = ""; });
-  return milestones ? [top, ...lines] : [top, ...lines2.map((r) => r.track), below];
+  return milestones ? [top, ...lines, lines2.tiles] : [top, ...lines2.map((r) => r.track), below];
 }
 
 // the game's Season screen (LC_SEASON_MAINPAGE_PROGRESS1..4) and what its milestones open
 const PHASES = [{ vi: "Bắt Đầu", en: "Start" }, { vi: "Chiến Đấu", en: "Battle" }, { vi: "Tổng Kết", en: "Summary" }, { vi: "Kết Thúc", en: "End" }];
-const KINDS = { boss: { vi: "Behemoth", en: "Behemoth" }, pass: { vi: "Ải", en: "Pass" }, quest: { vi: "Nhiệm vụ", en: "Quest" } };
+const KINDS = { boss: { vi: "Behemoth", en: "Behemoth" }, pass: { vi: "Ải", en: "Pass" }, statue: { vi: "Tượng", en: "Statue" }, quest: { vi: "Nhiệm vụ", en: "Quest" } };
 const MK_ICON = { // a lair, a pass, a quest: told apart by shape as well as colour
   boss: '<svg viewBox="0 0 10 10" aria-hidden="true"><path d="M5 .6 9.4 5 5 9.4.6 5z"/></svg>',
   pass: '<svg viewBox="0 0 10 10" aria-hidden="true"><path d="M1 9.4V3.2L5 .6l4 2.6v6.2H6.4V6.2H3.6v3.2z"/></svg>',
-  quest: '<svg viewBox="0 0 10 10" aria-hidden="true"><circle cx="5" cy="5" r="3.4"/></svg>' };
+  quest: '<svg viewBox="0 0 10 10" aria-hidden="true"><circle cx="5" cy="5" r="3.4"/></svg>',
+  statue: '<svg viewBox="0 0 10 10" aria-hidden="true"><circle cx="5" cy="5" r="3.2" fill="none" stroke="currentColor" stroke-width="2.2"/></svg>' };
+// which milestones the schedule shows (its View menu, kept): behemoths, passes, Ancestor Statues
+const MK_KINDS = ["boss", "pass", "statue"];
+const mkShown = () => new Set(KS.store.get("kvkMarks", MK_KINDS));
+// the schedule's layout (View menu, kept): "bar" the timeline, "cal" one tile per milestone; unset, a phone gets the tiles
+const mkMode = () => KS.store.get("kvkMode", matchMedia("(max-width: 600px)").matches ? "cal" : "bar");
+// an Ancestor Statue's picture: the game's HUD icon of it (kvk_behemoth_export.py --statues; 1 Runic, 2 Supreme)
+const statueImg = (level) => `<img src="assets/icons/statue${level === 2 ? 2 : 1}.png?v=1" alt="">`;
+// the Ancestor Statues' openings (kvk_progress_export.statues, doc 12.4): the first, then every CloseTime until they close
+function statueSteps(d) {
+  const out = [];
+  for (const s of d.statues || []) {
+    const stop = s.until || d.phases?.[3] || s.first;
+    for (let t = s.first, k = 1; t < stop && k <= 80; t += s.every, k++)
+      out.push({ kind: "statue", level: s.level, start: t, opens: t, end: t + s.open, est: s.est || !!d.estFrom, k, count: s.count, hours: s.open / 3600, every: s.every / 3600, vi: { name: s.vi?.name || "" }, en: { name: s.en?.name || s.vi?.name || "" } });
+  }
+  return out;
+}
+// the schedule's View button: one switch per kind of milestone, as the tables' View menu
+function mkView(d, redraw) {
+  const wrap = el("div", "vpick kv-view"), btn = el("button", "btn"), pop = el("div", "pop view-pop kv-view-pop");
+  btn.type = "button";
+  btn.innerHTML = $("viewBtn").innerHTML; // icon, "View", the arrow
+  btn.setAttribute("aria-haspopup", "true"); btn.setAttribute("aria-expanded", "false");
+  pop.hidden = true;
+  // the layout first: Timeline / Calendar, as the KvK ranking's By camp / By kingdom
+  pop.append(el("h3", "", tr("kMkMode")));
+  const seg = pop.appendChild(el("div", "rk-seg kv-mode-seg"));
+  seg.setAttribute("role", "group"); seg.setAttribute("aria-label", tr("kMkMode"));
+  for (const [m, key] of [["bar", "kMkModeBar"], ["cal", "kMkModeCal"]]) {
+    const b = seg.appendChild(el("button", "", tr(key)));
+    b.type = "button"; b.dataset.m = m;
+    b.onclick = () => { KS.store.set("kvkMode", m); press(); redraw(); };
+  }
+  const press = () => seg.querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x.dataset.m === mkMode())));
+  press();
+  pop.append(el("h3", "", tr("kMkView")));
+  const key = { boss: "Boss", pass: "Pass", statue: "Statue" };
+  for (const k of MK_KINDS) {
+    if (k === "statue" && !d.statues?.length) continue;
+    const row = el("button", "vopt");
+    row.type = "button"; row.setAttribute("role", "switch");
+    const t = el("span", "vopt-t");
+    t.append(el("b", "", tr("kMkShow" + key[k])), el("small", "", tr("kMkShow" + key[k] + "Tip")));
+    row.append(t, el("i", "vopt-sw"));
+    row.querySelector("i").setAttribute("aria-hidden", "true");
+    row.setAttribute("aria-pressed", String(mkShown().has(k)));
+    row.onclick = () => {
+      const on = mkShown();
+      on.has(k) ? on.delete(k) : on.add(k);
+      KS.store.set("kvkMarks", [...on]);
+      row.setAttribute("aria-pressed", String(on.has(k)));
+      redraw();
+    };
+    pop.appendChild(row);
+  }
+  // fixed to the window under the button (the hero clips what overflows it), its right edge on the button's, inside the window
+  btn.onclick = () => {
+    pop.hidden = !pop.hidden;
+    btn.setAttribute("aria-expanded", String(!pop.hidden));
+    if (pop.hidden) return;
+    document.querySelectorAll(".kv-view-pop").forEach((x) => x !== pop && x.remove()); // one page's at a time
+    document.body.appendChild(pop); // on the page itself: no box above it clips it nor holds its fixed place
+    const r = btn.getBoundingClientRect();
+    pop.style.left = Math.max(8, Math.min(innerWidth - pop.offsetWidth - 8, r.right - pop.offsetWidth)) + "px";
+    pop.style.top = r.bottom + 6 + "px";
+  };
+  addEventListener("scroll", () => { if (!pop.hidden) { pop.hidden = true; btn.setAttribute("aria-expanded", "false"); } }, { capture: true, passive: true });
+  wrap.append(btn);
+  return wrap;
+}
+document.addEventListener("pointerdown", (e) => {
+  if (e.target.closest?.(".kv-view, .kv-view-pop")) return;
+  document.querySelectorAll(".kv-view-pop").forEach((x) => { x.hidden = true; });
+  document.querySelectorAll(".kv-view .btn").forEach((b) => b.setAttribute("aria-expanded", "false"));
+});
 // another KvK's milestones on this one's open day; what only that one's own read can tell is left out. Of another
 // season (none of its own read yet): its own open and end days (Summary 48 h before the end, as in every season read),
 // Battle as far in as the other's, the milestones past its end dropped
@@ -185,13 +269,16 @@ function moved(d, b, name, same = true) {
   // a lair or a pass still opens 12 h after its quest starts (the chapter before it ends): its opens moves with it
   const steps = d.steps.map(({ opens, reached, ...s }) => ({ ...s, start: sh(s.start), end: sh(s.end), est: true, ...(opens ? { opens: sh(opens) } : {}) }))
     .filter((s) => same || !b.end || s.start < b.end);
-  return { ...d, estFrom: name, other: !same, early: !!cut, phases, steps };
+  // the statues: only of the same season (each season has its own, hot_springs_hotsprings), moved as its chapters
+  const statues = same ? d.statues?.map((s) => ({ ...s, first: sh(s.first), until: s.until ? s.until + by : b.end || null })) : null;
+  return { ...d, estFrom: name, other: !same, early: !!cut, phases, steps, ...(statues ? { statues } : {}) };
 }
 const ROMAN = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII"];
 function marks(b, d, rows, legend, milestones = true) {
   const exact = !d.estFrom, at2 = (s) => (exact ? utcTime(s) + " UTC" : when(s)); // a time when read, a day when estimated
   // under a lair or a pass: the day it opens on the map, and its hour (UTC) when read from the game
-  const mkWhen = (t) => (exact ? `${when(t)} ${new Date(t * 1000).toISOString().slice(11, 16)}` : when(t));
+  // (the hour in its own span: a narrow bar drops it, the card keeps it)
+  const mkWhen = (t) => (exact ? `${when(t)}<em class="kv-hm"> ${new Date(t * 1000).toISOString().slice(11, 16)}</em>` : when(t));
   const ph = d.phases || [b.open, 0, 0, b.end], now = nowSec();
   rows.at(-1).to = ph[3] || b.end;
   if (ph[1]) {
@@ -215,6 +302,38 @@ function marks(b, d, rows, legend, milestones = true) {
   }
   if (!milestones && ph[1]) placePhases(legend, (now - rows[0].from) / (rows[0].to - rows[0].from), now >= (ph[3] || b.end) ? tr("kEnded") : "");
   rows.forEach((r, i) => row(r, i === rows.length - 1));
+  // the layout the View menu picks: the bar rows or the tiles (CSS shows one by the box's "cal")
+  if (rows.tiles) { rows.tiles.parentNode?.classList.toggle("cal", mkMode() === "cal"); tiles(rows.tiles); }
+  // the Calendar layout: one tile per milestone (behemoth, pass, statue opening, as the View menu picks) and per phase start, in
+  // time order; under the picture its day and (read from the game) hour UTC. Gone by: dimmed; open now: green edge;
+  // the next to come: blue edge. A tap shows the same card as the bar's dot
+  function tiles(box) {
+    const shown = mkShown(), at = (s) => s.opens ?? s.start;
+    const items = [...d.steps, ...statueSteps(d)].filter((x) => x.kind !== "quest" && shown.has(x.kind));
+    if (ph[1]) [1, 2, 3].forEach((i) => items.push({ kind: "phase", i, start: ph[i], end: ph[i] }));
+    items.sort((x, y) => at(x) - at(y) || (x.kind === "phase") - (y.kind === "phase"));
+    let next = items.find((s) => s.kind !== "phase" && at(s) > now);
+    box.replaceChildren(...items.map((s) => {
+      const t = at(s), st = s.kind === "phase" ? (now >= t ? "past" : "next") : now >= s.end ? "past" : now >= t ? "now" : "next";
+      const tile = el(s.kind === "phase" ? "div" : "button", `kv-tile ${s.kind} ${st}` + (s === next ? " soon" : "") + (s.kind === "statue" ? ` l${s.level}` : "") + (s.kind === "phase" && s.i < 3 ? ` p${s.i}` : ""));
+      const hm = exact ? `<i>${new Date(t * 1000).toISOString().slice(11, 16)}</i>` : "";
+      let pic, name;
+      if (s.kind === "phase") { name = label(PHASES[s.i]); pic = `<span class="kv-tph p${Math.min(s.i, 2)}${s.i === 3 ? " end" : ""}">${name}</span>`; }
+      else if (s.kind === "pass") { const lv = s.level ?? +(s.en?.name.match(/\d+/)?.[0] ?? 0); pic = `<img src="assets/icons/pass.png?v=1" alt=""><b class="kv-tlv">${ROMAN[lv] ?? lv}</b>`; name = label(KINDS.pass) + " " + (ROMAN[lv] ?? lv); }
+      else if (s.kind === "statue") { pic = statueImg(s.level); name = (s[state.lang] ?? s.vi).name; }
+      else { pic = s.boss ? `<img src="assets/behemoths/${s.boss}.png?v=1" alt="">` : MK_ICON[s.kind]; name = (s[state.lang] ?? s.vi).name; }
+      // its name too where there is room (wider than a phone)
+      // a statue by its kind alone ("Cổ Ngữ", "Runic"): the full name runs past the tile, it is on the card
+      const short = s.kind === "statue" ? name.replace(/^Tượng Tổ Tiên /, "").replace(/ Ancestor Statue$/, "") : name;
+      tile.innerHTML = `<span class="kv-tpic">${pic}</span>${s.kind === "phase" ? "" : `<span class="kv-tname">${short}</span>`}<span class="kv-tday">${when(t)}</span>${hm}`;
+      tile.title = name;
+      if (s.kind === "phase") return tile;
+      tile.type = "button";
+      tile.setAttribute("aria-label", `${label(KINDS[s.kind])} ${name}, ${at2(t)}`);
+      tile.onclick = (e) => { e.preventDefault(); e.stopPropagation(); mkPop(tile, [s], d); };
+      return tile;
+    }));
+  }
   // one row of the bar, from..to: its stretch of each phase, the milestones in it (the last row keeps the end's own)
   function row({ track, from, to }, last) {
   const pos = (s) => Math.max(0, Math.min(100, (100 * (s - from)) / (to - from)));
@@ -243,14 +362,16 @@ function marks(b, d, rows, legend, milestones = true) {
   const groups = [], at = (s) => s.opens ?? s.start, near = Math.max(1.2, (100 * 24) / (track.offsetWidth || 600));
   // only what opens on the map (a behemoth lair, a pass), at its opening time: the quests between them are the game's
   // own steps, not times a player plans by (user 14/11)
-  for (const s of [...d.steps].filter((x) => x.kind !== "quest" && at(x) >= from && (at(x) < to || last)).sort((x, y) => at(x) - at(y))) {
-    const last = groups.at(-1);
-    if (last && pos(at(s)) - pos(at(last[0])) < near) last.push(s); else groups.push([s]);
+  // and the Ancestor Statues' openings (statueSteps), as the View menu picks; a statue shares a dot with statues only
+  const shown = mkShown(), sgroups = [];
+  for (const s of [...d.steps, ...statueSteps(d)].filter((x) => x.kind !== "quest" && shown.has(x.kind) && at(x) >= from && (at(x) < to || last)).sort((x, y) => at(x) - at(y))) {
+    const gs = s.kind === "statue" ? sgroups : groups, last = gs.at(-1);
+    if (last && pos(at(s)) - pos(at(last[0])) < near) last.push(s); else gs.push([s]);
   }
-  for (const g of groups) {
+  for (const g of [...sgroups, ...groups]) {
     const main = g.find((s) => s.kind === "pass") ?? g.find((s) => s.kind !== "quest") ?? g[0];
     const st = now >= main.end ? "past" : now >= at(main) ? "now" : "next";
-    const mk = el("button", `kv-mk ${main.kind} ${st}`);
+    const mk = el("button", `kv-mk ${main.kind} ${st}` + (main.kind === "statue" ? ` l${Math.max(...g.map((s) => s.level))}` : ""));
     mk.type = "button";
     mk.style.left = pos(at(g[0])) + "%";
     // the open and end days sit at the bar's ends, on the milestones' line: a milestone that close keeps its day for the card
@@ -264,7 +385,11 @@ function marks(b, d, rows, legend, milestones = true) {
     } else if (main.kind === "boss" && main.boss) {
       // a behemoth: the game's avatar of it (kvk_behemoth_export.py), the day its lair opens under it (the hour is on the card)
       mk.innerHTML = `<img src="assets/behemoths/${main.boss}.png?v=1" alt=""><span class="kv-mkd"><i>${mkWhen(at(main))}</i></span>`;
-    } else mk.innerHTML = MK_ICON[main.kind];
+    } else if (main.kind === "statue") {
+      // a statue: its picture, the day and hour it opens over it (statues keep the lane above the bar, user 14/11)
+      mk.innerHTML = statueImg(Math.max(...g.map((s) => s.level))) + `<span class="kv-mkd"><i>${mkWhen(at(main))}</i></span>`;
+    }
+    else mk.innerHTML = MK_ICON[main.kind];
     mk.setAttribute("aria-label", g.map((s) => `${label(KINDS[s.kind])} ${s[state.lang]?.name ?? s.vi.name}${(s[state.lang] ?? s.vi).title ? ` (${(s[state.lang] ?? s.vi).title})` : ""}, ${at2(at(s))}`).join("; "));
     const show = () => mkPop(mk, g, d);
     mk.onmouseenter = show; mk.onfocus = show;
@@ -272,24 +397,39 @@ function marks(b, d, rows, legend, milestones = true) {
     mk.onmouseleave = mkHide; mk.onblur = mkHide;
     track.appendChild(mk);
   }
-  // the KvK page's schedule: a label that would run into the one before goes above its milestone (above and below each
-  // keep their own line); the Kingdom page's bar has no room above
-  // (and one that would run into the row's first or last day, which the Kingdom page's bar hides instead)
-  const box = track.getBoundingClientRect(), ends = { down: box.left + 44, up: -1e9 };
-  if (track.closest(".kv-sched, .k-prog.two")) for (const lab of track.querySelectorAll(".kv-mkd")) {
-    lab.parentNode.classList.remove("edge");
-    const r = lab.getBoundingClientRect(), side = r.left < ends.down + 6 || r.right > box.right - 50 ? "up" : "down";
-    if (side === "up" && r.left < ends.up + 6) {
-      // no room above either (a narrow phone): the day goes to the card, a gate keeps its numeral where it fits
-      lab.parentNode.classList.add("nodate");
-      const r2 = lab.getBoundingClientRect();
-      if (!lab.querySelector("b") || r2.left < ends.down + 4) { lab.style.visibility = "hidden"; continue; }
-      ends.down = r2.right;
-      continue;
-    }
-    if (side === "up") lab.parentNode.classList.add("up");
-    ends[side] = r.right;
+  fitLabels(track);
+  // placed again whenever the bar's width changes (a phone turned, the page drawn before its fonts or the window
+  // settled: placed once, labels laid out for another width ran into each other, user 14/11) and once its pictures load
+  if (!track._fit) { track._fit = new ResizeObserver(() => fitLabels(track)); track._fit.observe(track); }
+  track.querySelectorAll(".kv-mk img").forEach((img) => img.complete || img.addEventListener("load", () => fitLabels(track), { once: true }));
   }
+}
+// the KvK page's schedule: a label that would run into the one before goes above its milestone (above and below each
+// keep their own line); the Kingdom page's bar has no room above
+// (and one that would run into the row's first or last day, which the Kingdom page's bar hides instead)
+function fitLabels(track) {
+  if (!track.isConnected || !track.offsetWidth || !track.closest(".kv-sched, .k-prog.two")) return;
+  // a bar narrower than a desktop's: the days only, their hours are on the card
+  track.classList.toggle("short", track.offsetWidth < 560);
+  const labs = [...track.querySelectorAll(".kv-mkd")];
+  for (const lab of labs) { lab.parentNode.classList.remove("edge", "up", "nodate"); lab.style.visibility = ""; }
+  // the lairs' and passes' labels first (below the bar, else above it), then the statues' in the room left (above,
+  // else below): a statue's day never pushes out a lair's or a pass's. Each side keeps the stretches taken
+  const box = track.getBoundingClientRect(), taken = { down: [[-1e9, box.left + 44]], up: [] };
+  const free = (side, l, r) => l >= box.left - 4 && r <= (side === "down" ? box.right - 50 : box.right + 4) && taken[side].every(([a, b]) => r + 6 <= a || l >= b + 6);
+  const rects = labs.map((lab) => [lab, lab.getBoundingClientRect()]).sort((a, b) => a[1].left - b[1].left);
+  const isStatue = (lab) => lab.parentNode.classList.contains("statue");
+  for (const [lab, r] of [...rects.filter(([x]) => !isStatue(x)), ...rects.filter(([x]) => isStatue(x))]) {
+    const mk = lab.parentNode, statue = isStatue(lab);
+    const side = (statue ? ["up", "down"] : ["down", "up"]).find((sd) => free(sd, r.left, r.right));
+    if (side) { if (side === "up") mk.classList.add("up"); taken[side].push([r.left, r.right]); continue; }
+    // no room on either side: a statue's label goes (its time is on the card); a lair's day goes to the card, a gate
+    // keeps its numeral where it fits
+    if (statue) { lab.style.visibility = "hidden"; continue; }
+    mk.classList.add("nodate");
+    const r2 = lab.getBoundingClientRect();
+    if (!lab.querySelector("b") || !free("down", r2.left, r2.right)) { lab.style.visibility = "hidden"; continue; }
+    taken.down.push([r2.left, r2.right]);
   }
 }
 // the card of a dot: fixed to the page, so no panel's edge cuts it; above the dot, inside the window
@@ -319,6 +459,7 @@ function mkPop(mk, g, d) {
     // a lair or a pass: the chapter's own title in the game ("Kỷ Nguyên Mới"), its name here being what it opens
     if (txt.title) row.appendChild(el("span", "kv-mkti", tr("kMkChapter").replace("{t}", txt.title)));
     // when it opens on the map, nothing of the quest behind it (user 14/11: the opening is what counts)
+    if (s.kind === "statue") row.appendChild(el("span", "kv-mkt", tr("kMkStatue").replace("{h}", s.hours).replace("{e}", s.every).replace("{n}", s.count).replace("{k}", s.k)));
     if (s.opens) row.appendChild(el("span", "kv-mko", (exact ? tr("kMkOpens").replace("{t}", utcTime(s.opens)) : tr("kMkOpensDay").replace("{t}", when(s.opens))) + est));
     return row;
   }), el("div", "kv-mkf", exact ? tr("kMkRead").replace("{t}", utcTime(d.read)) : tr(d.other ? "kMkFromOther" : "kMkFrom").replace("{k}", d.estFrom) + (d.early ? " " + tr("kMkEarly") : "")));
