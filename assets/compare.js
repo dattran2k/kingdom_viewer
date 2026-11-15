@@ -146,6 +146,8 @@ function loadSeeds() {
     return seeds;
   });
 }
+// a pairing to pick from: seeds.json can hold no group at all (between two waves, nobody being paired)
+const paired = () => !!seeds?.groups.length;
 const seedBadge = (k) => { const s = seedOf.get(k)?.[0]; return s ? `<i class="seed s${s}">${LETTER[s]}</i>` : ""; };
 
 let dlg = null;
@@ -184,7 +186,7 @@ function openPick(n, side) {
   const d = pickDialog();
   d.querySelector(".xp-q").value = "";
   loadSeeds().then(() => {
-    if (!seeds) pk.tab = "all";
+    if (!paired()) pk.tab = "all";
     else {
       // the group of a kingdom already in this pair, else the one looked at last
       const pair = pairOf(), had = [...pair.a, ...pair.b].map((k) => seedOf.get(k)?.[1]).find((g) => g != null);
@@ -215,9 +217,9 @@ function fillPick(keepY) {
     }
   };
   const tabs = d.querySelector(".xp-tabs"), f = d.querySelector(".xp-f"), note = d.querySelector(".xp-note");
-  tabs.hidden = !seeds;
-  if (seeds) seg(tabs, [["pair", tr("pkPairing")], ["all", tr("pkAll")]], pk.tab, (v) => (pk.tab = v));
-  const pairing = !!seeds && pk.tab === "pair", g = pairing ? seeds.groups[pk.group] : null;
+  tabs.hidden = !paired();
+  if (paired()) seg(tabs, [["pair", tr("pkPairing")], ["all", tr("pkAll")]], pk.tab, (v) => (pk.tab = v));
+  const pairing = paired() && pk.tab === "pair", g = pairing ? seeds.groups[pk.group] : null;
   f.hidden = note.hidden = !pairing;
   if (pairing) {
     f.innerHTML = "";
@@ -264,7 +266,7 @@ function fillPick(keepY) {
     const it = itemOf(k), on = mine.includes(k), there = other.includes(k);
     const cls = on ? "cur" : !it || there || full ? "off" : "";
     const sub = !it ? tr("pkNoData") : there ? tr("pkOther") : `${nf.format(it.players)} ${players}`;
-    const pw = power != null ? `<em title="${tr("pkPower")}">${KS.compact(power)}</em>` : "";
+    const pw = power != null ? `<em title="${tr("pkPower")}">${KS.compact(power)}</em>` : "<em></em>"; // empty: the grid's power column, the box stays at the end
     return `<li role="option" aria-selected="${on}" data-k="${k}"${cls ? ` class="${cls}"` : ""}><b>${kName(k)}${seedBadge(k)}</b>${pw}<span>${sub}</span><s aria-hidden="true"></s></li>`;
   }).join("");
   (ul.querySelector("li[data-k]:not(.off)") || ul.querySelector("li[data-k]")).classList.add("act");
