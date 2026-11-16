@@ -84,7 +84,7 @@ const state = {
   sortDelta: false, // sort by the value or the change: the change when comparing opens, then the user's choice, kept across columns
   data: null, rows: [], view: [], cols: [], q: "",
   minPower: POWER_STEPS.includes(store.get("minPower")) ? store.get("minPower") : DEFAULT_POWER, // a new key: the 20M kept under the old one opened on 20M
-  list: [], heat: store.get("heat", false), deltaOnly: store.get("deltaOnly", true), avg: {}, avgVer: 0,
+  list: [], heat: store.get("heat", false), deltaOnly: store.get("deltaOnly", false), avg: {}, avgVer: 0,
   // a phone: the totals strip starts hidden, the name column is narrower
   narrow: matchMedia("(max-width: 640px)").matches,
 };
@@ -931,7 +931,7 @@ function makeRow() {
 // draws ~30 rows x every column a frame. Built ahead while the page is idle (warmCells), else on first draw.
 let cellKey = "", warmJob = 0;
 function newCellKey() {
-  cellKey = state.cols.map((c) => c.key).join() + "|" + state.compact + "|" + state.lang + "|" + (state.heat ? state.avgVer : 0) + "|" + (state.data?._vs || "") + "|" + state.deltaOnly;
+  cellKey = state.cols.map((c) => c.key).join() + "|" + state.compact + "|" + state.lang + "|" + (state.heat ? state.avgVer : 0) + "|" + (state.data?._vs || "") + "|" + state.deltaOnly + "|" + state.sortDelta;
   warmCells();
 }
 
@@ -975,10 +975,11 @@ const tagsOf = (p) => (p.alliance ? [p.alliance] : []);
 const wasTag = (p) => (p._was && !p._left && p._was.alliance && p._was.alliance !== p.alliance ? p._was.alliance : "");
 
 // every amount has a bar under the number (colour: .b-<key> or .g-<group> in the stylesheet); its length = value / the list's largest.
-// While comparing, a figure with a change has the bar of its change, rise or fall alike (|change| / the list's largest; the badge says which)
+// While comparing and sorted by the change, a figure with a change has the bar of its change, rise or fall alike (|change| / the list's
+// largest; the badge says which); sorted by the value, the bar of the value now
 const hasBar = (c) => ((c.type === "num" || c.type === "int") && !NO_AVG.has(c.key)) || c.key === "meritRatio";
 // a column has growth bars only when some of its rows have a change (an older scan without the metric: value bars)
-const byGrowth = (c) => !!state.data?._vs && COMPARED.has(c.type) && growthCol(c);
+const byGrowth = (c) => !!state.data?._vs && state.sortDelta && COMPARED.has(c.type) && growthCol(c);
 let growthOf = null, growths = {};
 function growthCol(c) {
   if (growthOf !== state.rows) { growthOf = state.rows; growths = {}; }
