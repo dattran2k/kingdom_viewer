@@ -552,8 +552,12 @@ async function addComparison(d) {
 // the change of a column between the two scans; undefined when a side has no number
 // the older scan may not have a metric at all (peak power before it was collected): no change to sort by
 const hasDelta = (c) => COMPARED.has(c.type) && state.rows.some((p) => deltaOf(c, p) !== undefined);
+// merits start from 0 with the KvK's season (kvk_export SINCE_OPEN): on a KvK's page the value is already its change,
+// so those columns are never compared (user 17/11)
+const KVK_PLAIN = new Set(["merits", "meritRatio", "meritInfantry", "meritCavalry", "meritArcher", "meritMagic", "meritOther"]);
+const kvkPlain = (c) => !!state.kvk && KVK_PLAIN.has(c.key);
 function deltaOf(c, p) {
-  if (!p._was || p._left) return undefined;
+  if (!p._was || p._left || kvkPlain(c)) return undefined;
   const a = value(c, p._was), b = value(c, p);
   return typeof a === "number" && typeof b === "number" ? b - a : undefined;
 }
@@ -810,7 +814,7 @@ function fitWidths() {
         for (const p of state.data.players) {
           // while comparing the change sits in the cell too, with its sign
           // an alliance cell: its longest tag + the chip's padding (two tags stack, they don't add up)
-          const s = c.key === "alliance" ? tagsOf(p).reduce((a, t) => (String(t).length > a.length ? String(t) : a), "") + (state.narrow ? "M" : "MM") : (state.data._vs && COMPARED.has(c.type) ? "+" + fmt(c, state.deltaOnly && typeof deltaOf(c, p) === "number" ? Math.abs(deltaOf(c, p)) : value(c, p)) : fmt(c, value(c, p))) + (p.atLeast && p.atLeast.includes(c.key) ? "+" : "");
+          const s = c.key === "alliance" ? tagsOf(p).reduce((a, t) => (String(t).length > a.length ? String(t) : a), "") + (state.narrow ? "M" : "MM") : (state.data._vs && COMPARED.has(c.type) && !kvkPlain(c) ? "+" + fmt(c, state.deltaOnly && typeof deltaOf(c, p) === "number" ? Math.abs(deltaOf(c, p)) : value(c, p)) : fmt(c, value(c, p))) + (p.atLeast && p.atLeast.includes(c.key) ? "+" : "");
           if (s.length > longest.length) longest = s;
         }
         w = Math.max(w, cellWidth(longest, family) * (c.key === "meritRatio" ? 15 / 13 : 1)); // CT / LC is drawn in 15px
@@ -931,7 +935,7 @@ function makeRow() {
 // draws ~30 rows x every column a frame. Built ahead while the page is idle (warmCells), else on first draw.
 let cellKey = "", warmJob = 0;
 function newCellKey() {
-  cellKey = state.cols.map((c) => c.key).join() + "|" + state.compact + "|" + state.lang + "|" + (state.heat ? state.avgVer : 0) + "|" + (state.data?._vs || "") + "|" + state.deltaOnly + "|" + state.sortDelta;
+  cellKey = state.cols.map((c) => c.key).join() + "|" + state.compact + "|" + state.lang + "|" + (state.heat ? state.avgVer : 0) + "|" + (state.data?._vs || "") + "|" + state.kvk + "|" + state.deltaOnly + "|" + state.sortDelta;
   warmCells();
 }
 
@@ -942,7 +946,7 @@ function comparedCell(c, p, v) {
   return parts && state.deltaOnly && parts.length === 2 && parts[0][1].startsWith("d-d") ? [parts[0]] : parts;
 }
 function comparedParts(c, p, v) {
-  if (c.pin || !state.data?._vs) return null;
+  if (c.pin || !state.data?._vs || kvkPlain(c)) return null;
   const was = p._left ? v : p._was ? value(c, p._was) : undefined, now = p._left ? undefined : v;
   if (was == null && now == null) return null;
   if (was === now) return COMPARED.has(c.type) ? [["→ 0", "d-d"], [fmt(c, now), "d-b"]] : null;
