@@ -2059,3 +2059,18 @@ a.k-pair-s:focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; }
 /* the schedule's View menu: its time zone list, full width under the layout switch */
 .kv-view-pop .kv-tz { display: block; width: 100%; height: 34px; margin: 0 0 12px; padding: 0 8px; border: 1px solid var(--edge); border-radius: var(--r-md, 8px); background: var(--panel); color: var(--fg); font: inherit; font-size: 14px; font-weight: 600; }
 .kv-view-pop .kv-tz option { background: var(--panel); }
+/* the KvK View menu's 40000 Darkling finish: HH : MM boxes, a click shows the box's list under them */
+.kv-view-pop .kv-dk { display: flex; align-items: center; gap: 6px; }
+.kv-view-pop .kv-dk-b { width: 52px; height: 42px; padding: 0; border: 1px solid var(--edge); border-radius: var(--r-md, 8px); background: var(--panel); color: var(--fg); font: inherit; font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums; cursor: pointer; }
+.kv-view-pop .kv-dk-b[aria-expanded="true"] { border-color: var(--acc); background: var(--acc-bg); }
+.kv-view-pop .kv-dk-b:disabled { opacity: .45; cursor: default; }
+.kv-view-pop .kv-dk-c { font-size: 22px; font-weight: 600; color: var(--mut); }
+.kv-view-pop .kv-dk-n { margin-left: 4px; font-size: 12px; color: var(--mut); }
+.kv-view-pop .kv-dk-list { display: grid; gap: 4px; margin-top: 8px; padding: 6px; border: 1px solid var(--line); border-radius: var(--r-md, 8px); background: var(--panel); }
+.kv-view-pop .kv-dk-list[hidden] { display: none; }
+.kv-view-pop .kv-dk-list.kv-dk-h { grid-template-columns: repeat(5, 1fr); }
+.kv-view-pop .kv-dk-list.kv-dk-m { grid-template-columns: repeat(6, 1fr); max-height: 228px; overflow-y: auto; }
+.kv-view-pop .kv-dk-o { height: 30px; padding: 0; border: 0; border-radius: 6px; background: none; color: var(--fg); font: inherit; font-size: 13px; font-variant-numeric: tabular-nums; cursor: pointer; }
+.kv-view-pop .kv-dk-o:hover { background: var(--hover); }
+.kv-view-pop .kv-dk-o.on { background: var(--acc-solid); color: var(--on-acc); font-weight: 600; }
+.kv-view-pop .kv-dark-tip { display: block; margin: 6px 0 12px; font-size: 12px; color: var(--mut); }

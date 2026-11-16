@@ -17,7 +17,7 @@ Object.assign(KS.T.vi, {
   kWarTop10: "Xếp hạng công trạng (top 10)", kWarAlliances: "Liên minh tham gia", kWarNone: "Không có trận nào khớp.",
   kWarNote: "Game chỉ trả top 10 người mỗi trận. \"Người tham gia\" là số game hiện. Đang diễn ra: trận trong danh sách đang diễn ra của game lúc lấy dữ liệu, chưa có giờ kết thúc (trận đã xong mới vào lịch sử). Một vị trí bị đánh lại nhiều lần vẫn là một trận, nên trận có thể kéo dài nhiều ngày; \"Giao tranh cuối\" là lần cập nhật cuối của server. Merits trade: mọi liên minh và người chơi biết được kingdom đều cùng một kingdom.",
   kMin: "{n} phút", kHour: "{h} giờ {m} phút", kHourOnly: "{h} giờ", kDay: "{d} ngày {h} giờ",
-  kPhLeft: "còn {t}", kPhFrom: "từ {d}", kMkPast: "Đã qua", kMkNow: "Đang mở · còn {t}", kMkNext: "Mở sau {t}", kMkEst: "ước tính", kMkReached: "Hoàn thành {t} {z} · mốc sau bắt đầu ngay", kMkOpens: "Mở trên bản đồ {t} {z}", kMkTz: "Múi giờ", kMkTzLocal: "Giờ máy ({z})", kMkView: "Mốc hiển thị", kMkMode: "Kiểu", kMkModeBar: "Thường", kMkModeCal: "Lịch", kMkShowBoss: "Behemoth", kMkShowBossTip: "Giờ mở hang behemoth", kMkShowPass: "Ải", kMkShowPassTip: "Giờ mở ải", kMkShowStatue: "Tượng Tổ Tiên", kMkShowStatueTip: "Cổ Ngữ và Tối Cao, mỗi lần mở", kMkStatue: "Mở {h} giờ, lặp lại mỗi {e} giờ · {n} tượng · lần {k}", kMkChapter: "Chương: {t}", kMkOpensDay: "Mở trên bản đồ {t} (12 giờ sau khi chương trước kết thúc)", kMkOpened: "Đã mở", kMkQuest: "Nhiệm vụ {a} – {b} UTC", kMkQuestDay: "Nhiệm vụ {a} – {b}", kMkOn: "Đang diễn ra", kMkSoon: "Sắp tới", kMkEarly: "Không có dữ liệu mốc 40000 Đội Tuần Tra Hắc Ám của KvK này: coi như xong trong vòng 12 giờ; không xong thì các mốc sau muộn hơn 18 giờ.", kMkFrom: "Ước tính: lịch mốc của mùa này (thời lượng của game), dời theo ngày mở của KvK này. Chỉ đúng ngày.", kMkFromOther: "Tạm lấy mốc của {k} (mùa khác): mùa này chưa đọc được mốc, nhiệm vụ và behemoth có thể khác.", kMkRead: "Đọc từ game lúc {t} {z}. Mốc chưa mở tính theo thời lượng của game.",
+  kPhLeft: "còn {t}", kPhFrom: "từ {d}", kMkPast: "Đã qua", kMkNow: "Đang mở · còn {t}", kMkNext: "Mở sau {t}", kMkEst: "ước tính", kMkReached: "Hoàn thành {t} {z} · mốc sau bắt đầu ngay", kMkOpens: "Mở trên bản đồ {t} {z}", kMkTz: "Múi giờ", kMkTzLocal: "Giờ máy ({z})", kMkView: "Mốc hiển thị", kMkMode: "Kiểu", kMkModeBar: "Thường", kMkModeCal: "Lịch", kMkShowBoss: "Behemoth", kMkShowBossTip: "Giờ mở hang behemoth", kMkShowPass: "Ải", kMkShowPassTip: "Giờ mở ải", kMkShowStatue: "Tượng Tổ Tiên", kMkShowStatueTip: "Cổ Ngữ và Tối Cao, mỗi lần mở", kMkStatue: "Mở {h} giờ, lặp lại mỗi {e} giờ · {n} tượng · lần {k}", kMkChapter: "Chương: {t}", kMkOpensDay: "Mở trên bản đồ {t} (12 giờ sau khi chương trước kết thúc)", kMkOpened: "Đã mở", kMkQuest: "Nhiệm vụ {a} – {b} UTC", kMkQuestDay: "Nhiệm vụ {a} – {b}", kMkOn: "Đang diễn ra", kMkSoon: "Sắp tới", kMkDark: "Hoàn thành 40k Darkling (UTC)", kMkDarkTip: "Giờ hoàn thành mốc 40000 Đội Tuần Tra Hắc Ám (UTC, 24 giờ); các mốc sau dời theo. 24:00 = không hoàn thành, mốc đóng 00:00 UTC hôm sau.", kMkDarkGame: "theo game", kMkDarkNone: "không hoàn thành", kMkDarkH: "Giờ", kMkDarkM: "Phút", kMkDarkAt: "Mốc 40000 Đội Tuần Tra Hắc Ám xong {t} {z} (chỉnh ở View), các mốc sau tính từ đó.", kMkDarkMiss: "Mốc 40000 Đội Tuần Tra Hắc Ám không hoàn thành, đóng 00:00 UTC hôm sau (chỉnh ở View).", kMkDarkHand: "Giờ xong mốc 40000 Đội Tuần Tra Hắc Ám đã chỉnh ở View: các mốc sau là ước tính.", kMkFrom: "Ước tính: lịch mốc của mùa này (thời lượng của game), dời theo ngày mở của KvK này.", kMkFromOther: "Tạm lấy mốc của {k} (mùa khác): mùa này chưa đọc được mốc, nhiệm vụ và behemoth có thể khác.", kMkRead: "Đọc từ game lúc {t} {z}. Mốc chưa mở tính theo thời lượng của game.",
   kWarReal: "Trận thật", kTabTrade: "Phát hiện Merits trade", kTradeMerits: "Công trạng trade", kTradeFights: "Trận trade", kRealMerits: "Công trạng trận thật", kRealFights: "Trận thật", kTradeShare: "% trade", kTradeShareTip: "Phần công trạng từ merits trade trong tổng công trạng của người chơi ở các top 10", kTradeBest: "Trận trade lớn nhất", kTradeMeta: "{n} người chơi · lấy lúc {t} UTC", kTradeNote: "Người chơi có mặt trong top 10 của ít nhất một trận merits trade (chỉ một kingdom tham gia), xếp theo công trạng lấy được ở các trận đó. Game chỉ trả top 10 mỗi trận nên đây là phần thấy được, không phải toàn bộ. Bấm một người để xem các trận trade của họ.", kWarNoLive: "Lần lấy này không có danh sách đang diễn ra của game.", kWarTrade: "Merits trade", kWarTradeTip: "Chỉ một kingdom tham gia: đánh nhau trong cùng kingdom để lấy công trạng", kWarKd: "Kingdom", kWarEnd: "Giao tranh cuối (UTC)",
   kWarShare: "Top 10 chiếm {p}% công trạng trận", kWarOfFight: "{p}% trận", kWarLegion: "Quân đoàn {n}", kWarNoLegion: "Không quân đoàn",
   kWarNowAs: "Tag liên minh của người chơi là liên minh hiện tại (lúc lấy dữ liệu), có thể khác lúc đánh.", kWarUnknownK: "Không rõ kingdom (ngoài bảng xếp hạng đã quét)",
@@ -34,7 +34,7 @@ Object.assign(KS.T.en, {
   kWarTop10: "Merit ranking (top 10)", kWarAlliances: "Alliances in it", kWarNone: "No fight matches.",
   kWarNote: "The game gives the top 10 players of a fight only. \"Participants\" is the game's number. In progress: a fight on the game's in-progress list at the crawl, no end yet (a fight joins the history when it is over). A place fought over again and again stays one fight, so a fight can last days; \"Last clash\" is the server's last update of it. Merits trade: every alliance and player whose kingdom is known is of one kingdom.",
   kMin: "{n} min", kHour: "{h} h {m} min", kHourOnly: "{h} h", kDay: "{d} d {h} h",
-  kPhLeft: "{t} left", kPhFrom: "from {d}", kMkPast: "Over", kMkNow: "Open · {t} left", kMkNext: "Opens in {t}", kMkEst: "estimated", kMkReached: "Reached {t} {z} · the next starts then", kMkOpens: "Opens on the map {t} {z}", kMkTz: "Time zone", kMkTzLocal: "This device ({z})", kMkView: "Milestones shown", kMkMode: "Layout", kMkModeBar: "Timeline", kMkModeCal: "Calendar", kMkShowBoss: "Behemoths", kMkShowBossTip: "When behemoth lairs open", kMkShowPass: "Passes", kMkShowPassTip: "When passes open", kMkShowStatue: "Ancestor Statues", kMkShowStatueTip: "Runic and Supreme, every opening", kMkStatue: "Open {h} h, again every {e} h · {n} statues · opening {k}", kMkChapter: "Chapter: {t}", kMkOpensDay: "Opens on the map {t} (12 h after the chapter before ends)", kMkOpened: "Open", kMkQuest: "Quest {a} – {b} UTC", kMkQuestDay: "Quest {a} – {b}", kMkOn: "Running", kMkSoon: "Upcoming", kMkEarly: "No data on this KvK's 40000 Darkling Patrols milestone: taken as done within 12 h; not done, the milestones after it come 18 h later.", kMkFrom: "Estimated: this season's milestones (the game's durations), moved to this KvK's open day. The day only.", kMkFromOther: "For now the milestones of {k} (another season): none read for this season yet, its quests and behemoths may differ.", kMkRead: "Read from the game {t} {z}. Milestones not open yet are timed by the game's durations.",
+  kPhLeft: "{t} left", kPhFrom: "from {d}", kMkPast: "Over", kMkNow: "Open · {t} left", kMkNext: "Opens in {t}", kMkEst: "estimated", kMkReached: "Reached {t} {z} · the next starts then", kMkOpens: "Opens on the map {t} {z}", kMkTz: "Time zone", kMkTzLocal: "This device ({z})", kMkView: "Milestones shown", kMkMode: "Layout", kMkModeBar: "Timeline", kMkModeCal: "Calendar", kMkShowBoss: "Behemoths", kMkShowBossTip: "When behemoth lairs open", kMkShowPass: "Passes", kMkShowPassTip: "When passes open", kMkShowStatue: "Ancestor Statues", kMkShowStatueTip: "Runic and Supreme, every opening", kMkStatue: "Open {h} h, again every {e} h · {n} statues · opening {k}", kMkChapter: "Chapter: {t}", kMkOpensDay: "Opens on the map {t} (12 h after the chapter before ends)", kMkOpened: "Open", kMkQuest: "Quest {a} – {b} UTC", kMkQuestDay: "Quest {a} – {b}", kMkOn: "Running", kMkSoon: "Upcoming", kMkDark: "40k Darkling finished (UTC)", kMkDarkTip: "When the 40000 Darkling Patrols milestone was finished (UTC, 24 h); the milestones after it move with it. 24:00 = not finished, it closes at 00:00 UTC the next day.", kMkDarkGame: "the game's", kMkDarkNone: "not finished", kMkDarkH: "Hour", kMkDarkM: "Minute", kMkDarkAt: "40000 Darkling Patrols finished {t} {z} (set in View), the milestones after it counted from then.", kMkDarkMiss: "40000 Darkling Patrols not finished, closed 00:00 UTC the next day (set in View).", kMkDarkHand: "The 40000 Darkling Patrols finish was changed in View: the milestones after it are estimates.", kMkFrom: "Estimated: this season's milestones (the game's durations), moved to this KvK's open day.", kMkFromOther: "For now the milestones of {k} (another season): none read for this season yet, its quests and behemoths may differ.", kMkRead: "Read from the game {t} {z}. Milestones not open yet are timed by the game's durations.",
   kWarReal: "Real fights", kTabTrade: "Merits trade detection", kTradeMerits: "Trade merits", kTradeFights: "Trade fights", kRealMerits: "Real fight merits", kRealFights: "Real fights", kTradeShare: "% trade", kTradeShareTip: "The share of the player's merits in the top 10s that came from merits trades", kTradeBest: "Biggest trade", kTradeMeta: "{n} players · crawled {t} UTC", kTradeNote: "Players in the top 10 of at least one merits trade (one kingdom only), by the merits they took in those fights. The game gives the top 10 of a fight only: this is what can be seen, not all. Click a player for their trade fights.", kWarNoLive: "This crawl has no in-progress list from the game.", kWarTrade: "Merits trade", kWarTradeTip: "One kingdom only: a fight inside one kingdom for merits", kWarKd: "Kingdom", kWarEnd: "Last clash (UTC)",
   kWarShare: "The top 10 have {p}% of the fight's merits", kWarOfFight: "{p}% of fight", kWarLegion: "Legion {n}", kWarNoLegion: "No legion",
   kWarNowAs: "A player's alliance tag is their alliance now (at the crawl), maybe not the one they fought in.", kWarUnknownK: "Kingdom unknown (not in the crawled rankings)",
@@ -162,10 +162,11 @@ function progress(b, big = false, rows = big ? 2 : 1, milestones = true) {
   if (below) { top.classList.add("kv-at-top"); below.appendChild(legend); below.style.visibility = "hidden"; }
   load(`kvk/progress/${src}.json?v=${read}.6`).then((d) => {
     if (!d) return;
-    const dd = b.progress ? d : moved(d, b, srcName, same), draw = () => marks(b, dd, lines2, legend, milestones);
+    // the 40000 Darkling milestone's finish (View menu, per KvK) moves everything after it: worked out on each draw
+    const base = b.progress ? d : moved(d, b, srcName, same), draw = () => marks(b, darkAt(base, b), lines2, legend, milestones);
     draw();
     // the KvK page: which milestones it shows (behemoths, passes, statues), after the progress text
-    if (milestones) { const right = el("span", "kv-prog-r"); right.append(top.lastChild, mkView(dd, draw)); top.appendChild(right); }
+    if (milestones) { const right = el("span", "kv-prog-r"); right.append(top.lastChild, mkView(base, draw, b)); top.appendChild(right); }
   })
     .finally(() => { t.style.visibility = ""; if (below) below.style.visibility = ""; });
   return milestones ? [top, ...lines, lines2.tiles] : [top, ...lines2.map((r) => r.track), below];
@@ -208,7 +209,7 @@ function statueSteps(d) {
   return out;
 }
 // the schedule's View button: one switch per kind of milestone, as the tables' View menu
-function mkView(d, redraw) {
+function mkView(d, redraw, b) {
   const wrap = el("div", "vpick kv-view"), btn = el("button", "btn"), pop = el("div", "pop view-pop kv-view-pop");
   btn.type = "button";
   btn.innerHTML = $("viewBtn").innerHTML; // icon, "View", the arrow
@@ -233,6 +234,7 @@ function mkView(d, redraw) {
   }
   tz.value = String(mkTz());
   tz.onchange = () => { KS.store.set("kvkTz", tz.value); redraw(); };
+  if (darkStep(d)) pop.append(...darkPick(d, b, redraw));
   pop.append(el("h3", "", tr("kMkView")));
   const key = { boss: "Boss", pass: "Pass", statue: "Statue" };
   for (const k of MK_KINDS) {
@@ -264,9 +266,54 @@ function mkView(d, redraw) {
     pop.style.left = Math.max(8, Math.min(innerWidth - pop.offsetWidth - 8, r.right - pop.offsetWidth)) + "px";
     pop.style.top = r.bottom + 6 + "px";
   };
-  addEventListener("scroll", () => { if (!pop.hidden) { pop.hidden = true; btn.setAttribute("aria-expanded", "false"); } }, { capture: true, passive: true });
+  addEventListener("scroll", (e) => { if (!pop.hidden && !pop.contains(e.target)) { pop.hidden = true; btn.setAttribute("aria-expanded", "false"); } }, { capture: true, passive: true });
   wrap.append(btn);
   return wrap;
+}
+// the View menu's 40000 Darkling finish (darkAt), kept per KvK: two boxes, HH : MM (UTC, 24 h); a click on one shows its
+// list under them (hours 00-24, minutes 00-59), a pick sets it and closes the list. 24:00 is not finished (the quest
+// closes at 00:00 UTC the next day, as 25100): its minutes stay 00. Unset: the game's own time when read, else 02:00;
+// picking the default forgets the choice (no reset button)
+function darkPick(d, b, redraw) {
+  const two = (n) => String(n).padStart(2, "0"), def = darkDefault(d, b), game = darkGame(d, b);
+  const box = el("div", "kv-dk"), hBtn = el("button", "kv-dk-b"), mBtn = el("button", "kv-dk-b"), note = el("span", "kv-dk-n");
+  const list = el("div", "kv-dk-list");
+  list.hidden = true;
+  box.append(hBtn, el("span", "kv-dk-c", ":"), mBtn, note);
+  for (const [x, k] of [[hBtn, "h"], [mBtn, "m"]]) { x.type = "button"; x.dataset.k = k; x.setAttribute("aria-haspopup", "listbox"); }
+  hBtn.setAttribute("aria-label", tr("kMkDarkH")); mBtn.setAttribute("aria-label", tr("kMkDarkM"));
+  let open = null;
+  const show = () => {
+    const v = darkOf(d, b), h = Math.floor(v / 3600), m = Math.floor(v / 60) % 60;
+    hBtn.textContent = two(h); mBtn.textContent = two(m);
+    mBtn.disabled = v >= DARK_FULL;
+    note.textContent = v >= DARK_FULL ? tr("kMkDarkNone") : v === game ? tr("kMkDarkGame") : "";
+    for (const x of [hBtn, mBtn]) x.setAttribute("aria-expanded", String(open === x.dataset.k));
+    if (!open) { list.hidden = true; return; }
+    // the open box's list: its values, the one set marked
+    const n = open === "h" ? 25 : 60, cur = open === "h" ? h : m;
+    list.className = `kv-dk-list kv-dk-${open}`;
+    list.setAttribute("role", "listbox");
+    list.replaceChildren(...Array.from({ length: n }, (_, i) => {
+      const o = el("button", "kv-dk-o" + (i === cur ? " on" : ""), two(i));
+      o.type = "button"; o.setAttribute("role", "option"); o.setAttribute("aria-selected", String(i === cur));
+      if (open === "h" && i === 24) o.title = tr("kMkDarkNone");
+      o.onclick = () => put(open === "h" ? (i >= 24 ? DARK_FULL : i * 3600 + (v >= DARK_FULL ? 0 : m * 60)) : h * 3600 + i * 60);
+      return o;
+    }));
+    list.hidden = false;
+    // the value set in sight (the minutes' list scrolls); scrollTop, not scrollIntoView: that would scroll the page too
+    const on = list.querySelector(".on");
+    if (on) list.scrollTop = on.offsetTop - list.offsetTop - (list.clientHeight - on.offsetHeight) / 2;
+  };
+  const put = (v) => {
+    const all = KS.store.get("kvkDark", {});
+    if (v === def) delete all[b.id]; else all[b.id] = v;
+    KS.store.set("kvkDark", all); open = null; show(); redraw();
+  };
+  hBtn.onclick = mBtn.onclick = (e) => { const k = e.currentTarget.dataset.k; open = open === k ? null : k; show(); };
+  show();
+  return [el("h3", "", tr("kMkDark")), box, list, el("small", "kv-dark-tip", tr("kMkDarkTip"))];
 }
 document.addEventListener("pointerdown", (e) => {
   if (e.target.closest?.(".kv-view, .kv-view-pop")) return;
@@ -278,27 +325,52 @@ document.addEventListener("pointerdown", (e) => {
 // Battle as far in as the other's, the milestones past its end dropped
 function moved(d, b, name, same = true) {
   const by = b.open - (d.phases?.[0] ?? d.steps[0].start);
-  // the 40000 Darkling milestone (s.early) closes when reached and the next starts then: a KvK usually reaches it
-  // early (within its first 12 h), so read where it was not, it is taken as reached 6 h in (not at 12 h: its
-  // lair would open on the next day's 00:00), all after it 18 h sooner
-  const e = d.steps.find((s) => s.early && !s.reached), cut = e ? Math.max(0, e.end - e.start - 6 * 3600) : 0;
-  const sh = (t) => t + by - (e && t > e.start ? cut : 0);
-  let phases = d.phases?.map((x, i) => (i === 1 ? sh(x) : x + by));
+  // the 40000 Darkling milestone's finish is the other's here: darkAt sets it to this KvK's (View menu, 02:00 UTC unset)
+  const sh = (t) => t + by;
+  let phases = d.phases?.map((x) => x + by);
   if (!same && b.end && phases) phases = [b.open, Math.min(phases[1], b.end - 2 * DAY - DAY), b.end - 2 * DAY, b.end];
   // a lair or a pass still opens 12 h after its quest starts (the chapter before it ends): its opens moves with it
   const steps = d.steps.map(({ opens, reached, ...s }) => ({ ...s, start: sh(s.start), end: sh(s.end), est: true, ...(opens ? { opens: sh(opens) } : {}) }))
     .filter((s) => same || !b.end || s.start < b.end);
   // the statues: only of the same season (each season has its own, hot_springs_hotsprings), moved as its chapters
   const statues = same ? d.statues?.map((s) => ({ ...s, first: sh(s.first), until: s.until ? s.until + by : b.end || null })) : null;
-  return { ...d, estFrom: name, other: !same, early: !!cut, phases, steps, ...(statues ? { statues } : {}) };
+  return { ...d, estFrom: name, other: !same, phases, steps, ...(statues ? { statues } : {}) };
+}
+// the 40000 Darkling Patrols milestone (s.early, a day's quest from the 2nd day 00:00 UTC) closes when finished and the
+// next starts then, so its finish moves everything after it: the milestones, Battle's start, the statues' first opening.
+// The finish, seconds into the quest (DARK_FULL: not finished, closed 00:00 UTC the next day): the View menu's
+// (ks.kvkDark {id: s}), else the game's when this KvK's own read saw it close, else 02:00 UTC (user 16/11)
+const DARK_FULL = DAY, DARK_DEFAULT = 2 * 3600;
+const darkStep = (d) => d.steps.find((s) => s.early);
+// the game's: finished (reached), or not when read after it closed; unknown when read before, or estimated
+function darkGame(d, b) {
+  const e = darkStep(d);
+  if (!e || !b.progress || d.estFrom) return null;
+  return e.reached ? e.reached - e.start : d.read >= e.end ? DARK_FULL : null;
+}
+const darkDefault = (d, b) => darkGame(d, b) ?? DARK_DEFAULT;
+const darkOf = (d, b) => KS.store.get("kvkDark", {})[b.id] ?? darkDefault(d, b);
+function darkAt(d, b) {
+  const e = darkStep(d);
+  if (!e) return d;
+  const fin = e.start + Math.max(0, Math.min(DARK_FULL, darkOf(d, b))), by = fin - e.end;
+  const done = fin < e.start + DARK_FULL ? { reached: fin } : {};
+  if (!by) return { ...d, dark: { ...e, ...done } };
+  // after the quest's start, moved; a read of the game's own moved by hand: what comes after it is an estimate
+  const est = d.estFrom ? {} : { est: true }, sh = (t) => (t > e.start ? t + by : t);
+  const dark = { ...e, end: fin, ...done, ...est };
+  const steps = d.steps.map((s) => (s === e ? dark : s.start > e.start ? { ...s, start: sh(s.start), end: sh(s.end), ...(s.opens ? { opens: sh(s.opens) } : {}), ...est } : s));
+  const statues = d.statues?.map((s) => ({ ...s, first: sh(s.first), ...est }));
+  return { ...d, phases: d.phases?.map((x, i) => (i === 1 ? sh(x) : x)), steps, ...(statues ? { statues } : {}), dark, byHand: !d.estFrom };
 }
 const ROMAN = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII"];
 function marks(b, d, rows, legend, milestones = true) {
-  const exact = !d.estFrom, at2 = (s) => (exact ? tzTime(s) + " " + tzName(s) : tzDay(s)); // a time when read, a day when estimated
+  // a time when read or estimated from the same season (its times follow from the Darkling finish), a day when from another
+  const exact = !d.estFrom, hrs = exact || !d.other, at2 = (s) => (hrs ? tzTime(s) + " " + tzName(s) : tzDay(s));
   const when = tzDay; // the days here: in the zone the View menu picks
   // under a lair or a pass: the day it opens on the map, and its hour (UTC) when read from the game
   // (the hour in its own span: a narrow bar drops it, the card keeps it)
-  const mkWhen = (t) => (exact ? `${when(t)}<em class="kv-hm"> ${tzHM(t)}</em>` : when(t));
+  const mkWhen = (t) => (hrs ? `${when(t)}<em class="kv-hm"> ${tzHM(t)}</em>` : when(t));
   const ph = d.phases || [b.open, 0, 0, b.end], now = nowSec();
   rows.at(-1).to = ph[3] || b.end;
   if (ph[1]) {
@@ -336,7 +408,7 @@ function marks(b, d, rows, legend, milestones = true) {
     box.replaceChildren(...items.map((s) => {
       const t = at(s), st = s.kind === "phase" ? (now >= t ? "past" : "next") : now >= s.end ? "past" : now >= t ? "now" : "next";
       const tile = el(s.kind === "phase" ? "div" : "button", `kv-tile ${s.kind} ${st}` + (s === next ? " soon" : "") + (s.kind === "statue" ? ` l${s.level}` : "") + (s.kind === "phase" && s.i < 3 ? ` p${s.i}` : ""));
-      const hm = exact ? `<i>${tzHM(t)}</i>` : "";
+      const hm = hrs ? `<i>${tzHM(t)}</i>` : "";
       let pic, name;
       if (s.kind === "phase") { name = label(PHASES[s.i]); pic = `<span class="kv-tph p${Math.min(s.i, 2)}${s.i === 3 ? " end" : ""}">${name}</span>`; }
       else if (s.kind === "pass") { const lv = s.level ?? +(s.en?.name.match(/\d+/)?.[0] ?? 0); pic = `<img src="assets/icons/pass.png?v=1" alt=""><b class="kv-tlv">${ROMAN[lv] ?? lv}</b>`; name = label(KINDS.pass) + " " + (ROMAN[lv] ?? lv); }
@@ -462,7 +534,7 @@ function mkPop(mk, g, d) {
     addEventListener("scroll", mkHide, true);
     addEventListener("click", mkHide);
   }
-  const now = nowSec(), exact = !d.estFrom, at2 = (t) => (exact ? tzTime(t) : tzDay(t)), when = tzDay;
+  const now = nowSec(), exact = !d.estFrom, hrs = exact || !d.other, when = tzDay;
   popBox.replaceChildren(...g.map((s) => {
     const row = el("div", `kv-mkrow ${s.kind}`), head = el("div", "kv-mkh");
     // a lair or a pass: open on the map or not yet; a quest: over, running or to come
@@ -480,9 +552,10 @@ function mkPop(mk, g, d) {
     if (txt.title) row.appendChild(el("span", "kv-mkti", tr("kMkChapter").replace("{t}", txt.title)));
     // when it opens on the map, nothing of the quest behind it (user 14/11: the opening is what counts)
     if (s.kind === "statue") row.appendChild(el("span", "kv-mkt", tr("kMkStatue").replace("{h}", s.hours).replace("{e}", s.every).replace("{n}", s.count).replace("{k}", s.k)));
-    if (s.opens) row.appendChild(el("span", "kv-mko", (exact ? tr("kMkOpens").replace("{t}", tzTime(s.opens)).replace("{z}", tzName(s.opens)) : tr("kMkOpensDay").replace("{t}", when(s.opens))) + est));
+    if (s.opens) row.appendChild(el("span", "kv-mko", (hrs ? tr("kMkOpens").replace("{t}", tzTime(s.opens)).replace("{z}", tzName(s.opens)) : tr("kMkOpensDay").replace("{t}", when(s.opens))) + est));
     return row;
-  }), el("div", "kv-mkf", exact ? tr("kMkRead").replace("{t}", tzTime(d.read)).replace("{z}", tzName(d.read)) : tr(d.other ? "kMkFromOther" : "kMkFrom").replace("{k}", d.estFrom) + (d.early ? " " + tr("kMkEarly") : "")));
+  }), el("div", "kv-mkf", (exact ? tr("kMkRead").replace("{t}", tzTime(d.read)).replace("{z}", tzName(d.read)) + (d.byHand ? " " + tr("kMkDarkHand") : "")
+    : tr(d.other ? "kMkFromOther" : "kMkFrom").replace("{k}", d.estFrom) + (d.dark ? " " + darkNote(d.dark) : ""))));
   popBox.hidden = false;
   const r = mk.getBoundingClientRect(), w = popBox.offsetWidth, h = popBox.offsetHeight;
   const x = Math.max(8, Math.min(innerWidth - w - 8, r.left + r.width / 2 - w / 2));
@@ -490,6 +563,8 @@ function mkPop(mk, g, d) {
   popBox.style.left = x + "px";
   popBox.style.top = (above ? r.top - h - 10 : r.bottom + 10) + "px";
 }
+// the estimate's Darkling finish, under its card: done when, or not done that day
+const darkNote = (e) => (e.reached ? tr("kMkDarkAt").replace("{t}", tzTime(e.reached)).replace("{z}", tzName(e.reached)) : tr("kMkDarkMiss"));
 // a KvK at war: "Battle" in red after its name (Rankings, the Kingdom top, the KvK's own page and cards). With a War
 // history it opens it. Only while a fight is going on (kvk/index.json liveWars, as of the last War history crawl): a
 // KvK that is running but quiet has none. Not an <a>: on the Rankings page it sits inside the KvK's own link
