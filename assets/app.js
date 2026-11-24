@@ -1525,11 +1525,13 @@ document.addEventListener("visibilitychange", () => {
 // which may be after a file load)
 // While it redraws, the page keeps its height (an emptied page would scroll up, a phone showing it) and the narrow
 // window's header stays where it is (headHeld): a redraw is no scroll of the user's
+// hold: the redraw of a row opened or closed (a KvK fight's details): a table that got shorter under the reader keeps
+// its height while the screen is below its new end, and gives the room back as they scroll up (holdHeight)
 const headHeld = new WeakSet();
-function keepScroll(root, draw) {
+function keepScroll(root, draw, hold) {
   const w = root.querySelector(".tbl-wrap"), top = root.scrollTop, y = w?.scrollTop, x = w?.scrollLeft;
   const out = root.querySelector(".dv-out");
-  if (out) out.style.minHeight = out.offsetHeight + "px";
+  if (out) { unhold(root, out); out.style.minHeight = out.offsetHeight + "px"; }
   headHeld.add(root);
   draw();
   requestAnimationFrame(() => {
@@ -1537,10 +1539,32 @@ function keepScroll(root, draw) {
     const n = root.querySelector(".tbl-wrap");
     if (n && w) { n.scrollTop = y; n.scrollLeft = x; }
     requestAnimationFrame(() => { // after the scroll event of the line above
-      if (out) out.style.minHeight = "";
+      if (out) { if (hold) holdHeight(root, out); else out.style.minHeight = ""; }
       headHeld.delete(root);
     });
   });
+}
+// the held height comes down with the screen's bottom, never under the table's own end: no scroll is ever cut short,
+// so the page does not jump (a closed row at the end of the page used to throw it up by the row's height)
+const holds = new WeakMap(); // out -> its scroll listener
+function unhold(root, out) {
+  const f = holds.get(out);
+  if (f) { root.removeEventListener("scroll", f); holds.delete(out); }
+}
+function holdHeight(root, out) {
+  unhold(root, out);
+  let h = out.offsetHeight;
+  const ease = () => {
+    const top = out.getBoundingClientRect().top, last = out.lastElementChild;
+    const end = (last ? last.getBoundingClientRect().bottom - top : 0) + (parseFloat(getComputedStyle(out).paddingBottom) || 0);
+    const need = root.getBoundingClientRect().top + root.clientHeight - top; // the out's top to the screen's bottom
+    h = Math.min(h, Math.max(end, need));
+    if (!out.style.minHeight || h <= end + 1) { out.style.minHeight = ""; unhold(root, out); } // a draw of its own let it go
+    else out.style.minHeight = h + "px";
+  };
+  holds.set(out, ease);
+  root.addEventListener("scroll", ease, { passive: true });
+  ease();
 }
 
 // what views.js uses

@@ -7,7 +7,7 @@ const KS = window.KS, { state, tr, $, numFmt, fitPop } = KS;
 
 Object.assign(KS.T.vi, { rNoGen: "TBD", rSeed: "Seed", rOtherGen: "Khác", rStatRanked: "KvK được xếp hạng", rStatS1: "Map Mùa 1", rKvkS1: "Map Mùa 1 ({n}) không xếp hạng.", rStatMoves: "Lượt di cư", rStatMovers: "Người đã di cư", rStatScans: "Đợt quét", rStatSpan: "Từ – đến", mHeadTop: "Giữa các đợt quét", rStatNow: "KvK đang diễn ra", rStatHist: "Trong lịch sử", rStatInKvk: "Kingdom trong KvK", kHeadTop: "Mọi mùa giải", rAllKds: "Mọi kingdom", rAllKvks: "Mọi trận KvK", rStatPlayers: "Người chơi", rStatKvks: "KvK", rStatTopP: "LC max cao nhất", rStatTopK: "Tổng LC max cao nhất", rHintP: "Mọi người chơi có lực chiến hiện tại trên 15M, ở mọi kingdom. Bấm một dòng để mở kingdom của người đó.", rSos: "Xếp hạng SoS", rNonSos: "Xếp hạng Non SoS", rNonSosTop: "Mùa Giải 1–3", rStatKds: "Kingdom", rStatHi: "LC max cao nhất", rStatLo: "LC max thấp nhất", rStatUpd: "Cập nhật", 
   descKingdom: "Người chơi của từng kingdom theo ngày. Bật So sánh để xem mỗi người tăng giảm bao nhiêu giữa 2 ngày.",
-  descCompare: "Đối chiếu hai phe, mỗi phe gồm một hoặc nhiều kingdom, ở ngày mới nhất. + Kingdom: chọn từ các kingdom đang ghép cặp theo Seed, hoặc mọi kingdom.",
+  descCompare: "Đối chiếu hai phe, mỗi phe gồm một hoặc nhiều kingdom, ở ngày mới nhất. + Kingdom: chọn từ mọi kingdom, hoặc các kingdom đang ghép cặp theo Seed.",
   descRank: "Xếp hạng các kingdom ở ngày mới nhất, tính người có lực chiến hiện tại trên 15M.",
   descMigration: "Ai đã chuyển từ kingdom nào sang kingdom nào giữa 2 ngày.",
   navRank: "Xếp hạng", navMigration: "Di cư", cmpDays: "So sánh", modeLabel: "Chế độ", modeNormal: "Thường", cmpRemove: "Bỏ", cmpDaysTip: "So sánh 2 ngày của một hoặc nhiều kingdom: mỗi người tăng bao nhiêu",
@@ -25,7 +25,7 @@ Object.assign(KS.T.vi, { rNoGen: "TBD", rSeed: "Seed", rOtherGen: "Khác", rStat
 });
 Object.assign(KS.T.en, { rNoGen: "TBD", rSeed: "Seed", rOtherGen: "Other", rStatRanked: "KvKs ranked", rStatS1: "Season 1 maps", rKvkS1: "Season 1 maps ({n}) have no ranking.", rStatMoves: "Moves", rStatMovers: "Players who moved", rStatScans: "Scans", rStatSpan: "From – to", mHeadTop: "Between scans", rStatNow: "KvKs going on", rStatHist: "In the History", rStatInKvk: "Kingdoms in a KvK", kHeadTop: "Every season", rAllKds: "Every kingdom", rAllKvks: "Every KvK", rStatPlayers: "Players", rStatKvks: "KvKs", rStatTopP: "Highest max power", rStatTopK: "Highest total max power", rHintP: "Every player whose power now is above 15M, in every kingdom. Click a line to open their kingdom.", rSos: "SoS ranking", rNonSos: "Non SoS ranking", rNonSosTop: "Seasons 1–3", rStatKds: "Kingdoms", rStatHi: "Highest max power", rStatLo: "Lowest max power", rStatUpd: "Updated", 
   descKingdom: "Each kingdom's players by day. Turn on Compare to see how much each one changed between two days.",
-  descCompare: "Two sides face to face, each of one or more kingdoms, on the newest day. + Kingdom: pick from the kingdoms being paired by seed, or from all.",
+  descCompare: "Two sides face to face, each of one or more kingdoms, on the newest day. + Kingdom: pick from all, or from the kingdoms being paired by seed.",
   descRank: "Kingdoms ranked on the newest day, counting players above 15M power now.",
   descMigration: "Who moved from which kingdom to which between two days.",
   navRank: "Rankings", navMigration: "Migration", cmpDays: "Compare", modeLabel: "Mode", modeNormal: "Normal", cmpRemove: "Remove", cmpDaysTip: "Compare two days of one or more kingdoms: how much each player gained",

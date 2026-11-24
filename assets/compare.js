@@ -124,11 +124,11 @@ function shareLink(btn) {
 }
 const linkHash = () => "#p=compare" + cfg.pairs.map((p, i) => `&a${i ? i + 1 : ""}=${p.a.join(",")}&b${i ? i + 1 : ""}=${p.b.join(",")}`).join("");
 
-// ---- the kingdom picker: a dialog, the kingdoms being paired (by group and seed, data/kvk/seeds.json) or all of them;
+// ---- the kingdom picker: a dialog, all the kingdoms or the ones being paired (by group and seed, data/kvk/seeds.json);
 // a click puts a kingdom in the side or takes it out, and the dialog stays open to pick more ----
 let seeds = null;          // seeds.json once loaded: {cols, groups: [{season, updated, rows}]}
 const seedOf = new Map();  // kingdom -> [seed 1-4, its group]
-const pk = { n: 0, side: "a", tab: "pair", group: 0, on: new Set([1, 2, 3, 4]) }; // tab, group and seeds stay between opens
+const pk = { n: 0, side: "a", tab: "all", group: 0, on: new Set([1, 2, 3, 4]) }; // tab, group and seeds stay between opens
 const LETTER = ["", "A", "B", "C", "D"];
 const OTHER = 100000000;   // another region's kingdom: 1000000xx, shown as the game does, SP-xx
 const kName = (k) => (k >= OTHER ? "SP-" + (k - OTHER) : "#" + k);
@@ -146,8 +146,10 @@ function loadSeeds() {
     return seeds;
   });
 }
-// a pairing to pick from: seeds.json can hold no group at all (between two waves, nobody being paired)
-const paired = () => !!seeds?.groups.length;
+// the groups being paired, as indexes into seeds.groups: seeds.json keeps a group through its KvK (seed_export.update),
+// but past its match day (times.match, UTC) it is matched and not picked from; none left, no Pairing tab
+const live = () => (seeds?.groups || []).flatMap((g, i) => (g.times?.match && Date.now() >= g.times.match * 1000 ? [] : [i]));
+const paired = () => live().length > 0;
 const seedBadge = (k) => { const s = seedOf.get(k)?.[0]; return s ? `<i class="seed s${s}">${LETTER[s]}</i>` : ""; };
 
 let dlg = null;
@@ -189,8 +191,8 @@ function openPick(n, side) {
     if (!paired()) pk.tab = "all";
     else {
       // the group of a kingdom already in this pair, else the one looked at last
-      const pair = pairOf(), had = [...pair.a, ...pair.b].map((k) => seedOf.get(k)?.[1]).find((g) => g != null);
-      pk.group = had ?? Math.min(pk.group, seeds.groups.length - 1);
+      const pair = pairOf(), ls = live(), had = [...pair.a, ...pair.b].map((k) => seedOf.get(k)?.[1]).find((g) => ls.includes(g));
+      pk.group = had ?? (ls.includes(pk.group) ? pk.group : ls[0]);
     }
     fillPick();
     if (!d.open) d.showModal();
@@ -218,15 +220,16 @@ function fillPick(keepY) {
   };
   const tabs = d.querySelector(".xp-tabs"), f = d.querySelector(".xp-f"), note = d.querySelector(".xp-note");
   tabs.hidden = !paired();
-  if (paired()) seg(tabs, [["pair", tr("pkPairing")], ["all", tr("pkAll")]], pk.tab, (v) => (pk.tab = v));
+  if (paired()) seg(tabs, [["all", tr("pkAll")], ["pair", tr("pkPairing")]], pk.tab, (v) => (pk.tab = v));
   const pairing = paired() && pk.tab === "pair", g = pairing ? seeds.groups[pk.group] : null;
   f.hidden = note.hidden = !pairing;
   if (pairing) {
     f.innerHTML = "";
-    if (seeds.groups.length > 1) {
+    const ls = live();
+    if (ls.length > 1) {
       const gs = el("div", "rk-seg xp-g");
       gs.setAttribute("role", "group");
-      seg(gs, seeds.groups.map((x, i) => [i, `${tr("pkGroup")} ${i + 1} · ${x.rows.length}`]), pk.group, (v) => (pk.group = v));
+      seg(gs, ls.map((i) => [i, `${tr("pkGroup")} ${i + 1} · ${seeds.groups[i].rows.length}`]), pk.group, (v) => (pk.group = v));
       f.appendChild(gs);
     }
     // the seeds as toggles: all on at first; the last one on, clicked, turns them all back on

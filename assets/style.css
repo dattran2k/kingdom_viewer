@@ -2074,3 +2074,17 @@ a.k-pair-s:focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; }
 .kv-view-pop .kv-dk-o:hover { background: var(--hover); }
 .kv-view-pop .kv-dk-o.on { background: var(--acc-solid); color: var(--on-acc); font-weight: 600; }
 .kv-view-pop .kv-dark-tip { display: block; margin: 6px 0 12px; font-size: 12px; color: var(--mut); }
+/* a player's merits trades, opened under their row (kvk.js tradeDetail) */
+.kv-trade-det > * { max-width: 760px; margin-inline: auto; }
+.kv-trade-h { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.kv-trade-h h4 { margin: 0; color: var(--fg2); font-size: 12px; font-weight: 600; }
+.kv-trade-list { display: flex; flex-direction: column; gap: 4px; margin-block: 0; padding: 0; list-style: none; }
+.kv-trade-list li { display: grid; grid-template-columns: minmax(110px, 1fr) auto minmax(0, 2fr) auto; align-items: center; gap: 12px; padding: 6px 10px; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--panel); font-size: 13px; }
+.kv-trade-w { display: flex; gap: 8px; white-space: nowrap; }
+.kv-trade-w b { color: var(--fg); font-weight: 600; }
+.kv-trade-t { font-size: 12px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.kv-trade-list .kv-war-kds { justify-content: flex-start; padding: 0; }
+.kv-trade-n { display: flex; flex-direction: column; align-items: flex-end; font-variant-numeric: tabular-nums; }
+.kv-trade-n b { color: var(--fg); font-weight: 600; }
+.kv-trade-n small { font-size: 12px; }
+@container (max-width: 520px) { .kv-trade-list li { grid-template-columns: minmax(0, 1fr) auto; row-gap: 4px; } .kv-trade-n { order: 2; } .kv-trade-t { order: 3; } .kv-trade-list .kv-war-kds { order: 4; justify-content: flex-end; } } /* the fight and its merits, then when and the kingdoms */

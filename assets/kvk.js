@@ -15,10 +15,10 @@ Object.assign(KS.T.vi, {
   kTabOverview: "Tổng quan", kTabWar: "Lịch sử chiến sự", kWarSearch: "Liên minh, người chơi, kingdom, #trận...", kWarFight: "Trận", kWarStart: "Bắt đầu (UTC)", kWarDur: "Từ đầu tới giao tranh cuối",
   kWarPeople: "Người tham gia", kWarTop: "Hạng 1", kWarLive: "Đang diễn ra", kWarMeta: "{n} trận · lấy lúc {t} UTC", kWarArea: "Khu {a} · số {t}",
   kWarTop10: "Xếp hạng công trạng (top 10)", kWarAlliances: "Liên minh tham gia", kWarNone: "Không có trận nào khớp.",
-  kWarNote: "Game chỉ trả top 10 người mỗi trận. \"Người tham gia\" là số game hiện. Đang diễn ra: trận trong danh sách đang diễn ra của game lúc lấy dữ liệu, chưa có giờ kết thúc (trận đã xong mới vào lịch sử). Một vị trí bị đánh lại nhiều lần vẫn là một trận, nên trận có thể kéo dài nhiều ngày; \"Giao tranh cuối\" là lần cập nhật cuối của server. Merits trade: mọi liên minh và người chơi biết được kingdom đều cùng một kingdom.",
+  kWarNote: "Game chỉ trả top 10 người mỗi trận. \"Người tham gia\" là số game hiện. Đang diễn ra: trận trong danh sách đang diễn ra của game lúc lấy dữ liệu, chưa có giờ kết thúc (trận đã xong mới vào lịch sử). Một vị trí bị đánh lại nhiều lần vẫn là một trận, nên trận có thể kéo dài nhiều ngày; \"Giao tranh cuối\" là lần cập nhật cuối của server. Merits trade: mọi liên minh và người chơi biết được kingdom đều cùng một phe (cùng đội, ở mùa có chia đội).",
   kMin: "{n} phút", kHour: "{h} giờ {m} phút", kHourOnly: "{h} giờ", kDay: "{d} ngày {h} giờ",
   kPhLeft: "còn {t}", kPhFrom: "từ {d}", kMkPast: "Đã qua", kMkNow: "Đang mở · còn {t}", kMkNext: "Mở sau {t}", kMkEst: "ước tính", kMkReached: "Hoàn thành {t} {z} · mốc sau bắt đầu ngay", kMkOpens: "Mở trên bản đồ {t} {z}", kMkTz: "Múi giờ", kMkTzLocal: "Giờ máy ({z})", kMkView: "Mốc hiển thị", kMkMode: "Kiểu", kMkModeBar: "Thường", kMkModeCal: "Lịch", kMkShowBoss: "Behemoth", kMkShowBossTip: "Giờ mở hang behemoth", kMkShowPass: "Ải", kMkShowPassTip: "Giờ mở ải", kMkShowStatue: "Tượng Tổ Tiên", kMkShowStatueTip: "Cổ Ngữ và Tối Cao, mỗi lần mở", kMkStatue: "Mở {h} giờ, đóng {c} giờ (mở lại sau mỗi {e} giờ) · {n} tượng · lần {k}", kMkChapter: "Chương: {t}", kMkOpensDay: "Mở trên bản đồ {t} (12 giờ sau khi chương trước kết thúc)", kMkOpened: "Đã mở", kMkQuest: "Nhiệm vụ {a} – {b} UTC", kMkQuestDay: "Nhiệm vụ {a} – {b}", kMkOn: "Đang diễn ra", kMkSoon: "Sắp tới", kMkDark: "Hoàn thành 40k Darkling (UTC)", kMkDarkTip: "Giờ hoàn thành mốc 40000 Đội Tuần Tra Hắc Ám (UTC, 24 giờ); các mốc sau dời theo. 24:00 = không hoàn thành, mốc đóng 00:00 UTC hôm sau.", kMkDarkGame: "theo game", kMkDarkNone: "không hoàn thành", kMkDarkH: "Giờ", kMkDarkM: "Phút", kMkDarkAt: "Mốc 40000 Đội Tuần Tra Hắc Ám xong {t} {z} (chỉnh ở View), các mốc sau tính từ đó.", kMkDarkMiss: "Mốc 40000 Đội Tuần Tra Hắc Ám không hoàn thành, đóng 00:00 UTC hôm sau (chỉnh ở View).", kMkDarkHand: "Giờ xong mốc 40000 Đội Tuần Tra Hắc Ám đã chỉnh ở View: các mốc sau là ước tính.", kMkFrom: "Ước tính: lịch mốc của mùa này (thời lượng của game), dời theo ngày mở của KvK này.", kMkFromOther: "Tạm lấy mốc của {k} (mùa khác): mùa này chưa đọc được mốc, nhiệm vụ và behemoth có thể khác.", kMkRead: "Đọc từ game lúc {t} {z}. Mốc chưa mở tính theo thời lượng của game.",
-  kWarReal: "Trận thật", kTabTrade: "Phát hiện Merits trade", kTradeMerits: "Công trạng trade", kTradeFights: "Trận trade", kRealMerits: "Công trạng trận thật", kRealFights: "Trận thật", kTradeShare: "% trade", kTradeShareTip: "Phần công trạng từ merits trade trong tổng công trạng của người chơi ở các top 10", kTradeBest: "Trận trade lớn nhất", kTradeMeta: "{n} người chơi · lấy lúc {t} UTC", kTradeNote: "Người chơi có mặt trong top 10 của ít nhất một trận merits trade (chỉ một kingdom tham gia), xếp theo công trạng lấy được ở các trận đó. Game chỉ trả top 10 mỗi trận nên đây là phần thấy được, không phải toàn bộ. Bấm một người để xem các trận trade của họ.", kWarNoLive: "Lần lấy này không có danh sách đang diễn ra của game.", kWarTrade: "Merits trade", kWarTradeTip: "Chỉ một kingdom tham gia: đánh nhau trong cùng kingdom để lấy công trạng", kWarKd: "Kingdom", kWarEnd: "Giao tranh cuối (UTC)",
+  kWarReal: "Trận thật", kTabTrade: "Phát hiện Merits trade", kTradeMerits: "Công trạng trade", kTradeFights: "Trận trade", kRealMerits: "Công trạng trận thật", kRealFights: "Trận thật", kTradeShare: "% trade", kTradeShareTip: "Phần công trạng từ merits trade trong tổng công trạng của người chơi ở các top 10", kTradeBest: "Trận trade lớn nhất", kTradeMeta: "{n} người chơi · lấy lúc {t} UTC", kTradeNote: "Người chơi có mặt trong top 10 của ít nhất một trận merits trade (người tham gia đều cùng một phe), xếp theo công trạng lấy được ở các trận đó. Game chỉ trả top 10 mỗi trận nên đây là phần thấy được, không phải toàn bộ. Bấm một người để xem các trận trade của họ ngay dưới dòng.", kWarNoLive: "Lần lấy này không có danh sách đang diễn ra của game.", kWarTrade: "Merits trade", kWarTradeTip: "Người tham gia đều cùng một phe: đánh nhau trong cùng phe để lấy công trạng", kTradeOpenWar: "Xem trong Lịch sử chiến sự", kTradeFightsOf: "Các trận trade có {n} trong top 10", kWarKd: "Kingdom", kWarEnd: "Giao tranh cuối (UTC)",
   kWarShare: "Top 10 chiếm {p}% công trạng trận", kWarOfFight: "{p}% trận", kWarLegion: "Quân đoàn {n}", kWarNoLegion: "Không quân đoàn",
   kWarNowAs: "Tag liên minh của người chơi là liên minh hiện tại (lúc lấy dữ liệu), có thể khác lúc đánh.", kWarUnknownK: "Không rõ kingdom (ngoài bảng xếp hạng đã quét)",
 });
@@ -32,10 +32,10 @@ Object.assign(KS.T.en, {
   kTabOverview: "Overview", kTabWar: "War history", kWarSearch: "Alliance, player, kingdom, #fight...", kWarFight: "Fight", kWarStart: "Start (UTC)", kWarDur: "First to last clash",
   kWarPeople: "Participants", kWarTop: "Top 1", kWarLive: "In progress", kWarMeta: "{n} fights · crawled {t} UTC", kWarArea: "Area {a} · no. {t}",
   kWarTop10: "Merit ranking (top 10)", kWarAlliances: "Alliances in it", kWarNone: "No fight matches.",
-  kWarNote: "The game gives the top 10 players of a fight only. \"Participants\" is the game's number. In progress: a fight on the game's in-progress list at the crawl, no end yet (a fight joins the history when it is over). A place fought over again and again stays one fight, so a fight can last days; \"Last clash\" is the server's last update of it. Merits trade: every alliance and player whose kingdom is known is of one kingdom.",
+  kWarNote: "The game gives the top 10 players of a fight only. \"Participants\" is the game's number. In progress: a fight on the game's in-progress list at the crawl, no end yet (a fight joins the history when it is over). A place fought over again and again stays one fight, so a fight can last days; \"Last clash\" is the server's last update of it. Merits trade: every alliance and player whose kingdom is known is on one side (one team, in a season with teams).",
   kMin: "{n} min", kHour: "{h} h {m} min", kHourOnly: "{h} h", kDay: "{d} d {h} h",
   kPhLeft: "{t} left", kPhFrom: "from {d}", kMkPast: "Over", kMkNow: "Open · {t} left", kMkNext: "Opens in {t}", kMkEst: "estimated", kMkReached: "Reached {t} {z} · the next starts then", kMkOpens: "Opens on the map {t} {z}", kMkTz: "Time zone", kMkTzLocal: "This device ({z})", kMkView: "Milestones shown", kMkMode: "Layout", kMkModeBar: "Timeline", kMkModeCal: "Calendar", kMkShowBoss: "Behemoths", kMkShowBossTip: "When behemoth lairs open", kMkShowPass: "Passes", kMkShowPassTip: "When passes open", kMkShowStatue: "Ancestor Statues", kMkShowStatueTip: "Runic and Supreme, every opening", kMkStatue: "Open {h} h, closed {c} h (opens again every {e} h) · {n} statues · opening {k}", kMkChapter: "Chapter: {t}", kMkOpensDay: "Opens on the map {t} (12 h after the chapter before ends)", kMkOpened: "Open", kMkQuest: "Quest {a} – {b} UTC", kMkQuestDay: "Quest {a} – {b}", kMkOn: "Running", kMkSoon: "Upcoming", kMkDark: "40k Darkling finished (UTC)", kMkDarkTip: "When the 40000 Darkling Patrols milestone was finished (UTC, 24 h); the milestones after it move with it. 24:00 = not finished, it closes at 00:00 UTC the next day.", kMkDarkGame: "the game's", kMkDarkNone: "not finished", kMkDarkH: "Hour", kMkDarkM: "Minute", kMkDarkAt: "40000 Darkling Patrols finished {t} {z} (set in View), the milestones after it counted from then.", kMkDarkMiss: "40000 Darkling Patrols not finished, closed 00:00 UTC the next day (set in View).", kMkDarkHand: "The 40000 Darkling Patrols finish was changed in View: the milestones after it are estimates.", kMkFrom: "Estimated: this season's milestones (the game's durations), moved to this KvK's open day.", kMkFromOther: "For now the milestones of {k} (another season): none read for this season yet, its quests and behemoths may differ.", kMkRead: "Read from the game {t} {z}. Milestones not open yet are timed by the game's durations.",
-  kWarReal: "Real fights", kTabTrade: "Merits trade detection", kTradeMerits: "Trade merits", kTradeFights: "Trade fights", kRealMerits: "Real fight merits", kRealFights: "Real fights", kTradeShare: "% trade", kTradeShareTip: "The share of the player's merits in the top 10s that came from merits trades", kTradeBest: "Biggest trade", kTradeMeta: "{n} players · crawled {t} UTC", kTradeNote: "Players in the top 10 of at least one merits trade (one kingdom only), by the merits they took in those fights. The game gives the top 10 of a fight only: this is what can be seen, not all. Click a player for their trade fights.", kWarNoLive: "This crawl has no in-progress list from the game.", kWarTrade: "Merits trade", kWarTradeTip: "One kingdom only: a fight inside one kingdom for merits", kWarKd: "Kingdom", kWarEnd: "Last clash (UTC)",
+  kWarReal: "Real fights", kTabTrade: "Merits trade detection", kTradeMerits: "Trade merits", kTradeFights: "Trade fights", kRealMerits: "Real fight merits", kRealFights: "Real fights", kTradeShare: "% trade", kTradeShareTip: "The share of the player's merits in the top 10s that came from merits trades", kTradeBest: "Biggest trade", kTradeMeta: "{n} players · crawled {t} UTC", kTradeNote: "Players in the top 10 of at least one merits trade (everyone in it on one side), by the merits they took in those fights. The game gives the top 10 of a fight only: this is what can be seen, not all. Click a player for their trade fights, under the row.", kWarNoLive: "This crawl has no in-progress list from the game.", kWarTrade: "Merits trade", kWarTradeTip: "Everyone on one side: a fight inside one side for merits", kTradeOpenWar: "Open in War history", kTradeFightsOf: "The trade fights with {n} in the top 10", kWarKd: "Kingdom", kWarEnd: "Last clash (UTC)",
   kWarShare: "The top 10 have {p}% of the fight's merits", kWarOfFight: "{p}% of fight", kWarLegion: "Legion {n}", kWarNoLegion: "No legion",
   kWarNowAs: "A player's alliance tag is their alliance now (at the crawl), maybe not the one they fought in.", kWarUnknownK: "Kingdom unknown (not in the crawled rankings)",
 });
@@ -51,7 +51,7 @@ const DAY = 86400;
 const when = (s) => new Date(s * 1000).toISOString().slice(5, 10).split("-").reverse().join("/");
 const nowSec = () => Date.now() / 1000;
 const page = { hist: false, group: "", q: "", battle: 0, camp: 0, kingdom: 0, pq: "", p: 1, sort: { key: "merits", dir: -1 }, kSort: { key: "merits", dir: -1 }, lSort: { key: "open", dir: -1 }, lp: 1, opened: new Set(), grouped: true, open: new Set(),
-  topSort: { key: "merits", dir: -1 }, tab: "ov", wq: "", wp: 1, wf: "all", wk: null, wSort: { key: "start", dir: -1 }, wOpen: new Set(), tq: "", tp: 1, tk: null, tSort: { key: "trade", dir: -1 } };
+  topSort: { key: "merits", dir: -1 }, tab: "ov", wq: "", wp: 1, wf: "all", wk: null, wSort: { key: "start", dir: -1 }, wOpen: new Set(), tq: "", tp: 1, tk: null, tSort: { key: "trade", dir: -1 }, tOpen: new Set() };
 const tradesCell = (r) => el("span", "tr-b", r.trades == null ? "–" : numFmt(0).format(r.trades) + "%");
 
 const SWORDS = `<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 2l3.2.4 5.3 5.3-1.8 1.8-5.3-5.3zM14 2l-3.2.4-2.3 2.3 1.8 1.8 2.3-2.3zM3.6 10.6l1.8 1.8-1.5 1.5-1.8-1.8zM12.4 10.6l1.5 1.5-1.8 1.8-1.5-1.5zM5 9.2l1.8 1.8-1 1-1.8-1.8zM11 9.2l.9.9-1.8 1.8-.9-.9z"/></svg>`;
@@ -1195,7 +1195,7 @@ function drawWarTable(out, data, b) {
   view.all = all;
   const tbl = table(view, shown, page.wSort, (k) => { page.wSort = nextSort(page.wSort, k); page.wp = 1; redraw(); }, (r) => {
     page.wOpen.has(r.i) ? page.wOpen.delete(r.i) : page.wOpen.add(r.i);
-    redraw();
+    KS.keepScroll($("kvkPage"), () => drawWarTable(out, data, b), true); // closed at the page's end: no jump
   });
   const trs = tbl.querySelectorAll("tbody > tr");
   shown.forEach((r, i) => {
@@ -1229,6 +1229,28 @@ function tradePlayers(data) {
   }
   return [...by.values()].filter((r) => r.tradeN).map((r) => ({ ...r, share: r.trade + r.real ? r.trade / (r.trade + r.real) : 0 }));
 }
+// a player's merits trades, the most merits first: the fight, where, when, its kingdoms by camp, their merits
+function tradeDetail(r, data, b) {
+  const campOf = new Map(b.kingdoms.map((k) => [k.k, k.camp])), box = el("div", "kv-war-det kv-trade-det");
+  const list = data.fights.filter((f) => f.trade).map((f) => [f, f.top.find((p) => p.id === r.id)]).filter(([, p]) => p).sort((x, y) => y[1].merits - x[1].merits);
+  const head = el("div", "kv-trade-h");
+  head.appendChild(el("h4", "", tr("kTradeFightsOf").replace("{n}", r.name)));
+  const go = el("button", "btn", tr("kTradeOpenWar"));
+  go.type = "button";
+  go.onclick = () => { page.wq = String(r.id); page.wf = "trade"; page.wk = null; page.wp = 1; page.tab = "war"; KS.onKvkTab?.(); };
+  head.appendChild(go);
+  const ol = el("ol", "kv-trade-list");
+  for (const [f, p] of list) {
+    const li = el("li"), where = el("span", "kv-trade-w");
+    where.append(el("b", "", "#" + f.i), el("span", "", `X:${f.x} Y:${f.y}`));
+    const n = el("span", "kv-trade-n");
+    n.append(el("b", "", num(p.merits)), el("small", "mut", tr("kWarOfFight").replace("{p}", pct(p.merits, f.merits))));
+    li.append(where, el("span", "mut kv-trade-t", utcTime(f.start)), campCell(f.kingdoms, campOf), n);
+    ol.appendChild(li);
+  }
+  box.append(head, ol);
+  return box;
+}
 function drawTradeTable(out, data, b) {
   out.innerHTML = "";
   const all = tradePlayers(data);
@@ -1256,15 +1278,31 @@ function drawTradeTable(out, data, b) {
   if (!rows.length) { out.appendChild(el("p", "hint mut kv-war-hint", tr("kWarNone"))); return; }
   page.tp = Math.min(page.tp, lastPage(rows));
   view.all = rows;
-  // a player opens the War history on their merits trades
-  out.appendChild(table(view, pageRows(rows, page.tp), page.tSort, (k) => { page.tSort = nextSort(page.tSort, k); page.tp = 1; redraw(); },
-    (r) => { page.wq = String(r.id); page.wf = "trade"; page.wk = null; page.wp = 1; page.tab = "war"; KS.onKvkTab?.(); }));
+  // a player opens their merits trades under the row, where they are (the War history is a button away)
+  const shown = pageRows(rows, page.tp);
+  const tbl = table(view, shown, page.tSort, (k) => { page.tSort = nextSort(page.tSort, k); page.tp = 1; redraw(); }, (r) => {
+    page.tOpen.has(r.id) ? page.tOpen.delete(r.id) : page.tOpen.add(r.id);
+    KS.keepScroll($("kvkPage"), () => drawTradeTable(out, data, b), true);
+  });
+  const trs = tbl.querySelectorAll("tbody > tr");
+  shown.forEach((r, i) => {
+    trs[i].classList.add("kv-war-row");
+    if (!page.tOpen.has(r.id)) return;
+    trs[i].classList.add("open");
+    const line = el("tr", "kv-war-more"), td = el("td");
+    td.colSpan = view.length;
+    td.appendChild(tradeDetail(r, data, b));
+    line.appendChild(td);
+    trs[i].after(line);
+  });
+  out.appendChild(tbl);
   out.appendChild(pager(rows.length, page.tp, (n) => { page.tp = n; redraw(); }));
 }
 
 async function drawWar(wrap, b) {
   const data = await load(`kvk/battles/${b.id}.json`);
   wrap.innerHTML = "";
+  wrap.style.minHeight = ""; // a tab of its own: no height held from the other one
   if (!data) { wrap.appendChild(note(tr("kNoData"))); return; }
   if (page.tab === "trade") drawTradeTable(wrap, data, b);
   else drawWarTable(wrap, data, b);
